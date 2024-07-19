@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickCharts</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="stepper-container" class="container mt-5 w-50">
+        <div id="stepper-row" class="row text-center">
+            <div class="col-12 col-sm-6 col-md-3 section">
+                <div id="stepper-upload" class="circle">1</div>
+                <div class="title">Upload</div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3 section">
+                <div id="stepper-review" class="circle circle-secondary">2</div>
+                <div class="title">Review</div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3 section">
+                <div id="stepper-analyze" class="circle circle-secondary">3</div>
+                <div class="title">Analyze</div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3 section">
+                <div id="stepper-export" class="circle circle-secondary">4</div>
+                <div class="title">Export</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="bottom-panel" class="container-fluid text-white">
+      <div class="row justify-content-between align-items-center p-3">
+          <div class="col-auto">
+          </div>
+          <div class="col-auto">
+              <button id="next-button" class="btn btn-secondary disabled">Review</button>
+          </div>
+      </div>
+  </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="scripts/scripts.js"></script>
+</body>
+
+</html>
