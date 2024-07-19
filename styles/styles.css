@@ -1,57 +1,11 @@
-/* edit bootstrap theme colors */
-:root {
-  --primary-color: #2d6a4f;
-  --primary-dark: #1b4332;
-  --secondary-color: #52b788;
-  --tertiary-color: #95d5b2;
-  --background-color: white;
-  --text-color: #081c15;
-}
-
-body {
-  font-family: 'Lato', sans-serif;
-  background-color: var(--background-color);
-  color: var(--text-color);
-}
-
-.bg-primary {
-  background-color: var(--primary-color) !important;
-}
-
-.bg-secondary {
-  background-color: var(--secondary-color) !important;
-}
-
-.text-primary {
-  color: var(--primary-color) !important;
-}
-
-.text-secondary {
-  color: var(--secondary-color) !important;
-}
-
-.btn-primary {
-  background-color: var(--primary-color) !important;
-  border-color: var(--primary-color) !important;
-}
-
-.btn-secondary {
-  background-color: var(--secondary-color) !important;
-  border-color: var(--secondary-color) !important;
-}
-
 
 /* new styles */
 
-.section {
-  padding: 20px;
-}
+
 
 .circle {
   width: 50px;
   height: 50px;
-  background-color: var(--primary-color);
-  color: white;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -60,16 +14,18 @@ body {
   font-size: 14px;
 }
 
+.circle-primary {
+  background-color: var(--primary-color);
+  color: white;
+
+}
+
 .circle-secondary {
   background-color: var(--background-color);
   color: var(--text-color);
   border: 2px solid var(--primary-color);
 }
 
-.title {
-  margin-top: 10px;
-  font-size: 16px;
-}
 
 #bottom-panel {
   position: fixed;
@@ -78,35 +34,15 @@ body {
   width: 100%;
   z-index: 1000;
   box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.12); /* Box shadow to create floating effect */
+  background-color: var(--background-color);
 }
 
 
-#sticky-panel .btn {
+#bottom-panel .btn {
   width: 100px; /* Ensure consistent button width */
 }
 
-nav.steps {
-  display: flex;
-  gap: 15px;
+#step-body {
+  margin-bottom: 100px; /* Adjust this value to ensure the content doesn't overlap the bottom panel */
 }
 
-.step {
-  padding: 10px 20px;
-  cursor: pointer;
-}
-
-.step.active {
-  background-color: var(--primary-color);
-  color: white;
-}
-
-.step.completed {
-  background-color: var(--primary-color);
-  color: white;
-}
-
-.step:not(.active):not(.completed) {
-  background-color: var(--background-color);
-  color: var(--text-color);
-  border: 2px solid var(--primary-color);
-}

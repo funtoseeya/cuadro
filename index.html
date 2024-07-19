@@ -6,16 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuickCharts</title>
     <!-- Bootstrap CSS -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles/bootstrap.css">
     <link rel="stylesheet" href="styles/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 </head>
 
 <body>
+    <!-- File input element (hidden) -->
+    <input type="file" id="file-input" style="display: none;" accept=".csv">
+
+
+    <!--the stepper section, which indicates the step that the user is presently on-->
     <div id="stepper-container" class="container mt-5 w-50">
         <div id="stepper-row" class="row text-center">
             <div class="col-12 col-sm-6 col-md-3 section">
-                <div id="stepper-upload" class="circle">1</div>
+                <div id="stepper-upload" class="circle circle-primary">1</div>
                 <div class="title">Upload</div>
             </div>
             <div class="col-12 col-sm-6 col-md-3 section">
@@ -33,15 +40,21 @@
         </div>
     </div>
 
+    <!--the main body of the app, where the user will upload, review, analyze and export their data-->
+    <div id="step-body" class="container w-50">
+
+    </div>
+
+    <!-- the app's main navigation panel, with next and previous buttons, analysis lists, and export formats-->
     <div id="bottom-panel" class="container-fluid text-white">
-      <div class="row justify-content-between align-items-center p-3">
-          <div class="col-auto">
-          </div>
-          <div class="col-auto">
-              <button id="next-button" class="btn btn-secondary disabled">Review</button>
-          </div>
-      </div>
-  </div>
+        <div class="row justify-content-between align-items-center p-3">
+            <div id="panel-button-container-1" class="col-auto">
+
+            </div>
+            <div id="panel-button-container-2" class="col-auto">
+            </div>
+        </div>
+    </div>
 
     <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
