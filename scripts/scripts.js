@@ -49,6 +49,7 @@ function createUploadStepContent() {
     const chooseFileButton = document.createElement('button');
     chooseFileButton.className = 'btn btn-secondary';
     chooseFileButton.textContent = 'Choose file';
+    chooseFileButton.id= 'chooseFileButton'
     uploadContainer.appendChild(chooseFileButton);
 
     // Clear existing content and append new content
@@ -71,10 +72,13 @@ createUploadStepContent();
 
 
 
+
 // Function to initialize the file input and set up event listeners
 function initializeFileInput() {
-    const chooseFileButton = document.querySelector('#step-body .btn-secondary');
+    const chooseFileButton = document.getElementById('chooseFileButton');
     const fileInput = document.getElementById('file-input');
+    
+ 
     
     // Debugging: Check if the button and file input are correctly selected
     console.log('Choose File Button:', chooseFileButton);
@@ -98,61 +102,40 @@ function initializeFileInput() {
 async function handleFileSelection(event) {
     const file = event.target.files[0];
 
-    if (file && file.type === 'text/csv') {
-        // 1. Virus Scan (using a library like VirusTotal - assuming API key is available)
-        const isSafe = await scanFileForViruses(file);
-        if (!isSafe) {
-            alert('File contains malware. Please select a different file.');
+    if (file) {
+        // Validate file type and size
+        if (!file.name.endsWith('.csv')) {
+            alert('Please select a CSV file.');
             return;
         }
 
-        // 2. Validate File
+        // Size limit (e.g., 5 MB)
+        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+        if (file.size > MAX_FILE_SIZE) {
+            alert('File size exceeds 5 MB.');
+            return;
+        }
+
+        // Validate CSV file content
         const { isValid, errorMessage } = await validateCsvFile(file);
         if (!isValid) {
             alert(errorMessage);
             return;
         }
 
-        // 3. Update UI
+        // Update UI
         updateUploadStepUI(file.name);
-    } else {
-        alert('Please select a valid CSV file.');
     }
 }
 
-// Function to scan the file for viruses (Example using VirusTotal API)
-async function scanFileForViruses(file) {
-    // Example VirusTotal API setup (Replace with your API key and URL)
-    const apiKey = 'YOUR_VIRUSTOTAL_API_KEY';
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-        const response = await fetch('https://www.virustotal.com/api/v3/files', {
-            method: 'POST',
-            headers: {
-                'x-apikey': apiKey
-            },
-            body: formData
-        });
-
-        const data = await response.json();
-        // Check the response data for scanning results
-        return data.data.attributes.last_analysis_stats.malicious === 0;
-    } catch (error) {
-        console.error('Virus scan failed:', error);
-        return false;
-    }
-}
-
-// Function to validate CSV file (Size and format)
+// Function to validate CSV file (Size, Format, Columns, Rows)
 async function validateCsvFile(file) {
     const reader = new FileReader();
 
     return new Promise((resolve) => {
         reader.onload = function (event) {
             const text = event.target.result;
-            const rows = text.split('\n');
+            const rows = text.split('\n').filter(row => row.trim() !== ''); // Remove empty rows
             const columnCount = rows[0].split(',').length;
 
             if (columnCount > 20) {
