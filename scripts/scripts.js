@@ -1,5 +1,5 @@
 // Function to create and insert the Next button
-function createNextButton() {
+function createReviewButton() {
     // Create the button element
     const button = document.createElement('button');
     button.id = 'review-button';
@@ -12,7 +12,7 @@ function createNextButton() {
 }
 
 // Call the function to create and insert the button
-createNextButton();
+createReviewButton();
 
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -175,9 +175,15 @@ function updateUploadStepUI(fileName) {
         <i class="fa-solid fa-check" style="font-size: 2em;"></i>
         <div style="margin-top: 20px;"><strong>Upload successful!</strong> <br> ${fileName}</div>
         <a class="btn btn-secondary" style="margin-top: 40px; cursor: pointer;" onclick="location.reload();">
-        <i class="fa-solid fa-rotate-left" ></i> Reload</a>
-    `;
+        <i class="fa-solid fa-rotate-left" ></i> Reload</a>`;
+
+    //remove 'disabled' class from the review button 
+    let reviewButton=document.getElementById('review-button');
+    reviewButton.classList.remove('disabled');
 }
+    
+
+
 
 // Initialize file input setup on document load
 document.addEventListener('DOMContentLoaded', initializeFileInput);
