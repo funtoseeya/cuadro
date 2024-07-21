@@ -229,6 +229,13 @@ function initializeReviewStep() {
         replaceReviewButton();
     });
 }
+// Function to initialize the back button
+function initializeBackButton() {
+    const backButton = document.getElementById('back-button');
+    backButton.addEventListener('click', () => {
+        location.reload(); // This will reset the application
+    });
+}
 
 // Function to replace the Review button with Back and Analyze buttons
 function replaceReviewButton() {
@@ -256,6 +263,37 @@ function replaceReviewButton() {
 
     // Initialize back button functionality
     initializeBackButton();
+}
+
+
+// Function to initialize the dropdowns and add event listeners
+function initializeDropdownListeners() {
+    // Select all dropdowns in the review table
+    const dropdowns = document.querySelectorAll('.data-type-dropdown');
+    
+    // Add change event listener to each dropdown
+    dropdowns.forEach(dropdown => {
+        dropdown.addEventListener('change', checkDropdownSelections);
+    });
+}
+
+// Function to check if all dropdowns have a selection
+function checkDropdownSelections() {
+    // Select all dropdowns
+    const dropdowns = document.querySelectorAll('.data-type-dropdown');
+    
+    // Check if all dropdowns have a selection other than "Select a type"
+    const allSelected = Array.from(dropdowns).every(dropdown => dropdown.value !== 'Select a type');
+    
+    // Select the analyze button
+    const analyzeButton = document.getElementById('analyze-button');
+    
+    // Enable or disable the analyze button based on the selections
+    if (allSelected) {
+        analyzeButton.classList.remove('disabled');
+    } else {
+        analyzeButton.classList.add('disabled');
+    }
 }
 
 // Function to generate the review table
@@ -318,6 +356,7 @@ function generateReviewTable(stepBody) {
             const cell3 = document.createElement('td');
             const select = document.createElement('select');
             select.classList.add('form-select');
+            select.classList.add('data-type-dropdown');
             const options = ['Select a type', 'Limited options', 'Free text', 'Numbers'];
             options.forEach(option => {
                 const optionElement = document.createElement('option');
@@ -338,15 +377,12 @@ function generateReviewTable(stepBody) {
     };
 
     reader.readAsText(file);
+
+    // Initialize dropdown listeners
+    initializeDropdownListeners();
 }
 
-// Function to initialize the back button
-function initializeBackButton() {
-    const backButton = document.getElementById('back-button');
-    backButton.addEventListener('click', () => {
-        location.reload(); // This will reset the application
-    });
-}
+
 
 // Initialize review step setup on document load
 document.addEventListener('DOMContentLoaded', initializeReviewStep);
