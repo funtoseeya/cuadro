@@ -164,7 +164,7 @@ function updateUploadStepUI(fileName) {
     reviewButton.classList.remove('disabled');
 }
 
- 
+
 
 
 // Initialize file input setup on document load
@@ -174,3 +174,179 @@ document.addEventListener('DOMContentLoaded', initializeFileInput);
 
 
 //REVIEW STEP
+// Function to initialize the "Review" step
+function initializeReviewStep() {
+    const reviewButton = document.getElementById('review-button');
+    reviewButton.addEventListener('click', () => {
+        // Clear step body content
+        const stepBody = document.getElementById('step-body');
+        stepBody.innerHTML = '';
+
+        // Update stepper circle styling
+        const stepperUpload = document.getElementById('stepper-upload');
+        stepperUpload.classList.remove('circle-primary');
+        stepperUpload.classList.add('circle-secondary');
+
+        const stepperReview = document.getElementById('stepper-review');
+        stepperReview.classList.remove('circle-secondary');
+        stepperReview.classList.add('circle-primary');
+
+        // Create the accordion
+        const accordion = document.createElement('div');
+        accordion.classList.add('accordion', 'w-100', 'mb-3');
+        accordion.id = 'dataTypeAccordion';
+
+        accordion.innerHTML = `
+        <div class="card mt-3">
+            <div class="card-header" id="headingOne">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                       <i class="fa fa-info-circle mr-2" aria-hidden="true"></i>
+ Select data types
+                        <i class="fa fa-chevron-down float-right" aria-hidden="true" id="accordionIcon"></i>
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#dataTypeAccordion">
+                <div class="card-body">
+                    Please take a minute to map your data. This will help us give you the best outputs for your needs.
+                    <ul>
+                        <li><strong>Free Text:</strong> Use this for fields where many different values are expected (e.g., comments, names, descriptions).</li>
+                        <li><strong>Limited Options:</strong> Use this for fields where a small set of specific values is expected (e.g., dropdown options).</li>
+                        <li><strong>Numbers:</strong> This is for any field containing numerical values. We will compute these by summing them, rather than counting them.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    `;
+
+        stepBody.appendChild(accordion);
+
+        // Generate table for CSV review
+        generateReviewTable(stepBody);
+
+        // Remove the review button and add the back and analyze buttons
+        replaceReviewButton();
+    });
+}
+
+// Function to replace the Review button with Back and Analyze buttons
+function replaceReviewButton() {
+    const container = document.getElementById('panel-button-container-2');
+    const reviewButton = document.getElementById('review-button');
+
+    // Remove the review button
+    if (reviewButton) {
+        container.removeChild(reviewButton);
+    }
+
+    // Create the back button
+    const backButton = document.createElement('button');
+    backButton.id = 'back-button';
+    backButton.className = 'btn btn-secondary mr-2'; // Add the classes for styling
+    backButton.textContent = 'Back'; // Set button text
+    container.appendChild(backButton);
+
+    // Create the analyze button
+    const analyzeButton = document.createElement('button');
+    analyzeButton.id = 'analyze-button';
+    analyzeButton.className = 'btn btn-primary disabled'; // Add the classes for styling
+    analyzeButton.textContent = 'Analyze'; // Set button text
+    container.appendChild(analyzeButton);
+
+    // Initialize back button functionality
+    initializeBackButton();
+}
+
+// Function to generate the review table
+function generateReviewTable(stepBody) {
+    const table = document.createElement('table');
+    table.classList.add('table', 'table-bordered', 'mt-3'); // Added margin-top class
+
+
+    // Create table header
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+
+    const header1 = document.createElement('th');
+    header1.textContent = 'Column label from CSV file';
+
+    const header2 = document.createElement('th');
+    header2.textContent = 'Data sample from CSV file';
+
+    const header3 = document.createElement('th');
+    header3.textContent = 'Data type';
+
+    headerRow.appendChild(header1);
+    headerRow.appendChild(header2);
+    headerRow.appendChild(header3);
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // Style the table header
+    thead.style.backgroundColor = 'var(--primary-color)';
+    thead.style.color = 'white';
+
+    // Create table body
+    const tbody = document.createElement('tbody');
+
+    // Parse CSV headers and sample data
+    const fileInput = document.getElementById('file-input');
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+        const text = event.target.result;
+        const rows = text.split('\n').filter(row => row.trim() !== '');
+        const headers = rows[0].split(',');
+
+        headers.forEach((header, index) => {
+            const row = document.createElement('tr');
+
+            // Column label
+            const cell1 = document.createElement('td');
+            cell1.textContent = header;
+            row.appendChild(cell1);
+
+            // Data sample
+            const cell2 = document.createElement('td');
+            const samples = rows.slice(1, 4).map(row => row.split(',')[index]).join(', ');
+            cell2.textContent = samples;
+            row.appendChild(cell2);
+
+            // Data type dropdown
+            const cell3 = document.createElement('td');
+            const select = document.createElement('select');
+            select.classList.add('form-select');
+            const options = ['Select a type', 'Limited options', 'Free text', 'Numbers'];
+            options.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option;
+                optionElement.textContent = option;
+                select.appendChild(optionElement);
+            });
+            cell3.appendChild(select);
+            row.appendChild(cell3);
+
+            tbody.appendChild(row);
+        });
+
+        table.appendChild(tbody);
+        stepBody.appendChild(table);
+
+
+    };
+
+    reader.readAsText(file);
+}
+
+// Function to initialize the back button
+function initializeBackButton() {
+    const backButton = document.getElementById('back-button');
+    backButton.addEventListener('click', () => {
+        location.reload(); // This will reset the application
+    });
+}
+
+// Initialize review step setup on document load
+document.addEventListener('DOMContentLoaded', initializeReviewStep);

@@ -163,7 +163,7 @@ a {
 }
 
 a:hover {
-    color: #0056b3;
+    color: var(--primary);
     text-decoration: underline
 }
 
@@ -3175,7 +3175,9 @@ a.btn.disabled, fieldset:disabled a.btn {
 
 .btn-link:hover {
     color: #0056b3;
-    text-decoration: underline
+    text-decoration: underline;
+    /* mod*/
+    color: var(--primary-dark)
 }
 
 .btn-link.focus, .btn-link:focus {
