@@ -265,7 +265,6 @@ function replaceReviewButton() {
     initializeBackButton();
 }
 
-
 // Function to initialize the dropdowns and add event listeners
 function initializeDropdownListeners() {
     // Select all dropdowns in the review table
@@ -279,11 +278,13 @@ function initializeDropdownListeners() {
 
 // Function to check if all dropdowns have a selection
 function checkDropdownSelections() {
+    
     // Select all dropdowns
     const dropdowns = document.querySelectorAll('.data-type-dropdown');
     
     // Check if all dropdowns have a selection other than "Select a type"
     const allSelected = Array.from(dropdowns).every(dropdown => dropdown.value !== 'Select a type');
+    
     
     // Select the analyze button
     const analyzeButton = document.getElementById('analyze-button');
@@ -300,7 +301,6 @@ function checkDropdownSelections() {
 function generateReviewTable(stepBody) {
     const table = document.createElement('table');
     table.classList.add('table', 'table-bordered', 'mt-3'); // Added margin-top class
-
 
     // Create table header
     const thead = document.createElement('thead');
@@ -373,16 +373,12 @@ function generateReviewTable(stepBody) {
         table.appendChild(tbody);
         stepBody.appendChild(table);
 
-
+        // Initialize dropdown listeners after adding dropdowns to DOM
+        initializeDropdownListeners();
     };
 
     reader.readAsText(file);
-
-    // Initialize dropdown listeners
-    initializeDropdownListeners();
 }
-
-
 
 // Initialize review step setup on document load
 document.addEventListener('DOMContentLoaded', initializeReviewStep);
