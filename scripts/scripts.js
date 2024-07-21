@@ -1,4 +1,6 @@
-// Function to create and insert the Next button
+//UPLOAD STEP
+
+// Function to create and insert the Review button
 function createReviewButton() {
     // Create the button element
     const button = document.createElement('button');
@@ -14,60 +16,51 @@ function createReviewButton() {
 // Call the function to create and insert the button
 createReviewButton();
 
+// Function to create and insert the upload step content
+document.addEventListener('DOMContentLoaded', function () {
+    function createUploadStepContent() {
+        const stepBody = document.getElementById('step-body');
 
-document.addEventListener('DOMContentLoaded', function() {
-   // Function to create and insert the upload step content
-function createUploadStepContent() {
-    const stepBody = document.getElementById('step-body');
+        // Create the container for the upload content
+        const uploadContainer = document.createElement('div');
+        uploadContainer.style.width = '80%';
+        uploadContainer.style.height = '200px';
+        uploadContainer.style.margin = '0 auto';
+        uploadContainer.style.marginTop = '100px';
+        uploadContainer.style.border = '3px dashed var(--primary)';
+        uploadContainer.style.borderRadius = '5px';
+        uploadContainer.style.display = 'flex';
+        uploadContainer.style.flexDirection = 'column';
+        uploadContainer.style.alignItems = 'center';
+        uploadContainer.style.justifyContent = 'center';
+        uploadContainer.style.textAlign = 'center'; // Center text alignment
 
-    // Create the container for the upload content
-    const uploadContainer = document.createElement('div');
-    uploadContainer.style.width = '80%';
-    uploadContainer.style.height = '300px';
-    uploadContainer.style.margin = '0 auto';
-    uploadContainer.style.marginTop = '100px';
-    uploadContainer.style.border = '1px dashed black';
-    uploadContainer.style.borderRadius = '5px';
-    uploadContainer.style.display = 'flex';
-    uploadContainer.style.flexDirection = 'column';
-    uploadContainer.style.alignItems = 'center';
-    uploadContainer.style.justifyContent = 'center';
-    uploadContainer.style.textAlign = 'center'; // Center text alignment
+        // Create and add the upload icon
+        const uploadIcon = document.createElement('div');
+        uploadIcon.innerHTML = '<i class="fa-solid fa-upload"></i>';
+        uploadContainer.appendChild(uploadIcon);
 
-    // Create and add the upload icon
-    const uploadIcon = document.createElement('div');
-    uploadIcon.innerHTML = '<i class="fa-solid fa-upload"></i>';
-    uploadContainer.appendChild(uploadIcon);
+        // Create and add the upload text with line break
+        const uploadText = document.createElement('div');
+        uploadText.innerHTML = 'Upload a CSV file';
+        uploadText.style.margin = '20px 0'; // Add spacing
+        uploadContainer.appendChild(uploadText);
 
-    // Create and add the upload text with line break
-    const uploadText = document.createElement('div');
-    uploadText.innerHTML = 'Upload a CSV file';
-    uploadText.style.margin = '20px 0'; // Add spacing
-    uploadContainer.appendChild(uploadText);
+        // Create and add the "Choose file" button
+        const chooseFileButton = document.createElement('button');
+        chooseFileButton.className = 'btn btn-secondary';
+        chooseFileButton.textContent = 'Choose file';
+        chooseFileButton.id = 'chooseFileButton'
+        uploadContainer.appendChild(chooseFileButton);
 
-    // Create and add the "Choose file" button
-    const chooseFileButton = document.createElement('button');
-    chooseFileButton.className = 'btn btn-secondary';
-    chooseFileButton.textContent = 'Choose file';
-    chooseFileButton.id= 'chooseFileButton'
-    uploadContainer.appendChild(chooseFileButton);
-
-    // Clear existing content and append new content
-    stepBody.innerHTML = '';
-    stepBody.appendChild(uploadContainer);
-}
-
-// Call the function to create and insert the upload content
-createUploadStepContent();
-
-    // Initial step setup
-    function initializeStep() {
-        createUploadStepContent();
-        // Additional initialization logic can go here
+        // Clear existing content and append the upload container and it's content to the step body
+        stepBody.innerHTML = '';
+        stepBody.appendChild(uploadContainer);
     }
 
-    // Call initializeStep when the page loads
-    initializeStep();
+    // Call the function to create and insert the upload content
+    createUploadStepContent();
+
 });
 
 
@@ -77,17 +70,6 @@ createUploadStepContent();
 function initializeFileInput() {
     const chooseFileButton = document.getElementById('chooseFileButton');
     const fileInput = document.getElementById('file-input');
-    
- 
-    
-    // Debugging: Check if the button and file input are correctly selected
-    console.log('Choose File Button:', chooseFileButton);
-    console.log('File Input:', fileInput);
-
-    if (!chooseFileButton || !fileInput) {
-        console.error('File input or button not found');
-        return;
-    }
 
     // Add click event to the button to trigger file input
     chooseFileButton.addEventListener('click', () => {
@@ -112,7 +94,7 @@ async function handleFileSelection(event) {
         // Size limit (e.g., 5 MB)
         const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
         if (file.size > MAX_FILE_SIZE) {
-            alert('File size exceeds 5 MB.');
+            alert('The maximum supported file size is 5MB. Please select a smaller file.');
             return;
         }
 
@@ -139,12 +121,12 @@ async function validateCsvFile(file) {
             const columnCount = rows[0].split(',').length;
 
             if (columnCount > 20) {
-                resolve({ isValid: false, errorMessage: 'CSV file has more than 20 columns.' });
+                resolve({ isValid: false, errorMessage: 'Only files with a maximum of 20 columns are supported. Please remove excess columns and try again.' });
                 return;
             }
 
             if (rows.length > 1000) {
-                resolve({ isValid: false, errorMessage: 'CSV file has more than 1000 rows.' });
+                resolve({ isValid: false, errorMessage: 'Only files with a maximum of 1000 rows are supported. Please remove excess rows and try again.' });
                 return;
             }
 
@@ -178,12 +160,17 @@ function updateUploadStepUI(fileName) {
         <i class="fa-solid fa-rotate-left" ></i> Reload</a>`;
 
     //remove 'disabled' class from the review button 
-    let reviewButton=document.getElementById('review-button');
+    let reviewButton = document.getElementById('review-button');
     reviewButton.classList.remove('disabled');
 }
-    
 
+ 
 
 
 // Initialize file input setup on document load
 document.addEventListener('DOMContentLoaded', initializeFileInput);
+
+
+
+
+//REVIEW STEP
