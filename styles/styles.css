@@ -66,3 +66,42 @@
   color: white; /* Text color for the header */
 }
 
+.sleek-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 50px;
+}
+
+.sleek-dropdown {
+  margin-left: 10px;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  padding: 5px;
+}
+
+
+.analysis-item {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.analysis-item .analysis-icon {
+  margin-right: 5px;
+}
+
+.analysis-item .analysis-title {
+  flex-grow: 1;
+}
+
+.analysis-item:hover {
+  background-color: lightgrey;
+  border-radius: 50%;
+}
+
+.selected {
+  background-color: grey;
+  color: white;
+  border-radius: 50%;
+}

@@ -261,6 +261,14 @@ function replaceReviewButton() {
     analyzeButton.textContent = 'Analyze'; // Set button text
     container.appendChild(analyzeButton);
 
+// Add event listener to the newly added analyze button
+analyzeButton.addEventListener('click', () => {
+    updateStepperCircles();
+    updateStepBody();
+    updateBottomPanel();
+    initializeAnalyzeStepListeners();
+});
+    
     // Initialize back button functionality
     initializeBackButton();
 }
@@ -382,3 +390,119 @@ function generateReviewTable(stepBody) {
 
 // Initialize review step setup on document load
 document.addEventListener('DOMContentLoaded', initializeReviewStep);
+
+
+// ANALYZE STEP
+
+// Update the Stepper Circles styles
+function updateStepperCircles() {
+    document.getElementById('stepper-review').classList.remove('circle-primary');
+    document.getElementById('stepper-review').classList.add('circle-secondary');
+    document.getElementById('stepper-analyze').classList.remove('circle-secondary');
+    document.getElementById('stepper-analyze').classList.add('circle-primary');
+}
+
+// Clear and update the stepper body
+function updateStepBody() {
+    const stepBody = document.getElementById('step-body');
+    stepBody.innerHTML = `
+        <div class="row sleek-row">
+            <span>I want to...</span>
+            <select class="sleek-dropdown">
+                <option value="" disabled selected>make a selection</option>
+                <option value="generic">generic basic charts</option>
+                <option value="compare">compare results</option>
+                <option value="visualize">visualize trends</option>
+            </select>
+        </div>
+    `;
+}
+
+// Update the Bottom Panel buttons and analysis list
+function updateBottomPanel() {
+    const analyzeButton = document.getElementById('analyze-button');
+    if (analyzeButton) {
+        analyzeButton.remove();
+    }
+
+    const panelButtonContainer = document.getElementById('panel-button-container-1');
+    panelButtonContainer.innerHTML = `
+        <div id="analysis-list">
+            <div class="analysis-item">
+                <div class="analysis-icon"><i class="fas fa-chart-bar"></i></div>
+                <span class="analysis-title">Analysis 1</span>
+                <button class="edit-analysis-button"><i class="fas fa-pen"></i></button>
+            </div>
+        </div>
+        <button id="create-analysis-button" class="btn btn-secondary">+ New</button>
+    `;
+
+    const panelButtonContainer2 = document.getElementById('panel-button-container-2');
+    panelButtonContainer2.innerHTML = `
+        <button id="export-button" class="btn btn-primary">Export</button>
+    `;
+
+    // Add event listener for the edit button
+    document.querySelector('.edit-analysis-button').addEventListener('click', () => {
+        editAnalysisTitle(document.querySelector('.analysis-title'));});
+}
+
+// Add Event Listeners for the New Elements
+function initializeAnalyzeStepListeners() {
+    const createAnalysisButton = document.getElementById('create-analysis-button');
+    if (createAnalysisButton) {
+        createAnalysisButton.addEventListener('click', addNewAnalysis);
+    }
+
+    const sleekDropdown = document.querySelector('.sleek-dropdown');
+    if (sleekDropdown) {
+        sleekDropdown.addEventListener('change', handleDropdownSelection);
+    }
+}
+
+function addNewAnalysis() {
+    const analysisList = document.getElementById('analysis-list');
+    const analysisCount = analysisList.children.length + 1;
+    const newAnalysis = document.createElement('div');
+    newAnalysis.classList.add('analysis-item');
+    newAnalysis.innerHTML = `
+        <div class="analysis-icon"><i class="fas fa-chart-bar"></i></div>
+        <span class="analysis-title">Analysis ${analysisCount}</span>
+        <button class="edit-analysis-button"><i class="fas fa-pen"></i></button>
+    `;
+
+    newAnalysis.addEventListener('click', () => selectAnalysis(newAnalysis));
+    analysisList.appendChild(newAnalysis);
+
+      // Add event listener for the edit button
+      newAnalysis.querySelector('.edit-analysis-button').addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent triggering the selectAnalysis function
+        editAnalysisTitle(newAnalysis.querySelector('.analysis-title'));
+    });
+}
+
+function handleDropdownSelection(event) {
+    const selectedValue = event.target.value;
+}
+
+function selectAnalysis(analysisItem) {
+    // Highlight the selected analysis and update the stepper body
+    document.querySelectorAll('.analysis-item').forEach(item => {
+        item.classList.remove('selected');
+    });
+    analysisItem.classList.add('selected');
+    updateStepperBodyForAnalysis(analysisItem);
+}
+
+function updateStepperBodyForAnalysis(analysisItem) {
+    // Placeholder function for updating the stepper body based on the selected analysis
+}
+
+
+function editAnalysisTitle(titleElement) {
+    const currentTitle = titleElement.textContent;
+    const newTitle = prompt("Edit Analysis Title:", currentTitle);
+    if (newTitle) {
+        titleElement.textContent = newTitle;
+    }
+}
