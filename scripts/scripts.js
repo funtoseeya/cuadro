@@ -178,6 +178,17 @@ document.addEventListener('DOMContentLoaded', initializeFileInput);
 function initializeReviewStep() {
     const reviewButton = document.getElementById('review-button');
     reviewButton.addEventListener('click', () => {
+        
+        // Log file path to console
+        const fileInput = document.getElementById('file-input');
+        if (fileInput.files.length > 0) {
+            const fileName = fileInput.files[0].name;
+            console.log(`Uploaded file name: ${fileName}`);
+        } else {
+            console.log("No file uploaded.");
+        }
+
+
         // Clear step body content
         const stepBody = document.getElementById('step-body');
         stepBody.innerHTML = '';
@@ -211,8 +222,8 @@ function initializeReviewStep() {
                 <div class="card-body">
                     Please take a minute to map your data. This will help us give you the best outputs for your needs.
                     <ul>
-                        <li><strong>Free Text:</strong> Use this for fields where many different values are expected (e.g., comments, names, descriptions).</li>
-                        <li><strong>Limited Options:</strong> Use this for fields where a small set of specific values is expected (e.g., dropdown options).</li>
+                        <li><strong>Limited Options (default):</strong> Use this for fields where a small set of specific values is expected. </li>
+                        <li><strong>Open-ended:</strong> Use this for qualitative / open-ended fields (e.g., comments, names, descriptions). We'll be able to categorize, summarize, and extract insights using AI. </li>
                         <li><strong>Numbers:</strong> This is for any field containing numerical values. We will compute these by summing them, rather than counting them.</li>
                     </ul>
                 </div>
@@ -257,54 +268,37 @@ function replaceReviewButton() {
     // Create the analyze button
     const analyzeButton = document.createElement('button');
     analyzeButton.id = 'analyze-button';
-    analyzeButton.className = 'btn btn-primary disabled'; // Add the classes for styling
+    analyzeButton.className = 'btn btn-primary'; // Add the classes for styling
     analyzeButton.textContent = 'Analyze'; // Set button text
     container.appendChild(analyzeButton);
 
-// Add event listener to the newly added analyze button
-analyzeButton.addEventListener('click', () => {
-    updateStepperCircles();
-    updateStepBody();
-    updateBottomPanel();
-    initializeAnalyzeStepListeners();
-});
-    
+
+
     // Initialize back button functionality
     initializeBackButton();
+
+        // Call to setup the analyze button listener
+        setupAnalyzeButtonListener();
 }
 
-// Function to initialize the dropdowns and add event listeners
+// Function to initialize the mapping dropdowns 
 function initializeDropdownListeners() {
     // Select all dropdowns in the review table
     const dropdowns = document.querySelectorAll('.data-type-dropdown');
-    
-    // Add change event listener to each dropdown
-    dropdowns.forEach(dropdown => {
-        dropdown.addEventListener('change', checkDropdownSelections);
+
+}
+let dropdownState = [];
+
+// Function to save the state of the dropdowns
+function saveDropdownState() {
+    dropdownState = [];
+    document.querySelectorAll('tbody tr').forEach((row, index) => {
+        const header = row.children[0].textContent;
+        const dropdown = row.querySelector('.data-type-dropdown');
+        dropdownState.push({ header: header, value: dropdown.value });
     });
+    console.log('Saved dropdown state:', dropdownState);
 }
-
-// Function to check if all dropdowns have a selection
-function checkDropdownSelections() {
-    
-    // Select all dropdowns
-    const dropdowns = document.querySelectorAll('.data-type-dropdown');
-    
-    // Check if all dropdowns have a selection other than "Select a type"
-    const allSelected = Array.from(dropdowns).every(dropdown => dropdown.value !== 'Select a type');
-    
-    
-    // Select the analyze button
-    const analyzeButton = document.getElementById('analyze-button');
-    
-    // Enable or disable the analyze button based on the selections
-    if (allSelected) {
-        analyzeButton.classList.remove('disabled');
-    } else {
-        analyzeButton.classList.add('disabled');
-    }
-}
-
 // Function to generate the review table
 function generateReviewTable(stepBody) {
     const table = document.createElement('table');
@@ -365,7 +359,7 @@ function generateReviewTable(stepBody) {
             const select = document.createElement('select');
             select.classList.add('form-select');
             select.classList.add('data-type-dropdown');
-            const options = ['Select a type', 'Limited options', 'Free text', 'Numbers'];
+            const options = ['Limited options', 'Open-ended', 'Numbers'];
             options.forEach(option => {
                 const optionElement = document.createElement('option');
                 optionElement.value = option;
@@ -410,8 +404,10 @@ function updateStepBody() {
             <span>I want to...</span>
             <select class="sleek-dropdown">
                 <option value="" disabled selected>make a selection</option>
-                <option value="generic">generic basic charts</option>
-                <option value="compare">compare results</option>
+                <option value="generic">create basic charts</option>
+                <option value="compare">compare my data</option>
+                <option value="compare">Analyze open-ended data</option>
+
                 <option value="visualize">visualize trends</option>
             </select>
         </div>
@@ -425,84 +421,68 @@ function updateBottomPanel() {
         analyzeButton.remove();
     }
 
-    const panelButtonContainer = document.getElementById('panel-button-container-1');
-    panelButtonContainer.innerHTML = `
-        <div id="analysis-list">
-            <div class="analysis-item">
-                <div class="analysis-icon"><i class="fas fa-chart-bar"></i></div>
-                <span class="analysis-title">Analysis 1</span>
-                <button class="edit-analysis-button"><i class="fas fa-pen"></i></button>
-            </div>
-        </div>
-        <button id="create-analysis-button" class="btn btn-secondary">+ New</button>
-    `;
-
     const panelButtonContainer2 = document.getElementById('panel-button-container-2');
     panelButtonContainer2.innerHTML = `
+        <button id="back-button" class="btn btn-secondary">Back</button>
         <button id="export-button" class="btn btn-primary">Export</button>
     `;
 
-    // Add event listener for the edit button
-    document.querySelector('.edit-analysis-button').addEventListener('click', () => {
-        editAnalysisTitle(document.querySelector('.analysis-title'));});
-}
+    
+        }
 
-// Add Event Listeners for the New Elements
-function initializeAnalyzeStepListeners() {
-    const createAnalysisButton = document.getElementById('create-analysis-button');
-    if (createAnalysisButton) {
-        createAnalysisButton.addEventListener('click', addNewAnalysis);
-    }
 
-    const sleekDropdown = document.querySelector('.sleek-dropdown');
-    if (sleekDropdown) {
-        sleekDropdown.addEventListener('change', handleDropdownSelection);
-    }
-}
+// Function to show the review step's confirmation modal that leads to analyze 
+function showConfirmationModal() {
+    // Create the modal HTML structure
+    const modalHTML = `
+        <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmationModalLabel">Are you sure?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Please confirm that that your column headers are are mapped to the correct data type. You can adjust this later if you encounter a problem. 
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="confirmButton">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `;
 
-function addNewAnalysis() {
-    const analysisList = document.getElementById('analysis-list');
-    const analysisCount = analysisList.children.length + 1;
-    const newAnalysis = document.createElement('div');
-    newAnalysis.classList.add('analysis-item');
-    newAnalysis.innerHTML = `
-        <div class="analysis-icon"><i class="fas fa-chart-bar"></i></div>
-        <span class="analysis-title">Analysis ${analysisCount}</span>
-        <button class="edit-analysis-button"><i class="fas fa-pen"></i></button>
-    `;
+    // Append the modal to the body
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-    newAnalysis.addEventListener('click', () => selectAnalysis(newAnalysis));
-    analysisList.appendChild(newAnalysis);
+    // Show the modal
+    const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+    confirmationModal.show();
 
-      // Add event listener for the edit button
-      newAnalysis.querySelector('.edit-analysis-button').addEventListener('click', (event) => {
-        event.stopPropagation(); // Prevent triggering the selectAnalysis function
-        editAnalysisTitle(newAnalysis.querySelector('.analysis-title'));
+    // Add event listener for the confirm button
+    document.getElementById('confirmButton').addEventListener('click', () => {
+        saveDropdownState();
+        updateStepperCircles();
+        updateStepBody();
+        updateBottomPanel();
+        confirmationModal.hide();
     });
-}
 
-function handleDropdownSelection(event) {
-    const selectedValue = event.target.value;
-}
-
-function selectAnalysis(analysisItem) {
-    // Highlight the selected analysis and update the stepper body
-    document.querySelectorAll('.analysis-item').forEach(item => {
-        item.classList.remove('selected');
+    // Clean up the modal from the DOM after it is hidden
+    $('#confirmationModal').on('hidden.bs.modal', () => {
+        document.getElementById('confirmationModal').remove();
     });
-    analysisItem.classList.add('selected');
-    updateStepperBodyForAnalysis(analysisItem);
+
 }
-
-function updateStepperBodyForAnalysis(analysisItem) {
-    // Placeholder function for updating the stepper body based on the selected analysis
-}
-
-
-function editAnalysisTitle(titleElement) {
-    const currentTitle = titleElement.textContent;
-    const newTitle = prompt("Edit Analysis Title:", currentTitle);
-    if (newTitle) {
-        titleElement.textContent = newTitle;
+// Function to setup event listener for the analyze button
+function setupAnalyzeButtonListener() {
+    const analyzeButton = document.getElementById('analyze-button');
+    if (analyzeButton) {
+        analyzeButton.addEventListener('click', showConfirmationModal);
     }
 }
+
