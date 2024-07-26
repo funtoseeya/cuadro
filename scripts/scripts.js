@@ -159,7 +159,7 @@ function updateUploadStepUI(fileName) {
         <i class="fa-solid fa-check" style="font-size: 2em;"></i>
         <div style="margin-top: 20px;"><strong>Upload successful!</strong> <br> ${fileName}</div>
         <a class="btn btn-secondary" style="margin-top: 40px; cursor: pointer;" onclick="location.reload();">
-        <i class="fa-solid fa-rotate-left" ></i> Reload</a>`;
+        <i class="fa-solid fa-rotate-left" ></i> Restart</a>`;
 
     //remove 'disabled' class from the review button 
     let reviewButton = document.getElementById('review-button');
@@ -205,6 +205,10 @@ function initializeReviewStep() {
     stepperReview.classList.remove('circle-secondary');
     stepperReview.classList.add('circle-primary');
 
+    const stepperAnalyze = document.getElementById('stepper-analyze');
+    stepperUpload.classList.remove('circle-primary');
+    stepperUpload.classList.add('circle-secondary');
+
     // Create the accordion
     const accordion = document.createElement('div');
     accordion.classList.add('accordion', 'w-100', 'mb-3');
@@ -243,14 +247,7 @@ function initializeReviewStep() {
     replaceReviewButton();
 
 }
-// Function to initialize the back button
-function initializeBackButton() {
-    const backButton = document.getElementById('back-button');
-    backButton.addEventListener('click', () => {
-        location.reload(); // This will reset the application
 
-    }
-)}
 // Function to replace the Review button with Back and Analyze buttons
 function replaceReviewButton() {
             const container = document.getElementById('panel-button-container-2');
@@ -261,12 +258,16 @@ function replaceReviewButton() {
                 container.removeChild(reviewButton);
             }
 
-            // Create the back button
-            const backButton = document.createElement('button');
-            backButton.id = 'back-button';
-            backButton.className = 'btn btn-secondary mr-2'; // Add the classes for styling
-            backButton.textContent = 'Back'; // Set button text
-            container.appendChild(backButton);
+            // Create the restart button
+            const restartButton = document.createElement('button');
+            restartButton.id = 'restart-button';
+            restartButton.className = 'btn btn-secondary mr-2'; // Add the classes for styling
+            restartButton.textContent = 'Restart'; // Set button text
+            container.appendChild(restartButton);
+            restartButton.addEventListener('click', () => {
+                location.reload(); // This will reset the application
+        
+            })
 
             // Create the analyze button
             const analyzeButton = document.createElement('button');
@@ -278,8 +279,7 @@ function replaceReviewButton() {
 
 
             // Initialize back button functionality
-            initializeBackButton();
-
+            
             // Call to setup the analyze button listener
             setupAnalyzeButtonListener();
         }
@@ -421,8 +421,7 @@ let dropdownState = [];
     }
 
 
-    // Initialize review step setup on document load
-    document.addEventListener('DOMContentLoaded', initializeReviewStep);
+
 
 
     // ANALYZE STEP
@@ -473,7 +472,7 @@ let dropdownState = [];
     // Function to handle back button click
     function handleBackButtonClick() {
 
-        // Go back to review step ASDF
+        // Go back to review step 
         initializeReviewStep();
     }
 
