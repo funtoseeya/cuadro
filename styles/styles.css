@@ -1,3 +1,81 @@
+/* mod bootstrap*/
+:root {
+ /*mod*/
+ --primary: #2d6a4f;
+ --secondary: #52b788;
+ --primary-color: #2d6a4f;
+ --primary-dark: #1b4332;
+ --primary-light: #337959;
+ --secondary-color: #52b788;
+ --tertiary-color: #95d5b2;
+ --background-color: white;
+ --text-color: #081c15;
+
+}
+
+body {
+
+  /*mod*/
+  font-family: 'Lato', sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.btn-primary {
+  /*mod*/
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+.btn-primary:hover {
+  /*mod*/
+  background-color: var(--primary-dark) !important;
+
+}
+
+.btn-primary.disabled, .btn-primary:disabled {
+  /*mod*/
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+
+  /*mod*/
+  background-color: var(--background-color) !important;
+  border-color: var(--primary-color) !important;
+  color: var(--text-color)
+}
+
+.btn-secondary.disabled, .btn-secondary:disabled {
+  /*mod*/
+  cursor: not-allowed;
+
+}
+
+.btn-secondary:hover {
+
+  /*mod*/
+  background-color: var(--tertiary-color) !important;
+  color: var(--text-color);
+}
+.accordion {
+
+--bs-accordion-active-bg: var(--tertiary-color)
+}
+
+.accordion-button {
+  background-color: var(--background-color);
+  color: var(--primary);
+}
+
+.accordion-button:not(.collapsed) {
+  color: var(--primary); /* Keeps text color consistent when expanded */
+}
+
+.accordion-button i {
+  color: var(--primary); /* Icon color */
+}
+
 
 /* new styles */
 

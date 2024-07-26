@@ -247,34 +247,32 @@ function initializeReviewStep() {
     stepperAnalyze.classList.remove('circle-primary');
     stepperAnalyze.classList.add('circle-secondary');
 
-    // Create the accordion
-    const accordion = document.createElement('div');
-    accordion.classList.add('accordion', 'w-100', 'mb-3');
-    accordion.id = 'dataTypeAccordion';
+ // Create the accordion
+const accordion = document.createElement('div');
+accordion.classList.add('accordion', 'w-100', 'mb-3');
+accordion.id = 'dataTypeAccordion';
 
-    accordion.innerHTML = `
-        <div class="card mt-3">
-            <div class="card-header" id="headingOne">
-                <h2 class="mb-0">
-                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                       <i class="fa fa-info-circle mr-2" aria-hidden="true"></i>
- Select a data type for each column
-                        <i class="fa fa-chevron-down float-right" aria-hidden="true" id="accordionIcon"></i>
-                    </button>
-                </h2>
-            </div>
-            <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#dataTypeAccordion">
-                <div class="card-body">
-                    Please take a minute to map your data. This will help us give you the best outputs for your needs.
-                    <ul>
-                        <li><strong>Limited Options (default):</strong> Use this for fields where a restricted set of possible values is expected. </li>
-                        <li><strong>Open-ended:</strong> Use this for qualitative / open-ended fields (e.g., comments, names, descriptions). We'll be able to categorize, summarize, and extract insights using AI. </li>
-                        <li><strong>Numbers:</strong> This is for any field containing numerical values. We will compute these by summing them, rather than counting them.</li>
-                    </ul>
-                </div>
+accordion.innerHTML = `
+    <div class="accordion-item mt-3">
+        <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                <i class="fa fa-info-circle me-2" aria-hidden="true"></i>
+                Select a data type for each column
+            </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
+            <div class="accordion-body">
+                Please take a minute to map your data. This will help us give you the best outputs for your needs.
+                <ul>
+                    <li><strong>Limited Options (default):</strong> Use this for fields where a restricted set of possible values is expected. </li>
+                    <li><strong>Open-ended:</strong> Use this for qualitative / open-ended fields (e.g., comments, names, descriptions). We'll be able to categorize, summarize, and extract insights using AI. </li>
+                    <li><strong>Numbers:</strong> This is for any field containing numerical values. We will compute these by summing them, rather than counting them.</li>
+                </ul>
             </div>
         </div>
-    `;
+    </div>
+`;
+
 
     stepBody.appendChild(accordion);
 
