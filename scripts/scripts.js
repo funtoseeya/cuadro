@@ -429,17 +429,10 @@ function generateReviewTable(stepBody) {
 
 
 
-
-
 // ANALYZE STEP
 
 // Update the Stepper Circles styles
-function updateStepperCircles() {
-    document.getElementById('stepper-review').classList.remove('circle-primary');
-    document.getElementById('stepper-review').classList.add('circle-secondary');
-    document.getElementById('stepper-analyze').classList.remove('circle-secondary');
-    document.getElementById('stepper-analyze').classList.add('circle-primary');
-}
+
 
 // Clear and update the stepper body
 function updateStepBody() {
@@ -479,58 +472,24 @@ function handleBackButtonClick() {
 }
 
 
-// Function to show the review step's confirmation modal that leads to analyze 
-function showConfirmationModal() {
-    // Create the modal HTML structure
-    const modalHTML = `
-        <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="confirmationModalLabel">Are you sure?</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        Please confirm that that your column headers are are mapped to the correct data type. You can adjust this later if you encounter a problem. 
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" id="confirmButton">Confirm</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        `;
-
-    // Append the modal to the body
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-    // Show the modal
-    const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
-    confirmationModal.show();
-
-    // Add event listener for the confirm button
-    document.getElementById('confirmButton').addEventListener('click', () => {
-        saveDropdownState();
-        updateStepperCircles();
-        updateStepBody();
-        updateBottomPanel();
-        confirmationModal.hide();
-    });
-
-    // Clean up the modal from the DOM after it is hidden
-    $('#confirmationModal').on('hidden.bs.modal', () => {
-        document.getElementById('confirmationModal').remove();
-    });
-
-}
 // Function to setup event listener for the analyze button
 function setupAnalyzeButtonListener() {
     const analyzeButton = document.getElementById('analyze-button');
-    if (analyzeButton) {
-        analyzeButton.addEventListener('click', showConfirmationModal);
-    }
-}
+        analyzeButton.addEventListener('click', () => {
+            
+            //save the review table's configuration into an array
+            saveDropdownState();
 
+            //adjust the steppers
+            document.getElementById('stepper-review').classList.remove('circle-primary');
+            document.getElementById('stepper-review').classList.add('circle-secondary');
+            document.getElementById('stepper-analyze').classList.remove('circle-secondary');
+            document.getElementById('stepper-analyze').classList.add('circle-primary');
+
+            //update the step body. will keep as a separate function because this is going to be big
+            updateStepBody();
+            
+            //update the bottom panel. will keep as a separate function because this is going to be big
+            updateBottomPanel();
+
+        })}
