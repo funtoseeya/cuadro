@@ -1,5 +1,46 @@
 //UPLOAD STEP
 
+//function to handle the restart button
+function showRestartModal() {
+    // Create the modal HTML structure
+    const modalHTML = `
+    <div class="modal fade" id="restartModal" tabindex="-1" role="dialog" aria-labelledby="restartModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="restartModalLabel">Are you sure?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    You will restart from scratch. Any configurations you've made will be lost. 
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="restartButton">Restart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+
+    // Append the modal to the body
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Show the modal
+    const restartModal = new bootstrap.Modal(document.getElementById('restartModal'));
+    restartModal.show();
+
+    // Add event listener for the confirm button
+    document.getElementById('restartButton').addEventListener('click', () => {
+        location.reload()
+    });
+
+
+}
+
+
 // Function to create and insert the Review button
 function createReviewButton() {
     // Create the button element
@@ -264,10 +305,7 @@ function replaceReviewButton() {
             restartButton.className = 'btn btn-secondary mr-2'; // Add the classes for styling
             restartButton.textContent = 'Restart'; // Set button text
             container.appendChild(restartButton);
-            restartButton.addEventListener('click', () => {
-                location.reload(); // This will reset the application
-        
-            })
+            restartButton.addEventListener('click', showRestartModal)
 
             // Create the analyze button
             const analyzeButton = document.createElement('button');
@@ -448,10 +486,7 @@ let dropdownState = [];
 
     // Update the Bottom Panel buttons 
     function updateBottomPanel() {
-        const analyzeButton = document.getElementById('analyze-button');
-        if (analyzeButton) {
-            analyzeButton.remove();
-        }
+       
 
         const panelButtonContainer2 = document.getElementById('panel-button-container-2');
         panelButtonContainer2.innerHTML = `
