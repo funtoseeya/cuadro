@@ -206,8 +206,8 @@ function initializeReviewStep() {
     stepperReview.classList.add('circle-primary');
 
     const stepperAnalyze = document.getElementById('stepper-analyze');
-    stepperUpload.classList.remove('circle-primary');
-    stepperUpload.classList.add('circle-secondary');
+    stepperAnalyze.classList.remove('circle-primary');
+    stepperAnalyze.classList.add('circle-secondary');
 
     // Create the accordion
     const accordion = document.createElement('div');
@@ -275,10 +275,6 @@ function replaceReviewButton() {
             analyzeButton.className = 'btn btn-primary'; // Add the classes for styling
             analyzeButton.textContent = 'Analyze'; // Set button text
             container.appendChild(analyzeButton);
-
-
-
-            // Initialize back button functionality
             
             // Call to setup the analyze button listener
             setupAnalyzeButtonListener();
@@ -288,7 +284,6 @@ function replaceReviewButton() {
 function initializeDropdownListeners() {
             // Select all dropdowns in the review table
             const dropdowns = document.querySelectorAll('.data-type-dropdown');
-
         }
 let dropdownState = [];
 
@@ -302,7 +297,6 @@ let dropdownState = [];
         });
         console.log('Saved dropdown state:', dropdownState);
     }
-    // Function to generate the review table
     // Function to generate the review table
     function generateReviewTable(stepBody) {
         const table = document.createElement('table');
