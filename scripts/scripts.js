@@ -12,9 +12,6 @@ function alertUnsavedChanges(event) {
     return message;
 }
 
-
-
-
 // Function to create and insert the Review button
 function createReviewButton() {
     // Create the button element
@@ -80,9 +77,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 
-
-
-
 // Function to initialize the file input and set up event listeners
 function initializeFileInput() {
     const chooseFileButton = document.getElementById('chooseFileButton');
@@ -96,6 +90,8 @@ function initializeFileInput() {
     // Add change event to handle file selection
     fileInput.addEventListener('change', handleFileSelection);
 }
+// Initialize file input setup on document load
+document.addEventListener('DOMContentLoaded', initializeFileInput);
 
 // Function to handle file selection
 async function handleFileSelection(event) {
@@ -180,15 +176,16 @@ function updateUploadStepUI(fileName) {
     let reviewButton = document.getElementById('review-button');
     reviewButton.classList.remove('disabled');
 
+    // Log file path to console
+    console.log(`Uploaded file name: ${fileName}`);
+
+
     // Add the event listener that triggers a warning message about unsaved changes whenever the user tries to close or refresh the tab
 window.addEventListener('beforeunload', alertUnsavedChanges);
 }
 
 
 
-
-// Initialize file input setup on document load
-document.addEventListener('DOMContentLoaded', initializeFileInput);
 
 
 
@@ -199,19 +196,42 @@ document.addEventListener('DOMContentLoaded', initializeFileInput);
 function initializeReviewStep() {
 
 
-    // Log file path to console
-    const fileInput = document.getElementById('file-input');
-    const fileName = fileInput.files[0].name;
-    console.log(`Uploaded file name: ${fileName}`);
-
 
     // Clear step body content
     const stepBody = document.getElementById('step-body');
     stepBody.innerHTML = '';
 
-    //clear botton panel 
+    //update the botton panel by removing the review button and appending a restart and analyze button
     const panelButtonContainer2 = document.getElementById('panel-button-container-2');
     panelButtonContainer2.innerHTML = "";
+    const reviewButton = document.getElementById('review-button');
+
+    // Remove the review button
+    if (reviewButton) {
+        container.removeChild(reviewButton);
+    }
+
+    // Create the restart button
+    const restartButton = document.createElement('button');
+    restartButton.id = 'restart-button';
+    restartButton.className = 'btn btn-secondary mr-2'; // Add the classes for styling
+    restartButton.textContent = 'Restart'; // Set button text
+    panelButtonContainer2.appendChild(restartButton);
+    restartButton.addEventListener('click', () => 
+        {location.reload()})
+
+    // Create the analyze button
+    const analyzeButton = document.createElement('button');
+    analyzeButton.id = 'analyze-button';
+    analyzeButton.className = 'btn btn-primary'; // Add the classes for styling
+    analyzeButton.textContent = 'Analyze'; // Set button text
+    panelButtonContainer2.appendChild(analyzeButton);
+    
+    // Call to setup the analyze button listener
+    setupAnalyzeButtonListener();
+
+
+
 
 
     // Update stepper circle styling
@@ -223,6 +243,7 @@ function initializeReviewStep() {
     stepperReview.classList.remove('circle-secondary');
     stepperReview.classList.add('circle-primary');
 
+    //in case you are coming back from the analyze step
     const stepperAnalyze = document.getElementById('stepper-analyze');
     stepperAnalyze.classList.remove('circle-primary');
     stepperAnalyze.classList.add('circle-secondary');
@@ -261,40 +282,9 @@ function initializeReviewStep() {
     // Generate table for CSV review
     generateReviewTable(stepBody);
 
-    // Remove the review button and add the back and analyze buttons
-    replaceReviewButton();
-
 }
 
-// Function to replace the Review button with Back and Analyze buttons
-function replaceReviewButton() {
-            const container = document.getElementById('panel-button-container-2');
-            const reviewButton = document.getElementById('review-button');
 
-            // Remove the review button
-            if (reviewButton) {
-                container.removeChild(reviewButton);
-            }
-
-            // Create the restart button
-            const restartButton = document.createElement('button');
-            restartButton.id = 'restart-button';
-            restartButton.className = 'btn btn-secondary mr-2'; // Add the classes for styling
-            restartButton.textContent = 'Restart'; // Set button text
-            container.appendChild(restartButton);
-            restartButton.addEventListener('click', () => 
-                {location.reload()})
-
-            // Create the analyze button
-            const analyzeButton = document.createElement('button');
-            analyzeButton.id = 'analyze-button';
-            analyzeButton.className = 'btn btn-primary'; // Add the classes for styling
-            analyzeButton.textContent = 'Analyze'; // Set button text
-            container.appendChild(analyzeButton);
-            
-            // Call to setup the analyze button listener
-            setupAnalyzeButtonListener();
-        }
 
 // Function to initialize the mapping dropdowns 
 function initializeDropdownListeners() {
