@@ -436,20 +436,37 @@ function generateReviewTable(stepBody) {
 // Clear and update the stepper body
 function updateStepBody() {
     const stepBody = document.getElementById('step-body');
-    stepBody.innerHTML = `
-        <div class="row sleek-row">
-            <span>I want to...</span>
-            <select class="sleek-dropdown">
-                <option value="" disabled selected>make a selection</option>
-                <option value="generic">create basic charts</option>
-                <option value="compare">compare my data</option>
-                <option value="compare">Analyze open-ended data</option>
+    
+    // Clear any existing content
+    stepBody.innerHTML = '';
 
-                <option value="visualize">visualize trends</option>
-            </select>
-        </div>
+    // Create the container div and set its class
+    const rowDiv = document.createElement('div');
+    rowDiv.classList.add('row', 'sleek-row');
+    
+    // Create the span element and set its text content
+    const span = document.createElement('span');
+    span.textContent = 'I want to...';
+    
+    // Create the select element with its options
+    const select = document.createElement('select');
+    select.classList.add('sleek-dropdown');
+    select.innerHTML = `
+        <option value="" disabled selected>make a selection</option>
+        <option value="generic">create basic charts</option>
+        <option value="compare">compare my data</option>
+        <option value="open-ended">analyze open-ended data</option>
+        <option value="visualize">visualize trends</option>
     `;
+
+    // Append the span and select elements to the row div
+    rowDiv.appendChild(span);
+    rowDiv.appendChild(select);
+
+    // Append the row div to the stepBody
+    stepBody.appendChild(rowDiv);
 }
+
 
 // Update the Bottom Panel buttons 
 function updateBottomPanel() {
