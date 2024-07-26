@@ -258,7 +258,7 @@ function initializeReviewStep() {
                 <h2 class="mb-0">
                     <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                        <i class="fa fa-info-circle mr-2" aria-hidden="true"></i>
- Select data types
+ Select a data type for each column
                         <i class="fa fa-chevron-down float-right" aria-hidden="true" id="accordionIcon"></i>
                     </button>
                 </h2>
@@ -267,7 +267,7 @@ function initializeReviewStep() {
                 <div class="card-body">
                     Please take a minute to map your data. This will help us give you the best outputs for your needs.
                     <ul>
-                        <li><strong>Limited Options (default):</strong> Use this for fields where a small set of specific values is expected. </li>
+                        <li><strong>Limited Options (default):</strong> Use this for fields where a restricted set of possible values is expected. </li>
                         <li><strong>Open-ended:</strong> Use this for qualitative / open-ended fields (e.g., comments, names, descriptions). We'll be able to categorize, summarize, and extract insights using AI. </li>
                         <li><strong>Numbers:</strong> This is for any field containing numerical values. We will compute these by summing them, rather than counting them.</li>
                     </ul>
@@ -431,7 +431,6 @@ function generateReviewTable(stepBody) {
 
 // ANALYZE STEP
 
-// Update the Stepper Circles styles
 
 
 // Clear and update the stepper body
@@ -462,14 +461,11 @@ function updateBottomPanel() {
         <button id="export-button" class="btn btn-primary">Export</button>
     `;
     // Add event listener to the back button
-    document.getElementById('back-button').addEventListener('click', handleBackButtonClick);
+    document.getElementById('back-button').addEventListener('click', initializeReviewStep);
 
 }
 
-// Function to handle back button click
-function handleBackButtonClick() {
-    initializeReviewStep();
-}
+
 
 
 // Function to setup event listener for the analyze button
