@@ -1,44 +1,18 @@
 //UPLOAD STEP
 
-//function to handle the restart button
-function showRestartModal() {
-    // Create the modal HTML structure
-    const modalHTML = `
-    <div class="modal fade" id="restartModal" tabindex="-1" role="dialog" aria-labelledby="restartModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="restartModalLabel">Are you sure?</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    You will restart from scratch. Any configurations you've made will be lost. 
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="restartButton">Restart</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    `;
+// Function to alert the user about unsaved changes
+function alertUnsavedChanges(event) {
+    // Most browsers will display a generic message, and custom messages are often ignored
+    const message = 'You have unsaved changes. Do you really want to leave?';
 
-    // Append the modal to the body
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    // Setting event.returnValue is necessary for some browsers to show the alert
+    event.returnValue = message;
 
-    // Show the modal
-    const restartModal = new bootstrap.Modal(document.getElementById('restartModal'));
-    restartModal.show();
-
-    // Add event listener for the confirm button
-    document.getElementById('restartButton').addEventListener('click', () => {
-        location.reload()
-    });
-
-
+    // Return the message for browsers that support it
+    return message;
 }
+
+
 
 
 // Function to create and insert the Review button
@@ -205,6 +179,9 @@ function updateUploadStepUI(fileName) {
     //remove 'disabled' class from the review button 
     let reviewButton = document.getElementById('review-button');
     reviewButton.classList.remove('disabled');
+
+    // Add the event listener that triggers a warning message about unsaved changes whenever the user tries to close or refresh the tab
+window.addEventListener('beforeunload', alertUnsavedChanges);
 }
 
 
@@ -305,7 +282,8 @@ function replaceReviewButton() {
             restartButton.className = 'btn btn-secondary mr-2'; // Add the classes for styling
             restartButton.textContent = 'Restart'; // Set button text
             container.appendChild(restartButton);
-            restartButton.addEventListener('click', showRestartModal)
+            restartButton.addEventListener('click', () => 
+                {location.reload()})
 
             // Create the analyze button
             const analyzeButton = document.createElement('button');
