@@ -181,7 +181,7 @@ function updateUploadStepUI(fileName) {
 
 
     // Add the event listener that triggers a warning message about unsaved changes whenever the user tries to close or refresh the tab
-window.addEventListener('beforeunload', alertUnsavedChanges);
+    window.addEventListener('beforeunload', alertUnsavedChanges);
 }
 
 
@@ -217,8 +217,7 @@ function initializeReviewStep() {
     restartButton.className = 'btn btn-secondary mr-2'; // Add the classes for styling
     restartButton.textContent = 'Restart'; // Set button text
     panelButtonContainer2.appendChild(restartButton);
-    restartButton.addEventListener('click', () => 
-        {location.reload()})
+    restartButton.addEventListener('click', () => { location.reload() })
 
     // Create the analyze button
     const analyzeButton = document.createElement('button');
@@ -226,7 +225,7 @@ function initializeReviewStep() {
     analyzeButton.className = 'btn btn-primary'; // Add the classes for styling
     analyzeButton.textContent = 'Analyze'; // Set button text
     panelButtonContainer2.appendChild(analyzeButton);
-    
+
     // Call to setup the analyze button listener
     setupAnalyzeButtonListener();
 
@@ -285,60 +284,109 @@ function initializeReviewStep() {
 }
 
 
+//declare the array that manages the review table's configuration
+let dropdownState = [];
+
+// Function to save the state of the dropdowns
+function saveDropdownState() {
+    dropdownState = [];
+    document.querySelectorAll('tbody tr').forEach((row, index) => {
+        const header = row.children[0].textContent;
+        const dropdown = row.querySelector('.data-type-dropdown');
+        dropdownState.push({ header: header, value: dropdown.value });
+    });
+    console.log('Saved dropdown state:', dropdownState);
+}
 
 // Function to initialize the mapping dropdowns 
 function initializeDropdownListeners() {
-            // Select all dropdowns in the review table
-            const dropdowns = document.querySelectorAll('.data-type-dropdown');
-        }
-let dropdownState = [];
+    // Select all dropdowns in the review table
+    const dropdowns = document.querySelectorAll('.data-type-dropdown');
+}
 
-    // Function to save the state of the dropdowns
-    function saveDropdownState() {
-        dropdownState = [];
-        document.querySelectorAll('tbody tr').forEach((row, index) => {
-            const header = row.children[0].textContent;
-            const dropdown = row.querySelector('.data-type-dropdown');
-            dropdownState.push({ header: header, value: dropdown.value });
+
+// Function to generate the review table
+function generateReviewTable(stepBody) {
+    
+    const table = document.createElement('table');
+    table.classList.add('table', 'table-bordered', 'mt-3'); // Added margin-top class
+
+    // Create table header
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+
+    const header1 = document.createElement('th');
+    header1.textContent = 'Column label from CSV file';
+
+    const header2 = document.createElement('th');
+    header2.textContent = 'Data sample from CSV file';
+
+    const header3 = document.createElement('th');
+    header3.textContent = 'Data type';
+
+    headerRow.appendChild(header1);
+    headerRow.appendChild(header2);
+    headerRow.appendChild(header3);
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // Style the table header
+    thead.style.backgroundColor = 'var(--primary-color)';
+    thead.style.color = 'white';
+
+    // Create table body
+    const tbody = document.createElement('tbody');
+    table.appendChild(tbody);
+
+    const fileInput = document.getElementById('file-input');
+    const file = fileInput.files[0];
+
+    if (dropdownState.length > 0) {
+        // Use saved dropdown state
+        dropdownState.forEach(({ header, value }) => {
+            const row = document.createElement('tr');
+
+            // Column label
+            const cell1 = document.createElement('td');
+            cell1.textContent = header;
+            row.appendChild(cell1);
+
+            // Data sample
+            const cell2 = document.createElement('td');
+            cell2.textContent = 'Sample data'; // Assuming you want to display some placeholder sample data
+            row.appendChild(cell2);
+
+            // Data type dropdown
+            const cell3 = document.createElement('td');
+            const select = document.createElement('select');
+            select.classList.add('form-select', 'data-type-dropdown');
+            const options = ['Limited options', 'Open-ended', 'Numbers'];
+            options.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option;
+                optionElement.textContent = option;
+                select.appendChild(optionElement);
+            });
+            select.value = value; // Set saved value
+            cell3.appendChild(select);
+            row.appendChild(cell3);
+
+            tbody.appendChild(row);
         });
-        console.log('Saved dropdown state:', dropdownState);
-    }
-    // Function to generate the review table
-    function generateReviewTable(stepBody) {
-        const table = document.createElement('table');
-        table.classList.add('table', 'table-bordered', 'mt-3'); // Added margin-top class
 
-        // Create table header
-        const thead = document.createElement('thead');
-        const headerRow = document.createElement('tr');
+        stepBody.appendChild(table);
+        initializeDropdownListeners();
 
-        const header1 = document.createElement('th');
-        header1.textContent = 'Column label from CSV file';
+    } else if (file) {
+        // Parse CSV headers and sample data
+        const reader = new FileReader();
 
-        const header2 = document.createElement('th');
-        header2.textContent = 'Data sample from CSV file';
+        reader.onload = function (event) {
+            const text = event.target.result;
+            const rows = text.split('\n').filter(row => row.trim() !== '');
+            const headers = rows[0].split(',');
 
-        const header3 = document.createElement('th');
-        header3.textContent = 'Data type';
-
-        headerRow.appendChild(header1);
-        headerRow.appendChild(header2);
-        headerRow.appendChild(header3);
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-
-        // Style the table header
-        thead.style.backgroundColor = 'var(--primary-color)';
-        thead.style.color = 'white';
-
-        // Create table body
-        const tbody = document.createElement('tbody');
-        const fileInput = document.getElementById('file-input');
-        const file = fileInput.files[0];
-
-        if (dropdownState.length > 0) {
-            // Use saved dropdown state
-            dropdownState.forEach(({ header, value }) => {
+            headers.forEach((header, index) => {
                 const row = document.createElement('tr');
 
                 // Column label
@@ -348,8 +396,8 @@ let dropdownState = [];
 
                 // Data sample
                 const cell2 = document.createElement('td');
-                // Assuming you want to display some placeholder sample data
-                cell2.textContent = 'Sample data';
+                const samples = rows.slice(1, 4).map(row => row.split(',')[index]).join(', ');
+                cell2.textContent = samples;
                 row.appendChild(cell2);
 
                 // Data type dropdown
@@ -363,81 +411,40 @@ let dropdownState = [];
                     optionElement.textContent = option;
                     select.appendChild(optionElement);
                 });
-                select.value = value; // Set saved value
                 cell3.appendChild(select);
                 row.appendChild(cell3);
 
                 tbody.appendChild(row);
             });
-        } else {
-            // Parse CSV headers and sample data
-            const reader = new FileReader();
 
-            reader.onload = function (event) {
-                const text = event.target.result;
-                const rows = text.split('\n').filter(row => row.trim() !== '');
-                const headers = rows[0].split(',');
+            stepBody.appendChild(table);
+            initializeDropdownListeners();
+        };
 
-                headers.forEach((header, index) => {
-                    const row = document.createElement('tr');
-
-                    // Column label
-                    const cell1 = document.createElement('td');
-                    cell1.textContent = header;
-                    row.appendChild(cell1);
-
-                    // Data sample
-                    const cell2 = document.createElement('td');
-                    const samples = rows.slice(1, 4).map(row => row.split(',')[index]).join(', ');
-                    cell2.textContent = samples;
-                    row.appendChild(cell2);
-
-                    // Data type dropdown
-                    const cell3 = document.createElement('td');
-                    const select = document.createElement('select');
-                    select.classList.add('form-select', 'data-type-dropdown');
-                    const options = ['Limited options', 'Open-ended', 'Numbers'];
-                    options.forEach(option => {
-                        const optionElement = document.createElement('option');
-                        optionElement.value = option;
-                        optionElement.textContent = option;
-                        select.appendChild(optionElement);
-                    });
-                    cell3.appendChild(select);
-                    row.appendChild(cell3);
-
-                    tbody.appendChild(row);
-                });
-
-                table.appendChild(tbody);
-                stepBody.appendChild(table);
-
-                // Initialize dropdown listeners after adding dropdowns to DOM
-                initializeDropdownListeners();
-            };
-
-            reader.readAsText(file);
-        }
+        reader.readAsText(file);
+    } else {
+        console.error('No file input found and no saved dropdown state.');
     }
+}
 
 
 
 
 
-    // ANALYZE STEP
+// ANALYZE STEP
 
-    // Update the Stepper Circles styles
-    function updateStepperCircles() {
-        document.getElementById('stepper-review').classList.remove('circle-primary');
-        document.getElementById('stepper-review').classList.add('circle-secondary');
-        document.getElementById('stepper-analyze').classList.remove('circle-secondary');
-        document.getElementById('stepper-analyze').classList.add('circle-primary');
-    }
+// Update the Stepper Circles styles
+function updateStepperCircles() {
+    document.getElementById('stepper-review').classList.remove('circle-primary');
+    document.getElementById('stepper-review').classList.add('circle-secondary');
+    document.getElementById('stepper-analyze').classList.remove('circle-secondary');
+    document.getElementById('stepper-analyze').classList.add('circle-primary');
+}
 
-    // Clear and update the stepper body
-    function updateStepBody() {
-        const stepBody = document.getElementById('step-body');
-        stepBody.innerHTML = `
+// Clear and update the stepper body
+function updateStepBody() {
+    const stepBody = document.getElementById('step-body');
+    stepBody.innerHTML = `
         <div class="row sleek-row">
             <span>I want to...</span>
             <select class="sleek-dropdown">
@@ -450,35 +457,32 @@ let dropdownState = [];
             </select>
         </div>
     `;
-    }
+}
 
-    // Update the Bottom Panel buttons 
-    function updateBottomPanel() {
-       
+// Update the Bottom Panel buttons 
+function updateBottomPanel() {
 
-        const panelButtonContainer2 = document.getElementById('panel-button-container-2');
-        panelButtonContainer2.innerHTML = `
+
+    const panelButtonContainer2 = document.getElementById('panel-button-container-2');
+    panelButtonContainer2.innerHTML = `
         <button id="back-button" class="btn btn-secondary">Back</button>
         <button id="export-button" class="btn btn-primary">Export</button>
     `;
-        // Add event listener to the back button
-        document.getElementById('back-button').addEventListener('click', handleBackButtonClick);
+    // Add event listener to the back button
+    document.getElementById('back-button').addEventListener('click', handleBackButtonClick);
 
-    }
+}
 
-    // Function to handle back button click
-    function handleBackButtonClick() {
-
-        // Go back to review step 
-        initializeReviewStep();
-    }
+// Function to handle back button click
+function handleBackButtonClick() {
+    initializeReviewStep();
+}
 
 
-
-    // Function to show the review step's confirmation modal that leads to analyze 
-    function showConfirmationModal() {
-        // Create the modal HTML structure
-        const modalHTML = `
+// Function to show the review step's confirmation modal that leads to analyze 
+function showConfirmationModal() {
+    // Create the modal HTML structure
+    const modalHTML = `
         <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -500,33 +504,33 @@ let dropdownState = [];
         </div>
         `;
 
-        // Append the modal to the body
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    // Append the modal to the body
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-        // Show the modal
-        const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
-        confirmationModal.show();
+    // Show the modal
+    const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+    confirmationModal.show();
 
-        // Add event listener for the confirm button
-        document.getElementById('confirmButton').addEventListener('click', () => {
-            saveDropdownState();
-            updateStepperCircles();
-            updateStepBody();
-            updateBottomPanel();
-            confirmationModal.hide();
-        });
+    // Add event listener for the confirm button
+    document.getElementById('confirmButton').addEventListener('click', () => {
+        saveDropdownState();
+        updateStepperCircles();
+        updateStepBody();
+        updateBottomPanel();
+        confirmationModal.hide();
+    });
 
-        // Clean up the modal from the DOM after it is hidden
-        $('#confirmationModal').on('hidden.bs.modal', () => {
-            document.getElementById('confirmationModal').remove();
-        });
+    // Clean up the modal from the DOM after it is hidden
+    $('#confirmationModal').on('hidden.bs.modal', () => {
+        document.getElementById('confirmationModal').remove();
+    });
 
+}
+// Function to setup event listener for the analyze button
+function setupAnalyzeButtonListener() {
+    const analyzeButton = document.getElementById('analyze-button');
+    if (analyzeButton) {
+        analyzeButton.addEventListener('click', showConfirmationModal);
     }
-    // Function to setup event listener for the analyze button
-    function setupAnalyzeButtonListener() {
-        const analyzeButton = document.getElementById('analyze-button');
-        if (analyzeButton) {
-            analyzeButton.addEventListener('click', showConfirmationModal);
-        }
-    }
+}
 
