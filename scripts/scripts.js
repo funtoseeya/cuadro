@@ -444,18 +444,25 @@ function updateStepBody() {
 
     // Create three column divs for the dropdowns and set their class
     const colDiv1 = document.createElement('div');
+    colDiv1.id = 'col-div-1';
     colDiv1.classList.add('col-12', 'col-sm-6', 'col-md-3');
+
     const colDiv2 = document.createElement('div');
+    colDiv2.id = 'col-div-2';
     colDiv2.classList.add('col-12', 'col-sm-6', 'col-md-6');
+
     const colDiv3 = document.createElement('div');
+    colDiv3.id = 'col-div-3';
     colDiv3.classList.add('col-12', 'col-sm-6', 'col-md-3');
 
     // Create the span element for text
     const span = document.createElement('span');
+    span.id = 'i-want-to-text';
     span.textContent = 'I want to...';
 
     // Create the select element with its options
     const select = document.createElement('select');
+    select.id = 'i-want-to-dropdown';
     select.classList.add('sleek-dropdown');
     select.innerHTML = `
         <option value="" disabled selected>make a selection</option>
@@ -476,8 +483,70 @@ function updateStepBody() {
 
     // Append the row div to the stepBody
     stepBody.appendChild(rowDiv);
+
+    // Add event listener for selection change
+    select.addEventListener('change', handleSelectChange);
 }
 
+// Handle the select change event
+function handleSelectChange(event) {
+    //whatever the value, move the select dropdown to coldiv1
+
+    const span = document.getElementById('i-want-to-text');
+    const select = document.getElementById('i-want-to-dropdown');
+    select.classList.remove('sleek-dropdown');
+    select.classList.add('form-select');
+
+    const colDiv1 = document.getElementById('col-div-1');
+    colDiv1.classList.remove('col-md-3');
+    colDiv1.classList.add('col-md-4');
+    colDiv1.appendChild(span);
+    colDiv1.appendChild(select);
+
+    const colDiv2 = document.getElementById('col-div-2');
+    colDiv2.classList.remove('col-md-6');
+    colDiv2.classList.add('col-md-4');
+    colDiv2.innerHTML = '';
+
+    const colDiv3 = document.getElementById('col-div-3');
+    colDiv3.classList.remove('col-md-3');
+    colDiv3.classList.add('col-md-4');
+    /*
+    const selectedValue = event.target.value;
+
+    //if the value becomes generic...
+    if (selectedValue === 'generic') {
+        // Create and append the new dropdown
+        createColumnDropdown();
+    }
+        */
+}
+
+/*
+// Create the column dropdown
+function createColumnDropdown() {
+    const stepBody = document.getElementById('step-body');
+
+    // Create the new select element with the custom multi-select style
+    const columnSelect = document.createElement('select');
+    columnSelect.classList.add('sleek-multiselect');
+    columnSelect.id = 'column-select';
+    columnSelect.setAttribute('multiple', 'multiple');
+
+    // Populate the new dropdown with options from the saved dropdown state
+    dropdownState.forEach(({ header, value }) => {
+        if (value === 'Limited options') {
+            const optionElement = document.createElement('option');
+            optionElement.value = header;
+            optionElement.textContent = header;
+            columnSelect.appendChild(optionElement);
+        }
+    });
+
+    // Append the new select element to the step body
+    stepBody.appendChild(columnSelect);
+}
+*/
 
 // Update the Bottom Panel buttons 
 function updateBottomPanel() {
