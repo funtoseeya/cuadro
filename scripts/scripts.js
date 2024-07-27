@@ -247,12 +247,12 @@ function initializeReviewStep() {
     stepperAnalyze.classList.remove('circle-primary');
     stepperAnalyze.classList.add('circle-secondary');
 
- // Create the accordion
-const accordion = document.createElement('div');
-accordion.classList.add('accordion', 'w-100', 'mb-3');
-accordion.id = 'dataTypeAccordion';
+    // Create the accordion
+    const accordion = document.createElement('div');
+    accordion.classList.add('accordion', 'w-100', 'mb-3');
+    accordion.id = 'dataTypeAccordion';
 
-accordion.innerHTML = `
+    accordion.innerHTML = `
     <div class="accordion-item mt-3">
         <h2 class="accordion-header" id="headingOne">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
@@ -305,7 +305,7 @@ function initializeDropdownListeners() {
 
 // Function to generate the review table
 function generateReviewTable(stepBody) {
-    
+
     const table = document.createElement('table');
     table.classList.add('table', 'table-bordered', 'mt-3'); // Added margin-top class
 
@@ -434,7 +434,7 @@ function generateReviewTable(stepBody) {
 // Clear and update the stepper body with the "I want to..." dropdown
 function updateStepBody() {
     const stepBody = document.getElementById('step-body');
-    
+
     // Clear any existing content
     stepBody.innerHTML = '';
 
@@ -442,12 +442,18 @@ function updateStepBody() {
     const rowDiv = document.createElement('div');
     rowDiv.classList.add('row', 'sleek-row');
 
-    
-    
+    // Create three column divs for the dropdowns and set their class
+    const colDiv1 = document.createElement('div');
+    colDiv1.classList.add('col-12', 'col-sm-6', 'col-md-3');
+    const colDiv2 = document.createElement('div');
+    colDiv2.classList.add('col-12', 'col-sm-6', 'col-md-6');
+    const colDiv3 = document.createElement('div');
+    colDiv3.classList.add('col-12', 'col-sm-6', 'col-md-3');
+
     // Create the span element for text
     const span = document.createElement('span');
     span.textContent = 'I want to...';
-    
+
     // Create the select element with its options
     const select = document.createElement('select');
     select.classList.add('sleek-dropdown');
@@ -459,14 +465,20 @@ function updateStepBody() {
         <option value="trends">visualize trends</option>
     `;
 
-       // Append the span and select elements to the row div
-       rowDiv.appendChild(span);
-       rowDiv.appendChild(select);
+    // Append the span and select elements to the 2nd (middle?) col div 
+    colDiv2.appendChild(span);
+    colDiv2.appendChild(select);
 
-       // Append the row div to the stepBody
+    // Append the col divs to the rowdiv 
+    rowDiv.appendChild(colDiv1);
+    rowDiv.appendChild(colDiv2);
+    rowDiv.appendChild(colDiv3);
+
+    // Append the row div to the stepBody
     stepBody.appendChild(rowDiv);
-    
 }
+
+
 // Update the Bottom Panel buttons 
 function updateBottomPanel() {
 
@@ -487,21 +499,22 @@ function updateBottomPanel() {
 // Function to setup event listener for the analyze button
 function setupAnalyzeButtonListener() {
     const analyzeButton = document.getElementById('analyze-button');
-        analyzeButton.addEventListener('click', () => {
-            
-            //save the review table's configuration into an array
-            saveDropdownState();
+    analyzeButton.addEventListener('click', () => {
 
-            //adjust the steppers
-            document.getElementById('stepper-review').classList.remove('circle-primary');
-            document.getElementById('stepper-review').classList.add('circle-secondary');
-            document.getElementById('stepper-analyze').classList.remove('circle-secondary');
-            document.getElementById('stepper-analyze').classList.add('circle-primary');
+        //save the review table's configuration into an array
+        saveDropdownState();
 
-            //update the step body. will keep as a separate function because this is going to be big
-            updateStepBody();
-            
-            //update the bottom panel. will keep as a separate function because this is going to be big
-            updateBottomPanel();
+        //adjust the steppers
+        document.getElementById('stepper-review').classList.remove('circle-primary');
+        document.getElementById('stepper-review').classList.add('circle-secondary');
+        document.getElementById('stepper-analyze').classList.remove('circle-secondary');
+        document.getElementById('stepper-analyze').classList.add('circle-primary');
 
-        })}
+        //update the step body. will keep as a separate function because this is going to be big
+        updateStepBody();
+
+        //update the bottom panel. will keep as a separate function because this is going to be big
+        updateBottomPanel();
+
+    })
+}
