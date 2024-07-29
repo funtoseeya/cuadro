@@ -470,6 +470,7 @@ function updateStepBody() {
 
     // Create the menu container
     const dropdownContainer = document.createElement('div');
+    dropdownContainer.id='i-want-to-dropdown-container'
     dropdownContainer.classList.add('dropdown');
 
     // Create the button 
@@ -523,16 +524,6 @@ function updateStepBody() {
     openListItem.appendChild(openListAnchor);
     menu.appendChild(openListItem);
 
-
-
-    // Close the dropdown menu when clicking outside
-    document.addEventListener('click', function (event) {
-        if (!menu.contains(event.target) && !select.contains(event.target)) {
-            menu.classList.remove('show');
-        }
-    });
-
-
     // Append elements to the dropdown container
     dropdownContainer.appendChild(select);
     dropdownContainer.appendChild(menu);
@@ -566,12 +557,13 @@ function handleSelectChange(event) {
     select.textContent = target.querySelector('label').textContent;
 
     // Move the select dropdown to colDiv1
-    const span = document.getElementById('i-want-to-text');
     const colDiv1 = document.getElementById('col-div-1');
+    const span = document.getElementById('i-want-to-text');
+    const dropdownContainer = document.getElementById('i-want-to-dropdown-container');
     colDiv1.classList.remove('col-md-3');
     colDiv1.classList.add('col-md-4');
     colDiv1.appendChild(span);
-    colDiv1.appendChild(select);
+    colDiv1.appendChild(dropdownContainer);
 
     // Readjust widths of col 2 and 3
     const colDiv2 = document.getElementById('col-div-2');
@@ -588,9 +580,12 @@ function handleSelectChange(event) {
         // Create and append the new dropdown
         createColumnDropdown();
     }
-}
+
+    }
+
 // Create the column dropdown
 function createColumnDropdown() {
+
     const colDiv2 = document.getElementById('col-div-2');
 
     // Create the span element for text
