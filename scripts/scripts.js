@@ -602,7 +602,7 @@ function createColumnDropdown() {
     columnSelect.classList.add('btn', 'btn-secondary', 'form-select', 'data-type-dropdown');
     columnSelect.type = 'button';
     columnSelect.style.width = '100%';
-    columnSelect.textContent = 'x selected';
+    columnSelect.textContent = '0 selected'; // Start with 0 selected
     columnSelect.style.textAlign = 'left'; // Align text to the left
     columnSelect.id = 'column-select';
 
@@ -633,6 +633,9 @@ function createColumnDropdown() {
             columnListAnchor.appendChild(columnListLabel);
             columnListItem.appendChild(columnListAnchor);
             columnMenu.appendChild(columnListItem);
+
+            // Add event listener to update button text when checkbox is changed
+            columnListInput.addEventListener('change', updateSelectedCount);
         }
     });
 
@@ -649,6 +652,14 @@ function createColumnDropdown() {
         event.stopPropagation();
     });
 
+}
+
+// Update the text of the columnSelect button based on selected checkboxes
+function updateSelectedCount() {
+    const columnSelect = document.getElementById('column-select');
+    const checkboxes = document.querySelectorAll('#column-select ~ .dropdown-menu input[type="checkbox"]');
+    const selectedCount = Array.from(checkboxes).filter(checkbox => checkbox.checked).length;
+    columnSelect.textContent = `${selectedCount} selected`;
 }
 
 
