@@ -151,11 +151,8 @@ body {
   margin-top: 50px;
 }
 
-
-
-
 .sleek-dropdown {
-  margin-left: 10px;
+ 
   border: none;
   border-bottom: 1px solid #ccc;
   padding: 5px;
@@ -163,5 +160,15 @@ body {
 
 
 
+/* Custom styles for checkbox when checked */
+.dropdown-menu .dropdown-item input[type="checkbox"]:checked {
+  accent-color: var(--secondary); /* Change this to your desired color */
+}
 
+/* Custom styles for menu item when active */
+.dropdown-menu .dropdown-item.active,
+.dropdown-menu .dropdown-item:active,
+.dropdown-menu .dropdown-item.show,
+.dropdown-menu .dropdown-item:focus {  background-color: var(--secondary); /* Change this to your desired background color */
+}
 

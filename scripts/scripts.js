@@ -1,3 +1,5 @@
+
+
 //UPLOAD STEP
 
 // Function to alert the user about unsaved changes
@@ -231,8 +233,6 @@ function initializeReviewStep() {
 
 
 
-
-
     // Update stepper circle styling
     const stepperUpload = document.getElementById('stepper-upload');
     stepperUpload.classList.remove('circle-primary');
@@ -331,6 +331,7 @@ function generateReviewTable(stepBody) {
     // Style the table header
     thead.style.backgroundColor = 'var(--primary-color)';
     thead.style.color = 'white';
+    thead.style.width = '100%';
 
     // Create table body
     const tbody = document.createElement('tbody');
@@ -346,16 +347,19 @@ function generateReviewTable(stepBody) {
 
             // Column label
             const cell1 = document.createElement('td');
+            cell1.style.width = '33%';
             cell1.textContent = header;
             row.appendChild(cell1);
 
             // Data sample
             const cell2 = document.createElement('td');
+            cell2.style.width = '33%';
             cell2.textContent = 'Sample data'; // Assuming you want to display some placeholder sample data
             row.appendChild(cell2);
 
             // Data type dropdown
             const cell3 = document.createElement('td');
+            cell3.style.width = '33%';
             const select = document.createElement('select');
             select.classList.add('form-select', 'data-type-dropdown');
             const options = ['Limited options', 'Open-ended', 'Numbers'];
@@ -389,11 +393,13 @@ function generateReviewTable(stepBody) {
 
                 // Column label
                 const cell1 = document.createElement('td');
+                cell1.style.width = '33%';
                 cell1.textContent = header;
                 row.appendChild(cell1);
 
                 // Data sample
                 const cell2 = document.createElement('td');
+                cell2.style.width = '33%';
                 const samples = rows.slice(1, 4).map(row => row.split(',')[index]).join(', ');
                 cell2.textContent = samples;
                 row.appendChild(cell2);
@@ -401,6 +407,7 @@ function generateReviewTable(stepBody) {
                 // Data type dropdown
                 const cell3 = document.createElement('td');
                 const select = document.createElement('select');
+                cell3.style.width = '33%';
                 select.classList.add('form-select', 'data-type-dropdown');
                 const options = ['Limited options', 'Open-ended', 'Numbers'];
                 options.forEach(option => {
@@ -495,7 +502,7 @@ function handleSelectChange(event) {
     const span = document.getElementById('i-want-to-text');
     const select = document.getElementById('i-want-to-dropdown');
     select.classList.remove('sleek-dropdown');
-    select.classList.add('form-select');
+    select.classList.add('btn-secondary','form-select','data-type-dropdown');
 
     const colDiv1 = document.getElementById('col-div-1');
     colDiv1.classList.remove('col-md-3');
@@ -511,7 +518,8 @@ function handleSelectChange(event) {
     const colDiv3 = document.getElementById('col-div-3');
     colDiv3.classList.remove('col-md-3');
     colDiv3.classList.add('col-md-4');
-    /*
+
+
     const selectedValue = event.target.value;
 
     //if the value becomes generic...
@@ -519,34 +527,82 @@ function handleSelectChange(event) {
         // Create and append the new dropdown
         createColumnDropdown();
     }
-        */
+
 }
 
-/*
-// Create the column dropdown
-function createColumnDropdown() {
-    const stepBody = document.getElementById('step-body');
+        // Create the column dropdown
+        function createColumnDropdown() {
+            const colDiv2 = document.getElementById('col-div-2');
 
-    // Create the new select element with the custom multi-select style
-    const columnSelect = document.createElement('select');
-    columnSelect.classList.add('sleek-multiselect');
-    columnSelect.id = 'column-select';
-    columnSelect.setAttribute('multiple', 'multiple');
+            // Create the span element for text
+            const span = document.createElement('span');
+            span.id = 'using-these-values-text';
+            span.textContent = 'using these columns';
 
-    // Populate the new dropdown with options from the saved dropdown state
-    dropdownState.forEach(({ header, value }) => {
-        if (value === 'Limited options') {
-            const optionElement = document.createElement('option');
-            optionElement.value = header;
-            optionElement.textContent = header;
-            columnSelect.appendChild(optionElement);
+            // Create the menu container
+            const dropdownContainer = document.createElement('div');
+            dropdownContainer.classList.add('dropdown');
+
+            // Create the button 
+            const columnSelect = document.createElement('button');
+            columnSelect.classList.add('btn', 'btn-secondary','form-select','data-type-dropdown');
+            columnSelect.type = 'button';
+            columnSelect.style.width='100%';
+            columnSelect.textContent='x selected';
+            columnSelect.style.textAlign = 'left'; // Align text to the left
+            columnSelect.id = 'column-select';
+            
+            columnSelect.setAttribute('data-bs-toggle', 'dropdown');
+            columnSelect.setAttribute('aria-expanded', 'false');
+
+            // Create the menu
+            const columnMenu = document.createElement('ul');
+            columnMenu.classList.add('dropdown-menu');
+
+            // Populate the new dropdown with options from the saved dropdown state
+            dropdownState.forEach(({ header, value }) => {
+                if (value === 'Limited options') {
+                    const columnListItem = document.createElement('li');
+                    const columnListAnchor = document.createElement('a');
+                    columnListAnchor.classList.add('dropdown-item');
+                    const columnListInput = document.createElement('input');
+                    columnListInput.type = 'checkbox';
+                    columnListInput.id = header;
+                    columnListInput.value = header;
+
+                    const columnListLabel = document.createElement('label');
+                    columnListLabel.htmlFor = header;
+                    columnListLabel.textContent = header;
+
+                    columnListAnchor.appendChild(columnListInput);
+                    columnListAnchor.appendChild(columnListLabel);
+                    columnListItem.appendChild(columnListAnchor);
+                    columnMenu.appendChild(columnListItem);
+                }
+            });
+
+            // Append elements to the dropdown container
+            dropdownContainer.appendChild(columnSelect);
+            dropdownContainer.appendChild(columnMenu);
+
+            // Append elements to colDiv2
+            colDiv2.appendChild(span);
+            colDiv2.appendChild(dropdownContainer);
+
+            // Prevent dropdown menu from closing when clicking inside
+            columnMenu.addEventListener('click', function (event) {
+                event.stopPropagation();
+            });
+
+            // Close the dropdown menu when clicking outside
+            document.addEventListener('click', function (event) {
+                if (!dropdownMenu.contains(event.target) && !dropdownButton.contains(event.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
         }
-    });
 
-    // Append the new select element to the step body
-    stepBody.appendChild(columnSelect);
-}
-*/
+
 
 // Update the Bottom Panel buttons 
 function updateBottomPanel() {
