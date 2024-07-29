@@ -462,26 +462,84 @@ function updateStepBody() {
     colDiv3.id = 'col-div-3';
     colDiv3.classList.add('col-12', 'col-sm-6', 'col-md-3');
 
+
     // Create the span element for text
     const span = document.createElement('span');
     span.id = 'i-want-to-text';
     span.textContent = 'I want to...';
 
-    // Create the select element with its options
-    const select = document.createElement('select');
-    select.id = 'i-want-to-dropdown';
-    select.classList.add('sleek-dropdown');
-    select.innerHTML = `
-        <option value="" disabled selected>make a selection</option>
-        <option value="generic">create basic charts</option>
-        <option value="compare">compare my data</option>
-        <option value="open-ended">analyze open-ended data</option>
-        <option value="trends">visualize trends</option>
-    `;
+    // Create the menu container
+    const dropdownContainer = document.createElement('div');
+    dropdownContainer.classList.add('dropdown');
 
-    // Append the span and select elements to the 2nd (middle?) col div 
+    // Create the button 
+    const select = document.createElement('button');
+    select.classList.add('btn', 'btn-secondary', 'form-select', 'data-type-dropdown');
+    select.type = 'button';
+    select.style.width = '100%';
+    select.textContent = 'make a selection';
+    select.style.textAlign = 'left'; // Align text to the left
+    select.id = 'i-want-to-dropdown';
+    select.setAttribute('data-bs-toggle', 'dropdown');
+    select.setAttribute('aria-expanded', 'false');
+
+    // Create the menu
+    const menu = document.createElement('ul');
+    menu.classList.add('dropdown-menu');
+
+    // Populate the new dropdown with types of comparisons
+
+    const genericListItem = document.createElement('li');
+    const genericListAnchor = document.createElement('a');
+    genericListAnchor.classList.add('dropdown-item');
+    const genericListAnchorText = document.createElement('label');
+    genericListAnchorText.textContent = 'create basic charts';
+    genericListAnchor.setAttribute('data-value', 'generic'); 
+
+    const compareListItem = document.createElement('li');
+    const compareListAnchor = document.createElement('a');
+    compareListAnchor.classList.add('dropdown-item');
+    const compareListAnchorText = document.createElement('label');
+    compareListAnchorText.textContent = 'make comparisons';
+    compareListAnchor.setAttribute('data-value', 'compare'); 
+
+    const openListItem = document.createElement('li');
+    const openListAnchor = document.createElement('a');
+    openListAnchor.classList.add('dropdown-item');
+    const openListAnchorText = document.createElement('label');
+    openListAnchorText.textContent = 'analyze open-ended content';
+    openListAnchor.setAttribute('data-value', 'open'); 
+
+    //append options to menu
+    genericListAnchor.appendChild(genericListAnchorText);
+    genericListItem.appendChild(genericListAnchor);
+    menu.appendChild(genericListItem);
+
+    compareListAnchor.appendChild(compareListAnchorText);
+    compareListItem.appendChild(compareListAnchor);
+    menu.appendChild(compareListItem);
+
+    openListAnchor.appendChild(openListAnchorText);
+    openListItem.appendChild(openListAnchor);
+    menu.appendChild(openListItem);
+
+
+
+    // Close the dropdown menu when clicking outside
+    document.addEventListener('click', function (event) {
+        if (!menu.contains(event.target) && !select.contains(event.target)) {
+            menu.classList.remove('show');
+        }
+    });
+
+
+    // Append elements to the dropdown container
+    dropdownContainer.appendChild(select);
+    dropdownContainer.appendChild(menu);
+
+    // Append elements to colDiv2
     colDiv2.appendChild(span);
-    colDiv2.appendChild(select);
+    colDiv2.appendChild(dropdownContainer);
 
     // Append the col divs to the rowdiv 
     rowDiv.appendChild(colDiv1);
@@ -492,24 +550,30 @@ function updateStepBody() {
     stepBody.appendChild(rowDiv);
 
     // Add event listener for selection change
-    select.addEventListener('change', handleSelectChange);
+    menu.addEventListener('click', handleSelectChange);
+
 }
 
 // Handle the select change event
 function handleSelectChange(event) {
-    //whatever the value, move the select dropdown to coldiv1
+    const target = event.target.closest('a.dropdown-item');
+    if (!target) return;
 
-    const span = document.getElementById('i-want-to-text');
+    const selectedValue = target.getAttribute('data-value');
     const select = document.getElementById('i-want-to-dropdown');
-    select.classList.remove('sleek-dropdown');
-    select.classList.add('btn-secondary','form-select','data-type-dropdown');
 
+    // Update select.textContent with genericListAnchorText.textContent
+    select.textContent = target.querySelector('label').textContent;
+
+    // Move the select dropdown to colDiv1
+    const span = document.getElementById('i-want-to-text');
     const colDiv1 = document.getElementById('col-div-1');
     colDiv1.classList.remove('col-md-3');
     colDiv1.classList.add('col-md-4');
     colDiv1.appendChild(span);
     colDiv1.appendChild(select);
 
+    // Readjust widths of col 2 and 3
     const colDiv2 = document.getElementById('col-div-2');
     colDiv2.classList.remove('col-md-6');
     colDiv2.classList.add('col-md-4');
@@ -519,88 +583,78 @@ function handleSelectChange(event) {
     colDiv3.classList.remove('col-md-3');
     colDiv3.classList.add('col-md-4');
 
-
-    const selectedValue = event.target.value;
-
-    //if the value becomes generic...
+    // If the value of the select dropdown is "generic"...
     if (selectedValue === 'generic') {
         // Create and append the new dropdown
         createColumnDropdown();
     }
+}
+// Create the column dropdown
+function createColumnDropdown() {
+    const colDiv2 = document.getElementById('col-div-2');
+
+    // Create the span element for text
+    const span = document.createElement('span');
+    span.id = 'using-these-values-text';
+    span.textContent = 'using these columns';
+
+    // Create the menu container
+    const dropdownContainer = document.createElement('div');
+    dropdownContainer.classList.add('dropdown');
+
+    // Create the button 
+    const columnSelect = document.createElement('button');
+    columnSelect.classList.add('btn', 'btn-secondary', 'form-select', 'data-type-dropdown');
+    columnSelect.type = 'button';
+    columnSelect.style.width = '100%';
+    columnSelect.textContent = 'x selected';
+    columnSelect.style.textAlign = 'left'; // Align text to the left
+    columnSelect.id = 'column-select';
+
+    columnSelect.setAttribute('data-bs-toggle', 'dropdown');
+    columnSelect.setAttribute('aria-expanded', 'false');
+
+    // Create the menu
+    const columnMenu = document.createElement('ul');
+    columnMenu.classList.add('dropdown-menu');
+
+    // Populate the new dropdown with options from the saved dropdown state
+    dropdownState.forEach(({ header, value }) => {
+        if (value === 'Limited options') {
+            const columnListItem = document.createElement('li');
+            const columnListAnchor = document.createElement('a');
+            columnListAnchor.classList.add('dropdown-item');
+            const columnListInput = document.createElement('input');
+            columnListInput.type = 'checkbox';
+            columnListInput.id = header;
+            columnListInput.value = header;
+
+            const columnListLabel = document.createElement('label');
+            columnListLabel.style.marginLeft = '10px';
+            columnListLabel.htmlFor = header;
+            columnListLabel.textContent = header;
+
+            columnListAnchor.appendChild(columnListInput);
+            columnListAnchor.appendChild(columnListLabel);
+            columnListItem.appendChild(columnListAnchor);
+            columnMenu.appendChild(columnListItem);
+        }
+    });
+
+    // Append elements to the dropdown container
+    dropdownContainer.appendChild(columnSelect);
+    dropdownContainer.appendChild(columnMenu);
+
+    // Append elements to colDiv2
+    colDiv2.appendChild(span);
+    colDiv2.appendChild(dropdownContainer);
+
+    // Prevent dropdown menu from closing when clicking inside
+    columnMenu.addEventListener('click', function (event) {
+        event.stopPropagation();
+    });
 
 }
-
-        // Create the column dropdown
-        function createColumnDropdown() {
-            const colDiv2 = document.getElementById('col-div-2');
-
-            // Create the span element for text
-            const span = document.createElement('span');
-            span.id = 'using-these-values-text';
-            span.textContent = 'using these columns';
-
-            // Create the menu container
-            const dropdownContainer = document.createElement('div');
-            dropdownContainer.classList.add('dropdown');
-
-            // Create the button 
-            const columnSelect = document.createElement('button');
-            columnSelect.classList.add('btn', 'btn-secondary','form-select','data-type-dropdown');
-            columnSelect.type = 'button';
-            columnSelect.style.width='100%';
-            columnSelect.textContent='x selected';
-            columnSelect.style.textAlign = 'left'; // Align text to the left
-            columnSelect.id = 'column-select';
-            
-            columnSelect.setAttribute('data-bs-toggle', 'dropdown');
-            columnSelect.setAttribute('aria-expanded', 'false');
-
-            // Create the menu
-            const columnMenu = document.createElement('ul');
-            columnMenu.classList.add('dropdown-menu');
-
-            // Populate the new dropdown with options from the saved dropdown state
-            dropdownState.forEach(({ header, value }) => {
-                if (value === 'Limited options') {
-                    const columnListItem = document.createElement('li');
-                    const columnListAnchor = document.createElement('a');
-                    columnListAnchor.classList.add('dropdown-item');
-                    const columnListInput = document.createElement('input');
-                    columnListInput.type = 'checkbox';
-                    columnListInput.id = header;
-                    columnListInput.value = header;
-
-                    const columnListLabel = document.createElement('label');
-                    columnListLabel.htmlFor = header;
-                    columnListLabel.textContent = header;
-
-                    columnListAnchor.appendChild(columnListInput);
-                    columnListAnchor.appendChild(columnListLabel);
-                    columnListItem.appendChild(columnListAnchor);
-                    columnMenu.appendChild(columnListItem);
-                }
-            });
-
-            // Append elements to the dropdown container
-            dropdownContainer.appendChild(columnSelect);
-            dropdownContainer.appendChild(columnMenu);
-
-            // Append elements to colDiv2
-            colDiv2.appendChild(span);
-            colDiv2.appendChild(dropdownContainer);
-
-            // Prevent dropdown menu from closing when clicking inside
-            columnMenu.addEventListener('click', function (event) {
-                event.stopPropagation();
-            });
-
-            // Close the dropdown menu when clicking outside
-            document.addEventListener('click', function (event) {
-                if (!dropdownMenu.contains(event.target) && !dropdownButton.contains(event.target)) {
-                    dropdownMenu.classList.remove('show');
-                }
-            });
-        }
 
 
 

@@ -58,6 +58,10 @@ body {
   background-color: var(--tertiary-color) !important;
   color: var(--text-color);
 }
+
+.btn:focus {
+  color: black;
+}
 .accordion {
 
 --bs-accordion-active-bg: var(--tertiary-color)
