@@ -20,6 +20,9 @@ body {
   background-color: var(--background-color);
   color: var(--text-color);
 }
+.btn:focus {
+  color: black;
+}
 
 .btn-primary {
   /*mod*/
@@ -59,9 +62,15 @@ body {
   color: var(--text-color);
 }
 
-.btn:focus {
-  color: black;
+.btn-secondary {
+  --bs-btn-color: black;
+   --bs-btn-hover-color: black;
+   --bs-btn-active-color: black;
+  --bs-btn-disabled-color: black;
+  --bs-btn-disabled-bg: #6c757d;
+  --bs-btn-disabled-border-color: #6c757d;
 }
+
 .accordion {
 
 --bs-accordion-active-bg: var(--tertiary-color)

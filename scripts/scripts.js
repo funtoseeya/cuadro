@@ -665,7 +665,7 @@ function updateBottomPanel() {
     const panelButtonContainer2 = document.getElementById('panel-button-container-2');
     panelButtonContainer2.innerHTML = `
         <button id="back-button" class="btn btn-secondary">Back</button>
-        <button id="export-button" class="btn btn-primary">Export</button>
+        <button id="export-button" class="btn btn-primary disabled">Export</button>
     `;
     // Add event listener to the back button
     document.getElementById('back-button').addEventListener('click', initializeReviewStep);
