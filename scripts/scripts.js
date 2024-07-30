@@ -2,6 +2,10 @@
 
 //UPLOAD STEP
 
+let selectedFile; // Global variable to store the file
+
+
+
 // Function to alert the user about unsaved changes
 function alertUnsavedChanges(event) {
     // Most browsers will display a generic message, and custom messages are often ignored
@@ -98,6 +102,8 @@ document.addEventListener('DOMContentLoaded', initializeFileInput);
 // Function to handle file selection
 async function handleFileSelection(event) {
     const file = event.target.files[0];
+    selectedFile = file; // Store the file globally
+
 
     if (file) {
         // Validate file type and size
@@ -194,10 +200,49 @@ function updateUploadStepUI(fileName) {
 
 //REVIEW STEP
 
+// Function to read CSV content and convert to array
+let parsedCSVData = [];
+// Function to convert CSV to array
+function csvToArray(csv) {
+    const lines = csv.split('\n').filter(line => line.trim() !== '');
+    const headers = lines[0].split(',');
+    const data = lines.slice(1).map(line => {
+        const values = line.split(',');
+        let obj = {};
+        headers.forEach((header, index) => {
+            obj[header.trim()] = values[index].trim();
+        });
+        return obj;
+    });
+
+    return data;
+}
+
+function readAndConvertCSV(file) {
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        const csv = e.target.result;
+        const parsedCSVData = csvToArray(csv); // Convert CSV to array and store it globally
+
+        // Log the parsed data for testing
+        console.log('Parsed CSV Data:', parsedCSVData);
+    };
+
+    reader.readAsText(file);
+
+
+}
+
+
+
+
+
 // Function to initialize the "Review" step
 function initializeReviewStep() {
 
-
+    //transform csv into an array and log to console
+    readAndConvertCSV(selectedFile); // Pass the selected file
 
     // Clear step body content
     const stepBody = document.getElementById('step-body');
@@ -470,7 +515,7 @@ function updateStepBody() {
 
     // Create the menu container
     const dropdownContainer = document.createElement('div');
-    dropdownContainer.id='i-want-to-dropdown-container'
+    dropdownContainer.id = 'i-want-to-dropdown-container'
     dropdownContainer.classList.add('dropdown');
 
     // Create the button 
@@ -495,21 +540,21 @@ function updateStepBody() {
     genericListAnchor.classList.add('dropdown-item');
     const genericListAnchorText = document.createElement('label');
     genericListAnchorText.textContent = 'create basic charts';
-    genericListAnchor.setAttribute('data-value', 'generic'); 
+    genericListAnchor.setAttribute('data-value', 'generic');
 
     const compareListItem = document.createElement('li');
     const compareListAnchor = document.createElement('a');
     compareListAnchor.classList.add('dropdown-item');
     const compareListAnchorText = document.createElement('label');
     compareListAnchorText.textContent = 'make comparisons';
-    compareListAnchor.setAttribute('data-value', 'compare'); 
+    compareListAnchor.setAttribute('data-value', 'compare');
 
     const openListItem = document.createElement('li');
     const openListAnchor = document.createElement('a');
     openListAnchor.classList.add('dropdown-item');
     const openListAnchorText = document.createElement('label');
     openListAnchorText.textContent = 'analyze open-ended content';
-    openListAnchor.setAttribute('data-value', 'open'); 
+    openListAnchor.setAttribute('data-value', 'open');
 
     //append options to menu
     genericListAnchor.appendChild(genericListAnchorText);
@@ -581,7 +626,7 @@ function handleSelectChange(event) {
         createColumnDropdown();
     }
 
-    }
+}
 
 // Create the column dropdown
 function createColumnDropdown() {
@@ -680,7 +725,7 @@ function filterdropdown() {
     const filterSelect = document.createElement('button');
     filterSelect.classList.add('btn', 'btn-secondary', 'form-select', 'data-type-dropdown');
     filterSelect.type = 'button';
-    filterSelect.style.width = '100%';  
+    filterSelect.style.width = '100%';
     filterSelect.textContent = '0 selected'; // Start with 0 selected
     filterSelect.style.textAlign = 'left'; // Align text to the left
     filterSelect.id = 'filter-select';
@@ -692,7 +737,7 @@ function filterdropdown() {
     filterMenu.classList.add('dropdown-menu');
 
     // Populate the dropdown with filter options 
-    
+
 
     // Append elements to the dropdown container
     dropdownContainer.appendChild(filterSelect);
