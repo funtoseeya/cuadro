@@ -325,7 +325,7 @@ function generateReviewTable(stepBody) {
 
 
 // Function to read CSV content and convert to array. also calls the function that generates the review table
-// Declare parsedCSVData globally
+// Declare parsedCSVData array globally
 let parsedCSVData = [];
 
 // Function to convert CSV to array
@@ -470,6 +470,33 @@ function initializeDropdownListeners() {
 
 // ANALYZE STEP
 
+// Function to create a new array with unique values for headers marked as "Limited options"
+function createLimitedOptionsArray() {
+    if (parsedCSVData.length === 0) {
+        console.error('No parsed CSV data available.');
+        return [];
+    }
+
+    // Extract headers marked as "Limited options"
+    const limitedOptionsHeaders = dropdownState
+        .filter(item => item.value === 'Limited options')
+        .map(item => item.header);
+
+    // Create a new array with unique values for each header marked as "Limited options"
+    const result = limitedOptionsHeaders.map(header => {
+        const uniqueValues = [...new Set(parsedCSVData.map(item => item[header]))];
+        return {
+            [header]: uniqueValues
+        };
+    });
+
+    // Log the result for debugging
+    console.log('Limited Options Array:', result);
+
+    return result;
+}
+
+
 
 
 // Clear and update the stepper body with the "I want to..." dropdown
@@ -613,6 +640,7 @@ function handleSelectChange(event) {
     if (selectedValue === 'generic') {
         // Create and append the new dropdown
         createColumnDropdown();
+        createFilterButton();
     }
 
 }
@@ -696,9 +724,10 @@ function updateSelectedCount() {
     columnSelect.textContent = `${selectedCount} selected`;
 }
 
-// Create the filter dropdown
-function filterdropdown() {
 
+// Create the filter dropdown using the limited options array
+function createFilterButton() {
+    const limitedOptionsArray = createLimitedOptionsArray(); // Call the function to get the array
     const colDiv3 = document.getElementById('col-div-3');
 
     // Create the span element for text
@@ -710,7 +739,7 @@ function filterdropdown() {
     const dropdownContainer = document.createElement('div');
     dropdownContainer.classList.add('dropdown');
 
-    // Create the button 
+    // Create the button
     const filterSelect = document.createElement('button');
     filterSelect.classList.add('btn', 'btn-secondary', 'form-select', 'data-type-dropdown');
     filterSelect.type = 'button';
@@ -725,8 +754,42 @@ function filterdropdown() {
     const filterMenu = document.createElement('ul');
     filterMenu.classList.add('dropdown-menu');
 
-    // Populate the dropdown with filter options 
+    // Populate the dropdown with headers and options
+    limitedOptionsArray.forEach(group => {
+        for (const [header, values] of Object.entries(group)) {
+            // Create and append header
+            const headerItem = document.createElement('li');
+            headerItem.classList.add('dropdown-header');
+            headerItem.textContent = header;
+            filterMenu.appendChild(headerItem);
 
+            // Create and append divider
+            const divider = document.createElement('li');
+            divider.classList.add('dropdown-divider');
+            filterMenu.appendChild(divider);
+
+            // Create and append options
+            values.forEach(value => {
+                const item = document.createElement('li');
+                item.classList.add('dropdown-item');
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = value;
+                checkbox.value = value;
+
+                const label = document.createElement('label');
+                label.htmlFor = value;
+                label.textContent = value;
+                label.style.marginLeft = '10px';
+
+                item.appendChild(checkbox);
+                item.appendChild(label);
+
+                filterMenu.appendChild(item);
+            });
+        }
+    });
 
     // Append elements to the dropdown container
     dropdownContainer.appendChild(filterSelect);
@@ -737,10 +800,9 @@ function filterdropdown() {
     colDiv3.appendChild(dropdownContainer);
 
     // Prevent dropdown menu from closing when clicking inside
-    columnMenu.addEventListener('click', function (event) {
+    filterMenu.addEventListener('click', function (event) {
         event.stopPropagation();
     });
-
 }
 
 
@@ -780,6 +842,9 @@ function setupAnalyzeButtonListener() {
 
         //update the bottom panel. will keep as a separate function because this is going to be big
         updateBottomPanel();
+
+        // run the function that creates the limited options array, which is needed for the filter panel
+        createLimitedOptionsArray();
 
     })
 }
