@@ -3,6 +3,8 @@
 //UPLOAD STEP
 
 let selectedFile; // Global variable to store the file
+let dropdownState = []; //global variable to save dropdowns in the review table
+
 
 
 
@@ -200,8 +202,132 @@ function updateUploadStepUI(fileName) {
 
 //REVIEW STEP
 
-// Function to read CSV content and convert to array
+// Function to generate the review table
+function generateReviewTable(stepBody) {
+    // Clear existing table if it exists
+    const existingTable = stepBody.querySelector('table');
+    if (existingTable) {
+        existingTable.remove();
+    }
+
+    const table = document.createElement('table');
+    table.classList.add('table', 'table-bordered', 'mt-3'); // Added margin-top class
+
+    // Create table header
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+
+    const header1 = document.createElement('th');
+    header1.textContent = 'Column label from CSV file';
+
+    const header2 = document.createElement('th');
+    header2.textContent = 'Data sample from CSV file';
+
+    const header3 = document.createElement('th');
+    header3.textContent = 'Data type';
+
+    headerRow.appendChild(header1);
+    headerRow.appendChild(header2);
+    headerRow.appendChild(header3);
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // Style the table header
+    thead.style.backgroundColor = 'var(--primary-color)';
+    thead.style.color = 'white';
+    thead.style.width = '100%';
+
+    // Create table body
+    const tbody = document.createElement('tbody');
+    table.appendChild(tbody);
+
+    if (dropdownState.length > 0) {
+        // Use saved dropdown state
+        dropdownState.forEach(({ header, value }) => {
+            const row = document.createElement('tr');
+
+            // Column label
+            const cell1 = document.createElement('td');
+            cell1.style.width = '33%';
+            cell1.textContent = header;
+            row.appendChild(cell1);
+
+            // Data sample
+            const cell2 = document.createElement('td');
+            cell2.style.width = '33%';
+            const samples = parsedCSVData.slice(0, 3).map(data => data[header]).join(', ');
+            cell2.textContent = samples;
+            row.appendChild(cell2);
+
+            // Data type dropdown
+            const cell3 = document.createElement('td');
+            cell3.style.width = '33%';
+            const select = document.createElement('select');
+            select.classList.add('form-select', 'data-type-dropdown');
+            const options = ['Limited options', 'Open-ended', 'Numbers'];
+            options.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option;
+                optionElement.textContent = option;
+                select.appendChild(optionElement);
+            });
+            select.value = value; // Set saved value
+            cell3.appendChild(select);
+            row.appendChild(cell3);
+
+            tbody.appendChild(row);
+        });
+
+    } else if (parsedCSVData.length > 0) {
+        // Use parsed CSV data
+        const headers = Object.keys(parsedCSVData[0]); // Get headers from first object
+        headers.forEach((header) => {
+            const row = document.createElement('tr');
+
+            // Column label
+            const cell1 = document.createElement('td');
+            cell1.style.width = '33%';
+            cell1.textContent = header;
+            row.appendChild(cell1);
+
+            // Data sample
+            const cell2 = document.createElement('td');
+            cell2.style.width = '33%';
+            const samples = parsedCSVData.slice(0, 3).map(data => data[header]).join(', ');
+            cell2.textContent = samples;
+            row.appendChild(cell2);
+
+            // Data type dropdown
+            const cell3 = document.createElement('td');
+            cell3.style.width = '33%';
+            const select = document.createElement('select');
+            select.classList.add('form-select', 'data-type-dropdown');
+            const options = ['Limited options', 'Open-ended', 'Numbers'];
+            options.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option;
+                optionElement.textContent = option;
+                select.appendChild(optionElement);
+            });
+            cell3.appendChild(select);
+            row.appendChild(cell3);
+
+            tbody.appendChild(row);
+        });
+    } else {
+        console.error('No data available for generating the review table.');
+    }
+
+    stepBody.appendChild(table);
+    initializeDropdownListeners();
+}
+
+
+
+// Function to read CSV content and convert to array. also calls the function that generates the review table
+// Declare parsedCSVData globally
 let parsedCSVData = [];
+
 // Function to convert CSV to array
 function csvToArray(csv) {
     const lines = csv.split('\n').filter(line => line.trim() !== '');
@@ -223,26 +349,21 @@ function readAndConvertCSV(file) {
 
     reader.onload = function (e) {
         const csv = e.target.result;
-        const parsedCSVData = csvToArray(csv); // Convert CSV to array and store it globally
+        parsedCSVData = csvToArray(csv); // Convert CSV to array and store it globally
 
         // Log the parsed data for testing
         console.log('Parsed CSV Data:', parsedCSVData);
+
+        // Call generateReviewTable here to ensure it's called after parsing
+        generateReviewTable(document.getElementById('step-body'));
     };
 
     reader.readAsText(file);
-
-
 }
-
-
-
 
 
 // Function to initialize the "Review" step
 function initializeReviewStep() {
-
-    //transform csv into an array and log to console
-    readAndConvertCSV(selectedFile); // Pass the selected file
 
     // Clear step body content
     const stepBody = document.getElementById('step-body');
@@ -275,8 +396,6 @@ function initializeReviewStep() {
 
     // Call to setup the analyze button listener
     setupAnalyzeButtonListener();
-
-
 
     // Update stepper circle styling
     const stepperUpload = document.getElementById('stepper-upload');
@@ -318,17 +437,14 @@ function initializeReviewStep() {
     </div>
 `;
 
-
     stepBody.appendChild(accordion);
 
-    // Generate table for CSV review
-    generateReviewTable(stepBody);
-
+    //transform csv into an array and log to console
+    readAndConvertCSV(selectedFile); // Pass the selected file
 }
 
 
 //declare the array that manages the review table's configuration
-let dropdownState = [];
 
 // Function to save the state of the dropdowns
 function saveDropdownState() {
@@ -348,134 +464,7 @@ function initializeDropdownListeners() {
 }
 
 
-// Function to generate the review table
-function generateReviewTable(stepBody) {
 
-    const table = document.createElement('table');
-    table.classList.add('table', 'table-bordered', 'mt-3'); // Added margin-top class
-
-    // Create table header
-    const thead = document.createElement('thead');
-    const headerRow = document.createElement('tr');
-
-    const header1 = document.createElement('th');
-    header1.textContent = 'Column label from CSV file';
-
-    const header2 = document.createElement('th');
-    header2.textContent = 'Data sample from CSV file';
-
-    const header3 = document.createElement('th');
-    header3.textContent = 'Data type';
-
-    headerRow.appendChild(header1);
-    headerRow.appendChild(header2);
-    headerRow.appendChild(header3);
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
-
-    // Style the table header
-    thead.style.backgroundColor = 'var(--primary-color)';
-    thead.style.color = 'white';
-    thead.style.width = '100%';
-
-    // Create table body
-    const tbody = document.createElement('tbody');
-    table.appendChild(tbody);
-
-    const fileInput = document.getElementById('file-input');
-    const file = fileInput.files[0];
-
-    if (dropdownState.length > 0) {
-        // Use saved dropdown state
-        dropdownState.forEach(({ header, value }) => {
-            const row = document.createElement('tr');
-
-            // Column label
-            const cell1 = document.createElement('td');
-            cell1.style.width = '33%';
-            cell1.textContent = header;
-            row.appendChild(cell1);
-
-            // Data sample
-            const cell2 = document.createElement('td');
-            cell2.style.width = '33%';
-            cell2.textContent = 'Sample data'; // Assuming you want to display some placeholder sample data
-            row.appendChild(cell2);
-
-            // Data type dropdown
-            const cell3 = document.createElement('td');
-            cell3.style.width = '33%';
-            const select = document.createElement('select');
-            select.classList.add('form-select', 'data-type-dropdown');
-            const options = ['Limited options', 'Open-ended', 'Numbers'];
-            options.forEach(option => {
-                const optionElement = document.createElement('option');
-                optionElement.value = option;
-                optionElement.textContent = option;
-                select.appendChild(optionElement);
-            });
-            select.value = value; // Set saved value
-            cell3.appendChild(select);
-            row.appendChild(cell3);
-
-            tbody.appendChild(row);
-        });
-
-        stepBody.appendChild(table);
-        initializeDropdownListeners();
-
-    } else if (file) {
-        // Parse CSV headers and sample data
-        const reader = new FileReader();
-
-        reader.onload = function (event) {
-            const text = event.target.result;
-            const rows = text.split('\n').filter(row => row.trim() !== '');
-            const headers = rows[0].split(',');
-
-            headers.forEach((header, index) => {
-                const row = document.createElement('tr');
-
-                // Column label
-                const cell1 = document.createElement('td');
-                cell1.style.width = '33%';
-                cell1.textContent = header;
-                row.appendChild(cell1);
-
-                // Data sample
-                const cell2 = document.createElement('td');
-                cell2.style.width = '33%';
-                const samples = rows.slice(1, 4).map(row => row.split(',')[index]).join(', ');
-                cell2.textContent = samples;
-                row.appendChild(cell2);
-
-                // Data type dropdown
-                const cell3 = document.createElement('td');
-                const select = document.createElement('select');
-                cell3.style.width = '33%';
-                select.classList.add('form-select', 'data-type-dropdown');
-                const options = ['Limited options', 'Open-ended', 'Numbers'];
-                options.forEach(option => {
-                    const optionElement = document.createElement('option');
-                    optionElement.value = option;
-                    optionElement.textContent = option;
-                    select.appendChild(optionElement);
-                });
-                cell3.appendChild(select);
-                row.appendChild(cell3);
-
-                tbody.appendChild(row);
-            });
-
-            stepBody.appendChild(table);
-            initializeDropdownListeners();
-        };
-
-        reader.readAsText(file);
-    } else {
-        console.error('No file input found and no saved dropdown state.');
-    }
-}
 
 
 
