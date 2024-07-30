@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
         uploadContainer.style.width = '80%';
         uploadContainer.style.height = '200px';
         uploadContainer.style.margin = '0 auto';
-        uploadContainer.style.marginTop = '100px';
+        uploadContainer.style.marginTop = '50px';
         uploadContainer.style.border = '3px dashed var(--primary)';
         uploadContainer.style.borderRadius = '5px';
         uploadContainer.style.display = 'flex';
@@ -662,6 +662,52 @@ function updateSelectedCount() {
     columnSelect.textContent = `${selectedCount} selected`;
 }
 
+// Create the filter dropdown
+function filterdropdown() {
+
+    const colDiv3 = document.getElementById('col-div-3');
+
+    // Create the span element for text
+    const span = document.createElement('span');
+    span.id = 'filtered-by-text';
+    span.textContent = 'filtered by';
+
+    // Create the menu container
+    const dropdownContainer = document.createElement('div');
+    dropdownContainer.classList.add('dropdown');
+
+    // Create the button 
+    const filterSelect = document.createElement('button');
+    filterSelect.classList.add('btn', 'btn-secondary', 'form-select', 'data-type-dropdown');
+    filterSelect.type = 'button';
+    filterSelect.style.width = '100%';  
+    filterSelect.textContent = '0 selected'; // Start with 0 selected
+    filterSelect.style.textAlign = 'left'; // Align text to the left
+    filterSelect.id = 'filter-select';
+    filterSelect.setAttribute('data-bs-toggle', 'dropdown');
+    filterSelect.setAttribute('aria-expanded', 'false');
+
+    // Create the menu
+    const filterMenu = document.createElement('ul');
+    filterMenu.classList.add('dropdown-menu');
+
+    // Populate the dropdown with filter options 
+    
+
+    // Append elements to the dropdown container
+    dropdownContainer.appendChild(filterSelect);
+    dropdownContainer.appendChild(filterMenu);
+
+    // Append elements to colDiv3
+    colDiv3.appendChild(span);
+    colDiv3.appendChild(dropdownContainer);
+
+    // Prevent dropdown menu from closing when clicking inside
+    columnMenu.addEventListener('click', function (event) {
+        event.stopPropagation();
+    });
+
+}
 
 
 // Update the Bottom Panel buttons 
