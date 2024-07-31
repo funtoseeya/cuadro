@@ -8,7 +8,8 @@ let limitedOptionsArray = [] //global array that saves all unique values of colu
 
 
 
-// Function to alert the user about unsaved changes if they refresh or restart
+// Function to alert the user about unsaved changes if they refresh or restart, e.g.location.reload()
+
 function alertUnsavedChanges(event) {
     // Most browsers will display a generic message, and custom messages are often ignored
     const message = 'Changes you made will not be saved.';
@@ -41,13 +42,12 @@ function createUploadStepContent() {
 
     // Create the container for the upload content
     const uploadContainer = document.createElement('div');
-    uploadContainer.classList.add('container', 'd-flex', 'flex-column', 'align-items-center', 'justify-content-center', 'text-center', 'mt-5');
+    uploadContainer.classList.add('container', 'd-flex', 'flex-column', 'align-items-center', 'justify-content-center', 'text-center');
     uploadContainer.style.width = '80%';
     uploadContainer.style.minHeight = '200px';
     uploadContainer.style.margin = '0 auto';
     uploadContainer.style.border = '3px dashed var(--primary)';
     uploadContainer.style.borderRadius = '5px';
-    uploadContainer.style.maxWidth = '600px'; // Added max-width for better responsiveness
 
     // Create and add the upload icon
     const uploadIcon = document.createElement('div');
@@ -104,13 +104,13 @@ async function handleFileSelection(event) {
     selectedFile = file; // Store the file globally in the selectedFile variable so that we could parse it in other functions
 
     if (file) {
-        // Validate file type and size
+        // Validate file type 
         if (!file.name.endsWith('.csv')) {
             alert('Please select a CSV file.');
             return;
         }
 
-        // Size limit (e.g., 5 MB)
+        // Validate file size limit of 5 MB
         const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
         if (file.size > MAX_FILE_SIZE) {
             alert('The maximum supported file size is 5MB. Please select a smaller file.');
@@ -118,33 +118,35 @@ async function handleFileSelection(event) {
         }
 
         // Validate CSV file content
-        const reader = new FileReader();
-        reader.onload = function (event) {
-            const text = event.target.result;
-            const rows = text.split('\n').filter(row => row.trim() !== ''); // Remove empty rows
-            const columnCount = rows[0].split(',').length;
+        const reader = new FileReader(); // Create a new FileReader object to read the content of the file
+        reader.onload = function (event) { // Define the function to be called when the file is successfully read
+            const text = event.target.result; // Get the content of the file as a string
+            const rows = text.split('\n').filter(row => row.trim() !== ''); // Split the content into rows and remove any empty rows
+            const columnCount = rows[0].split(',').length; // Count the number of columns in the first row
 
+            // Check if the number of columns exceeds the maximum allowed (20 columns)
             if (columnCount > 20) {
-                alert('Only files with a maximum of 20 columns are supported. Please remove excess columns and try again.');
-                return;
+                alert('Only files with a maximum of 20 columns are supported. Please remove excess columns and try again.'); // Show an alert if there are too many columns
+                return; // Exit the function early
             }
 
+            // Check if the number of rows exceeds the maximum allowed (1000 rows)
             if (rows.length > 1000) {
-                alert('Only files with a maximum of 1000 rows are supported. Please remove excess rows and try again.');
-                return;
+                alert('Only files with a maximum of 1000 rows are supported. Please remove excess rows and try again.'); // Show an alert if there are too many rows
+                return; // Exit the function early
             }
 
-            // Simple header check
+            // Simple header check to ensure the first row has at least one column
             if (rows.length > 0 && rows[0].split(',').length < 1) {
-                alert('CSV file header is missing or incorrect.');
-                return;
+                alert('CSV file header is missing or incorrect.'); // Show an alert if the first row (header) is missing or incorrect
+                return; // Exit the function early
             }
 
             // Update UI
             updateUploadStepUI(file.name);
         };
 
-        reader.readAsText(file);
+        reader.readAsText(file); // Reads the content of the file as a text string
     }
 }
 
@@ -172,7 +174,7 @@ function updateUploadStepUI(fileName) {
     console.log(`Uploaded file name: ${fileName}`);
 
 
-    // Add the event listener that triggers a warning message about unsaved changes whenever the user tries to close or refresh the tab
+    // Add the event listener that triggers a warning message whenever the user tries to close or refresh the tab
     window.addEventListener('beforeunload', alertUnsavedChanges);
 }
 
@@ -230,20 +232,20 @@ function generateReviewTable(stepBody) {
 
             // Column label
             const cell1 = document.createElement('td');
-            cell1.style.width = '33%';
+            cell1.style.width = '25%';
             cell1.textContent = header;
             row.appendChild(cell1);
 
             // Data sample
             const cell2 = document.createElement('td');
-            cell2.style.width = '33%';
+            cell2.style.width = '50%';
             const samples = parsedCSVData.slice(0, 3).map(data => data[header]).join(', ');
             cell2.textContent = samples;
             row.appendChild(cell2);
 
             // Data type dropdown
             const cell3 = document.createElement('td');
-            cell3.style.width = '33%';
+            cell3.style.width = '25%';
             const select = document.createElement('select');
             select.classList.add('form-select', 'data-type-dropdown');
             const options = ['Limited options', 'Open-ended', 'Numbers'];
@@ -268,20 +270,20 @@ function generateReviewTable(stepBody) {
 
             // Column label
             const cell1 = document.createElement('td');
-            cell1.style.width = '33%';
+            cell1.style.width = '25%';
             cell1.textContent = header;
             row.appendChild(cell1);
 
             // Data sample
             const cell2 = document.createElement('td');
-            cell2.style.width = '33%';
+            cell2.style.width = '50%';
             const samples = parsedCSVData.slice(0, 3).map(data => data[header]).join(', ');
             cell2.textContent = samples;
             row.appendChild(cell2);
 
             // Data type dropdown
             const cell3 = document.createElement('td');
-            cell3.style.width = '33%';
+            cell3.style.width = '25%';
             const select = document.createElement('select');
             select.classList.add('form-select', 'data-type-dropdown');
             const options = ['Limited options', 'Open-ended', 'Numbers'];
@@ -493,7 +495,7 @@ function updateStepBody() {
 
     // Create the container div and set its class
     const rowDiv = document.createElement('div');
-    rowDiv.classList.add('row', 'sleek-row');
+    rowDiv.classList.add('row');
 
     // Create three column divs for the dropdowns and set their class
     const colDiv1 = document.createElement('div');
