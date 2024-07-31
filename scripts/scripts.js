@@ -622,6 +622,8 @@ function handleSelectChange(event) {
     const colDiv3 = document.getElementById('col-div-3');
     colDiv3.classList.remove('col-md-3');
     colDiv3.classList.add('col-md-4');
+    colDiv3.innerHTML = '';
+
 
     // If the value of the select dropdown is "generic"...
     if (selectedValue === 'generic') {
