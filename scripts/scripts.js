@@ -8,10 +8,10 @@ let limitedOptionsArray = [] //global array that saves all unique values of colu
 
 
 
-// Function to alert the user about unsaved changes
+// Function to alert the user about unsaved changes if they refresh or restart
 function alertUnsavedChanges(event) {
     // Most browsers will display a generic message, and custom messages are often ignored
-    const message = 'You have unsaved changes. Do you really want to leave?';
+    const message = 'Changes you made will not be saved.';
 
     // Setting event.returnValue is necessary for some browsers to show the alert
     event.returnValue = message;
@@ -20,92 +20,88 @@ function alertUnsavedChanges(event) {
     return message;
 }
 
-// Function to create and insert the Review button
+// Function to create and insert the Review button. 
 function createReviewButton() {
     // Create the button element
     const button = document.createElement('button');
     button.id = 'review-button';
-    button.className = 'btn btn-primary disabled'; // Add the classes for styling
-    button.textContent = 'Review'; // Set button text
+    button.className = 'btn btn-primary disabled'; // disabled by default
+    button.textContent = 'Review';
 
-    // Insert the button into the column with id 'panel-button-container-2'
+    // Insert the review button into the bottom panel
     const container = document.getElementById('panel-button-container-2');
     container.appendChild(button);
     button.addEventListener('click', initializeReviewStep);
 
 }
 
-// Call the function to create and insert the button
-createReviewButton();
-
 // Function to create and insert the upload step content
-document.addEventListener('DOMContentLoaded', function () {
-    function createUploadStepContent() {
-        const stepBody = document.getElementById('step-body');
+function createUploadStepContent() {
+    const stepBody = document.getElementById('step-body');
 
-        // Create the container for the upload content
-        const uploadContainer = document.createElement('div');
-        uploadContainer.style.width = '80%';
-        uploadContainer.style.height = '200px';
-        uploadContainer.style.margin = '0 auto';
-        uploadContainer.style.marginTop = '50px';
-        uploadContainer.style.border = '3px dashed var(--primary)';
-        uploadContainer.style.borderRadius = '5px';
-        uploadContainer.style.display = 'flex';
-        uploadContainer.style.flexDirection = 'column';
-        uploadContainer.style.alignItems = 'center';
-        uploadContainer.style.justifyContent = 'center';
-        uploadContainer.style.textAlign = 'center'; // Center text alignment
+    // Create the container for the upload content
+    const uploadContainer = document.createElement('div');
+    uploadContainer.classList.add('container', 'd-flex', 'flex-column', 'align-items-center', 'justify-content-center', 'text-center', 'mt-5');
+    uploadContainer.style.width = '80%';
+    uploadContainer.style.minHeight = '200px';
+    uploadContainer.style.margin = '0 auto';
+    uploadContainer.style.border = '3px dashed var(--primary)';
+    uploadContainer.style.borderRadius = '5px';
+    uploadContainer.style.maxWidth = '600px'; // Added max-width for better responsiveness
 
-        // Create and add the upload icon
-        const uploadIcon = document.createElement('div');
-        uploadIcon.innerHTML = '<i class="fa-solid fa-upload"></i>';
-        uploadContainer.appendChild(uploadIcon);
+    // Create and add the upload icon
+    const uploadIcon = document.createElement('div');
+    uploadIcon.innerHTML = '<i class="fa-solid fa-upload fa-2x"></i>'; // Increased icon size for better visibility
+    uploadContainer.appendChild(uploadIcon);
 
-        // Create and add the upload text with line break
-        const uploadText = document.createElement('div');
-        uploadText.innerHTML = 'Upload a CSV file';
-        uploadText.style.margin = '20px 0'; // Add spacing
-        uploadContainer.appendChild(uploadText);
+    // Create and add the upload text with line break
+    const uploadText = document.createElement('div');
+    uploadText.innerHTML = 'Upload a CSV file';
+    uploadText.classList.add('my-3'); // Added margin for spacing
+    uploadContainer.appendChild(uploadText);
 
-        // Create and add the "Choose file" button
-        const chooseFileButton = document.createElement('button');
-        chooseFileButton.className = 'btn btn-secondary';
-        chooseFileButton.textContent = 'Choose file';
-        chooseFileButton.id = 'chooseFileButton'
-        uploadContainer.appendChild(chooseFileButton);
+    // Create and add the "Choose file" button
+    const chooseFileButton = document.createElement('button');
+    chooseFileButton.className = 'btn btn-secondary';
+    chooseFileButton.textContent = 'Choose file';
+    chooseFileButton.id = 'chooseFileButton';
+    uploadContainer.appendChild(chooseFileButton);
 
-        // Clear existing content and append the upload container and it's content to the step body
-        stepBody.innerHTML = '';
-        stepBody.appendChild(uploadContainer);
-    }
 
-    // Call the function to create and insert the upload content
-    createUploadStepContent();
+    // Clear existing content and append the upload container and it's content to the step body
+    stepBody.innerHTML = '';
+    stepBody.appendChild(uploadContainer);
 
-});
+    // create the review button as part of onload
+    createReviewButton();
 
-// Function to initialize the file input and set up event listeners
+}
+
+// Create the upload step as part of onload
+createUploadStepContent();
+
+
+// Function to initialize the file input and listen for when it is clicked
 function initializeFileInput() {
-    const chooseFileButton = document.getElementById('chooseFileButton');
-    const fileInput = document.getElementById('file-input');
+    const chooseFileButton = document.getElementById('chooseFileButton'); //the file button created in createUploadStepContent()
+    const fileInput = document.getElementById('file-input'); //this is in the base HTML DOM
 
-    // Add click event to the button to trigger file input
+    // When the choose file button is clicked, trigger a click event on the file input, which opens a dialog box
     chooseFileButton.addEventListener('click', () => {
         fileInput.click();
     });
 
-    // Add change event to handle file selection
+    // when a file is selected, trigger the function that handles the selection
     fileInput.addEventListener('change', handleFileSelection);
 }
-// Initialize file input setup on document load
+
+// Initialize file input setup as part of load
 document.addEventListener('DOMContentLoaded', initializeFileInput);
 
-// Function to handle file selection
+// Function to handle file selection and validate CSV file
 async function handleFileSelection(event) {
     const file = event.target.files[0];
-    selectedFile = file; // Store the file globally
-
+    selectedFile = file; // Store the file globally in the selectedFile variable so that we could parse it in other functions
 
     if (file) {
         // Validate file type and size
@@ -122,48 +118,34 @@ async function handleFileSelection(event) {
         }
 
         // Validate CSV file content
-        const { isValid, errorMessage } = await validateCsvFile(file);
-        if (!isValid) {
-            alert(errorMessage);
-            return;
-        }
-
-        // Update UI
-        updateUploadStepUI(file.name);
-    }
-}
-
-// Function to validate CSV file (Size, Format, Columns, Rows)
-async function validateCsvFile(file) {
-    const reader = new FileReader();
-
-    return new Promise((resolve) => {
+        const reader = new FileReader();
         reader.onload = function (event) {
             const text = event.target.result;
             const rows = text.split('\n').filter(row => row.trim() !== ''); // Remove empty rows
             const columnCount = rows[0].split(',').length;
 
             if (columnCount > 20) {
-                resolve({ isValid: false, errorMessage: 'Only files with a maximum of 20 columns are supported. Please remove excess columns and try again.' });
+                alert('Only files with a maximum of 20 columns are supported. Please remove excess columns and try again.');
                 return;
             }
 
             if (rows.length > 1000) {
-                resolve({ isValid: false, errorMessage: 'Only files with a maximum of 1000 rows are supported. Please remove excess rows and try again.' });
+                alert('Only files with a maximum of 1000 rows are supported. Please remove excess rows and try again.');
                 return;
             }
 
             // Simple header check
             if (rows.length > 0 && rows[0].split(',').length < 1) {
-                resolve({ isValid: false, errorMessage: 'CSV file header is missing or incorrect.' });
+                alert('CSV file header is missing or incorrect.');
                 return;
             }
 
-            resolve({ isValid: true });
+            // Update UI
+            updateUploadStepUI(file.name);
         };
 
         reader.readAsText(file);
-    });
+    }
 }
 
 // Function to update the UI after a successful file upload
