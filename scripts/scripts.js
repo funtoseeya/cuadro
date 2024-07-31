@@ -4,7 +4,7 @@
 
 let selectedFile; // Global variable to store the file. we need this to create an array with it's data
 let dropdownState = []; //global variable to save dropdowns in the review table. we need this to save the user's con
-
+let limitedOptionsArray = [] //global array that saves all unique values of columns tagged as limited options - useful for filters
 
 
 
@@ -493,6 +493,9 @@ function createLimitedOptionsArray() {
     // Log the result for debugging
     console.log('Limited Options Array:', result);
 
+    // Update the global limitedOptionsArray
+    limitedOptionsArray = result;
+
     return result;
 }
 
@@ -727,7 +730,7 @@ function updateSelectedCount() {
 
 // Create the filter dropdown using the limited options array
 function createFilterButton() {
-    const limitedOptionsArray = createLimitedOptionsArray(); // Call the function to get the array
+    const limitedOptionsArray1 = limitedOptionsArray; // Call the function to get the array
     const colDiv3 = document.getElementById('col-div-3');
 
     // Create the span element for text
@@ -755,7 +758,7 @@ function createFilterButton() {
     filterMenu.classList.add('dropdown-menu');
 
     // Populate the dropdown with headers and options
-    limitedOptionsArray.forEach(group => {
+    limitedOptionsArray1.forEach(group => {
         for (const [header, values] of Object.entries(group)) {
             // Create and append header
             const headerItem = document.createElement('li');
@@ -772,7 +775,7 @@ function createFilterButton() {
             values.forEach(value => {
                 const item = document.createElement('li');
                 item.classList.add('dropdown-item');
-                
+
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.id = value;
@@ -789,12 +792,12 @@ function createFilterButton() {
                 filterMenu.appendChild(item);
 
                 // Add event listener to update button text when checkbox is changed
-            item.addEventListener('change', updateFilteredCount);
+                item.addEventListener('change', updateFilteredCount);
             });
         }
     });
 
-    
+
 
     // Append elements to the dropdown container
     dropdownContainer.appendChild(filterSelect);
