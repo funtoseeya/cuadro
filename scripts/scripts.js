@@ -2,8 +2,8 @@
 
 //UPLOAD STEP
 
-let selectedFile; // Global variable to store the file
-let dropdownState = []; //global variable to save dropdowns in the review table
+let selectedFile; // Global variable to store the file. we need this to create an array with it's data
+let dropdownState = []; //global variable to save dropdowns in the review table. we need this to save the user's con
 
 
 
@@ -787,9 +787,14 @@ function createFilterButton() {
                 item.appendChild(label);
 
                 filterMenu.appendChild(item);
+
+                // Add event listener to update button text when checkbox is changed
+            item.addEventListener('change', updateFilteredCount);
             });
         }
     });
+
+    
 
     // Append elements to the dropdown container
     dropdownContainer.appendChild(filterSelect);
@@ -805,6 +810,13 @@ function createFilterButton() {
     });
 }
 
+// Update the text of the filterSelect button based on selected checkboxes
+function updateFilteredCount() {
+    const filterSelect = document.getElementById('filter-select');
+    const checkboxes = document.querySelectorAll('#filter-select ~ .dropdown-menu input[type="checkbox"]');
+    const filteredCount = Array.from(checkboxes).filter(checkbox => checkbox.checked).length;
+    filterSelect.textContent = `${filteredCount} selected`;
+}
 
 // Update the Bottom Panel buttons 
 function updateBottomPanel() {
