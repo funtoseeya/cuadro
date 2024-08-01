@@ -5,28 +5,28 @@ function responsiveStepBody() {
     // Define the media query for small screens
     const mediaQuerySm = window.matchMedia('(max-width: 576px)');
     const stepBodyContainer = document.getElementById('step-body');
-  
+
     // Function to update classes based on screen size
     const updateClasses = () => {
-      if (mediaQuerySm.matches) {
-        stepBodyContainer.className = 'container mt-5';
-      } else {
-        stepBodyContainer.className = 'container mt-5 col-md-8 offset-md-2';
-      }
+        if (mediaQuerySm.matches) {
+            stepBodyContainer.className = 'container mt-5';
+        } else {
+            stepBodyContainer.className = 'container mt-5 col-md-8 offset-md-2';
+        }
     };
-  
+
     // Initial check upon load
     updateClasses();
-  
+
     // check again whenever the window size changes
     mediaQuerySm.addEventListener('change', updateClasses);
-  }
+}
 
-  //GLOBAL VARIABLES
-  let selectedFile; // Global variable to store the file. we need this to create an array with it's data
-  let dropdownState = []; //global variable to save dropdowns in the review table. we need this to save the user's con
-  let limitedOptionsArray = [] //global array that saves all unique values of columns tagged as limited options - useful for filters
-  
+//GLOBAL VARIABLES
+let selectedFile; // Global variable to store the file. we need this to create an array with it's data
+let dropdownState = []; //global variable to save dropdowns in the review table. we need this to save the user's con
+let limitedOptionsArray = [] //global array that saves all unique values of columns tagged as limited options - useful for filters
+
 
 //UPLOAD STEP
 
@@ -47,20 +47,6 @@ function alertUnsavedChanges(event) {
     return message;
 }
 
-// Function to create and insert the Review button. 
-function createReviewButton() {
-    // Create the button element
-    const button = document.createElement('button');
-    button.id = 'review-button';
-    button.className = 'btn btn-primary disabled'; // disabled by default
-    button.textContent = 'Review';
-
-    // Insert the review button into the bottom panel
-    const container = document.getElementById('panel-button-container-2');
-    container.appendChild(button);
-    button.addEventListener('click', initializeReviewStep);
-
-}
 
 // Function to create and insert the upload step content
 function createUploadStepContent() {
@@ -93,12 +79,26 @@ function createUploadStepContent() {
     chooseFileButton.id = 'chooseFileButton';
     uploadContainer.appendChild(chooseFileButton);
 
-
-    // Clear existing content and append the upload container and it's content to the step body
+    // Clear existing content and append the upload container and its content to the step body
     stepBody.innerHTML = '';
     stepBody.appendChild(uploadContainer);
 
-    // create the review button as part of onload
+    // Function to create and insert the Review button. 
+    function createReviewButton() {
+        // Create the button element
+        const button = document.createElement('button');
+        button.id = 'review-button';
+        button.className = 'btn btn-primary disabled'; // disabled by default
+        button.textContent = 'Review';
+
+        // Insert the review button into the bottom panel
+        const container = document.getElementById('panel-button-container-2');
+        container.appendChild(button);
+        button.addEventListener('click', initializeReviewStep);
+
+    }
+
+    // create the review button 
     createReviewButton();
 
 }
