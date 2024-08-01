@@ -1,11 +1,37 @@
+//GENERAL SCRIPTS
 
+//function to make the step-body section's available width responsize
+function responsiveStepBody() {
+    // Define the media query for small screens
+    const mediaQuerySm = window.matchMedia('(max-width: 576px)');
+    const stepBodyContainer = document.getElementById('step-body');
+  
+    // Function to update classes based on screen size
+    const updateClasses = () => {
+      if (mediaQuerySm.matches) {
+        stepBodyContainer.className = 'container mt-5';
+      } else {
+        stepBodyContainer.className = 'container mt-5 col-md-8 offset-md-2';
+      }
+    };
+  
+    // Initial check upon load
+    updateClasses();
+  
+    // check again whenever the window size changes
+    mediaQuerySm.addEventListener('change', updateClasses);
+  }
+
+  //GLOBAL VARIABLES
+  let selectedFile; // Global variable to store the file. we need this to create an array with it's data
+  let dropdownState = []; //global variable to save dropdowns in the review table. we need this to save the user's con
+  let limitedOptionsArray = [] //global array that saves all unique values of columns tagged as limited options - useful for filters
+  
 
 //UPLOAD STEP
 
-let selectedFile; // Global variable to store the file. we need this to create an array with it's data
-let dropdownState = []; //global variable to save dropdowns in the review table. we need this to save the user's con
-let limitedOptionsArray = [] //global array that saves all unique values of columns tagged as limited options - useful for filters
-
+// Call the function to set up the responsive behavior of the step-body div
+responsiveStepBody();
 
 
 // Function to alert the user about unsaved changes if they refresh or restart, e.g.location.reload()
