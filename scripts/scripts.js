@@ -27,6 +27,9 @@ let selectedFile; // Global variable to store the file. we need this to create a
 let dropdownState = []; //global variable to save dropdowns in the review table. we need this to save the user's con
 let limitedOptionsArray = [] //global array that saves all unique values of columns tagged as limited options - useful for filters
 let parsedCSVData = []; // global array that stores the uploaded csv's data 
+const analysisObjects = []; // Array to store analysis object instances
+let nextAnalysisId = 1; // Unique ID counter
+
 
 //UPLOAD STEP
 
@@ -223,36 +226,30 @@ function generateReviewTable(stepBody) {
     table.classList.add('table', 'custom-table'); 
 
     // Create table header
-    const thead = document.createElement('thead');
-    const headerRow = document.createElement('tr');
+    const thead = document.createElement('thead'); //header
+    const headerRow = document.createElement('tr'); 
     
+    // create the header row columns
     const header1 = document.createElement('th');
     header1.textContent = 'Column label';
-   
-
     const header2 = document.createElement('th');
     header2.textContent = 'Data samples';
-    
-
     const header3 = document.createElement('th');
     header3.textContent = 'Data type';
    
-
+    //append the row cells to the row, the row to the header, and the header to the table
     headerRow.appendChild(header1);
     headerRow.appendChild(header2);
     headerRow.appendChild(header3);
     thead.appendChild(headerRow);
     table.appendChild(thead);
 
-    // Style the table header
-    thead.style.backgroundColor = 'var(--primary-color)';
-    thead.style.color = 'white';
-    thead.style.width = '100%';
 
     // Create table body
     const tbody = document.createElement('tbody');
     table.appendChild(tbody);
 
+    //if the data type dropdowns had been configured already (i.e user accessed the review step via the back button in analyze step...) 
     if (dropdownState.length > 0) {
         // Use saved dropdown state
         dropdownState.forEach(({ header, value }) => {
@@ -267,7 +264,7 @@ function generateReviewTable(stepBody) {
             // Data sample
             const cell2 = document.createElement('td');
             cell2.style.width = '50%';
-            const samples = parsedCSVData.slice(0, 3).map(data => data[header]).join(', ');
+            const samples = parsedCSVData.slice(0, 3).map(data => data[header]).join(', '); //get the first 3 rows, keep the values from the header that matches this loop, and join them together
             cell2.textContent = samples;
             row.appendChild(cell2);
 
@@ -276,7 +273,7 @@ function generateReviewTable(stepBody) {
             cell3.style.width = '25%';
             const select = document.createElement('select');
             select.classList.add('form-select', 'data-type-dropdown');
-            const options = ['Limited options', 'Open-ended', 'Numbers'];
+            const options = ['Limited options', 'Open-ended', 'Numbers','Timestamps'];
             options.forEach(option => {
                 const optionElement = document.createElement('option');
                 optionElement.value = option;
@@ -305,7 +302,7 @@ function generateReviewTable(stepBody) {
             // Data sample
             const cell2 = document.createElement('td');
             cell2.style.width = '50%';
-            const samples = parsedCSVData.slice(0, 3).map(data => data[header]).join(', ');
+            const samples = parsedCSVData.slice(0, 3).map(data => data[header]).join(', '); 
             cell2.textContent = samples;
             row.appendChild(cell2);
 
@@ -314,7 +311,7 @@ function generateReviewTable(stepBody) {
             cell3.style.width = '25%';
             const select = document.createElement('select');
             select.classList.add('form-select', 'data-type-dropdown');
-            const options = ['Limited options', 'Open-ended', 'Numbers'];
+            const options = ['Limited options', 'Open-ended', 'Numbers','Timestamps'];
             options.forEach(option => {
                 const optionElement = document.createElement('option');
                 optionElement.value = option;
@@ -331,10 +328,8 @@ function generateReviewTable(stepBody) {
     }
 
     stepBody.appendChild(table);
-    initializeDropdownListeners();
+
 }
-
-
 
 // Function to read CSV content and convert to array. also calls the function that generates the review table
 function csvToArray(csv) {
@@ -451,9 +446,6 @@ function initializeReviewStep() {
     readAndConvertCSV(selectedFile); // Pass the selected file
 }
 
-
-//declare the array that manages the review table's configuration
-
 // Function to save the state of the dropdowns
 function saveDropdownState() {
     dropdownState = [];
@@ -465,11 +457,6 @@ function saveDropdownState() {
     console.log('Saved dropdown state:', dropdownState);
 }
 
-// Function to initialize the mapping dropdowns 
-function initializeDropdownListeners() {
-    // Select all dropdowns in the review table
-    const dropdowns = document.querySelectorAll('.data-type-dropdown');
-}
 
 
 
@@ -477,6 +464,82 @@ function initializeDropdownListeners() {
 
 
 // ANALYZE STEP
+
+
+// Template for chart objects
+class ChartObject {
+    constructor(title, type, arrayData) {
+        this.title = title; // Title of the chart
+        this.type = type; // Type of the chart (e.g., 'bar', 'line')
+        this.arrayData = arrayData; // Data required for chart generation
+    }
+}
+
+// a template for analysis objects
+class AnalysisObject {
+    constructor(type = '', usingThese = [], groupedBy = null, filteredBy = [], label = '') {
+        this.id = nextId++; // Assign a unique ID
+        this.type = type; // Single value picked from dropdown
+        this.usingThese = usingThese; // Array of values picked from dropdown (create basic charts)
+        this.groupedBy = groupedBy; // Value picked from groupby single select dropdown (Compare, timeline, AI)
+        this.filteredBy = filteredBy; // Array of values picked from dropdown (all)
+        this.charts = []; // Array to store one or more Chart objects
+        this.label = label; // Optional label for user naming
+    }
+
+    addChart(title, chartType, arrayData) {
+        const newChart = new Chart(title, chartType, arrayData);
+        this.charts.push(newChart);
+    }
+
+    update(type = '', usingThese = [], groupedBy = null, filteredBy = [], label = '') {
+        this.type = type;
+        this.usingThese = usingThese;
+        this.groupedBy = groupedBy;
+        this.filteredBy = filteredBy;
+        this.label = label;
+    }
+}
+
+// Function to create and add a new Analysis object
+function createAnalysis(type = '', usingThese = [], groupedBy = null, filteredBy = [], label = '') {
+    const newAnalysis = new AnalysisObject(type, usingThese, groupedBy, filteredBy, label);
+    analysisObjects.push(newAnalysis);
+    return newAnalysis; // Optionally return the new object
+}
+
+// Function to update an existing AnalysisObject by ID
+function updateAnalysisById(id, type = null, usingThese = null, groupedBy = null, filteredBy = null, label = null) {
+    const analysis = analysisObjects.find(obj => obj.id === id);
+    if (analysis) {
+        // Call the update method with current values as default if parameters are not provided
+        analysis.update(
+            type !== null ? type : analysis.type,
+            usingThese !== null ? usingThese : analysis.usingThese,
+            groupedBy !== null ? groupedBy : analysis.groupedBy,
+            filteredBy !== null ? filteredBy : analysis.filteredBy,
+            label !== null ? label : analysis.label
+        );
+    } else {
+        console.error('AnalysisObject not found');
+    }
+}
+
+
+// Function to delete an AnalysisObject by ID
+function deleteAnalysisObjectById(id) {
+    const index = analysisObjects.findIndex(obj => obj.id === id);
+    if (index !== -1) {
+        analysisObjects.splice(index, 1); // Remove the object at the given index
+    } else {
+        console.error('AnalysisObject not found');
+    }
+}
+
+// Function to delete all AnalysisObject instances
+function deleteAllAnalysisObjects() {
+    analysisObjects = []; // Reassign to a new empty array
+}
 
 // Function to create a new array with unique values for headers marked as "Limited options"
 function createLimitedOptionsArray() {
@@ -507,10 +570,7 @@ function createLimitedOptionsArray() {
     return result;
 }
 
-
-
-
-// Clear and update the stepper body with the "I want to..." dropdown
+// function to clear and update the stepper body with the "I want to..." dropdown
 function updateStepBody() {
     const stepBody = document.getElementById('step-body');
 
@@ -807,8 +867,6 @@ function createFilterButton() {
         }
     });
 
-
-
     // Append elements to the dropdown container
     dropdownContainer.appendChild(filterSelect);
     dropdownContainer.appendChild(filterMenu);
@@ -831,18 +889,36 @@ function updateFilteredCount() {
     filterSelect.textContent = `${filteredCount} selected`;
 }
 
-// Update the Bottom Panel buttons 
-function updateBottomPanel() {
+// Function to show a confirmation dialog when they hit the back button, as it will delete all analyses
+function showConfirmationDialog(message, onConfirm) {
+    const confirmed = window.confirm(message);
 
+    if (confirmed) {
+        onConfirm();
+    }
+}
+
+// Function to initialize the back button listener, which takes the user back to the review step
+function InitializeBackButtonListener (){
+    // Add event listener to the back button
+    document.getElementById('back-button').addEventListener('click', () => {
+        // Define the confirmation message
+        const message = "Your analysis will be lost. Are you sure you want to continue?";
+    
+        // Call showConfirmationDialog with the message and a callback to initializeReviewStep
+        showConfirmationDialog(message, initializeReviewStep);
+    });
+    }
+
+// Update the Bottom Panel buttons and 
+function updateBottomPanel() {
 
     const panelButtonContainer2 = document.getElementById('panel-button-container-2');
     panelButtonContainer2.innerHTML = `
         <button id="back-button" class="btn btn-secondary">Back</button>
         <button id="export-button" class="btn btn-primary disabled">Export</button>
     `;
-    // Add event listener to the back button
-    document.getElementById('back-button').addEventListener('click', initializeReviewStep);
-
+    InitializeBackButtonListener();
 }
 
 
