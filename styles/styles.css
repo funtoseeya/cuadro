@@ -155,40 +155,23 @@ body {
   margin-bottom: 100px; /* Adjust this value to ensure the content doesn't overlap the bottom panel */
 }
 
-#step-body table {
+/* Custom  styles for the review table */
+.custom-table {
+  border-collapse: collapse;
   width: 100%;
-  border-collapse: separate; /* Change from collapse to separate */
-  border-radius: 5px; /* Ensures rounded corners are visible */
-  overflow: hidden; /* Ensures rounded corners are visible */
-  margin-top: 20px;
-  border: 2px solid var(--primary-color); /* Add border for the table */
 }
 
-#step-body table th,
-#step-body table td {
-  border: 1px solid var(--primary-color); /* Add border for table cells */
-  padding: 10px; /* Add some padding for better spacing */
+.custom-table th, .custom-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+
 }
 
-#step-body table thead {
-  background-color: var(--primary-color); /* Background color for the header */
-  color: white; /* Text color for the header */
+.custom-table th {
+  text-align: left;
+  background-color: var(--primary);
+  color: white;
 }
-
-.sleek-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 50px;
-}
-
-.sleek-dropdown {
- 
-  border: none;
-  border-bottom: 1px solid #ccc;
-  padding: 5px;
-}
-
 
 
 /* Custom styles for checkbox when checked */

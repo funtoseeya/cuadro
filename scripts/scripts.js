@@ -23,10 +23,10 @@ function responsiveStepBody() {
 }
 
 //GLOBAL VARIABLES
-let selectedFile; // Global variable to store the file. we need this to create an array with it's data
+let selectedFile; // Global variable to store the file. we need this to create an array with its data
 let dropdownState = []; //global variable to save dropdowns in the review table. we need this to save the user's con
 let limitedOptionsArray = [] //global array that saves all unique values of columns tagged as limited options - useful for filters
-
+let parsedCSVData = []; // global array that stores the uploaded csv's data 
 
 //UPLOAD STEP
 
@@ -106,18 +106,17 @@ function createUploadStepContent() {
 // Create the upload step as part of onload
 createUploadStepContent();
 
-
 // Function to initialize the file input and listen for when it is clicked
 function initializeFileInput() {
     const chooseFileButton = document.getElementById('chooseFileButton'); //the file button created in createUploadStepContent()
-    const fileInput = document.getElementById('file-input'); //this is in the base HTML DOM
+    const fileInput = document.getElementById('file-input'); //this is somewhere hidden in the base HTML DOM
 
     // When the choose file button is clicked, trigger a click event on the file input, which opens a dialog box
     chooseFileButton.addEventListener('click', () => {
         fileInput.click();
     });
 
-    // when a file is selected, trigger the function that handles the selection
+    // when a file is selected, trigger the file handling function 
     fileInput.addEventListener('change', handleFileSelection);
 }
 
@@ -126,21 +125,21 @@ document.addEventListener('DOMContentLoaded', initializeFileInput);
 
 // Function to handle file selection and validate CSV file
 async function handleFileSelection(event) {
-    const file = event.target.files[0];
-    selectedFile = file; // Store the file globally in the selectedFile variable so that we could parse it in other functions
+    const file = event.target.files[0]; // Get the selected file from the input event
+    selectedFile = file; // Store the file globally in the selectedFile variable so that we can parse it in other functions
 
     if (file) {
-        // Validate file type 
+        // Validate file type
         if (!file.name.endsWith('.csv')) {
-            alert('Please select a CSV file.');
-            return;
+            alert('Please select a CSV file.'); // Show an alert if the file is not a CSV
+            return; // Exit the function early
         }
 
         // Validate file size limit of 5 MB
         const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
         if (file.size > MAX_FILE_SIZE) {
-            alert('The maximum supported file size is 5MB. Please select a smaller file.');
-            return;
+            alert('The maximum supported file size is 5MB. Please select a smaller file.'); // Show an alert if the file is too large
+            return; // Exit the function early
         }
 
         // Validate CSV file content
@@ -168,7 +167,7 @@ async function handleFileSelection(event) {
                 return; // Exit the function early
             }
 
-            // Update UI
+            // Update UI with the name of the selected file
             updateUploadStepUI(file.name);
         };
 
@@ -192,7 +191,7 @@ function updateUploadStepUI(fileName) {
         <a class="btn btn-secondary" style="margin-top: 40px; cursor: pointer;" onclick="location.reload();">
         <i class="fa-solid fa-rotate-left" ></i> Restart</a>`;
 
-    //remove 'disabled' class from the review button 
+    //remove 'disabled' class from the review button so that they can move on. 
     let reviewButton = document.getElementById('review-button');
     reviewButton.classList.remove('disabled');
 
@@ -221,20 +220,23 @@ function generateReviewTable(stepBody) {
     }
 
     const table = document.createElement('table');
-    table.classList.add('table', 'table-bordered', 'mt-3'); // Added margin-top class
+    table.classList.add('table', 'custom-table'); 
 
     // Create table header
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
-
+    
     const header1 = document.createElement('th');
-    header1.textContent = 'Column label from CSV file';
+    header1.textContent = 'Column label';
+   
 
     const header2 = document.createElement('th');
-    header2.textContent = 'Data sample from CSV file';
+    header2.textContent = 'Data samples';
+    
 
     const header3 = document.createElement('th');
     header3.textContent = 'Data type';
+   
 
     headerRow.appendChild(header1);
     headerRow.appendChild(header2);
@@ -335,10 +337,6 @@ function generateReviewTable(stepBody) {
 
 
 // Function to read CSV content and convert to array. also calls the function that generates the review table
-// Declare parsedCSVData array globally
-let parsedCSVData = [];
-
-// Function to convert CSV to array
 function csvToArray(csv) {
     const lines = csv.split('\n').filter(line => line.trim() !== '');
     const headers = lines[0].split(',');
@@ -431,7 +429,7 @@ function initializeReviewStep() {
         <h2 class="accordion-header" id="headingOne">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
                 <i class="fa fa-info-circle me-2" aria-hidden="true"></i>
-                Select a data type for each column
+                Select a data type for each of your CSV file's columns
             </button>
         </h2>
         <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
