@@ -1,3 +1,5 @@
+
+
 //GENERAL SCRIPTS
 
 //function to make the step-body section's available width responsize
@@ -27,8 +29,9 @@ let selectedFile; // Global variable to store the file. we need this to create a
 let dropdownState = []; //global variable to save dropdowns in the review table. we need this to save the user's con
 let limitedOptionsArray = [] //global array that saves all unique values of columns tagged as limited options - useful for filters
 let parsedCSVData = []; // global array that stores the uploaded csv's data 
-const analysisObjects = []; // Array to store analysis object instances
+let analysisObjects = []; // Array to store analysis object instances
 let nextAnalysisId = 1; // Unique ID counter
+let currentAnalysisId = 1; //what analysis object the user is currently analyzing. set to 1 as the default, will update later.
 
 
 //UPLOAD STEP
@@ -223,12 +226,12 @@ function generateReviewTable(stepBody) {
     }
 
     const table = document.createElement('table');
-    table.classList.add('table', 'custom-table'); 
+    table.classList.add('table', 'custom-table');
 
     // Create table header
     const thead = document.createElement('thead'); //header
-    const headerRow = document.createElement('tr'); 
-    
+    const headerRow = document.createElement('tr');
+
     // create the header row columns
     const header1 = document.createElement('th');
     header1.textContent = 'Column label';
@@ -236,7 +239,7 @@ function generateReviewTable(stepBody) {
     header2.textContent = 'Data samples';
     const header3 = document.createElement('th');
     header3.textContent = 'Data type';
-   
+
     //append the row cells to the row, the row to the header, and the header to the table
     headerRow.appendChild(header1);
     headerRow.appendChild(header2);
@@ -273,7 +276,7 @@ function generateReviewTable(stepBody) {
             cell3.style.width = '25%';
             const select = document.createElement('select');
             select.classList.add('form-select', 'data-type-dropdown');
-            const options = ['Limited options', 'Open-ended', 'Numbers','Timestamps'];
+            const options = ['Limited options', 'Open-ended', 'Numbers', 'Timestamps'];
             options.forEach(option => {
                 const optionElement = document.createElement('option');
                 optionElement.value = option;
@@ -302,7 +305,7 @@ function generateReviewTable(stepBody) {
             // Data sample
             const cell2 = document.createElement('td');
             cell2.style.width = '50%';
-            const samples = parsedCSVData.slice(0, 3).map(data => data[header]).join(', '); 
+            const samples = parsedCSVData.slice(0, 3).map(data => data[header]).join(', ');
             cell2.textContent = samples;
             row.appendChild(cell2);
 
@@ -311,7 +314,7 @@ function generateReviewTable(stepBody) {
             cell3.style.width = '25%';
             const select = document.createElement('select');
             select.classList.add('form-select', 'data-type-dropdown');
-            const options = ['Limited options', 'Open-ended', 'Numbers','Timestamps'];
+            const options = ['Limited options', 'Open-ended', 'Numbers', 'Timestamps'];
             options.forEach(option => {
                 const optionElement = document.createElement('option');
                 optionElement.value = option;
@@ -368,6 +371,7 @@ function readAndConvertCSV(file) {
 // Function to initialize the "Review" step
 function initializeReviewStep() {
 
+
     // Clear step body content
     const stepBody = document.getElementById('step-body');
     stepBody.innerHTML = '';
@@ -398,7 +402,7 @@ function initializeReviewStep() {
     panelButtonContainer2.appendChild(analyzeButton);
 
     // Call to setup the analyze button listener
-    setupAnalyzeButtonListener();
+    setupAnalyzeStep();
 
     // Update stepper circle styling
     const stepperUpload = document.getElementById('stepper-upload');
@@ -413,6 +417,7 @@ function initializeReviewStep() {
     const stepperAnalyze = document.getElementById('stepper-analyze');
     stepperAnalyze.classList.remove('circle-primary');
     stepperAnalyze.classList.add('circle-secondary');
+    deleteAllAnalysisObjects();
 
     // Create the accordion
     const accordion = document.createElement('div');
@@ -468,61 +473,178 @@ function saveDropdownState() {
 
 // Template for chart objects
 class ChartObject {
-    constructor(title, type, arrayData) {
+    constructor(title, type, data, labels) {
         this.title = title; // Title of the chart
         this.type = type; // Type of the chart (e.g., 'bar', 'line')
-        this.arrayData = arrayData; // Data required for chart generation
+        this.data = data; // Data required for chart generation
+        this.labels = labels; // Data required for chart generation
+        this.backgroundColor = '#2d6a4f'; //primary
+        this.borderColor = '#1b4332';//primary-dark
+        this.borderWidth = 1;
+        this.options = {
+            indexAxis: 'y', // Make it a horizontal bar chart
+            scales: {
+                x: {
+                    beginAtZero: true
+                }
+            },
+            responsive: false // Ensure the chart is not responsive
+        };
     }
 }
+
+// Function to render all charts in the ChartObject
+function renderAllCharts(chartObject) {
+    // Ensure 'step-body' container is clear before appending new charts
+    const container = document.getElementById('step-body');
+
+    // Iterate over each chart in the chartObject's charts array
+    chartObject.charts.forEach(chart => {
+        renderChartInCard(chart);
+    });
+}
+
+// Function to create and render a chart in a Bootstrap card and append to 'step-body'
+function renderChartInCard(chartObject) {
+    // Find the container where the cards will be appended
+    const container = document.getElementById('step-body');
+
+    
+    // Create the card element
+    const card = document.createElement('div');
+    card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
+
+    // Create the card body element
+    const cardBody = document.createElement('div');
+    cardBody.classList.add('card-body');
+
+    // Create the canvas element
+    const canvas = document.createElement('canvas');
+    canvas.style.width = '100%'; // Full width
+
+    // Append the canvas to the card body
+    cardBody.appendChild(canvas);
+
+    // Append the card body to the card
+    card.appendChild(cardBody);
+
+    // Append the card to the container
+    container.appendChild(card);
+
+    // Render the chart on the canvas
+    const ctx = canvas.getContext('2d');
+
+    new Chart(ctx, {
+        type: chartObject.type,
+        data: {
+            labels: chartObject.labels,
+            datasets: [{
+                label: chartObject.title,
+                data: chartObject.data,
+                backgroundColor: chartObject.backgroundColor,
+                borderColor: chartObject.borderColor,
+                borderWidth: chartObject.borderWidth
+            }]
+        },
+        options: chartObject.options
+    });
+}
+
+
 
 // a template for analysis objects
 class AnalysisObject {
     constructor(type = '', usingThese = [], groupedBy = null, filteredBy = [], label = '') {
-        this.id = nextId++; // Assign a unique ID
+        this.id = nextAnalysisId++; // Assign a unique ID
         this.type = type; // Single value picked from dropdown
         this.usingThese = usingThese; // Array of values picked from dropdown (create basic charts)
         this.groupedBy = groupedBy; // Value picked from groupby single select dropdown (Compare, timeline, AI)
         this.filteredBy = filteredBy; // Array of values picked from dropdown (all)
         this.charts = []; // Array to store one or more Chart objects
         this.label = label; // Optional label for user naming
+
     }
 
-    addChart(title, chartType, arrayData) {
-        const newChart = new Chart(title, chartType, arrayData);
+    addChart(title, chartType, data, labels) {
+        const newChart = new ChartObject(title, chartType, data, labels);
         this.charts.push(newChart);
     }
 
-    update(type = '', usingThese = [], groupedBy = null, filteredBy = [], label = '') {
+    update(type = this.type, usingThese = this.usingThese, groupedBy = this.groupedBy, filteredBy = this.filteredBy, label = this.label) {
         this.type = type;
         this.usingThese = usingThese;
         this.groupedBy = groupedBy;
         this.filteredBy = filteredBy;
         this.label = label;
+        this.watchChanges(); // a master function that will listen in for specific changes to the object and trigger other functions accordingly
     }
+    watchChanges() {
+        // Check if usingThese is not empty and type is 'generic'
+        if (this.usingThese.length > 0 && this.type === 'generic') {
+            this.addGenericCharts();
+            renderAllCharts(this); // Call to render all charts after updating
+
+        }
+    }
+
+    addGenericCharts() {
+        this.charts = []; // Clear existing charts
+        this.usingThese.forEach(value => {
+            // Generate the data array and labels based on value and filteredBy
+            const { data, labels } = this.generateGenericDataArrayAndLabels(value, this.filteredBy);
+
+            // Create and add the chart
+            const newChart = new ChartObject(
+                `${value} Chart`,
+                'bar',
+                data,
+                labels
+            );
+            this.charts.push(newChart);
+        });
+    };
+
+    generateGenericDataArrayAndLabels(value, filteredBy) {
+        // Implement your logic to generate data and labels based on value and filteredBy
+        let data = []; // Populate this with your data
+        let labels = []; // Populate this with your labels
+
+        // fake data to test
+        data = [3, 5, 20];
+        labels = ['triangle', 'circle', 'square'];
+
+        return { data, labels };
+        
+    };
+
 }
 
 // Function to create and add a new Analysis object
 function createAnalysis(type = '', usingThese = [], groupedBy = null, filteredBy = [], label = '') {
     const newAnalysis = new AnalysisObject(type, usingThese, groupedBy, filteredBy, label);
     analysisObjects.push(newAnalysis);
+    console.log(newAnalysis); // Log the new object to the console
     return newAnalysis; // Optionally return the new object
 }
 
 // Function to update an existing AnalysisObject by ID
-function updateAnalysisById(id, type = null, usingThese = null, groupedBy = null, filteredBy = null, label = null) {
+function updateAnalysisById(id, updates) {
     const analysis = analysisObjects.find(obj => obj.id === id);
     if (analysis) {
-        // Call the update method with current values as default if parameters are not provided
+        // Apply updates only for the properties provided in the updates object
+        const { type, usingThese, groupedBy, filteredBy, label } = updates;
         analysis.update(
-            type !== null ? type : analysis.type,
-            usingThese !== null ? usingThese : analysis.usingThese,
-            groupedBy !== null ? groupedBy : analysis.groupedBy,
-            filteredBy !== null ? filteredBy : analysis.filteredBy,
-            label !== null ? label : analysis.label
+            type !== undefined ? type : analysis.type,
+            usingThese !== undefined ? usingThese : analysis.usingThese,
+            groupedBy !== undefined ? groupedBy : analysis.groupedBy,
+            filteredBy !== undefined ? filteredBy : analysis.filteredBy,
+            label !== undefined ? label : analysis.label
         );
     } else {
         console.error('AnalysisObject not found');
     }
+    console.log(analysis); // Log the  object to the console
+
 }
 
 
@@ -539,7 +661,9 @@ function deleteAnalysisObjectById(id) {
 // Function to delete all AnalysisObject instances
 function deleteAllAnalysisObjects() {
     analysisObjects = []; // Reassign to a new empty array
+    nextAnalysisId = 1;
 }
+
 
 // Function to create a new array with unique values for headers marked as "Limited options"
 function createLimitedOptionsArray() {
@@ -716,9 +840,11 @@ function handleSelectChange(event) {
         createFilterButton();
     }
 
+    // Update the current AnalysisObject with the new type and reset the using/group/filterby
+    updateAnalysisById(currentAnalysisId, { type: selectedValue, usingThese: [], groupedBy: [], filteredBy: [] });
 }
 
-// Create the column dropdown
+// function to Create the Using dropdown
 function createColumnDropdown() {
 
     const colDiv2 = document.getElementById('col-div-2');
@@ -770,7 +896,10 @@ function createColumnDropdown() {
             columnMenu.appendChild(columnListItem);
 
             // Add event listener to update button text when checkbox is changed
-            columnListInput.addEventListener('change', updateSelectedCount);
+            columnListInput.addEventListener('change', () => {
+                updateSelectedCount();
+                updateUsingTheseArray();
+            })
         }
     });
 
@@ -797,8 +926,25 @@ function updateSelectedCount() {
     columnSelect.textContent = `${selectedCount} selected`;
 }
 
+// Update the usingThese array based on selected checkboxes
+function updateUsingTheseArray() {
+    const selectedValues = Array.from(document.querySelectorAll('#column-select ~ .dropdown-menu input[type="checkbox"]:checked'))
+        .map(checkbox => checkbox.value);
 
-// Create the filter dropdown using the limited options array
+    // Find the current AnalysisObject and update its usingThese array
+    const analysis = analysisObjects.find(obj => obj.id === currentAnalysisId);
+    if (analysis) {
+        analysis.usingThese = selectedValues;
+        analysis.watchChanges();
+        console.log(analysis);
+    } else {
+        console.error('AnalysisObject not found');
+    }
+}
+
+
+
+// function to Create the filter dropdown using the limited options array
 function createFilterButton() {
     const limitedOptionsArray1 = limitedOptionsArray; // Call the function to get the array
     const colDiv3 = document.getElementById('col-div-3');
@@ -862,10 +1008,28 @@ function createFilterButton() {
                 filterMenu.appendChild(item);
 
                 // Add event listener to update button text when checkbox is changed
-                item.addEventListener('change', updateFilteredCount);
+                item.addEventListener('change', () => {
+                    updateFilteredCount();
+                    updateFilteredArray();
+                })
             });
         }
     });
+
+    // Function to update the Filtered by array based on selected checkboxes
+    function updateFilteredArray() {
+        const selectedValues = Array.from(document.querySelectorAll('#filter-select ~ .dropdown-menu input[type="checkbox"]:checked'))
+            .map(checkbox => checkbox.value);
+
+        // Find the current AnalysisObject and update its filteredBy array
+        const analysis = analysisObjects.find(obj => obj.id === currentAnalysisId);
+        if (analysis) {
+            analysis.filteredBy = selectedValues;
+            console.log(analysis);
+        } else {
+            console.error('AnalysisObject not found');
+        }
+    }
 
     // Append elements to the dropdown container
     dropdownContainer.appendChild(filterSelect);
@@ -899,16 +1063,16 @@ function showConfirmationDialog(message, onConfirm) {
 }
 
 // Function to initialize the back button listener, which takes the user back to the review step
-function InitializeBackButtonListener (){
+function InitializeBackButtonListener() {
     // Add event listener to the back button
     document.getElementById('back-button').addEventListener('click', () => {
         // Define the confirmation message
         const message = "Your analysis will be lost. Are you sure you want to continue?";
-    
+
         // Call showConfirmationDialog with the message and a callback to initializeReviewStep
         showConfirmationDialog(message, initializeReviewStep);
     });
-    }
+}
 
 // Update the Bottom Panel buttons and 
 function updateBottomPanel() {
@@ -924,8 +1088,8 @@ function updateBottomPanel() {
 
 
 
-// Function to setup event listener for the analyze button
-function setupAnalyzeButtonListener() {
+// Function to setup the analaysis step
+function setupAnalyzeStep() {
     const analyzeButton = document.getElementById('analyze-button');
     analyzeButton.addEventListener('click', () => {
 
@@ -947,5 +1111,9 @@ function setupAnalyzeButtonListener() {
         // run the function that creates the limited options array, which is needed for the filter panel
         createLimitedOptionsArray();
 
+        //create a new analysis object
+        createAnalysis();
+
     })
 }
+
