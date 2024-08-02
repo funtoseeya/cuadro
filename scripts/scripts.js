@@ -495,8 +495,17 @@ class ChartObject {
 
 // Function to render all charts in the ChartObject
 function renderAllCharts(chartObject) {
-    // Ensure 'step-body' container is clear before appending new charts
-    const container = document.getElementById('step-body');
+    // Find the container where the cards will be appended
+    const stepBody = document.getElementById('step-body');
+    let cardsContainer = document.getElementById('cards-container');
+
+    if (cardsContainer) {
+        cardsContainer.innerHTML = '';
+    } else {
+        cardsContainer = document.createElement('div');
+        cardsContainer.id = 'cards-container';
+        stepBody.appendChild(cardsContainer);
+    }
 
     // Iterate over each chart in the chartObject's charts array
     chartObject.charts.forEach(chart => {
@@ -507,9 +516,9 @@ function renderAllCharts(chartObject) {
 // Function to create and render a chart in a Bootstrap card and append to 'step-body'
 function renderChartInCard(chartObject) {
     // Find the container where the cards will be appended
-    const container = document.getElementById('step-body');
+    const container = document.getElementById('cards-container');
 
-    
+
     // Create the card element
     const card = document.createElement('div');
     card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
@@ -583,9 +592,11 @@ class AnalysisObject {
         if (this.usingThese.length > 0 && this.type === 'generic') {
             this.addGenericCharts();
             renderAllCharts(this); // Call to render all charts after updating
-
         }
     }
+
+
+
 
     addGenericCharts() {
         this.charts = []; // Clear existing charts
@@ -614,7 +625,7 @@ class AnalysisObject {
         labels = ['triangle', 'circle', 'square'];
 
         return { data, labels };
-        
+
     };
 
 }
@@ -744,6 +755,7 @@ function updateStepBody() {
     const menu = document.createElement('ul');
     menu.classList.add('dropdown-menu');
 
+
     // Populate the new dropdown with types of comparisons
 
     const genericListItem = document.createElement('li');
@@ -839,10 +851,11 @@ function handleSelectChange(event) {
         createColumnDropdown();
         createFilterButton();
     }
-
-    // Update the current AnalysisObject with the new type and reset the using/group/filterby
     updateAnalysisById(currentAnalysisId, { type: selectedValue, usingThese: [], groupedBy: [], filteredBy: [] });
 }
+
+
+
 
 // function to Create the Using dropdown
 function createColumnDropdown() {
@@ -873,6 +886,7 @@ function createColumnDropdown() {
     // Create the menu
     const columnMenu = document.createElement('ul');
     columnMenu.classList.add('dropdown-menu');
+    columnMenu.id = 'using-these-list';
 
     // Populate the new dropdown with options from the saved dropdown state
     dropdownState.forEach(({ header, value }) => {
@@ -900,6 +914,7 @@ function createColumnDropdown() {
                 updateSelectedCount();
                 updateUsingTheseArray();
             })
+
         }
     });
 
@@ -972,6 +987,8 @@ function createFilterButton() {
     // Create the menu
     const filterMenu = document.createElement('ul');
     filterMenu.classList.add('dropdown-menu');
+    filterMenu.id = 'filtered-by-list';
+
 
     // Populate the dropdown with headers and options
     limitedOptionsArray1.forEach(group => {
@@ -1025,6 +1042,7 @@ function createFilterButton() {
         const analysis = analysisObjects.find(obj => obj.id === currentAnalysisId);
         if (analysis) {
             analysis.filteredBy = selectedValues;
+            analysis.watchChanges();
             console.log(analysis);
         } else {
             console.error('AnalysisObject not found');
