@@ -568,7 +568,7 @@ class AnalysisObject {
         this.type = type; // Single value picked from dropdown
         this.usingThese = usingThese; // Array of values picked from dropdown (create basic charts)
         this.groupedBy = groupedBy; // Value picked from groupby single select dropdown (Compare, timeline, AI)
-        this.filteredBy = filteredBy; // Array of values picked from dropdown (all)
+        this.filteredBy = filteredBy; // Array of headers and values picked from dropdown (all)
         this.charts = []; // Array to store one or more Chart objects
         this.label = label; // Optional label for user naming
 
@@ -989,10 +989,14 @@ function createFilterButton() {
     filterMenu.classList.add('dropdown-menu');
     filterMenu.id = 'filtered-by-list';
 
+    let itemToHeaderMap = new Map();
 
     // Populate the dropdown with headers and options
     limitedOptionsArray1.forEach(group => {
         for (const [header, values] of Object.entries(group)) {
+            values.forEach(value => {
+                itemToHeaderMap.set(value, header);
+            });
             // Create and append header
             const headerItem = document.createElement('li');
             headerItem.classList.add('dropdown-header');
@@ -1036,7 +1040,11 @@ function createFilterButton() {
     // Function to update the Filtered by array based on selected checkboxes
     function updateFilteredArray() {
         const selectedValues = Array.from(document.querySelectorAll('#filter-select ~ .dropdown-menu input[type="checkbox"]:checked'))
-            .map(checkbox => checkbox.value);
+        .map(checkbox => {
+            const value = checkbox.value;
+            const header = itemToHeaderMap.get(value);
+            return { header, value };
+        });
 
         // Find the current AnalysisObject and update its filteredBy array
         const analysis = analysisObjects.find(obj => obj.id === currentAnalysisId);
@@ -1061,6 +1069,8 @@ function createFilterButton() {
     filterMenu.addEventListener('click', function (event) {
         event.stopPropagation();
     });
+
+
 }
 
 // Update the text of the filterSelect button based on selected checkboxes
