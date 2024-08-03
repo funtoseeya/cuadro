@@ -201,8 +201,6 @@ function updateUploadStepUI(fileName) {
     let reviewButton = document.getElementById('review-button');
     reviewButton.classList.remove('disabled');
 
-    // Log file path to console
-    console.log(`Uploaded file name: ${fileName}`);
 
 
     // Add the event listener that triggers a warning message whenever the user tries to close or refresh the tab
@@ -478,20 +476,31 @@ class ChartObject {
         this.type = type; // Type of the chart (e.g., 'bar', 'line')
         this.data = data; // Data required for chart generation
         this.labels = labels; // Data required for chart generation
-        this.backgroundColor = '#2d6a4f'; //primary
-        this.borderColor = '#1b4332';//primary-dark
+        this.backgroundColor = '#2d6a4f'; // Primary color
+        this.borderColor = '#1b4332'; // Darker primary color
         this.borderWidth = 1;
         this.options = {
             indexAxis: 'y', // Make it a horizontal bar chart
             scales: {
                 x: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            // Format the x-axis ticks as percentages
+                            return (value * 100).toFixed(0) + '%';
+                        }
+                    }
+                },
+                y: {
+                    // You can customize the y-axis as needed
                 }
             },
             responsive: false // Ensure the chart is not responsive
         };
     }
 }
+
+
 
 // Function to render all charts in the ChartObject
 function renderAllCharts(chartObject) {
@@ -595,9 +604,6 @@ class AnalysisObject {
         }
     }
 
-
-
-
     addGenericCharts() {
         this.charts = []; // Clear existing charts
         this.usingThese.forEach(value => {
@@ -615,18 +621,47 @@ class AnalysisObject {
         });
     };
 
-    generateGenericDataArrayAndLabels(value, filteredBy) {
-        // Implement your logic to generate data and labels based on value and filteredBy
-        let data = []; // Populate this with your data
-        let labels = []; // Populate this with your labels
-
-        // fake data to test
-        data = [3, 5, 20];
-        labels = ['triangle', 'circle', 'square'];
-
-        return { data, labels };
-
-    };
+    generateGenericDataArrayAndLabels(header, filteredBy) {
+        // Helper function to check if an object matches all the filter criteria
+        function matchesFilter(obj, filters) {
+            return filters.every(filter => {
+                const { header: filterHeader, value } = filter;
+                return obj[filterHeader] === value;
+            });
+        }
+    
+        // Filter the array based on applied filters
+        const filteredCSVArray = parsedCSVData.filter(item => matchesFilter(item, filteredBy));
+        console.log('filtered csv array', filteredCSVArray);
+    
+        // Ensure the header parameter is used
+        if (!header) {
+            throw new Error("The 'header' parameter is required.");
+        }
+    
+        // Count the occurrences of each unique value for the specified header
+        const countMap = filteredCSVArray.reduce((acc, item) => {
+            const value = item[header];
+            acc[value] = (acc[value] || 0) + 1;
+            return acc;
+        }, {});
+    
+        // Calculate the percentage for each unique value
+        const totalCount = filteredCSVArray.length;
+        const data = Object.entries(countMap).map(([key, count]) => count / totalCount);
+        const labels = Object.keys(countMap);
+    
+        // Sort data and labels in descending order based on data values
+        const sortedIndices = data.map((value, index) => index).sort((a, b) => data[b] - data[a]);
+        const sortedData = sortedIndices.map(index => data[index]);
+        const sortedLabels = sortedIndices.map(index => labels[index]);
+    
+        return {
+            data: sortedData,
+            labels: sortedLabels
+        };
+    }
+    
 
 }
 
@@ -852,6 +887,18 @@ function handleSelectChange(event) {
         createFilterButton();
     }
     updateAnalysisById(currentAnalysisId, { type: selectedValue, usingThese: [], groupedBy: [], filteredBy: [] });
+
+    let stepBody= document.getElementById('step-body');
+    let cardsContainer = document.getElementById('cards-container');
+
+    if (cardsContainer) {
+        cardsContainer.innerHTML = '';
+    } else {
+        cardsContainer = document.createElement('div');
+        cardsContainer.id = 'cards-container';
+        stepBody.appendChild(cardsContainer);
+    }
+
 }
 
 
@@ -1036,15 +1083,14 @@ function createFilterButton() {
             });
         }
     });
-
     // Function to update the Filtered by array based on selected checkboxes
     function updateFilteredArray() {
         const selectedValues = Array.from(document.querySelectorAll('#filter-select ~ .dropdown-menu input[type="checkbox"]:checked'))
-        .map(checkbox => {
-            const value = checkbox.value;
-            const header = itemToHeaderMap.get(value);
-            return { header, value };
-        });
+            .map(checkbox => {
+                const value = checkbox.value;
+                const header = itemToHeaderMap.get(value);
+                return { header, value };
+            });
 
         // Find the current AnalysisObject and update its filteredBy array
         const analysis = analysisObjects.find(obj => obj.id === currentAnalysisId);
