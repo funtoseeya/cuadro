@@ -253,13 +253,13 @@ function generateReviewTable(stepBody) {
     //if the data type dropdowns had been configured already (i.e user accessed the review step via the back button in analyze step...) 
     if (dropdownState.length > 0) {
         // Use saved dropdown state
-        dropdownState.forEach(({ header, value }) => {
-            const row = document.createElement('tr');
+        dropdownState.forEach(({ header, value }) => { //for each item in the dropdown state array...
+            const row = document.createElement('tr'); //create a row
 
-            // Column label
+
             const cell1 = document.createElement('td');
             cell1.style.width = '25%';
-            cell1.textContent = header;
+            cell1.textContent = header; //the first column will contain the dropdown state header
             row.appendChild(cell1);
 
             // Data sample
@@ -272,49 +272,51 @@ function generateReviewTable(stepBody) {
             // Data type dropdown
             const cell3 = document.createElement('td');
             cell3.style.width = '25%';
-            const select = document.createElement('select');
+            const select = document.createElement('select');//third column will be a dropdown
             select.classList.add('form-select', 'data-type-dropdown');
-            const options = ['Limited options', 'Open-ended', 'Numbers', 'Timestamps'];
-            options.forEach(option => {
-                const optionElement = document.createElement('option');
-                optionElement.value = option;
-                optionElement.textContent = option;
+            const options = ['Limited options', 'Open-ended', 'Numbers', 'Timestamps']; //here are the options
+            options.forEach(option => { //for each option...
+                const optionElement = document.createElement('option'); //create an item in the list 
+                optionElement.value = option; //the item's value = the option name
+                optionElement.textContent = option; //the item's textcontent = the option name
                 select.appendChild(optionElement);
             });
-            select.value = value; // Set saved value
+            select.value = value; // the dropdown's value will be the one that's saved
             cell3.appendChild(select);
             row.appendChild(cell3);
 
             tbody.appendChild(row);
         });
 
+        //if the previous rule failed and the csv has data in it...it should...
     } else if (parsedCSVData.length > 0) {
-        // Use parsed CSV data
-        const headers = Object.keys(parsedCSVData[0]); // Get headers from first object
-        headers.forEach((header) => {
-            const row = document.createElement('tr');
 
-            // Column label
+        const headers = Object.keys(parsedCSVData[0]); // use the keys from the 1st object in the array as the headers
+
+        headers.forEach((header) => { //for each header 
+            const row = document.createElement('tr');//create a row
+
+
             const cell1 = document.createElement('td');
             cell1.style.width = '25%';
-            cell1.textContent = header;
+            cell1.textContent = header; //the first column will display the header 
             row.appendChild(cell1);
 
             // Data sample
             const cell2 = document.createElement('td');
             cell2.style.width = '50%';
-            const samples = parsedCSVData.slice(0, 3).map(data => data[header]).join(', ');
+            const samples = parsedCSVData.slice(0, 3).map(data => data[header]).join(', '); //get the first three obj in the array, extract the data that matches the header, and display that data in the col
             cell2.textContent = samples;
             row.appendChild(cell2);
 
             // Data type dropdown
             const cell3 = document.createElement('td');
             cell3.style.width = '25%';
-            const select = document.createElement('select');
+            const select = document.createElement('select'); //third row will be a dropdown
             select.classList.add('form-select', 'data-type-dropdown');
-            const options = ['Limited options', 'Open-ended', 'Numbers', 'Timestamps'];
-            options.forEach(option => {
-                const optionElement = document.createElement('option');
+            const options = ['Limited options', 'Open-ended', 'Numbers', 'Timestamps']; //here are the options
+            options.forEach(option => { //for each option...
+                const optionElement = document.createElement('option'); //create a menu option
                 optionElement.value = option;
                 optionElement.textContent = option;
                 select.appendChild(optionElement);
@@ -332,27 +334,37 @@ function generateReviewTable(stepBody) {
 
 }
 
-// Function to read CSV content and convert to array. also calls the function that generates the review table
+// Function to convert CSV string to an array of objects
 function csvToArray(csv) {
+    // Split the CSV into lines and filter out any empty lines
     const lines = csv.split('\n').filter(line => line.trim() !== '');
+
+    // Split the first line into headers
     const headers = lines[0].split(',');
+
+    // Map the remaining lines to objects with keys from headers
     const data = lines.slice(1).map(line => {
-        const values = line.split(',');
-        let obj = {};
+        const values = line.split(','); // Split each line into values
+        let obj = {}; // Initialize an empty object
+
+        // Assign each value to the corresponding header in the object
         headers.forEach((header, index) => {
-            obj[header.trim()] = values[index].trim();
+            obj[header.trim()] = values[index].trim(); // Trim any extra whitespace
         });
-        return obj;
+
+        return obj; // Return the constructed object
     });
 
-    return data;
+    return data; // Return the array of objects
 }
 
+// Function to read a CSV file and convert it to an array
 function readAndConvertCSV(file) {
-    const reader = new FileReader();
+    const reader = new FileReader(); // Create a new FileReader instance
 
+    // Define what to do when the file is successfully read
     reader.onload = function (e) {
-        const csv = e.target.result;
+        const csv = e.target.result; // Get the content of the file
         parsedCSVData = csvToArray(csv); // Convert CSV to array and store it globally
 
         // Log the parsed data for testing
@@ -362,37 +374,34 @@ function readAndConvertCSV(file) {
         generateReviewTable(document.getElementById('step-body'));
     };
 
+    // Read the file as a text string
     reader.readAsText(file);
 }
+
 
 
 // Function to initialize the "Review" step
 function initializeReviewStep() {
 
-
-    // Clear step body content
+    // Clear step body content 
     const stepBody = document.getElementById('step-body');
     stepBody.innerHTML = '';
 
-    //update the botton panel by removing the review button and appending a restart and analyze button
+    //clear the bottom panels
+    const panelButtonContainer1 = document.getElementById('panel-button-container-1');
     const panelButtonContainer2 = document.getElementById('panel-button-container-2');
+    panelButtonContainer1.innerHTML = "";
     panelButtonContainer2.innerHTML = "";
-    const reviewButton = document.getElementById('review-button');
 
-    // Remove the review button
-    if (reviewButton) {
-        container.removeChild(reviewButton);
-    }
-
-    // Create the restart button
+    // Create the restart button and add to bottom panel
     const restartButton = document.createElement('button');
     restartButton.id = 'restart-button';
-    restartButton.className = 'btn btn-secondary mr-2'; // Add the classes for styling
+    restartButton.className = 'btn btn-secondary'; // Add the classes for styling
     restartButton.textContent = 'Restart'; // Set button text
     panelButtonContainer2.appendChild(restartButton);
-    restartButton.addEventListener('click', () => { location.reload() })
+    restartButton.addEventListener('click', () => { location.reload() }) // a confirmation dialog will appear due to a function above
 
-    // Create the analyze button
+    // Create the analyze button and add to bottom panel
     const analyzeButton = document.createElement('button');
     analyzeButton.id = 'analyze-button';
     analyzeButton.className = 'btn btn-primary'; // Add the classes for styling
@@ -406,15 +415,16 @@ function initializeReviewStep() {
     const stepperUpload = document.getElementById('stepper-upload');
     stepperUpload.classList.remove('circle-primary');
     stepperUpload.classList.add('circle-secondary');
-
     const stepperReview = document.getElementById('stepper-review');
     stepperReview.classList.remove('circle-secondary');
     stepperReview.classList.add('circle-primary');
 
-    //in case you are coming back from the analyze step
+    //Reset Analyze stepper button style in case you're coming back from Analyze
     const stepperAnalyze = document.getElementById('stepper-analyze');
     stepperAnalyze.classList.remove('circle-primary');
     stepperAnalyze.classList.add('circle-secondary');
+
+    //call fctn to delete any existing analysis objects in case you're coming back from Analyze
     deleteAllAnalysisObjects();
 
     // Create the accordion
@@ -445,19 +455,23 @@ function initializeReviewStep() {
 
     stepBody.appendChild(accordion);
 
-    //transform csv into an array and log to console
-    readAndConvertCSV(selectedFile); // Pass the selected file
+    //this triggers a cascade of functions...transform csv into array and generate the review table
+    readAndConvertCSV(selectedFile);
 }
 
-// Function to save the state of the dropdowns
+// Function to save the state of the dropdowns - useful for Analysis step and triggered when click on Analyze
 function saveDropdownState() {
-    dropdownState = [];
+    dropdownState = []; //reset dropdown state to empty
+
+    // Select all rows in the table body and iterate over each row
     document.querySelectorAll('tbody tr').forEach((row, index) => {
-        const header = row.children[0].textContent;
-        const dropdown = row.querySelector('.data-type-dropdown');
+        const header = row.children[0].textContent; // Get the text content of the first cell (header) in the current row
+        const dropdown = row.querySelector('.data-type-dropdown'); // Select the dropdown element within the current row
+
+        // Add an object with the header and the selected dropdown value to the dropdownState array
         dropdownState.push({ header: header, value: dropdown.value });
     });
-    console.log('Saved dropdown state:', dropdownState);
+
 }
 
 
@@ -485,7 +499,7 @@ class ChartObject {
                 x: {
                     beginAtZero: true,
                     ticks: {
-                        callback: function(value) {
+                        callback: function (value) {
                             // Format the x-axis ticks as percentages
                             return (value * 100).toFixed(0) + '%';
                         }
@@ -629,39 +643,39 @@ class AnalysisObject {
                 return obj[filterHeader] === value;
             });
         }
-    
+
         // Filter the array based on applied filters
         const filteredCSVArray = parsedCSVData.filter(item => matchesFilter(item, filteredBy));
         console.log('filtered csv array', filteredCSVArray);
-    
+
         // Ensure the header parameter is used
         if (!header) {
             throw new Error("The 'header' parameter is required.");
         }
-    
+
         // Count the occurrences of each unique value for the specified header
         const countMap = filteredCSVArray.reduce((acc, item) => {
             const value = item[header];
             acc[value] = (acc[value] || 0) + 1;
             return acc;
         }, {});
-    
+
         // Calculate the percentage for each unique value
         const totalCount = filteredCSVArray.length;
         const data = Object.entries(countMap).map(([key, count]) => count / totalCount);
         const labels = Object.keys(countMap);
-    
+
         // Sort data and labels in descending order based on data values
         const sortedIndices = data.map((value, index) => index).sort((a, b) => data[b] - data[a]);
         const sortedData = sortedIndices.map(index => data[index]);
         const sortedLabels = sortedIndices.map(index => labels[index]);
-    
+
         return {
             data: sortedData,
             labels: sortedLabels
         };
     }
-    
+
 
 }
 
@@ -888,7 +902,7 @@ function handleSelectChange(event) {
     }
     updateAnalysisById(currentAnalysisId, { type: selectedValue, usingThese: [], groupedBy: [], filteredBy: [] });
 
-    let stepBody= document.getElementById('step-body');
+    let stepBody = document.getElementById('step-body');
     let cardsContainer = document.getElementById('cards-container');
 
     if (cardsContainer) {
