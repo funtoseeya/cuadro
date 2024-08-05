@@ -464,7 +464,7 @@ function saveDropdownState() {
     dropdownState = []; //reset dropdown state to empty
 
     // Select all rows in the table body and iterate over each row
-    document.querySelectorAll('tbody tr').forEach((row, index) => {
+    document.querySelectorAll('tbody tr').forEach((row) => {
         const header = row.children[0].textContent; // Get the text content of the first cell (header) in the current row
         const dropdown = row.querySelector('.data-type-dropdown'); // Select the dropdown element within the current row
 
