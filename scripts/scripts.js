@@ -483,7 +483,7 @@ function saveDropdownState() {
 // ANALYZE STEP
 
 
-// Template for chart objects. 
+// boilerplate for charts we create via the generic dropdown option.  
 class ChartObject {
     constructor(title, type, data, labels) {
         this.title = title; // Title of the chart
@@ -514,8 +514,8 @@ class ChartObject {
     }
 }
 
-// Function to render all charts in the ChartObject
-function renderAllCharts(chartObject) {
+// Function to render all chart objects
+function renderAllCharts(analysisObject) {
     // Find the container where the cards will be appended
     const stepBody = document.getElementById('step-body');
     let cardsContainer = document.getElementById('cards-container');
@@ -528,13 +528,13 @@ function renderAllCharts(chartObject) {
         stepBody.appendChild(cardsContainer);
     }
 
-    // Iterate over each chart in the chartObject's charts array
-    chartObject.charts.forEach(chart => {
+    // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
+    analysisObject.charts.forEach(chart => {
         renderChartInCard(chart);
     });
 }
 
-// Function to create and render a chart in a Bootstrap card and append to 'step-body'
+// Function to create and render a chart in a Bootstrap card component and append to 'step-body'
 function renderChartInCard(chartObject) { //pass chartObject as an argument
     // Find the container where the cards will be appended
     const container = document.getElementById('cards-container');
@@ -542,6 +542,35 @@ function renderChartInCard(chartObject) { //pass chartObject as an argument
     // Create the card element
     const card = document.createElement('div');
     card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
+
+    /* card header code - to be continued //commented out for now.
+
+    //create the header row, which will store functionality like chart type toggles
+    const cardHeader = document.createElement('div');
+    cardHeader.classList.add('row');
+
+    //create the header row's columns
+    const cardHeaderLeftColumn = document.createElement('div');
+    cardHeaderLeftColumn.classList.add('col-6');
+    const cardHeaderRightColumn = document.createElement('div');
+    cardHeaderRightColumn.classList.add('col-6');
+
+    //Test columns
+    const coltext= document.createElement('p');
+    coltext.textContent="test";
+    const coltext1= document.createElement('p');
+    coltext1.textContent="test";
+    cardHeaderLeftColumn.appendChild(coltext);
+    cardHeaderRightColumn.appendChild(coltext1);
+
+    //Append the cardheader left and right column to the cardheader
+    cardHeader.appendChild(cardHeaderLeftColumn);
+    cardHeader.appendChild(cardHeaderRightColumn);
+
+    // Append the card header to the card
+    card.appendChild(cardHeader);
+
+    */
 
     // Create the card body element
     const cardBody = document.createElement('div');
@@ -551,7 +580,7 @@ function renderChartInCard(chartObject) { //pass chartObject as an argument
     const canvas = document.createElement('canvas');
     canvas.style.width = '100%'; // Full width
 
-    // Append the canvas to the card body
+    // Append the canvas to the card body 
     cardBody.appendChild(canvas);
 
     // Append the card body to the card
@@ -563,7 +592,7 @@ function renderChartInCard(chartObject) { //pass chartObject as an argument
     // Render the chart on the canvas
     const ctx = canvas.getContext('2d');
 
-    new Chart(ctx, {
+    new Chart(ctx, {  //create a new chart using the properties of the chartObject being called as an argument in the function
         type: chartObject.type,
         data: {
             labels: chartObject.labels,
@@ -581,7 +610,7 @@ function renderChartInCard(chartObject) { //pass chartObject as an argument
 
 
 
-// a template for analysis objects
+// a boilerplate for analysis objects
 class AnalysisObject {
     constructor(type = '', usingThese = [], groupedBy = null, filteredBy = [], label = '') {
         this.id = nextAnalysisId++; // Assign a unique ID
@@ -605,21 +634,21 @@ class AnalysisObject {
         this.groupedBy = groupedBy;
         this.filteredBy = filteredBy;
         this.label = label;
-        this.watchChanges(); // a master function that will listen in for specific changes to the object and trigger other functions accordingly
+        this.watchChanges(); // a master function that runs whenever the object is updated. 
     }
-    watchChanges() {
+    watchChanges() { //meant as a router that chooses what charts to produce depending on the inputs
         // Check if usingThese is not empty and type is 'generic'
         if (this.usingThese.length > 0 && this.type === 'generic') {
-            this.addGenericCharts();
-            renderAllCharts(this); // Call to render all charts after updating
+            this.addGenericCharts(); //create the data and code needed for all generic charts needing to be displayed
+            renderAllCharts(this); // render all charts once the code and data is ready
         }
     }
 
     addGenericCharts() {
         this.charts = []; // Clear existing charts
         this.usingThese.forEach(value => {
-            // Generate the data array and labels based on value and filteredBy
-            const { data, labels } = this.generateGenericDataArrayAndLabels(value, this.filteredBy);
+            // get the data we need to produce the chart
+            const { data, labels } = this.generateGenericDataArrayAndLabels(value, this.filteredBy); //get the data we need for the chart
 
             // Create and add the chart
             const newChart = new ChartObject(
@@ -722,7 +751,7 @@ function deleteAllAnalysisObjects() {
 }
 
 
-// Function to create a new array with unique values for headers marked as "Limited options"
+// Function to create a new array to generate the filters dropdown
 function createLimitedOptionsArray() {
     if (parsedCSVData.length === 0) {
         console.error('No parsed CSV data available.');
@@ -761,8 +790,9 @@ function updateStepBody() {
     // Create the container div and set its class
     const rowDiv = document.createElement('div');
     rowDiv.classList.add('row');
+    rowDiv.id='prompt-row';
 
-    // Create three column divs for the dropdowns and set their class
+    // Create four  column divs for the dropdowns and set their class
     const colDiv1 = document.createElement('div');
     colDiv1.id = 'col-div-1';
     colDiv1.classList.add('col-12', 'col-sm-6', 'col-md-3');
@@ -775,7 +805,10 @@ function updateStepBody() {
     colDiv3.id = 'col-div-3';
     colDiv3.classList.add('col-12', 'col-sm-6', 'col-md-3');
 
-
+    const colDiv4 = document.createElement('div')
+    colDiv4.id='col-div-4';
+    //no class for now. just keep empty
+    
     // Create the span element for text
     const span = document.createElement('span');
     span.id = 'i-want-to-text';
@@ -800,7 +833,6 @@ function updateStepBody() {
     // Create the menu
     const menu = document.createElement('ul');
     menu.classList.add('dropdown-menu');
-
 
     // Populate the new dropdown with types of comparisons
 
@@ -850,6 +882,7 @@ function updateStepBody() {
     rowDiv.appendChild(colDiv1);
     rowDiv.appendChild(colDiv2);
     rowDiv.appendChild(colDiv3);
+    rowDiv.appendChild(colDiv4);
 
     // Append the row div to the stepBody
     stepBody.appendChild(rowDiv);
@@ -874,29 +907,65 @@ function handleSelectChange(event) {
     const colDiv1 = document.getElementById('col-div-1');
     const span = document.getElementById('i-want-to-text');
     const dropdownContainer = document.getElementById('i-want-to-dropdown-container');
-    colDiv1.classList.remove('col-md-3');
-    colDiv1.classList.add('col-md-4');
     colDiv1.appendChild(span);
     colDiv1.appendChild(dropdownContainer);
 
-    // Readjust widths of col 2 and 3
-    const colDiv2 = document.getElementById('col-div-2');
-    colDiv2.classList.remove('col-md-6');
-    colDiv2.classList.add('col-md-4');
-    colDiv2.innerHTML = '';
-
-    const colDiv3 = document.getElementById('col-div-3');
-    colDiv3.classList.remove('col-md-3');
-    colDiv3.classList.add('col-md-4');
-    colDiv3.innerHTML = '';
-
-
     // If the value of the select dropdown is "generic"...
     if (selectedValue === 'generic') {
+
+        //readjust width of col 1
+        colDiv1.classList.remove('col-md-3');
+        colDiv1.classList.add('col-md-4');
+
+        // Readjust widths of col 2 and 3
+        const colDiv2 = document.getElementById('col-div-2');
+        colDiv2.classList.remove('col-md-6');
+        colDiv2.classList.add('col-md-4');
+        colDiv2.innerHTML = '';
+
+        const colDiv3 = document.getElementById('col-div-3');
+        colDiv3.classList.remove('col-md-6');
+        colDiv3.classList.add('col-md-4');
+        colDiv3.innerHTML = '';
+
+        const colDiv4 = document.getElementById('col-div-4');
+        colDiv4.classList.remove('col-12', 'col-sm-6', 'col-md-3');
+        colDiv4.innerHTML = '';
+
         // Create and append the new dropdown
         createColumnDropdown();
-        createFilterButton();
+        createFilterButton(selectedValue);
     }
+    if (selectedValue === 'compare') {
+        
+        // Readjust widths of col 1, 2 and 3
+        const coldiv1 = document.getElementById('col-div-1');
+        colDiv1.classList.remove('col-md-6','col-md-4');
+        colDiv1.classList.add('col-md-3');
+        
+        const colDiv2 = document.getElementById('col-div-2');
+        colDiv2.classList.remove('col-md-6','col-md-4');
+        colDiv2.classList.add('col-md-3');
+        colDiv2.innerHTML = '';
+
+        const colDiv3 = document.getElementById('col-div-3');
+        colDiv3.classList.remove('col-md-6','col-md-4');
+        colDiv3.classList.add('col-md-3');
+        colDiv3.innerHTML = '';
+
+        const colDiv4 = document.getElementById('col-div-4');
+        colDiv4.classList.add('col-12', 'col-sm-6', 'col-md-3');
+        colDiv4.innerHTML = '';
+        
+
+
+
+        // Create and append the new dropdown
+        createColumnDropdown();
+        //createGroupByButton();
+        createFilterButton(selectedValue);
+    }
+
     updateAnalysisById(currentAnalysisId, { type: selectedValue, usingThese: [], groupedBy: [], filteredBy: [] });
 
     let stepBody = document.getElementById('step-body');
@@ -1015,12 +1084,11 @@ function updateUsingTheseArray() {
     }
 }
 
-
-
 // function to Create the filter dropdown using the limited options array
-function createFilterButton() {
+function createFilterButton(selectedValue) {
     const limitedOptionsArray1 = limitedOptionsArray; // Call the function to get the array
     const colDiv3 = document.getElementById('col-div-3');
+    const colDiv4 = document.getElementById('col-div-4');
 
     // Create the span element for text
     const span = document.createElement('span');
@@ -1094,6 +1162,8 @@ function createFilterButton() {
             });
         }
     });
+
+
     // Function to update the Filtered by array based on selected checkboxes
     function updateFilteredArray() {
         const selectedValues = Array.from(document.querySelectorAll('#filter-select ~ .dropdown-menu input[type="checkbox"]:checked'))
@@ -1118,10 +1188,15 @@ function createFilterButton() {
     dropdownContainer.appendChild(filterSelect);
     dropdownContainer.appendChild(filterMenu);
 
+    if (selectedValue==='generic') {
     // Append elements to colDiv3
     colDiv3.appendChild(span);
     colDiv3.appendChild(dropdownContainer);
-
+    }
+    if (selectedValue==='compare'){
+        colDiv4.appendChild(span);
+        colDiv4.appendChild(dropdownContainer);
+    }
     // Prevent dropdown menu from closing when clicking inside
     filterMenu.addEventListener('click', function (event) {
         event.stopPropagation();
