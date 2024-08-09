@@ -965,8 +965,10 @@ function handleSelectChange(event) {
         createFilterButton(selectedValue);
     }
 
-    updateAnalysisById(currentAnalysisId, { type: selectedValue, usingThese: [], groupedBy: [], filteredBy: [] });
-
+    //update the current analysis object. scrap any previously existing info and give it a type
+    updateAnalysisById(currentAnalysisId, { type: selectedValue, usingThese: [], groupedBy:'', filteredBy: [] });
+    
+    //remove any previously existing chart cards from the body 
     let stepBody = document.getElementById('step-body');
     let cardsContainer = document.getElementById('cards-container');
 
@@ -1145,20 +1147,40 @@ function createGroupByDropdown() {
 
 }
 
-// Handle the select change event
+// Handle the group by change event
 function handleGroupByChange(event) {
     const target = event.target.closest('a.dropdown-item');
     if (!target) return;
 
     const groupBySelect = document.getElementById('group-by-select');
 
-    // Update select.textContent with genericListAnchorText.textContent
+    // Update groupby menu to display the selected value
     groupBySelect.textContent = target.querySelector('label').textContent;
 
+    //call the function that updates the analysis object's groupBy property
+    updateGroupByValue();
       /*insert function calls to 
             ...update the analysisObject's groupBy property
             ... and then creates the chart 
             */
+
+}
+
+
+//function to update the analysis object with the selected groupBy value  
+function updateGroupByValue() {
+    const selectedValue = document.getElementById('group-by-select').textContent;
+    console.log(selectedValue);
+    
+    // Find the current AnalysisObject and update its groupBy property
+    const analysis = analysisObjects.find(obj => obj.id === currentAnalysisId);
+    if (analysis) {
+        analysis.groupedBy = selectedValue;
+        analysis.watchChanges();
+        console.log(analysis);
+    } else {
+        console.error('AnalysisObject not found');
+    }
 
 }
 
