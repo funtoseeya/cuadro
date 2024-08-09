@@ -932,7 +932,8 @@ function handleSelectChange(event) {
         colDiv4.classList.remove('col-12', 'col-sm-6', 'col-md-3');
         colDiv4.innerHTML = '';
 
-        // Create and append the new dropdown
+
+        // Create and append the required dropdowns
         createColumnDropdown();
         createFilterButton(selectedValue);
     }
@@ -958,11 +959,9 @@ function handleSelectChange(event) {
         colDiv4.innerHTML = '';
         
 
-
-
-        // Create and append the new dropdown
+        // Create and append the required dropdowns
         createColumnDropdown();
-        //createGroupByButton();
+        createGroupByDropdown();
         createFilterButton(selectedValue);
     }
 
@@ -980,8 +979,6 @@ function handleSelectChange(event) {
     }
 
 }
-
-
 
 
 // function to Create the Using dropdown
@@ -1059,7 +1056,6 @@ function createColumnDropdown() {
     });
 
 }
-
 // Update the text of the columnSelect button based on selected checkboxes
 function updateSelectedCount() {
     const columnSelect = document.getElementById('column-select');
@@ -1082,6 +1078,88 @@ function updateUsingTheseArray() {
     } else {
         console.error('AnalysisObject not found');
     }
+}
+
+
+// function to create the group by dropdown necessary for comparisons
+function createGroupByDropdown() {
+    const colDiv3 = document.getElementById('col-div-3');
+
+    // Create the span element for text
+    const span = document.createElement('span');
+    span.id = 'group-by-text';
+    span.textContent = 'grouped by';
+
+    // Create the menu container
+    const dropdownContainer = document.createElement('div');
+    dropdownContainer.classList.add('dropdown');
+
+    // Create the button 
+    const groupBySelect = document.createElement('button');
+    groupBySelect.classList.add('btn', 'btn-secondary', 'form-select', 'data-type-dropdown');
+    groupBySelect.type = 'button';
+    groupBySelect.style.width = '100%';
+    groupBySelect.textContent = 'make a selection';
+    groupBySelect.style.textAlign = 'left'; // Align text to the left
+    groupBySelect.id = 'group-by-select';
+    groupBySelect.setAttribute('data-bs-toggle', 'dropdown');
+    groupBySelect.setAttribute('aria-expanded', 'false');
+
+    // Create the menu
+    const groupByMenu = document.createElement('ul');
+    groupByMenu.classList.add('dropdown-menu');
+    groupByMenu.id = 'group-by-menu';
+
+    // Populate the group by dropdown with columns that were typed as "limited options"
+    dropdownState.forEach(({ header, value }) => {
+        if (value === 'Limited options') {
+            const groupByListItem = document.createElement('li');
+            const groupByListAnchor = document.createElement('a');
+            groupByListAnchor.classList.add('dropdown-item');
+            groupByListAnchor.setAttribute('data-value', 'open');
+            const groupByListAnchorText = document.createElement('label');
+            groupByListAnchorText.textContent = header;
+            groupByListAnchor.id = header;
+
+            //append all items to the group by menu
+            groupByListAnchor.appendChild(groupByListAnchorText);
+            groupByListItem.appendChild(groupByListAnchor);
+            groupByMenu.appendChild(groupByListItem);
+
+           
+        }
+    });
+
+    // Append elements to the dropdown container
+    dropdownContainer.appendChild(groupBySelect);
+    dropdownContainer.appendChild(groupByMenu);
+
+    // Append elements to colDiv3
+    colDiv3.appendChild(span);
+    colDiv3.appendChild(dropdownContainer);
+
+
+     // Add event listener for selection change, which will call a cascade of functions
+     groupByMenu.addEventListener('click', handleGroupByChange);
+
+
+}
+
+// Handle the select change event
+function handleGroupByChange(event) {
+    const target = event.target.closest('a.dropdown-item');
+    if (!target) return;
+
+    const groupBySelect = document.getElementById('group-by-select');
+
+    // Update select.textContent with genericListAnchorText.textContent
+    groupBySelect.textContent = target.querySelector('label').textContent;
+
+      /*insert function calls to 
+            ...update the analysisObject's groupBy property
+            ... and then creates the chart 
+            */
+
 }
 
 // function to Create the filter dropdown using the limited options array
