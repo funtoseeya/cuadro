@@ -483,20 +483,20 @@ function saveDropdownState() {
 // ANALYZE STEP
 
 
-// Template for chart objects
+// Template for chart objects. 
 class ChartObject {
     constructor(title, type, data, labels) {
         this.title = title; // Title of the chart
         this.type = type; // Type of the chart (e.g., 'bar', 'line')
         this.data = data; // Data required for chart generation
         this.labels = labels; // Data required for chart generation
-        this.backgroundColor = '#2d6a4f'; // Primary color
-        this.borderColor = '#1b4332'; // Darker primary color
+        this.backgroundColor = 'rgba(0, 0, 0, 0.5)'; // black at half opacity
+        this.borderColor = 'rgb(51, 51, 51)'; // Dark grey at 100% opacity
         this.borderWidth = 1;
         this.options = {
             indexAxis: 'y', // Make it a horizontal bar chart
             scales: {
-                x: {
+                x: { //make the data appear as percentages
                     beginAtZero: true,
                     ticks: {
                         callback: function (value) {
@@ -514,17 +514,15 @@ class ChartObject {
     }
 }
 
-
-
 // Function to render all charts in the ChartObject
 function renderAllCharts(chartObject) {
     // Find the container where the cards will be appended
     const stepBody = document.getElementById('step-body');
     let cardsContainer = document.getElementById('cards-container');
 
-    if (cardsContainer) {
+    if (cardsContainer) { //if the cards container was created in a previous call, empty it.
         cardsContainer.innerHTML = '';
-    } else {
+    } else { //if the cards container doesn't exist, create it within the stepbody div 
         cardsContainer = document.createElement('div');
         cardsContainer.id = 'cards-container';
         stepBody.appendChild(cardsContainer);
@@ -537,10 +535,9 @@ function renderAllCharts(chartObject) {
 }
 
 // Function to create and render a chart in a Bootstrap card and append to 'step-body'
-function renderChartInCard(chartObject) {
+function renderChartInCard(chartObject) { //pass chartObject as an argument
     // Find the container where the cards will be appended
     const container = document.getElementById('cards-container');
-
 
     // Create the card element
     const card = document.createElement('div');
