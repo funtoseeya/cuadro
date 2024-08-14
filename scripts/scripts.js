@@ -541,7 +541,7 @@ class ChartObject {
                     ticks: {
                         callback: function (value) {
                             // Format the x-axis ticks as percentages
-                            return (value * 100).toFixed(0) + '%';
+                            return (value).toFixed(0) + '%';
                         }
                     }
                 },
@@ -838,7 +838,7 @@ class AnalysisObject {
 
         // Calculate the percentage for each unique value
         const totalCount = filteredCSVArray.length;
-        const data = Object.entries(countMap).map(([key, count]) => count / totalCount);
+        const data = Object.entries(countMap).map(([key, count]) => Math.round((count / totalCount) * 100));
         const labels = Object.keys(countMap);
 
         // Sort data and labels in descending order based on data values
@@ -914,7 +914,7 @@ class AnalysisObject {
             return labels.map(label => {
                 const count = groupMap[groupKey][label] || 0;
                 const total = totalCounts[groupKey];
-                return (total > 0) ? (count / total) * 100 : 0; // Convert count to percentage
+                return (total > 0) ? Math.round((count / total) * 100 * 100) / 100 : 0; // Convert count to percentage and round to two decimals
             });
         });
 
