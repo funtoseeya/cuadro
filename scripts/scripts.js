@@ -2,6 +2,9 @@
 
 //GENERAL SCRIPTS
 
+//turn on the charts data label plugin
+Chart.register(ChartDataLabels);
+
 //function to make the step-body section's available width responsize
 function responsiveStepBody() {
     // Define the media query for small screens
@@ -32,7 +35,7 @@ let parsedCSVData = []; // global array that stores the uploaded csv's data
 let analysisObjects = []; // Array to store analysis object instances
 let nextAnalysisId = 1; // Unique ID counter
 let currentAnalysisId = 1; //what analysis object the user is currently analyzing. set to 1 as the default, will update later.
-let colorPalette = ['#ef476f', '#ffd166', '#06d6a0', '#118ab2', '#073b4c', '#2a9d8f', '#e63946', '#a8dadc', '#bb3e03', '#5a189a'];
+let colorPalette = ['#174EA6', '#A50E0E', '#E37400', '#0D652D', '#4285F4', '#EA4335', '#FBBC04', '#34A853', '#D2E3FC', '#FAD2CF', '#FEEFC3', '#CEEAD6', '#F1F3F4', '#9AA0A6'];
 
 //UPLOAD STEP
 
@@ -515,16 +518,22 @@ function dataTypesToast(value) {
 
 // boilerplate for charts we create via the generic dropdown option.  
 class ChartObject {
-    constructor(title, type, data, labels,clusterLabels) {
+    constructor(title, type, data, labels, clusterLabels) {
         this.title = title; // Title of the chart
         this.type = type; // Type of the chart (e.g., 'bar', 'line')
         this.data = data; // Data required for chart generation
         this.labels = labels; // Data required for chart generation
         this.clusterLabels = clusterLabels; // New property for cluster labels
-        this.backgroundColor = '#52b788'; // 
-        this.borderColor = '#52b788'; // 
+        this.backgroundColor = '#2d6a4f'; // 
+        this.borderColor = '#2d6a4f'; // 
         this.borderWidth = 1;
         this.options = {
+            plugins: {
+                // Change options for ALL labels of THIS CHART
+                datalabels: {
+                    color: 'white'
+                }
+            },
             indexAxis: 'y', // Make it a horizontal bar chart
             scales: {
                 x: { //make the data appear as percentages
@@ -718,7 +727,7 @@ function renderClusteredChartInCard(chartObject) { // Pass chartObject as an arg
                     stacked: false, // Bars should not be stacked
                     ticks: {
                         autoSkip: false, // Ensure all x-axis labels are visible,
-                        
+
                         callback: function (value) {
                             // Format the x-axis ticks as percentages
                             return (value).toFixed(0) + '%';
@@ -731,6 +740,11 @@ function renderClusteredChartInCard(chartObject) { // Pass chartObject as an arg
                 }
             },
             plugins: {
+
+                // Change options for ALL labels of THIS CHART
+                datalabels: {
+                    color: 'white'
+                },
                 legend: {
                     position: 'top'
                 }
@@ -775,8 +789,8 @@ class AnalysisObject {
             renderAllGenericCharts(this); // render all charts once the code and data is ready
         }
         if (this.usingThese.length > 0 && this.type === 'compare' && this.groupedBy != "") {
-           this.addClusteredCharts(); //create the data and code needed to generate a clustered bar chart (maybe even for stacked chart or matrix)
-           renderAllClusteredCharts(this);// render clustered once the code and data is ready
+            this.addClusteredCharts(); //create the data and code needed to generate a clustered bar chart (maybe even for stacked chart or matrix)
+            renderAllClusteredCharts(this);// render clustered once the code and data is ready
         }
     }
 
@@ -843,7 +857,7 @@ class AnalysisObject {
         this.usingThese.forEach(value => {
             // Generate data, labels, and cluster labels for the clustered chart
             const { data, labels, clusterLabels } = this.generateClusteredDataArrayAndLabels(value, this.groupedBy, this.filteredBy);
-    
+
             // Create and add the chart
             const newChart = new ChartObject(
                 value,
@@ -855,13 +869,13 @@ class AnalysisObject {
             this.charts.push(newChart);
         });
     }
-    
-    
+
+
     generateClusteredDataArrayAndLabels(header, groupedBy, filteredBy) {
         if (!header || !groupedBy) {
             throw new Error("Both 'header' and 'groupedBy' parameters are required.");
         }
-    
+
         // Helper function to check if an object matches all the filter criteria
         function matchesFilter(obj, filters) {
             return filters.every(filter => {
@@ -869,29 +883,30 @@ class AnalysisObject {
                 return obj[filterHeader] === value;
             });
         }
-    
+
         // Filter the array based on applied filters
         const filteredCSVArray = parsedCSVData.filter(item => matchesFilter(item, filteredBy));
-    
+        console.log('filtered csv data:', filteredCSVArray);
+
         // Group data by the 'groupedBy' value and count occurrences for each group
         const groupMap = filteredCSVArray.reduce((acc, item) => {
             const groupKey = item[groupedBy];
             const headerValue = item[header];
-    
+
             if (!acc[groupKey]) {
                 acc[groupKey] = {};
             }
-    
+
             acc[groupKey][headerValue] = (acc[groupKey][headerValue] || 0) + 1;
             return acc;
         }, {});
-    
+
         // Calculate total counts for each group
         const totalCounts = Object.keys(groupMap).reduce((acc, groupKey) => {
             acc[groupKey] = Object.values(groupMap[groupKey]).reduce((sum, count) => sum + count, 0);
             return acc;
         }, {});
-    
+
         // Prepare data arrays for each group in percentage
         const labels = Array.from(new Set(filteredCSVArray.map(item => item[header])));
         const clusterLabels = Object.keys(groupMap); // Labels for each cluster
@@ -902,15 +917,15 @@ class AnalysisObject {
                 return (total > 0) ? (count / total) * 100 : 0; // Convert count to percentage
             });
         });
-    
+
         return {
             data,            // Array of arrays, each representing a cluster's data in percentage
             labels,          // Same labels for each data array in the clusters
             clusterLabels    // Labels for each cluster
         };
     }
-    
-}    
+
+}
 
 // Function to create and add a new Analysis object
 function createAnalysis(type = '', usingThese = [], groupedBy = null, filteredBy = [], label = '') {
@@ -1057,13 +1072,6 @@ function updateStepBody() {
     compareListAnchorText.textContent = 'make comparisons';
     compareListAnchor.setAttribute('data-value', 'compare');
 
-    const openListItem = document.createElement('li');
-    const openListAnchor = document.createElement('a');
-    openListAnchor.classList.add('dropdown-item');
-    const openListAnchorText = document.createElement('label');
-    openListAnchorText.textContent = 'analyze open-ended content';
-    openListAnchor.setAttribute('data-value', 'open');
-
     //append options to menu
     genericListAnchor.appendChild(genericListAnchorText);
     genericListItem.appendChild(genericListAnchor);
@@ -1072,10 +1080,6 @@ function updateStepBody() {
     compareListAnchor.appendChild(compareListAnchorText);
     compareListItem.appendChild(compareListAnchor);
     menu.appendChild(compareListItem);
-
-    openListAnchor.appendChild(openListAnchorText);
-    openListItem.appendChild(openListAnchor);
-    menu.appendChild(openListItem);
 
     // Append elements to the dropdown container
     dropdownContainer.appendChild(select);
