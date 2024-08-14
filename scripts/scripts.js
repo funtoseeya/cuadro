@@ -527,7 +527,42 @@ class ChartObject {
         this.backgroundColor = '#2d6a4f'; // 
         this.borderColor = '#2d6a4f'; // 
         this.borderWidth = 1;
-        this.options = {
+        this.clusteredBarChartOptions = {
+            
+                responsive: true,
+                indexAxis: 'y', // Set to 'y' for horizontal bars
+                scales: {
+                    x: {
+                        stacked: false, // Bars should not be stacked
+                        ticks: {
+                            autoSkip: false, // Ensure all x-axis labels are visible,
+    
+                            callback: function (value) {
+                                // Format the x-axis ticks as percentages
+                                return (value).toFixed(0) + '%';
+                            }
+                        }
+                    },
+                    y: {
+                        stacked: false, // Bars should not be stacked
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+    
+                    // Change options for ALL labels of THIS CHART
+                    datalabels: {
+                        color: 'white',
+                        anchor: 'end',
+                        align: 'start'
+                    },
+                    legend: {
+                        position: 'top'
+                    }
+                }
+            
+        }
+        this.barChartOptions = {
             plugins: {
                 // Change options for ALL labels of THIS CHART
                 datalabels: {
@@ -647,7 +682,7 @@ function renderGenericChartInCard(chartObject) { //pass chartObject as an argume
             }
             ]
         },
-        options: chartObject.options
+        options: chartObject.barChartOptions
     });
 }
 
@@ -721,39 +756,7 @@ function renderClusteredChartInCard(chartObject) { // Pass chartObject as an arg
             labels: chartObject.labels,
             datasets: datasets
         },
-        options: {
-            responsive: true,
-            indexAxis: 'y', // Set to 'y' for horizontal bars
-            scales: {
-                x: {
-                    stacked: false, // Bars should not be stacked
-                    ticks: {
-                        autoSkip: false, // Ensure all x-axis labels are visible,
-
-                        callback: function (value) {
-                            // Format the x-axis ticks as percentages
-                            return (value).toFixed(0) + '%';
-                        }
-                    }
-                },
-                y: {
-                    stacked: false, // Bars should not be stacked
-                    beginAtZero: true
-                }
-            },
-            plugins: {
-
-                // Change options for ALL labels of THIS CHART
-                datalabels: {
-                    color: 'white',
-                    anchor: 'end',
-                    align: 'start'
-                },
-                legend: {
-                    position: 'top'
-                }
-            }
-        }
+        options: clusteredBarChartOptions
     });
 }
 
