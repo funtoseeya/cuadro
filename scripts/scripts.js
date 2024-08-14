@@ -531,8 +531,10 @@ class ChartObject {
             plugins: {
                 // Change options for ALL labels of THIS CHART
                 datalabels: {
-                    color: 'white'
-                }
+                    color: 'white',
+                    anchor: 'end',
+                    align: 'start'
+                                }
             },
             indexAxis: 'y', // Make it a horizontal bar chart
             scales: {
@@ -743,7 +745,9 @@ function renderClusteredChartInCard(chartObject) { // Pass chartObject as an arg
 
                 // Change options for ALL labels of THIS CHART
                 datalabels: {
-                    color: 'white'
+                    color: 'white',
+                    anchor: 'end',
+                    align: 'start'
                 },
                 legend: {
                     position: 'top'
