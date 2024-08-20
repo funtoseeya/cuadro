@@ -534,7 +534,7 @@ class ChartObject {
                     color: 'white',
                     anchor: 'end',
                     align: 'start'
-                                }
+                }
             },
             indexAxis: 'y', // Make it a horizontal bar chart
             scales: {
@@ -622,6 +622,9 @@ function renderGenericChartInCard(chartObject) { //pass chartObject as an argume
     const canvas = document.createElement('canvas');
     canvas.style.width = '100%'; // Full width
 
+    //calculate how many bars there will be and use that to calculate the canvas height
+    canvas.style.height = `${chartObject.data.length * 50}px`;
+
     // Append the canvas to the card body 
     cardBody.appendChild(canvas);
 
@@ -686,6 +689,14 @@ function renderClusteredChartInCard(chartObject) { // Pass chartObject as an arg
     // Create the canvas element
     const canvas = document.createElement('canvas');
     canvas.style.width = '100%'; // Full width
+
+    //calculate how many bars there will be and use that to calculate the canvas height
+    let totalArrayValues = 0;
+    chartObject.data.forEach(subArray => {
+        totalArrayValues += subArray.length;
+    });
+    canvas.style.height = `${totalArrayValues * 25}px`;
+
 
     // Append the canvas to the card body
     cardBody.appendChild(canvas);
