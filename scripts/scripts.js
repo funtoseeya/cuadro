@@ -527,7 +527,7 @@ class ChartObject {
         this.backgroundColor = '#2d6a4f'; // 
         this.borderColor = '#2d6a4f'; // 
         this.borderWidth = 1;
-        this.options = {
+        this.barChartOptions = {
             plugins: {
                 // Change options for ALL labels of THIS CHART
                 datalabels: {
@@ -559,6 +559,45 @@ class ChartObject {
             },
             responsive: false // Ensure the chart is not responsive
         };
+        this.clusteredBarChartOptions = {
+            responsive: true,
+            indexAxis: 'y', // Set to 'y' for horizontal bars
+            scales: {
+                x: {
+                    stacked: false, // Bars should not be stacked
+                    ticks: {
+                        autoSkip: false, // Ensure all x-axis labels are visible,
+
+                        callback: function (value) {
+                            // Format the x-axis ticks as percentages
+                            return (value).toFixed(0) + '%';
+                        }
+                    }
+                },
+                y: {
+                    stacked: false, // Bars should not be stacked
+                    beginAtZero: true
+                }
+            },
+            elements: {
+                bar: {
+                    borderWidth: 1,
+                    borderRadius: 5,
+                }
+            },
+            plugins: {
+
+                // Change options for ALL labels of THIS CHART
+                datalabels: {
+                    color: 'white',
+                    anchor: 'end',
+                    align: 'start'
+                },
+                legend: {
+                    position: 'top'
+                }
+            }
+        }
     }
 }
 
@@ -659,103 +698,103 @@ class AnalysisObject {
         };
     }
 
-// Function to render all chart objects
-renderAllGenericCharts() {
-    // Find the container where the cards will be appended
-    const stepBody = document.getElementById('step-body');
-    let cardsContainer = document.getElementById('cards-container');
+    // Function to render all chart objects
+    renderAllGenericCharts() {
+        // Find the container where the cards will be appended
+        const stepBody = document.getElementById('step-body');
+        let cardsContainer = document.getElementById('cards-container');
 
-    if (cardsContainer) { //if the cards container was created in a previous call, empty it.
-        cardsContainer.innerHTML = '';
-    } else { //if the cards container doesn't exist, create it within the stepbody div 
-        cardsContainer = document.createElement('div');
-        cardsContainer.id = 'cards-container';
-        stepBody.appendChild(cardsContainer);
+        if (cardsContainer) { //if the cards container was created in a previous call, empty it.
+            cardsContainer.innerHTML = '';
+        } else { //if the cards container doesn't exist, create it within the stepbody div 
+            cardsContainer = document.createElement('div');
+            cardsContainer.id = 'cards-container';
+            stepBody.appendChild(cardsContainer);
+        }
+
+        // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
+        this.charts.forEach(chart => {
+            this.renderGenericChartInCard(chart);
+        });
     }
 
-    // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
-    this.charts.forEach(chart => {
-        this.renderGenericChartInCard(chart);
-    });
-}
+    // Function to create and render a chart in a Bootstrap card component and append to 'step-body'
+    renderGenericChartInCard(chartObject) { //pass chartObject as an argument
+        // Find the container where the cards will be appended
+        const container = document.getElementById('cards-container');
 
-// Function to create and render a chart in a Bootstrap card component and append to 'step-body'
-renderGenericChartInCard(chartObject) { //pass chartObject as an argument
-    // Find the container where the cards will be appended
-    const container = document.getElementById('cards-container');
+        // Create the card element
+        const card = document.createElement('div');
+        card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
 
-    // Create the card element
-    const card = document.createElement('div');
-    card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
+        /* card header code - to be continued //commented out for now.
+     
+        //create the header row, which will store functionality like chart type toggles
+        const cardHeader = document.createElement('div');
+        cardHeader.classList.add('row');
+     
+        //create the header row's columns
+        const cardHeaderLeftColumn = document.createElement('div');
+        cardHeaderLeftColumn.classList.add('col-6');
+        const cardHeaderRightColumn = document.createElement('div');
+        cardHeaderRightColumn.classList.add('col-6');
+     
+        //Test columns
+        const coltext= document.createElement('p');
+        coltext.textContent="test";
+        const coltext1= document.createElement('p');
+        coltext1.textContent="test";
+        cardHeaderLeftColumn.appendChild(coltext);
+        cardHeaderRightColumn.appendChild(coltext1);
+     
+        //Append the cardheader left and right column to the cardheader
+        cardHeader.appendChild(cardHeaderLeftColumn);
+        cardHeader.appendChild(cardHeaderRightColumn);
+     
+        // Append the card header to the card
+        card.appendChild(cardHeader);
+     
+        */
 
-    /* card header code - to be continued //commented out for now.
- 
-    //create the header row, which will store functionality like chart type toggles
-    const cardHeader = document.createElement('div');
-    cardHeader.classList.add('row');
- 
-    //create the header row's columns
-    const cardHeaderLeftColumn = document.createElement('div');
-    cardHeaderLeftColumn.classList.add('col-6');
-    const cardHeaderRightColumn = document.createElement('div');
-    cardHeaderRightColumn.classList.add('col-6');
- 
-    //Test columns
-    const coltext= document.createElement('p');
-    coltext.textContent="test";
-    const coltext1= document.createElement('p');
-    coltext1.textContent="test";
-    cardHeaderLeftColumn.appendChild(coltext);
-    cardHeaderRightColumn.appendChild(coltext1);
- 
-    //Append the cardheader left and right column to the cardheader
-    cardHeader.appendChild(cardHeaderLeftColumn);
-    cardHeader.appendChild(cardHeaderRightColumn);
- 
-    // Append the card header to the card
-    card.appendChild(cardHeader);
- 
-    */
+        // Create the card body element
+        const cardBody = document.createElement('div');
+        cardBody.classList.add('card-body');
 
-    // Create the card body element
-    const cardBody = document.createElement('div');
-    cardBody.classList.add('card-body');
+        // Create the canvas element
+        const canvas = document.createElement('canvas');
+        canvas.style.width = '100%'; // Full width
 
-    // Create the canvas element
-    const canvas = document.createElement('canvas');
-    canvas.style.width = '100%'; // Full width
+        //calculate how many bars there will be and use that to calculate the canvas height
+        canvas.style.height = `${chartObject.data.length * 50}px`;
 
-    //calculate how many bars there will be and use that to calculate the canvas height
-    canvas.style.height = `${chartObject.data.length * 50}px`;
+        // Append the canvas to the card body 
+        cardBody.appendChild(canvas);
 
-    // Append the canvas to the card body 
-    cardBody.appendChild(canvas);
+        // Append the card body to the card
+        card.appendChild(cardBody);
 
-    // Append the card body to the card
-    card.appendChild(cardBody);
+        // Append the card to the container
+        container.appendChild(card);
 
-    // Append the card to the container
-    container.appendChild(card);
+        // Render the chart on the canvas
+        const ctx = canvas.getContext('2d');
 
-    // Render the chart on the canvas
-    const ctx = canvas.getContext('2d');
-
-    new Chart(ctx, {  //create a new chart using the properties of the chartObject being called as an argument in the function
-        type: chartObject.type,
-        data: {
-            labels: chartObject.labels,
-            datasets: [{
-                label: chartObject.title, //the tooltip label is just the series title 
-                data: chartObject.data,
-                backgroundColor: chartObject.backgroundColor,
-                borderColor: chartObject.borderColor,
-                borderWidth: chartObject.borderWidth
-            }
-            ]
-        },
-        options: chartObject.options
-    });
-}
+        new Chart(ctx, {  //create a new chart using the properties of the chartObject being called as an argument in the function
+            type: chartObject.type,
+            data: {
+                labels: chartObject.labels,
+                datasets: [{
+                    label: chartObject.title, //the tooltip label is just the series title 
+                    data: chartObject.data,
+                    backgroundColor: chartObject.backgroundColor,
+                    borderColor: chartObject.borderColor,
+                    borderWidth: chartObject.borderWidth
+                }
+                ]
+            },
+            options: chartObject.barChartOptions
+        });
+    }
 
     addClusteredCharts() {
         this.charts = []; // Clear existing charts
@@ -829,11 +868,11 @@ renderGenericChartInCard(chartObject) { //pass chartObject as an argument
             clusterLabels    // Labels for each cluster
         };
     }
-     renderAllClusteredCharts() {
+    renderAllClusteredCharts() {
         // Find the container where the cards will be appended
         const stepBody = document.getElementById('step-body');
         let cardsContainer = document.getElementById('cards-container');
-    
+
         if (cardsContainer) { // If the cards container was created in a previous call, empty it.
             cardsContainer.innerHTML = '';
         } else { // If the cards container doesn't exist, create it within the stepbody div 
@@ -841,57 +880,57 @@ renderGenericChartInCard(chartObject) { //pass chartObject as an argument
             cardsContainer.id = 'cards-container';
             stepBody.appendChild(cardsContainer);
         }
-    
+
         // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
         this.charts.forEach(chart => {
             this.renderClusteredChartInCard(chart);
         });
     }
-    
+
     // Function to create and render a horizontal clustered bar chart in a Bootstrap card component and append to 'step-body'
-     renderClusteredChartInCard(chartObject) { // Pass chartObject as an argument
+    renderClusteredChartInCard(chartObject) { // Pass chartObject as an argument
         // Find the container where the cards will be appended
         const container = document.getElementById('cards-container');
-    
+
         // Create the card element
         const card = document.createElement('div');
         card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
-    
+
         // Create the card body element
         const cardBody = document.createElement('div');
         cardBody.classList.add('card-body');
-    
+
         // Create the canvas element
         const canvas = document.createElement('canvas');
         canvas.style.width = '100%'; // Full width
-    
+
         //calculate how many bars there will be and use that to calculate the canvas height
         let totalArrayValues = 0;
         chartObject.data.forEach(subArray => {
             totalArrayValues += subArray.length;
         });
         canvas.style.height = `${totalArrayValues * 25}px`;
-    
-    
+
+
         // Append the canvas to the card body
         cardBody.appendChild(canvas);
-    
+
         // Append the card body to the card
         card.appendChild(cardBody);
-    
+
         // Append the card to the container
         container.appendChild(card);
-    
+
         // Render the chart on the canvas
         const ctx = canvas.getContext('2d');
-    
+
         // Create the datasets for each cluster
         const datasets = chartObject.data.map((clusterData, index) => {
             // Cycle through colorPalette for background and border colors
             const colorIndex = index % colorPalette.length;
             const backgroundColor = colorPalette[colorIndex];
             const borderColor = colorPalette[colorIndex];
-    
+
             return {
                 label: chartObject.clusterLabels[index], // Label for the cluster
                 data: clusterData,
@@ -900,55 +939,17 @@ renderGenericChartInCard(chartObject) { //pass chartObject as an argument
                 borderWidth: 1 // Fixed border width
             };
         });
-    
+
         new Chart(ctx, {
             type: 'bar', // Use 'bar' type for horizontal bar chart
             data: {
                 labels: chartObject.labels,
                 datasets: datasets
             },
-            options: {
-                responsive: true,
-                indexAxis: 'y', // Set to 'y' for horizontal bars
-                scales: {
-                    x: {
-                        stacked: false, // Bars should not be stacked
-                        ticks: {
-                            autoSkip: false, // Ensure all x-axis labels are visible,
-    
-                            callback: function (value) {
-                                // Format the x-axis ticks as percentages
-                                return (value).toFixed(0) + '%';
-                            }
-                        }
-                    },
-                    y: {
-                        stacked: false, // Bars should not be stacked
-                        beginAtZero: true
-                    }
-                },
-                elements: {
-                    bar: {
-                        borderWidth: 1,
-                        borderRadius: 5,
-                                           }
-                },
-                plugins: {
-    
-                    // Change options for ALL labels of THIS CHART
-                    datalabels: {
-                        color: 'white',
-                        anchor: 'end',
-                        align: 'start'
-                    },
-                    legend: {
-                        position: 'top'
-                    }
-                }
-            }
+            options: chartObject.clusteredBarChartOptions
         });
     }
-    
+
 }
 
 // Function to create and add a new Analysis object
