@@ -515,93 +515,6 @@ function dataTypesToast(value) {
 
 // ANALYZE STEP
 
-
-// boilerplate for charts we create via the generic dropdown option.  
-class ChartObject {
-    constructor(title, type, data, labels, clusterLabels) {
-        this.title = title; // Title of the chart
-        this.type = type; // Type of the chart (e.g., 'bar', 'line')
-        this.data = data; // Data required for chart generation
-        this.labels = labels; // Data required for chart generation
-        this.clusterLabels = clusterLabels; // New property for cluster labels
-        this.backgroundColor = '#2d6a4f'; // 
-        this.borderColor = '#2d6a4f'; // 
-        this.borderWidth = 1;
-        this.barChartOptions = {
-            plugins: {
-                // Change options for ALL labels of THIS CHART
-                datalabels: {
-                    color: 'white',
-                    anchor: 'end',
-                    align: 'start'
-                }
-            },
-            indexAxis: 'y', // Make it a horizontal bar chart
-            scales: {
-                x: { //make the data appear as percentages
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function (value) {
-                            // Format the x-axis ticks as percentages
-                            return (value).toFixed(0) + '%';
-                        }
-                    }
-                },
-                y: {
-                    // You can customize the y-axis as needed
-                }
-            },
-            elements: {
-                bar: {
-                    borderWidth: 1,
-                    borderRadius: 5,
-                }
-            },
-            responsive: false // Ensure the chart is not responsive
-        };
-        this.clusteredBarChartOptions = {
-            responsive: true,
-            indexAxis: 'y', // Set to 'y' for horizontal bars
-            scales: {
-                x: {
-                    stacked: false, // Bars should not be stacked
-                    ticks: {
-                        autoSkip: false, // Ensure all x-axis labels are visible,
-
-                        callback: function (value) {
-                            // Format the x-axis ticks as percentages
-                            return (value).toFixed(0) + '%';
-                        }
-                    }
-                },
-                y: {
-                    stacked: false, // Bars should not be stacked
-                    beginAtZero: true
-                }
-            },
-            elements: {
-                bar: {
-                    borderWidth: 1,
-                    borderRadius: 5,
-                }
-            },
-            plugins: {
-
-                // Change options for ALL labels of THIS CHART
-                datalabels: {
-                    color: 'white',
-                    anchor: 'end',
-                    align: 'start'
-                },
-                legend: {
-                    position: 'top'
-                }
-            }
-        }
-    }
-}
-
-
 // a boilerplate for analysis objects
 class AnalysisObject {
     constructor(type = '', usingThese = [], groupedBy = null, filteredBy = [], label = '') {
@@ -765,7 +678,7 @@ class AnalysisObject {
         canvas.style.width = '100%'; // Full width
 
         //calculate how many bars there will be and use that to calculate the canvas height
-        canvas.style.height = `${chartObject.data.length * 50}px`;
+        canvas.style.height = `${100 + chartObject.data.length * 50}px`;
 
         // Append the canvas to the card body 
         cardBody.appendChild(canvas);
@@ -909,7 +822,7 @@ class AnalysisObject {
         chartObject.data.forEach(subArray => {
             totalArrayValues += subArray.length;
         });
-        canvas.style.height = `${totalArrayValues * 25}px`;
+        canvas.style.height = `${100+ totalArrayValues * 25}px`;
 
 
         // Append the canvas to the card body
@@ -996,6 +909,93 @@ function deleteAllAnalysisObjects() {
     analysisObjects = []; // Reassign to a new empty array
     nextAnalysisId = 1;
 }
+
+
+// boilerplate for charts we create via the generic dropdown option.  
+class ChartObject {
+    constructor(title, type, data, labels, clusterLabels) {
+        this.title = title; // Title of the chart
+        this.type = type; // Type of the chart (e.g., 'bar', 'line')
+        this.data = data; // Data required for chart generation
+        this.labels = labels; // Data required for chart generation
+        this.clusterLabels = clusterLabels; // New property for cluster labels
+        this.backgroundColor = '#2d6a4f'; // 
+        this.borderColor = '#2d6a4f'; // 
+        this.borderWidth = 1;
+        this.barChartOptions = {
+            plugins: {
+                // Change options for ALL labels of THIS CHART
+                datalabels: {
+                    color: 'white',
+                    anchor: 'end',
+                    align: 'start'
+                }
+            },
+            indexAxis: 'y', // Make it a horizontal bar chart
+            scales: {
+                x: { //make the data appear as percentages
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function (value) {
+                            // Format the x-axis ticks as percentages
+                            return (value).toFixed(0) + '%';
+                        }
+                    }
+                },
+                y: {
+                    // You can customize the y-axis as needed
+                }
+            },
+            elements: {
+                bar: {
+                    borderWidth: 1,
+                    borderRadius: 5,
+                }
+            },
+            responsive: false // Ensure the chart is not responsive
+        };
+        this.clusteredBarChartOptions = {
+            responsive: true,
+            indexAxis: 'y', // Set to 'y' for horizontal bars
+            scales: {
+                x: {
+                    stacked: false, // Bars should not be stacked
+                    ticks: {
+                        autoSkip: false, // Ensure all x-axis labels are visible,
+
+                        callback: function (value) {
+                            // Format the x-axis ticks as percentages
+                            return (value).toFixed(0) + '%';
+                        }
+                    }
+                },
+                y: {
+                    stacked: false, // Bars should not be stacked
+                    beginAtZero: true
+                }
+            },
+            elements: {
+                bar: {
+                    borderWidth: 1,
+                    borderRadius: 5,
+                }
+            },
+            plugins: {
+
+                // Change options for ALL labels of THIS CHART
+                datalabels: {
+                    color: 'white',
+                    anchor: 'end',
+                    align: 'start'
+                },
+                legend: {
+                    position: 'top'
+                }
+            }
+        }
+    }
+}
+
 
 
 // Function to create a new array to generate the filters dropdown
