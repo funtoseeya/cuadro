@@ -527,42 +527,7 @@ class ChartObject {
         this.backgroundColor = '#2d6a4f'; // 
         this.borderColor = '#2d6a4f'; // 
         this.borderWidth = 1;
-        this.clusteredBarChartOptions = {
-            
-                responsive: true,
-                indexAxis: 'y', // Set to 'y' for horizontal bars
-                scales: {
-                    x: {
-                        stacked: false, // Bars should not be stacked
-                        ticks: {
-                            autoSkip: false, // Ensure all x-axis labels are visible,
-    
-                            callback: function (value) {
-                                // Format the x-axis ticks as percentages
-                                return (value).toFixed(0) + '%';
-                            }
-                        }
-                    },
-                    y: {
-                        stacked: false, // Bars should not be stacked
-                        beginAtZero: true
-                    }
-                },
-                plugins: {
-    
-                    // Change options for ALL labels of THIS CHART
-                    datalabels: {
-                        color: 'white',
-                        anchor: 'end',
-                        align: 'start'
-                    },
-                    legend: {
-                        position: 'top'
-                    }
-                }
-            
-        }
-        this.barChartOptions = {
+        this.options = {
             plugins: {
                 // Change options for ALL labels of THIS CHART
                 datalabels: {
@@ -586,13 +551,116 @@ class ChartObject {
                     // You can customize the y-axis as needed
                 }
             },
+            elements: {
+                bar: {
+                    borderWidth: 1,
+                    borderRadius: 5,
+                }
+            },
             responsive: false // Ensure the chart is not responsive
         };
     }
 }
 
+
+// a boilerplate for analysis objects
+class AnalysisObject {
+    constructor(type = '', usingThese = [], groupedBy = null, filteredBy = [], label = '') {
+        this.id = nextAnalysisId++; // Assign a unique ID
+        this.type = type; // Single value picked from dropdown
+        this.usingThese = usingThese; // Array of values picked from dropdown (create basic charts)
+        this.groupedBy = groupedBy; // Value picked from groupby single select dropdown (Compare, timeline, AI)
+        this.filteredBy = filteredBy; // Array of headers and values picked from dropdown (all)
+        this.charts = []; // Array to store one or more Chart objects
+        this.label = label; // Optional label for user naming
+
+    }
+
+    addChart(title, chartType, data, labels) { //pretty sure we're not using this method
+        const newChart = new ChartObject(title, chartType, data, labels);
+        this.charts.push(newChart);
+    }
+
+    update(type = this.type, usingThese = this.usingThese, groupedBy = this.groupedBy, filteredBy = this.filteredBy, label = this.label) {
+        this.type = type;
+        this.usingThese = usingThese;
+        this.groupedBy = groupedBy;
+        this.filteredBy = filteredBy;
+        this.label = label;
+        this.watchChanges(); // a master function that runs whenever the object is updated. 
+    }
+    watchChanges() { //meant as a router that chooses what charts to produce depending on the inputs
+        // Check if usingThese is not empty and type is 'generic'
+        if (this.usingThese.length > 0 && this.type === 'generic') {
+            this.addGenericCharts(); //create the data and code needed for all generic charts needing to be displayed
+            this.renderAllGenericCharts(); // render all charts once the code and data is ready
+        }
+        if (this.usingThese.length > 0 && this.type === 'compare' && this.groupedBy != "") {
+            this.addClusteredCharts(); //create the data and code needed to generate a clustered bar chart (maybe even for stacked chart or matrix)
+            this.renderAllClusteredCharts();// render clustered once the code and data is ready
+        }
+    }
+
+    addGenericCharts() {
+        this.charts = []; // Clear existing charts
+        this.usingThese.forEach(value => {
+            // get the data we need to produce the chart
+            const { data, labels } = this.generateGenericDataArrayAndLabels(value, this.filteredBy); //get the data we need for the chart
+
+            // Create and add the chart
+            const newChart = new ChartObject(
+                value,
+                'bar',
+                data,
+                labels
+            );
+            this.charts.push(newChart);
+        });
+    };
+
+    generateGenericDataArrayAndLabels(header, filteredBy) {
+        // Helper function to check if an object matches all the filter criteria
+        function matchesFilter(obj, filters) {
+            return filters.every(filter => {
+                const { header: filterHeader, value } = filter;
+                return obj[filterHeader] === value;
+            });
+        }
+
+        // Filter the array based on applied filters
+        const filteredCSVArray = parsedCSVData.filter(item => matchesFilter(item, filteredBy));
+        console.log('filtered csv array', filteredCSVArray);
+
+        // Ensure the header parameter is used
+        if (!header) {
+            throw new Error("The 'header' parameter is required.");
+        }
+
+        // Count the occurrences of each unique value for the specified header
+        const countMap = filteredCSVArray.reduce((acc, item) => {
+            const value = item[header];
+            acc[value] = (acc[value] || 0) + 1;
+            return acc;
+        }, {});
+
+        // Calculate the percentage for each unique value
+        const totalCount = filteredCSVArray.length;
+        const data = Object.entries(countMap).map(([key, count]) => Math.round((count / totalCount) * 100));
+        const labels = Object.keys(countMap);
+
+        // Sort data and labels in descending order based on data values
+        const sortedIndices = data.map((value, index) => index).sort((a, b) => data[b] - data[a]);
+        const sortedData = sortedIndices.map(index => data[index]);
+        const sortedLabels = sortedIndices.map(index => labels[index]);
+
+        return {
+            data: sortedData,
+            labels: sortedLabels
+        };
+    }
+
 // Function to render all chart objects
-function renderAllGenericCharts(analysisObject) {
+renderAllGenericCharts() {
     // Find the container where the cards will be appended
     const stepBody = document.getElementById('step-body');
     let cardsContainer = document.getElementById('cards-container');
@@ -606,13 +674,13 @@ function renderAllGenericCharts(analysisObject) {
     }
 
     // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
-    analysisObject.charts.forEach(chart => {
-        renderGenericChartInCard(chart);
+    this.charts.forEach(chart => {
+        this.renderGenericChartInCard(chart);
     });
 }
 
 // Function to create and render a chart in a Bootstrap card component and append to 'step-body'
-function renderGenericChartInCard(chartObject) { //pass chartObject as an argument
+renderGenericChartInCard(chartObject) { //pass chartObject as an argument
     // Find the container where the cards will be appended
     const container = document.getElementById('cards-container');
 
@@ -685,190 +753,9 @@ function renderGenericChartInCard(chartObject) { //pass chartObject as an argume
             }
             ]
         },
-        options: chartObject.barChartOptions
+        options: chartObject.options
     });
 }
-
-function renderAllClusteredCharts(analysisObject) {
-    // Find the container where the cards will be appended
-    const stepBody = document.getElementById('step-body');
-    let cardsContainer = document.getElementById('cards-container');
-
-    if (cardsContainer) { // If the cards container was created in a previous call, empty it.
-        cardsContainer.innerHTML = '';
-    } else { // If the cards container doesn't exist, create it within the stepbody div 
-        cardsContainer = document.createElement('div');
-        cardsContainer.id = 'cards-container';
-        stepBody.appendChild(cardsContainer);
-    }
-
-    // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
-    analysisObject.charts.forEach(chart => {
-        renderClusteredChartInCard(chart);
-    });
-}
-
-// Function to create and render a horizontal clustered bar chart in a Bootstrap card component and append to 'step-body'
-function renderClusteredChartInCard(chartObject) { // Pass chartObject as an argument
-    // Find the container where the cards will be appended
-    const container = document.getElementById('cards-container');
-
-    // Create the card element
-    const card = document.createElement('div');
-    card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
-
-    // Create the card body element
-    const cardBody = document.createElement('div');
-    cardBody.classList.add('card-body');
-
-    // Create the canvas element
-    const canvas = document.createElement('canvas');
-    canvas.style.width = '100%'; // Full width
-
-    //calculate how many bars there will be and use that to calculate the canvas height
-    let totalArrayValues = 0;
-    chartObject.data.forEach(subArray => {
-        totalArrayValues += subArray.length;
-    });
-    canvas.style.height = `${totalArrayValues * 25}px`;
-
-
-    // Append the canvas to the card body
-    cardBody.appendChild(canvas);
-
-    // Append the card body to the card
-    card.appendChild(cardBody);
-
-    // Append the card to the container
-    container.appendChild(card);
-
-    // Render the chart on the canvas
-    const ctx = canvas.getContext('2d');
-
-    // Create the datasets for each cluster
-    const datasets = chartObject.data.map((clusterData, index) => {
-        // Cycle through colorPalette for background and border colors
-        const colorIndex = index % colorPalette.length;
-        const backgroundColor = colorPalette[colorIndex];
-        const borderColor = colorPalette[colorIndex];
-
-        return {
-            label: chartObject.clusterLabels[index], // Label for the cluster
-            data: clusterData,
-            backgroundColor: backgroundColor,
-            borderColor: borderColor,
-            borderWidth: 1 // Fixed border width
-        };
-    });
-
-    new Chart(ctx, {
-        type: 'bar', // Use 'bar' type for horizontal bar chart
-        data: {
-            labels: chartObject.labels,
-            datasets: datasets
-        },
-        options: clusteredBarChartOptions
-    });
-}
-
-
-
-
-// a boilerplate for analysis objects
-class AnalysisObject {
-    constructor(type = '', usingThese = [], groupedBy = null, filteredBy = [], label = '') {
-        this.id = nextAnalysisId++; // Assign a unique ID
-        this.type = type; // Single value picked from dropdown
-        this.usingThese = usingThese; // Array of values picked from dropdown (create basic charts)
-        this.groupedBy = groupedBy; // Value picked from groupby single select dropdown (Compare, timeline, AI)
-        this.filteredBy = filteredBy; // Array of headers and values picked from dropdown (all)
-        this.charts = []; // Array to store one or more Chart objects
-        this.label = label; // Optional label for user naming
-
-    }
-
-    addChart(title, chartType, data, labels) { //pretty sure we're not using this method
-        const newChart = new ChartObject(title, chartType, data, labels);
-        this.charts.push(newChart);
-    }
-
-    update(type = this.type, usingThese = this.usingThese, groupedBy = this.groupedBy, filteredBy = this.filteredBy, label = this.label) {
-        this.type = type;
-        this.usingThese = usingThese;
-        this.groupedBy = groupedBy;
-        this.filteredBy = filteredBy;
-        this.label = label;
-        this.watchChanges(); // a master function that runs whenever the object is updated. 
-    }
-    watchChanges() { //meant as a router that chooses what charts to produce depending on the inputs
-        // Check if usingThese is not empty and type is 'generic'
-        if (this.usingThese.length > 0 && this.type === 'generic') {
-            this.addGenericCharts(); //create the data and code needed for all generic charts needing to be displayed
-            renderAllGenericCharts(this); // render all charts once the code and data is ready
-        }
-        if (this.usingThese.length > 0 && this.type === 'compare' && this.groupedBy != "") {
-            this.addClusteredCharts(); //create the data and code needed to generate a clustered bar chart (maybe even for stacked chart or matrix)
-            renderAllClusteredCharts(this);// render clustered once the code and data is ready
-        }
-    }
-
-    addGenericCharts() {
-        this.charts = []; // Clear existing charts
-        this.usingThese.forEach(value => {
-            // get the data we need to produce the chart
-            const { data, labels } = this.generateGenericDataArrayAndLabels(value, this.filteredBy); //get the data we need for the chart
-
-            // Create and add the chart
-            const newChart = new ChartObject(
-                value,
-                'bar',
-                data,
-                labels
-            );
-            this.charts.push(newChart);
-        });
-    };
-
-    generateGenericDataArrayAndLabels(header, filteredBy) {
-        // Helper function to check if an object matches all the filter criteria
-        function matchesFilter(obj, filters) {
-            return filters.every(filter => {
-                const { header: filterHeader, value } = filter;
-                return obj[filterHeader] === value;
-            });
-        }
-
-        // Filter the array based on applied filters
-        const filteredCSVArray = parsedCSVData.filter(item => matchesFilter(item, filteredBy));
-        console.log('filtered csv array', filteredCSVArray);
-
-        // Ensure the header parameter is used
-        if (!header) {
-            throw new Error("The 'header' parameter is required.");
-        }
-
-        // Count the occurrences of each unique value for the specified header
-        const countMap = filteredCSVArray.reduce((acc, item) => {
-            const value = item[header];
-            acc[value] = (acc[value] || 0) + 1;
-            return acc;
-        }, {});
-
-        // Calculate the percentage for each unique value
-        const totalCount = filteredCSVArray.length;
-        const data = Object.entries(countMap).map(([key, count]) => Math.round((count / totalCount) * 100));
-        const labels = Object.keys(countMap);
-
-        // Sort data and labels in descending order based on data values
-        const sortedIndices = data.map((value, index) => index).sort((a, b) => data[b] - data[a]);
-        const sortedData = sortedIndices.map(index => data[index]);
-        const sortedLabels = sortedIndices.map(index => labels[index]);
-
-        return {
-            data: sortedData,
-            labels: sortedLabels
-        };
-    }
 
     addClusteredCharts() {
         this.charts = []; // Clear existing charts
@@ -942,7 +829,126 @@ class AnalysisObject {
             clusterLabels    // Labels for each cluster
         };
     }
-
+     renderAllClusteredCharts() {
+        // Find the container where the cards will be appended
+        const stepBody = document.getElementById('step-body');
+        let cardsContainer = document.getElementById('cards-container');
+    
+        if (cardsContainer) { // If the cards container was created in a previous call, empty it.
+            cardsContainer.innerHTML = '';
+        } else { // If the cards container doesn't exist, create it within the stepbody div 
+            cardsContainer = document.createElement('div');
+            cardsContainer.id = 'cards-container';
+            stepBody.appendChild(cardsContainer);
+        }
+    
+        // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
+        this.charts.forEach(chart => {
+            this.renderClusteredChartInCard(chart);
+        });
+    }
+    
+    // Function to create and render a horizontal clustered bar chart in a Bootstrap card component and append to 'step-body'
+     renderClusteredChartInCard(chartObject) { // Pass chartObject as an argument
+        // Find the container where the cards will be appended
+        const container = document.getElementById('cards-container');
+    
+        // Create the card element
+        const card = document.createElement('div');
+        card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
+    
+        // Create the card body element
+        const cardBody = document.createElement('div');
+        cardBody.classList.add('card-body');
+    
+        // Create the canvas element
+        const canvas = document.createElement('canvas');
+        canvas.style.width = '100%'; // Full width
+    
+        //calculate how many bars there will be and use that to calculate the canvas height
+        let totalArrayValues = 0;
+        chartObject.data.forEach(subArray => {
+            totalArrayValues += subArray.length;
+        });
+        canvas.style.height = `${totalArrayValues * 25}px`;
+    
+    
+        // Append the canvas to the card body
+        cardBody.appendChild(canvas);
+    
+        // Append the card body to the card
+        card.appendChild(cardBody);
+    
+        // Append the card to the container
+        container.appendChild(card);
+    
+        // Render the chart on the canvas
+        const ctx = canvas.getContext('2d');
+    
+        // Create the datasets for each cluster
+        const datasets = chartObject.data.map((clusterData, index) => {
+            // Cycle through colorPalette for background and border colors
+            const colorIndex = index % colorPalette.length;
+            const backgroundColor = colorPalette[colorIndex];
+            const borderColor = colorPalette[colorIndex];
+    
+            return {
+                label: chartObject.clusterLabels[index], // Label for the cluster
+                data: clusterData,
+                backgroundColor: backgroundColor,
+                borderColor: borderColor,
+                borderWidth: 1 // Fixed border width
+            };
+        });
+    
+        new Chart(ctx, {
+            type: 'bar', // Use 'bar' type for horizontal bar chart
+            data: {
+                labels: chartObject.labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                indexAxis: 'y', // Set to 'y' for horizontal bars
+                scales: {
+                    x: {
+                        stacked: false, // Bars should not be stacked
+                        ticks: {
+                            autoSkip: false, // Ensure all x-axis labels are visible,
+    
+                            callback: function (value) {
+                                // Format the x-axis ticks as percentages
+                                return (value).toFixed(0) + '%';
+                            }
+                        }
+                    },
+                    y: {
+                        stacked: false, // Bars should not be stacked
+                        beginAtZero: true
+                    }
+                },
+                elements: {
+                    bar: {
+                        borderWidth: 1,
+                        borderRadius: 5,
+                                           }
+                },
+                plugins: {
+    
+                    // Change options for ALL labels of THIS CHART
+                    datalabels: {
+                        color: 'white',
+                        anchor: 'end',
+                        align: 'start'
+                    },
+                    legend: {
+                        position: 'top'
+                    }
+                }
+            }
+        });
+    }
+    
 }
 
 // Function to create and add a new Analysis object
@@ -1117,12 +1123,12 @@ function updateStepBody() {
     stepBody.appendChild(rowDiv);
 
     // Add event listener for selection change
-    menu.addEventListener('click', handleSelectChange);
+    menu.addEventListener('click', handleIWantTo);
 
 }
 
 // Handle the select change event
-function handleSelectChange(event) {
+function handleIWantTo(event) {
     const target = event.target.closest('a.dropdown-item');
     if (!target) return;
 
