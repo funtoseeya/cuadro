@@ -583,10 +583,7 @@ class AnalysisObject {
         const filteredCSVArray = parsedCSVData.filter(item => matchesFilter(item, filteredBy));
         console.log('filtered csv array', filteredCSVArray);
 
-        // Ensure the header parameter is used
-        if (!header) {
-            throw new Error("The 'header' parameter is required.");
-        }
+        
 
         // Count the occurrences of each unique value for the specified header
         const countMap = filteredCSVArray.reduce((acc, item) => {
@@ -729,9 +726,6 @@ class AnalysisObject {
 
 
     generateClusteredDataArrayAndLabels(header, groupedBy, filteredBy) {
-        if (!header || !groupedBy) {
-            throw new Error("Both 'header' and 'groupedBy' parameters are required.");
-        }
 
         // Helper function to check if an object matches all the filter criteria
         function matchesFilter(obj, filters) {
