@@ -678,7 +678,7 @@ class AnalysisObject {
         canvas.style.width = '100%'; // Full width
 
         //calculate how many bars there will be and use that to calculate the canvas height
-        canvas.style.height = `${100 + chartObject.data.length * 50}px`;
+        canvas.style.height = `${100 + chartObject.data.length * 50}px`; //will be 100px if filters return no data and 125px if they return 1 bar
 
         // Append the canvas to the card body 
         cardBody.appendChild(canvas);
@@ -822,7 +822,7 @@ class AnalysisObject {
         chartObject.data.forEach(subArray => {
             totalArrayValues += subArray.length;
         });
-        canvas.style.height = `${100+ totalArrayValues * 25}px`;
+        canvas.style.height = `${100+ totalArrayValues * 25}px`; //will be 100px if filters return no data and 125px if they return 1 bar 
 
 
         // Append the canvas to the card body
