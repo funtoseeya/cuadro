@@ -545,11 +545,11 @@ class AnalysisObject {
         // Check if usingThese is not empty and type is 'generic'
         if (this.usingThese.length > 0 && this.type === 'generic') {
             this.addGenericCharts(); //create the data and code needed for all generic charts needing to be displayed
-            this.renderAllGenericCharts(); // render all charts once the code and data is ready
+            this.prepChartContainer(); // render all charts once the code and data is ready
         }
         if (this.usingThese.length > 0 && this.type === 'compare' && this.groupedBy != "") {
             this.addClusteredCharts(); //create the data and code needed to generate a clustered bar chart (maybe even for stacked chart or matrix)
-            this.renderAllClusteredCharts();// render clustered once the code and data is ready
+            this.prepChartContainer();// render clustered once the code and data is ready
         }
     }
 
@@ -583,7 +583,6 @@ class AnalysisObject {
         const filteredCSVArray = parsedCSVData.filter(item => matchesFilter(item, filteredBy));
         console.log('filtered csv array', filteredCSVArray);
 
-        
 
         // Count the occurrences of each unique value for the specified header
         const countMap = filteredCSVArray.reduce((acc, item) => {
@@ -609,7 +608,7 @@ class AnalysisObject {
     }
 
     // Function to render all chart objects
-    renderAllGenericCharts() {
+    prepChartContainer() {
         // Find the container where the cards will be appended
         const stepBody = document.getElementById('step-body');
         let cardsContainer = document.getElementById('cards-container');
@@ -622,10 +621,17 @@ class AnalysisObject {
             stepBody.appendChild(cardsContainer);
         }
 
+        if (this.groupedBy="") {
         // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
         this.charts.forEach(chart => {
             this.renderGenericChartInCard(chart);
         });
+    }
+        else {
+            this.charts.forEach(chart => {
+                this.renderClusteredChartInCard(chart);
+            });
+        }
     }
 
     // Function to create and render a chart in a Bootstrap card component and append to 'step-body'
@@ -775,25 +781,7 @@ class AnalysisObject {
             clusterLabels    // Labels for each cluster
         };
     }
-    renderAllClusteredCharts() {
-        // Find the container where the cards will be appended
-        const stepBody = document.getElementById('step-body');
-        let cardsContainer = document.getElementById('cards-container');
-
-        if (cardsContainer) { // If the cards container was created in a previous call, empty it.
-            cardsContainer.innerHTML = '';
-        } else { // If the cards container doesn't exist, create it within the stepbody div 
-            cardsContainer = document.createElement('div');
-            cardsContainer.id = 'cards-container';
-            stepBody.appendChild(cardsContainer);
-        }
-
-        // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
-        this.charts.forEach(chart => {
-            this.renderClusteredChartInCard(chart);
-        });
-    }
-
+    
     // Function to create and render a horizontal clustered bar chart in a Bootstrap card component and append to 'step-body'
     renderClusteredChartInCard(chartObject) { // Pass chartObject as an argument
         // Find the container where the cards will be appended
