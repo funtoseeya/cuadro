@@ -595,6 +595,7 @@ class AnalysisObject {
         const totalCount = filteredCSVArray.length;
         const data = Object.entries(countMap).map(([key, count]) => Math.round((count / totalCount) * 100));
         const labels = Object.keys(countMap);
+        
 
         // Sort data and labels in descending order based on data values
         const sortedIndices = data.map((value, index) => index).sort((a, b) => data[b] - data[a]);
@@ -621,7 +622,7 @@ class AnalysisObject {
             stepBody.appendChild(cardsContainer);
         }
 
-        if (this.groupedBy="") {
+        if (this.groupedBy==="") {
         // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
         this.charts.forEach(chart => {
             this.renderGenericChartInCard(chart);
