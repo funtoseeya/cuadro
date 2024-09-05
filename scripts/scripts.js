@@ -966,10 +966,17 @@ class AnalysisObject {
     cardTitle.textContent = chartObject.title;
     const cardDesc = document.createElement('p');
     cardDesc.textContent="Percentages are calculated relative to each group's respective total."
-    cardHeaderColumn.appendChild(cardTitle);
+    
+        cardHeaderColumn.appendChild(cardTitle);
     cardHeaderColumn.appendChild(cardDesc);
     cardHeader.appendChild(cardHeaderColumn);
     cardBody.appendChild(cardHeader);
+    
+    //testing filter styles and layouts
+    const cardFakeFilter = document.createElement('span');
+    cardFakeFilter.className = 'filter-badge'; // Apply the custom class
+    cardFakeFilter.textContent= 'your mama';
+    cardHeaderColumn.appendChild(cardFakeFilter);
 
     // Create the canvas element
     const canvas = document.createElement("canvas");

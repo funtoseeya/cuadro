@@ -186,3 +186,22 @@ body {
 .dropdown-menu .dropdown-item:focus {  background-color: var(--secondary); /* Change this to your desired background color */
 }
 
+
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: #e0e0e0; /* Bootstrap primary color */
+  color: black; /* White text */
+  border-radius: 0.375rem; /* Rounded corners */
+  padding: 0.25rem 0.5rem; /* Padding for the badge */
+  font-size: 0.875rem; /* Font size for the badge text */
+  position: relative; /* Position for the pseudo-element */
+}
+
+.filter-badge::before {
+  content: '\f0b0'; /* Unicode for filter icon from FontAwesome */
+  font-family: 'Font Awesome 6 Free'; /* Font family for FontAwesome */
+  font-weight: 900; /* FontAwesome solid icons weight */
+  margin-right: 0.25rem; /* Space between icon and text */
+}
+
