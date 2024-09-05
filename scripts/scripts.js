@@ -590,123 +590,137 @@ class AnalysisObject {
     this.usingThese.forEach((value) => {
       //iterates over each element in the this.usingThese array.
       // get the data we need to produce the chart
-      const result = this.generateGenericDataArrayAndLabels(value,this.filteredBy);      // Get the result from the generateGenericDataArrayAndLabels method
+      const result = this.generateGenericDataArrayAndLabels(
+        value,
+        this.filteredBy
+      ); // Get the result from the generateGenericDataArrayAndLabels method
 
       // Extract data and labels from the result object
       const data = result.data;
       const labels = result.labels;
       const percentagesCounts = result.PercentagesCounts;
+      const chartTitle = `Summary of ${value} data`;
 
       // Create and add the chart
-      const newChart = new ChartObject(value, "bar", data, labels, percentagesCounts); //value= the current item in the usingthese foreach loop 
+      const newChart = new ChartObject(
+        chartTitle,
+        "bar",
+        data,
+        labels,
+        percentagesCounts
+      ); //value= the current item in the usingthese foreach loop
       this.charts.push(newChart); // add the new chart object at the end of the analysis object's charts array
     });
     this.prepChartContainer(); // render all charts once their code and data is ready
   }
 
-  generateGenericDataArrayAndLabels(header, filteredBy) { 
+  generateGenericDataArrayAndLabels(header, filteredBy) {
     // Helper function to check if an object matches all the filter criteria. OR within the the same header, AND between headers
     function matchesFilter(item, filters) {
-        // Loop through each filter
-        for (let i = 0; i < filters.length; i++) {
-          let filter = filters[i];
-          let header = filter.header;
-          let value = filter.value;
-      
-          // Check if this item matches the filter
-          if (item[header] === value) {
-            // If it matches, continue to the next filter
-            continue;
-          } else {
-            // If it doesn't match, check if there is another filter with the same header and a matching value
-            let hasAnotherMatch = false;
-            for (let j = 0; j < filters.length; j++) {
-              if (filters[j].header === header && item[header] === filters[j].value) {
-                hasAnotherMatch = true;
-                break;
-              }
-            }
-            // If no other match is found for the same header, return false
-            if (!hasAnotherMatch) {
-              return false;
+      // Loop through each filter
+      for (let i = 0; i < filters.length; i++) {
+        let filter = filters[i];
+        let header = filter.header;
+        let value = filter.value;
+
+        // Check if this item matches the filter
+        if (item[header] === value) {
+          // If it matches, continue to the next filter
+          continue;
+        } else {
+          // If it doesn't match, check if there is another filter with the same header and a matching value
+          let hasAnotherMatch = false;
+          for (let j = 0; j < filters.length; j++) {
+            if (
+              filters[j].header === header &&
+              item[header] === filters[j].value
+            ) {
+              hasAnotherMatch = true;
+              break;
             }
           }
+          // If no other match is found for the same header, return false
+          if (!hasAnotherMatch) {
+            return false;
+          }
         }
-        
-        // If the item passes all filters, return true
-        return true;
       }
-      
-  
+
+      // If the item passes all filters, return true
+      return true;
+    }
+
     // Filter the array based on applied filters
-    let filteredCSVArray = [];                     // Initialize an empty array for filtered items
+    let filteredCSVArray = []; // Initialize an empty array for filtered items
     for (let i = 0; i < parsedCSVData.length; i++) {
-      let item = parsedCSVData[i];                   // Get the current item from parsedCSVData
-      if (matchesFilter(item, filteredBy)) {       // Check if the item matches the filters
-        filteredCSVArray.push(item);               // If it matches, add it to the filtered array
+      let item = parsedCSVData[i]; // Get the current item from parsedCSVData
+      if (matchesFilter(item, filteredBy)) {
+        // Check if the item matches the filters
+        filteredCSVArray.push(item); // If it matches, add it to the filtered array
       }
     }
     console.log("filtered csv array", filteredCSVArray);
-  
+
     // Count the occurrences of each unique value for the specified header
-    let countMap = {};                             // Initialize an empty object for counting
+    let countMap = {}; // Initialize an empty object for counting
     for (let i = 0; i < filteredCSVArray.length; i++) {
-      let item = filteredCSVArray[i];              // Get the current item from the filtered array
-      let value = item[header];                    // Get the value from the curent item's usingthese header  
-      if (countMap[value]) {                       // If the value is already in countMap, increment its count
+      let item = filteredCSVArray[i]; // Get the current item from the filtered array
+      let value = item[header]; // Get the value from the curent item's usingthese header
+      if (countMap[value]) {
+        // If the value is already in countMap, increment its count
         countMap[value]++;
-      } else {                                     // Otherwise, add the value to countMap with a count of 1
+      } else {
+        // Otherwise, add the value to countMap with a count of 1
         countMap[value] = 1;
       }
     }
-  
+
     // Calculate the percentage for each unique value
-let totalCount = filteredCSVArray.length;      // Get the total count of filtered items
-let data = [];                                 // Initialize an array for the data
-let labels = [];                               // Initialize an array for the labels
-let PercentagesCounts = [];
+    let totalCount = filteredCSVArray.length; // Get the total count of filtered items
+    let data = []; // Initialize an array for the data
+    let labels = []; // Initialize an array for the labels
+    let PercentagesCounts = [];
 
-// Get an array of keys from the countMap object - these are the unique values of the items in the usingthese array
-let keys = Object.keys(countMap);
+    // Get an array of keys from the countMap object - these are the unique values of the items in the usingthese array
+    let keys = Object.keys(countMap);
 
-// Use a standard for loop to iterate through the keys
-for (let i = 0; i < keys.length; i++) {
-  let key = keys[i];                           // Get the current key
-  let count = countMap[key];                   // Get the count for the current key
-  let percentage = Math.round((count / totalCount) * 100);  // Calculate the percentage
-  let percentageCount = `${percentage}% (${count})`; //merge percentage and count - useful for data labels later
-  data.push(percentage);                       // Add the percentage to the data array
-  labels.push(key);                            // Add the key to the labels array
-  PercentagesCounts.push(percentageCount);
-}
-
-  
-    // Sort data and labels in descending order based on data values
-    let sortedIndices = [];                        // Initialize an array for sorted indices
-    for (let i = 0; i < data.length; i++) {
-      sortedIndices.push(i);                       // Add the index to the sortedIndices array
+    // Use a standard for loop to iterate through the keys
+    for (let i = 0; i < keys.length; i++) {
+      let key = keys[i]; // Get the current key
+      let count = countMap[key]; // Get the count for the current key
+      let percentage = Math.round((count / totalCount) * 100); // Calculate the percentage
+      let percentageCount = `${percentage}% (${count})`; //merge percentage and count - useful for data labels later
+      data.push(percentage); // Add the percentage to the data array
+      labels.push(key); // Add the key to the labels array
+      PercentagesCounts.push(percentageCount);
     }
-    sortedIndices.sort(function(a, b) {            // Sort the indices based on data values
-      return data[b] - data[a];                    // Sort in descending order
+
+    // Sort data and labels in descending order based on data values
+    let sortedIndices = []; // Initialize an array for sorted indices
+    for (let i = 0; i < data.length; i++) {
+      sortedIndices.push(i); // Add the index to the sortedIndices array
+    }
+    sortedIndices.sort(function (a, b) {
+      // Sort the indices based on data values
+      return data[b] - data[a]; // Sort in descending order
     });
-  
-    let sortedData = [];                           // Initialize an array for sorted data
-    let sortedLabels = [];                         // Initialize an array for sorted labels
-    let sortedPercentagesCounts=[];
+
+    let sortedData = []; // Initialize an array for sorted data
+    let sortedLabels = []; // Initialize an array for sorted labels
+    let sortedPercentagesCounts = [];
     for (let i = 0; i < sortedIndices.length; i++) {
-      let index = sortedIndices[i];                // Get the current sorted index
-      sortedData.push(data[index]);                // Add the sorted data value to sortedData array
-      sortedLabels.push(labels[index]);            // Add the sorted label to sortedLabels array
+      let index = sortedIndices[i]; // Get the current sorted index
+      sortedData.push(data[index]); // Add the sorted data value to sortedData array
+      sortedLabels.push(labels[index]); // Add the sorted label to sortedLabels array
       sortedPercentagesCounts.push(PercentagesCounts[index]);
     }
-  
+
     return {
-      data: sortedData,                            // Return the sorted data array
-      labels: sortedLabels,                         // Return the sorted labels array
-      PercentagesCounts: sortedPercentagesCounts    // return the sorted array of percentages and counts
+      data: sortedData, // Return the sorted data array
+      labels: sortedLabels, // Return the sorted labels array
+      PercentagesCounts: sortedPercentagesCounts, // return the sorted array of percentages and counts
     };
   }
-  
 
   // Function to render all chart objects
   prepChartContainer() {
@@ -746,38 +760,22 @@ for (let i = 0; i < keys.length; i++) {
     const card = document.createElement("div");
     card.classList.add("card", "mt-4"); // Add Bootstrap card and margin classes
 
-    /* card header code - to be continued //commented out for now.
-     
-        //create the header row, which will store functionality like chart type toggles
-        const cardHeader = document.createElement('div');
-        cardHeader.classList.add('row');
-     
-        //create the header row's columns
-        const cardHeaderLeftColumn = document.createElement('div');
-        cardHeaderLeftColumn.classList.add('col-6');
-        const cardHeaderRightColumn = document.createElement('div');
-        cardHeaderRightColumn.classList.add('col-6');
-     
-        //Test columns
-        const coltext= document.createElement('p');
-        coltext.textContent="test";
-        const coltext1= document.createElement('p');
-        coltext1.textContent="test";
-        cardHeaderLeftColumn.appendChild(coltext);
-        cardHeaderRightColumn.appendChild(coltext1);
-     
-        //Append the cardheader left and right column to the cardheader
-        cardHeader.appendChild(cardHeaderLeftColumn);
-        cardHeader.appendChild(cardHeaderRightColumn);
-     
-        // Append the card header to the card
-        card.appendChild(cardHeader);
-     
-        */
-
     // Create the card body element
     const cardBody = document.createElement("div");
     cardBody.classList.add("card-body");
+
+    //create the header row, which will store functionality like chart type toggles
+    const cardHeader = document.createElement("div");
+    cardHeader.className = "row";
+
+    //create the header row's column and pop with the chart title
+    const cardHeaderColumn = document.createElement("div");
+    cardHeaderColumn.classList.add("col-12");
+    const coltext = document.createElement("h2");
+    coltext.textContent = chartObject.title;
+    cardHeaderColumn.appendChild(coltext);
+    cardHeader.appendChild(cardHeaderColumn);
+    cardBody.appendChild(cardHeader);
 
     // Create the canvas element
     const canvas = document.createElement("canvas");
@@ -821,15 +819,21 @@ for (let i = 0; i < keys.length; i++) {
     this.charts = []; // Clear existing charts
     this.usingThese.forEach((value) => {
       // Generate data, labels, and cluster labels for the clustered chart
-      const result = this.generateClusteredDataArrayAndLabels(value,this.groupedBy,this.filteredBy);
+      const result = this.generateClusteredDataArrayAndLabels(
+        value,
+        this.groupedBy,
+        this.filteredBy
+      );
 
-        const data = result.data;
-        const labels = result.labels;
-        const clusterLabels = result.clusterLabels;
-        const percentagesCounts = result.percentagesCounts;
+      const data = result.data;
+      const labels = result.labels;
+      const clusterLabels = result.clusterLabels;
+      const percentagesCounts = result.percentagesCounts;
+      const chartTitle = `Summary of ${value} data grouped by ${this.groupedBy}`;
+
       // Create and add the chart
       const newChart = new ChartObject(
-        value,
+        chartTitle,
         "bar",
         data,
         labels,
@@ -841,7 +845,7 @@ for (let i = 0; i < keys.length; i++) {
     this.prepChartContainer(); // render clustered once the code and data is ready
   }
 
-   generateClusteredDataArrayAndLabels(header, groupedBy, filteredBy) {
+  generateClusteredDataArrayAndLabels(header, groupedBy, filteredBy) {
     // Simplified function to check if an item matches all filters
     function matchesFilter(item, filters) {
       let checkedHeaders = []; // To keep track of headers already checked
@@ -878,6 +882,8 @@ for (let i = 0; i < keys.length; i++) {
   
     // Create a map to count occurrences for each group
     const groupCounts = {};
+    const valueCounts = {}; // To store total counts for each value across all groups
+  
     for (let i = 0; i < filteredData.length; i++) {
       let item = filteredData[i];
       let group = item[groupedBy];
@@ -893,34 +899,20 @@ for (let i = 0; i < keys.length; i++) {
         groupCounts[group][value] = 0;
       }
   
-      // Increment the count for the current value
+      // Increment the count for the current value in the group
       groupCounts[group][value]++;
-    }
   
-    // Calculate the total count for each group
-    const totalCounts = {};
-    for (let group in groupCounts) {
-      let total = 0;
-      for (let value in groupCounts[group]) {
-        total += groupCounts[group][value];
+      // Increment the total count for the current value across all groups
+      if (!valueCounts[value]) {
+        valueCounts[value] = 0;
       }
-      totalCounts[group] = total;
+      valueCounts[value]++;
     }
   
     // Prepare labels and data arrays
-    const labels = [];
-    for (let i = 0; i < filteredData.length; i++) {
-      let label = filteredData[i][header];
-      // Add label if it's not already in the list
-      if (labels.indexOf(label) === -1) {
-        labels.push(label);
-      }
-    }
+    const labels = Object.keys(valueCounts);
   
-    const clusterLabels = [];
-    for (let group in groupCounts) {
-      clusterLabels.push(group);
-    }
+    const clusterLabels = Object.keys(groupCounts);
   
     // Create data and PercentagesCounts arrays
     const data = [];
@@ -932,7 +924,7 @@ for (let i = 0; i < keys.length; i++) {
       for (let j = 0; j < labels.length; j++) {
         let label = labels[j];
         let count = groupCounts[groupKey][label] || 0;
-        let total = totalCounts[groupKey];
+        let total = valueCounts[label];
         let percentage = total > 0 ? Math.round((count / total) * 100) : 0;
   
         groupData.push(percentage);
@@ -946,7 +938,7 @@ for (let i = 0; i < keys.length; i++) {
       data, // Array of arrays with percentages for each group
       labels, // Labels for data points
       clusterLabels, // Labels for each group
-      percentagesCounts // Array of arrays with percentage and count strings for each group
+      percentagesCounts, // Array of arrays with percentage and count strings for each group
     };
   }
   
@@ -963,6 +955,21 @@ for (let i = 0; i < keys.length; i++) {
     // Create the card body element
     const cardBody = document.createElement("div");
     cardBody.classList.add("card-body");
+
+    //create the header row, which will store functionality like chart type toggles
+    const cardHeader = document.createElement("div");
+    cardHeader.className = "row";
+    //create the header row's column and pop with the chart title
+    const cardHeaderColumn = document.createElement("div");
+    cardHeaderColumn.classList.add("col-12");
+    const cardTitle = document.createElement("h2");
+    cardTitle.textContent = chartObject.title;
+    const cardDesc = document.createElement('p');
+    cardDesc.textContent="Percentages are calculated relative to each group's respective total."
+    cardHeaderColumn.appendChild(cardTitle);
+    cardHeaderColumn.appendChild(cardDesc);
+    cardHeader.appendChild(cardHeaderColumn);
+    cardBody.appendChild(cardHeader);
 
     // Create the canvas element
     const canvas = document.createElement("canvas");
@@ -1059,101 +1066,104 @@ function deleteAllAnalysisObjects() {
 
 // boilerplate for charts we create via the generic dropdown option.
 class ChartObject {
-    constructor(title, type, data, labels, percentagesCounts, clusterLabels) {
-      this.title = title; // Title of the chart
-      this.type = type; // Type of the chart (e.g., 'bar', 'line')
-      this.data = data; // Data required for chart generation
-      this.labels = labels; // Data required for chart generation
-      this.percentagesCounts = percentagesCounts; // Labels for the data points
-      this.clusterLabels = clusterLabels; // New property for cluster labels
-      this.backgroundColor = "#2d6a4f"; //
-      this.borderColor = "#2d6a4f"; //
-      this.borderWidth = 1;
-  
-      this.barChartOptions = {
-        plugins: {
-          // Change options for ALL labels of THIS CHART
-          datalabels: {
-            color: "white",
-            anchor: "end",
-            align: "start",
-            formatter: (value, context) => {
-              // Use percentagesCounts based on the index of the current data point
-              return this.percentagesCounts[context.dataIndex];
+  constructor(title, type, data, labels, percentagesCounts, clusterLabels) {
+    this.title = title; // Title of the chart
+    this.type = type; // Type of the chart (e.g., 'bar', 'line')
+    this.data = data; // Data required for chart generation
+    this.labels = labels; // Data required for chart generation
+    this.percentagesCounts = percentagesCounts; // Labels for the data points
+    this.clusterLabels = clusterLabels; // New property for cluster labels
+    this.backgroundColor = "#2d6a4f"; //
+    this.borderColor = "#2d6a4f"; //
+    this.borderWidth = 1;
+
+    this.barChartOptions = {
+      plugins: {
+        legend: {
+          display: false,
+        },
+        // Change options for ALL labels of THIS CHART
+        datalabels: {
+          color: "white",
+          anchor: "end",
+          align: "start",
+          formatter: (value, context) => {
+            // Use percentagesCounts based on the index of the current data point
+            return this.percentagesCounts[context.dataIndex];
+          },
+        },
+      },
+      indexAxis: "y", // Make it a horizontal bar chart
+      scales: {
+        x: {
+          // Make the data appear as percentages
+          beginAtZero: true,
+          ticks: {
+            callback: function (value) {
+              // Format the x-axis ticks as percentages
+              return value.toFixed(0) + "%";
             },
           },
         },
-        indexAxis: "y", // Make it a horizontal bar chart
-        scales: {
-          x: {
-            // Make the data appear as percentages
-            beginAtZero: true,
-            ticks: {
-              callback: function (value) {
-                // Format the x-axis ticks as percentages
-                return value.toFixed(0) + "%";
-              },
+        y: {
+          // You can customize the y-axis as needed
+        },
+      },
+      elements: {
+        bar: {
+          borderWidth: 1,
+          borderRadius: 5,
+        },
+      },
+      responsive: false, // Ensure the chart is not responsive
+    };
+
+    this.clusteredBarChartOptions = {
+      responsive: true,
+      indexAxis: "y", // Set to 'y' for horizontal bars
+      scales: {
+        x: {
+          stacked: false, // Bars should not be stacked
+          ticks: {
+            autoSkip: false, // Ensure all x-axis labels are visible
+            callback: function (value) {
+              // Format the x-axis ticks as percentages
+              return value.toFixed(0) + "%";
             },
           },
-          y: {
-            // You can customize the y-axis as needed
+        },
+        y: {
+          stacked: false, // Bars should not be stacked
+          beginAtZero: true,
+        },
+      },
+      elements: {
+        bar: {
+          borderWidth: 1,
+          borderRadius: 5,
+        },
+      },
+      plugins: {
+        // Change options for ALL labels of THIS CHART
+        datalabels: {
+          color: "white",
+          anchor: "end",
+          align: "start",
+          formatter: (value, context) => {
+            // Use percentagesCounts array to get the correct label
+            const datasetIndex = context.datasetIndex;
+            const dataIndex = context.dataIndex;
+            return this.percentagesCounts[datasetIndex][dataIndex];
           },
         },
-        elements: {
-          bar: {
-            borderWidth: 1,
-            borderRadius: 5,
-          },
+        legend: {
+          position: "top",
         },
-        responsive: false, // Ensure the chart is not responsive
-      };
-    
-      this.clusteredBarChartOptions = {
-        responsive: true,
-        indexAxis: "y", // Set to 'y' for horizontal bars
-        scales: {
-          x: {
-            stacked: false, // Bars should not be stacked
-            ticks: {
-              autoSkip: false, // Ensure all x-axis labels are visible
-              callback: function (value) {
-                // Format the x-axis ticks as percentages
-                return value.toFixed(0) + "%";
-              },
-            },
-          },
-          y: {
-            stacked: false, // Bars should not be stacked
-            beginAtZero: true,
-          },
-        },
-        elements: {
-          bar: {
-            borderWidth: 1,
-            borderRadius: 5,
-          },
-        },
-        plugins: {
-          // Change options for ALL labels of THIS CHART
-          datalabels: {
-            color: "white",
-            anchor: "end",
-            align: "start",
-            formatter: (value, context) => {
-              // Use percentagesCounts array to get the correct label
-              const datasetIndex = context.datasetIndex;
-              const dataIndex = context.dataIndex;
-              return this.percentagesCounts[datasetIndex][dataIndex];
-            },
-          },
-          legend: {
-            position: "top",
-          },
-        },
-      };
-    }
+      },
+    };
   }
-  
+}
+
 // Function to create a new array to generate the filters dropdown
 function createLimitedOptionsArray() {
   if (parsedCSVData.length === 0) {
