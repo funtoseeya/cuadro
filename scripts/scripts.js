@@ -77,7 +77,7 @@ function createUploadStepContent() {
 
     // Create and add the upload text with line break
     const uploadText = document.createElement('div');
-    uploadText.innerHTML = 'Upload a CSV file';
+    uploadText.innerHTML = 'Upload the CSV file you wish to analyze.';
     uploadText.classList.add('my-3'); // Added margin for spacing
     uploadContainer.appendChild(uploadText);
 
@@ -515,34 +515,29 @@ function dataTypesToast(value) {
 
 // ANALYZE STEP
 
-// a boilerplate for analysis objects
+// a boilerplate for analysis objects. users will be able to create many of them 
 class AnalysisObject {
-    constructor(type = '', usingThese = [], groupedBy = null, filteredBy = [], label = '') {
-        this.id = nextAnalysisId++; // Assign a unique ID
-        this.type = type; // Single value picked from dropdown
-        this.usingThese = usingThese; // Array of values picked from dropdown (create basic charts)
-        this.groupedBy = groupedBy; // Value picked from groupby single select dropdown (Compare, timeline, AI)
-        this.filteredBy = filteredBy; // Array of headers and values picked from dropdown (all)
-        this.charts = []; // Array to store one or more Chart objects
-        this.label = label; // Optional label for user naming
-
+    constructor() { //create a new empty object   
+        this.id = nextAnalysisId++; // Assign a unique ID that increments by 1 each time a new one is created
+        this.type = ''; // basic chart, comparison...
+        this.usingThese = []; // the main column being processed
+        this.groupedBy = ''; // sometimes the data will be sliced by this column and displayed in the chart
+        this.filteredBy = []; // sometimes the data will be filtered by these values 
+        this.charts = []; // the array storing the charts created by the above parameters
+        this.label = ''; // Optional label for user naming
     }
 
-    addChart(title, chartType, data, labels) { //pretty sure we're not using this method
-        const newChart = new ChartObject(title, chartType, data, labels);
-        this.charts.push(newChart);
-    }
-
+    //update the object and its parameters
     update(type = this.type, usingThese = this.usingThese, groupedBy = this.groupedBy, filteredBy = this.filteredBy, label = this.label) {
-        this.type = type;
-        this.usingThese = usingThese;
-        this.groupedBy = groupedBy;
-        this.filteredBy = filteredBy;
-        this.label = label;
+        this.type = type; //update the parameter to what's passed as an argument
+        this.usingThese = usingThese; //update the parameter to what's passed as an argument
+        this.groupedBy = groupedBy;//update the parameter to what's passed as an argument
+        this.filteredBy = filteredBy;//update the parameter to what's passed as an argument
+        this.label = label;//update the parameter to what's passed as an argument
         this.watchChanges(); // a master function that runs whenever the object is updated. 
     }
     watchChanges() { //meant as a router that chooses what charts to produce depending on the inputs
-        // Check if usingThese is not empty and type is 'generic'
+        // Check if usingThese is not empty and analysisobject's type is 'generic'
         if (this.usingThese.length > 0 && this.type === 'generic') {
             this.addGenericCharts(); //create the data and code needed for all generic charts needing to be displayed
             this.prepChartContainer(); // render all charts once the code and data is ready
@@ -553,9 +548,9 @@ class AnalysisObject {
         }
     }
 
-    addGenericCharts() {
-        this.charts = []; // Clear existing charts
-        this.usingThese.forEach(value => {
+    addGenericCharts() { //*** START HERE
+        this.charts = []; // Clear any pre-existing charts before creating new ones
+        this.usingThese.forEach(value => { //iterates over each element in the this.usingThese array. 
             // get the data we need to produce the chart
             const { data, labels } = this.generateGenericDataArrayAndLabels(value, this.filteredBy); //get the data we need for the chart
 
@@ -849,8 +844,8 @@ class AnalysisObject {
 }
 
 // Function to create and add a new Analysis object
-function createAnalysis(type = '', usingThese = [], groupedBy = null, filteredBy = [], label = '') {
-    const newAnalysis = new AnalysisObject(type, usingThese, groupedBy, filteredBy, label);
+function createAnalysis() {
+    const newAnalysis = new AnalysisObject();
     analysisObjects.push(newAnalysis);
     console.log(newAnalysis); // Log the new object to the console
     return newAnalysis; // Optionally return the new object
