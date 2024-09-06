@@ -34,21 +34,13 @@ let analysisObjects = []; // Array to store analysis object instances
 let nextAnalysisId = 1; // Unique ID counter
 let currentAnalysisId = 1; //what analysis object the user is currently analyzing. set to 1 as the default, will update later.
 let colorPalette = [
-  "#174EA6",
-  "#A50E0E",
-  "#E37400",
-  "#0D652D",
-  "#4285F4",
-  "#EA4335",
-  "#FBBC04",
-  "#34A853",
-  "#D2E3FC",
-  "#FAD2CF",
-  "#FEEFC3",
-  "#CEEAD6",
-  "#F1F3F4",
-  "#9AA0A6",
-];
+    "#264653",
+    "#e76f51",
+    "#2a9d8f",
+    "#f4a261",
+    "#e9c46a"
+  ];
+  
 
 //UPLOAD STEP
 
@@ -777,6 +769,18 @@ class AnalysisObject {
     cardHeader.appendChild(cardHeaderColumn);
     cardBody.appendChild(cardHeader);
 
+      //create filter badges as needed
+      const analysisObject = analysisObjects.find((obj) => obj.id === currentAnalysisId);
+      const filters =analysisObject.filteredBy;
+  
+      for(let i=0;i<filters.length;i++) {
+          const cardFilter = document.createElement('span');
+          cardFilter.className = 'filter-badge'; // Apply the custom class
+          cardFilter.textContent= filters[i].value;
+          cardHeaderColumn.appendChild(cardFilter);
+      
+      }
+
     // Create the canvas element
     const canvas = document.createElement("canvas");
     canvas.style.width = "100%"; // Full width
@@ -846,28 +850,39 @@ class AnalysisObject {
   }
 
   generateClusteredDataArrayAndLabels(header, groupedBy, filteredBy) {
-    // Simplified function to check if an item matches all filters
+    // Updated function to check if an item matches all filters
     function matchesFilter(item, filters) {
-      let checkedHeaders = []; // To keep track of headers already checked
-  
-      // Loop through each filter
-      for (let i = 0; i < filters.length; i++) {
-        let filter = filters[i];
-        let filterHeader = filter.header;
-        let filterValue = filter.value;
-  
-        // Check if we have not already checked this header
-        if (checkedHeaders.indexOf(filterHeader) === -1) {
-          // If item does not match the filter, return false
-          if (item[filterHeader] !== filterValue) {
-            return false;
-          }
-          // Mark this header as checked
-          checkedHeaders.push(filterHeader);
+        // Loop through each filter
+        for (let i = 0; i < filters.length; i++) {
+            let filter = filters[i];
+            let filterHeader = filter.header;
+            let filterValue = filter.value;
+
+            // Check if this item matches the filter
+            if (item[filterHeader] === filterValue) {
+                // If it matches, continue to the next filter
+                continue;
+            } else {
+                // If it doesn't match, check if there is another filter with the same header and a matching value
+                let hasAnotherMatch = false;
+                for (let j = 0; j < filters.length; j++) {
+                    if (
+                        filters[j].header === filterHeader &&
+                        item[filterHeader] === filters[j].value
+                    ) {
+                        hasAnotherMatch = true;
+                        break;
+                    }
+                }
+                // If no other match is found for the same header, return false
+                if (!hasAnotherMatch) {
+                    return false;
+                }
+            }
         }
-      }
-      // Return true if all filters matched
-      return true;
+
+        // If the item passes all filters, return true
+        return true;
     }
   
     // Filter the data based on applied filters
@@ -967,16 +982,22 @@ class AnalysisObject {
     const cardDesc = document.createElement('p');
     cardDesc.textContent="Percentages are calculated relative to each group's respective total."
     
-        cardHeaderColumn.appendChild(cardTitle);
+    cardHeaderColumn.appendChild(cardTitle);
     cardHeaderColumn.appendChild(cardDesc);
     cardHeader.appendChild(cardHeaderColumn);
     cardBody.appendChild(cardHeader);
     
-    //testing filter styles and layouts
-    const cardFakeFilter = document.createElement('span');
-    cardFakeFilter.className = 'filter-badge'; // Apply the custom class
-    cardFakeFilter.textContent= 'your mama';
-    cardHeaderColumn.appendChild(cardFakeFilter);
+    //create filter badges as needed
+    const analysisObject = analysisObjects.find((obj) => obj.id === currentAnalysisId);
+    const filters =analysisObject.filteredBy;
+
+    for(let i=0;i<filters.length;i++) {
+        const cardFilter = document.createElement('span');
+        cardFilter.className = 'filter-badge'; // Apply the custom class
+        cardFilter.textContent= filters[i].value;
+        cardHeaderColumn.appendChild(cardFilter);
+    
+    }
 
     // Create the canvas element
     const canvas = document.createElement("canvas");
@@ -1588,7 +1609,6 @@ function handleGroupByChange(event) {
 //function to update the analysis object with the selected groupBy value
 function updateGroupByValue() {
   const selectedValue = document.getElementById("group-by-select").textContent;
-  console.log(selectedValue);
 
   // Find the current AnalysisObject and update its groupBy property
   const analysis = analysisObjects.find((obj) => obj.id === currentAnalysisId);
