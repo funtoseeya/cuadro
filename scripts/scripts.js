@@ -796,7 +796,7 @@ class AnalysisObject {
           const cardFilter = document.createElement('span');
           cardFilter.className = 'filter-badge'; // Apply the custom class
           cardFilter.textContent= filters[i].value;
-          cardHeaderColumn.appendChild(cardFilter);
+          cardHeaderLeftColumn.appendChild(cardFilter);
       
       }
 
@@ -1031,7 +1031,7 @@ class AnalysisObject {
         const cardFilter = document.createElement('span');
         cardFilter.className = 'filter-badge'; // Apply the custom class
         cardFilter.textContent= filters[i].value;
-        cardHeaderColumn.appendChild(cardFilter);
+        cardHeaderleftColumn.appendChild(cardFilter);
     
     }
 
