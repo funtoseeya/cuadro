@@ -514,7 +514,7 @@ function dataTypesToast(value) {
             <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
                 <div class="toast" style="background-color: #fff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
                     <div class="toast-header" style="background-color: #ffce44;">
-                        <strong class="mr-auto">Unsupported data type</strong>
+                        <strong class="mr-auto">Coming soon</strong>
                     </div>
                     <div class="toast-body">
                     We do not yet support data types other than "limited options".
@@ -760,14 +760,33 @@ class AnalysisObject {
     const cardHeader = document.createElement("div");
     cardHeader.className = "row";
 
-    //create the header row's column and pop with the chart title
-    const cardHeaderColumn = document.createElement("div");
-    cardHeaderColumn.classList.add("col-12");
-    const coltext = document.createElement("h2");
+    //create the header row's left column and pop with the chart title
+    const cardHeaderLeftColumn = document.createElement("div");
+    cardHeaderLeftColumn.classList.add("col-8");
+    const coltext = document.createElement("h5");
     coltext.textContent = chartObject.title;
-    cardHeaderColumn.appendChild(coltext);
-    cardHeader.appendChild(cardHeaderColumn);
+    cardHeaderLeftColumn.appendChild(coltext);
+    cardHeader.appendChild(cardHeaderLeftColumn);
     cardBody.appendChild(cardHeader);
+
+    // create the right column 
+    const cardHeaderRightColumn = document.createElement('div');
+    cardHeaderRightColumn.className='col-4 d-flex justify-content-end';
+    
+      //create the chart type button
+      const chartButton = document.createElement('button');
+      chartButton.classList.add('btn', 'btn-secondary','me-2','disabled');
+      chartButton.textContent='Bars';
+      cardHeaderRightColumn.appendChild(chartButton);
+      cardHeader.appendChild(cardHeaderRightColumn);
+        
+    //create the bookmark button
+    const bookmarkButton = document.createElement('button');
+    bookmarkButton.classList.add('btn', 'btn-secondary');
+    bookmarkButton.innerHTML='<i class="fa-regular fa-bookmark"></i>';
+    cardHeaderRightColumn.appendChild(bookmarkButton);
+    cardHeader.appendChild(cardHeaderRightColumn);
+
 
       //create filter badges as needed
       const analysisObject = analysisObjects.find((obj) => obj.id === currentAnalysisId);
@@ -975,18 +994,35 @@ class AnalysisObject {
     const cardHeader = document.createElement("div");
     cardHeader.className = "row";
     //create the header row's column and pop with the chart title
-    const cardHeaderColumn = document.createElement("div");
-    cardHeaderColumn.classList.add("col-12");
-    const cardTitle = document.createElement("h2");
+    const cardHeaderleftColumn = document.createElement("div");
+    cardHeaderleftColumn.classList.add("col-8");
+    const cardTitle = document.createElement("h5");
     cardTitle.textContent = chartObject.title;
-    const cardDesc = document.createElement('p');
-    cardDesc.textContent="Percentages are calculated relative to each group's respective total."
     
-    cardHeaderColumn.appendChild(cardTitle);
-    cardHeaderColumn.appendChild(cardDesc);
-    cardHeader.appendChild(cardHeaderColumn);
+    
+    cardHeaderleftColumn.appendChild(cardTitle);
+    cardHeader.appendChild(cardHeaderleftColumn);
     cardBody.appendChild(cardHeader);
     
+  // create the right column 
+  const cardHeaderRightColumn = document.createElement('div');
+  cardHeaderRightColumn.className='col-4 d-flex justify-content-end';
+
+    //create the chart type button
+    const chartButton = document.createElement('button');
+    chartButton.classList.add('btn', 'btn-secondary','me-2','disabled');
+    chartButton.textContent='Clusters';
+    cardHeaderRightColumn.appendChild(chartButton);
+    cardHeader.appendChild(cardHeaderRightColumn);
+      
+
+  //create the bookmark button
+  const bookmarkButton = document.createElement('button');
+  bookmarkButton.classList.add('btn', 'btn-secondary');
+  bookmarkButton.innerHTML='<i class="fa-regular fa-bookmark"></i>';
+  cardHeaderRightColumn.appendChild(bookmarkButton);
+  cardHeader.appendChild(cardHeaderRightColumn);
+
     //create filter badges as needed
     const analysisObject = analysisObjects.find((obj) => obj.id === currentAnalysisId);
     const filters =analysisObject.filteredBy;
