@@ -28,7 +28,7 @@ function responsiveStepBody() {
 //GLOBAL VARIABLES
 let selectedFile; // Global variable to store the file. we need this to create an array with its data
 let dropdownState = []; //global variable to save dropdowns in the review table. we need this to save the user's con
-let limitedOptionsArray = []; //global array that saves all unique values of columns tagged as limited options - useful for filters
+let CategoricalArray = []; //global array that saves all unique values of columns tagged as Categorical - useful for filters
 let parsedCSVData = []; // global array that stores the uploaded csv's data
 let analysisObjects = []; // Array to store analysis object instances
 let nextAnalysisId = 1; // Unique ID counter
@@ -287,10 +287,10 @@ function generateReviewTable(stepBody) {
       const select = document.createElement("select"); //third column will be a dropdown
       select.classList.add("form-select", "data-type-dropdown");
       const options = [
-        "Limited options",
-        "Open-ended",
-        "Numbers",
-        "Timestamps",
+        "Categorical",
+        "Descriptive / Textual",
+        "Numerical",
+        "Date / Time",
       ]; //here are the options
       options.forEach((option) => {
         //for each option...
@@ -335,10 +335,10 @@ function generateReviewTable(stepBody) {
       const select = document.createElement("select"); //third row will be a dropdown
       select.classList.add("form-select", "data-type-dropdown");
       const options = [
-        "Limited options",
-        "Open-ended",
-        "Numbers",
-        "Timestamps",
+        "Categorical",
+        "Descriptive / Textual",
+        "Numerical",
+        "Date / Time",
       ]; //here are the options
       options.forEach((option) => {
         //for each option...
@@ -473,9 +473,9 @@ function initializeReviewStep() {
             <div class="accordion-body">
                 Please take a minute to map your data. This will help us give you the best outputs for your needs.
                 <ul>
-                    <li><strong>Limited Options (default):</strong> Use this for fields where a restricted set of possible values is expected. </li>
-                    <li><strong>Open-ended:</strong> Use this for qualitative / open-ended fields (e.g., comments, names, descriptions). We'll be able to categorize, summarize, and extract insights using AI. </li>
-                    <li><strong>Numbers:</strong> This is for any field containing numerical values. We will compute these by summing them, rather than counting them.</li>
+                    <li><strong>Categorical (default):</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. </li>
+                    <li><strong>Descriptive / Textual:</strong> Use this for qualitative / open-ended fields (e.g., comments, names, descriptions). We'll be able to categorize, summarize, and extract insights using AI. </li>
+                    <li><strong>Numerical:</strong> This is for any field containing numerical values. We will compute these by summing them, rather than counting them.</li>
                 </ul>
             </div>
         </div>
@@ -502,9 +502,9 @@ function saveDropdownState() {
   });
 }
 
-//v1 won't really support any data other than limited options. I want to notify our users about that
+//v1 won't really support any data other than Categorical. I want to notify our users about that
 function dataTypesToast(value) {
-  if (value !== "Limited options") {
+  if (value !== "Categorical") {
     const parentDiv = document.getElementById("toastContainer"); // Replace with your parent div ID
     parentDiv.innerHTML = ""; // Clear any existing content
 
@@ -515,7 +515,7 @@ function dataTypesToast(value) {
                         <strong class="mr-auto">Coming soon</strong>
                     </div>
                     <div class="toast-body">
-                    We do not yet support data types other than "limited options".
+                    We do not yet support data types other than "Categorical".
                     <br> Data associated to all other types will be ignored.
                     </div>
                 </div>
@@ -778,7 +778,7 @@ class AnalysisObject {
      //create the chart type button
      const chartButton = document.createElement('button');
      chartButton.classList.add('btn', 'btn-secondary', 'me-2', 'disabled');
-     chartButton.textContent = 'Clusters';
+     chartButton.textContent = 'Bars';
      cardOptionsColumn.appendChild(chartButton);
      
      //create the bookmark button
@@ -1239,19 +1239,19 @@ class ChartObject {
 }
 
 // Function to create a new array to generate the filters dropdown
-function createLimitedOptionsArray() {
+function createCategoricalArray() {
   if (parsedCSVData.length === 0) {
     console.error("No parsed CSV data available.");
     return [];
   }
 
-  // Extract headers marked as "Limited options"
-  const limitedOptionsHeaders = dropdownState
-    .filter((item) => item.value === "Limited options")
+  // Extract headers marked as "Categorical"
+  const CategoricalHeaders = dropdownState
+    .filter((item) => item.value === "Categorical")
     .map((item) => item.header);
 
-  // Create a new array with unique values for each header marked as "Limited options"
-  const result = limitedOptionsHeaders.map((header) => {
+  // Create a new array with unique values for each header marked as "Categorical"
+  const result = CategoricalHeaders.map((header) => {
     const uniqueValues = [
       ...new Set(parsedCSVData.map((item) => item[header])),
     ];
@@ -1261,10 +1261,10 @@ function createLimitedOptionsArray() {
   });
 
   // Log the result for debugging
-  console.log("Limited Options Array:", result);
+  console.log("Categorical Array:", result);
 
-  // Update the global limitedOptionsArray
-  limitedOptionsArray = result;
+  // Update the global CategoricalArray
+  CategoricalArray = result;
 
   return result;
 }
@@ -1503,7 +1503,7 @@ function createColumnDropdown() {
 
   // Populate the new dropdown with options from the saved dropdown state
   dropdownState.forEach(({ header, value }) => {
-    if (value === "Limited options") {
+    if (value === "Categorical") {
       const columnListItem = document.createElement("li");
       const columnListAnchor = document.createElement("a");
       columnListAnchor.classList.add("dropdown-item");
@@ -1608,9 +1608,9 @@ function createGroupByDropdown() {
   groupByMenu.classList.add("dropdown-menu");
   groupByMenu.id = "group-by-menu";
 
-  // Populate the group by dropdown with columns that were typed as "limited options"
+  // Populate the group by dropdown with columns that were typed as "Categorical"
   dropdownState.forEach(({ header, value }) => {
-    if (value === "Limited options") {
+    if (value === "Categorical") {
       const groupByListItem = document.createElement("li");
       const groupByListAnchor = document.createElement("a");
       groupByListAnchor.classList.add("dropdown-item");
@@ -1667,9 +1667,9 @@ function updateGroupByValue() {
   }
 }
 
-// function to Create the filter dropdown using the limited options array
+// function to Create the filter dropdown using the Categorical array
 function createFilterButton(selectedValue) {
-  const limitedOptionsArray1 = limitedOptionsArray; // Call the function to get the array
+  const CategoricalArray1 = CategoricalArray; // Call the function to get the array
   const colDiv3 = document.getElementById("col-div-3");
   const colDiv4 = document.getElementById("col-div-4");
 
@@ -1706,7 +1706,7 @@ function createFilterButton(selectedValue) {
   let itemToHeaderMap = new Map();
 
   // Populate the dropdown with headers and options
-  limitedOptionsArray1.forEach((group) => {
+  CategoricalArray1.forEach((group) => {
     for (const [header, values] of Object.entries(group)) {
       values.forEach((value) => {
         itemToHeaderMap.set(value, header);
@@ -1861,8 +1861,8 @@ function setupAnalyzeStep() {
     //update the bottom panel. will keep as a separate function because this is going to be big
     updateBottomPanel();
 
-    // run the function that creates the limited options array, which is needed for the filter panel
-    createLimitedOptionsArray();
+    // run the function that creates the Categorical array, which is needed for the filter panel
+    createCategoricalArray();
 
     //create a new analysis object
     createAnalysis();
