@@ -34,13 +34,13 @@ let analysisObjects = []; // Array to store analysis object instances
 let nextAnalysisId = 1; // Unique ID counter
 let currentAnalysisId = 1; //what analysis object the user is currently analyzing. set to 1 as the default, will update later.
 let colorPalette = [
-    "#264653",
-    "#e76f51",
-    "#2a9d8f",
-    "#f4a261",
-    "#e9c46a"
-  ];
-  
+  "#264653",
+  "#e76f51",
+  "#2a9d8f",
+  "#f4a261",
+  "#e9c46a"
+];
+
 
 //UPLOAD STEP
 
@@ -444,16 +444,14 @@ function initializeReviewStep() {
 
   // Update stepper circle styling
   const stepperUpload = document.getElementById("stepper-upload");
-  stepperUpload.classList.remove("circle-primary");
-  stepperUpload.classList.add("circle-secondary");
+  stepperUpload.classList.remove("stepper-primary");
   const stepperReview = document.getElementById("stepper-review");
-  stepperReview.classList.remove("circle-secondary");
-  stepperReview.classList.add("circle-primary");
+  stepperReview.classList.add("stepper-primary");
 
   //Reset Analyze stepper button style in case you're coming back from Analyze
   const stepperAnalyze = document.getElementById("stepper-analyze");
-  stepperAnalyze.classList.remove("circle-primary");
-  stepperAnalyze.classList.add("circle-secondary");
+  stepperAnalyze.classList.remove("stepper-primary");
+
 
   //call fctn to delete any existing analysis objects in case you're coming back from Analyze
   deleteAllAnalysisObjects();
@@ -771,34 +769,34 @@ class AnalysisObject {
 
     // create the right column 
     const cardHeaderRightColumn = document.createElement('div');
-    cardHeaderRightColumn.className='col-4 d-flex justify-content-end';
-    
-      //create the chart type button
-      const chartButton = document.createElement('button');
-      chartButton.classList.add('btn', 'btn-secondary','me-2','disabled');
-      chartButton.textContent='Bars';
-      cardHeaderRightColumn.appendChild(chartButton);
-      cardHeader.appendChild(cardHeaderRightColumn);
-        
+    cardHeaderRightColumn.className = 'col-4 d-flex justify-content-end';
+
+    //create the chart type button
+    const chartButton = document.createElement('button');
+    chartButton.classList.add('btn', 'btn-secondary', 'me-2', 'disabled');
+    chartButton.textContent = 'Bars';
+    cardHeaderRightColumn.appendChild(chartButton);
+    cardHeader.appendChild(cardHeaderRightColumn);
+
     //create the bookmark button
     const bookmarkButton = document.createElement('button');
     bookmarkButton.classList.add('btn', 'btn-secondary');
-    bookmarkButton.innerHTML='<i class="fa-regular fa-bookmark"></i>';
+    bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
     cardHeaderRightColumn.appendChild(bookmarkButton);
     cardHeader.appendChild(cardHeaderRightColumn);
 
 
-      //create filter badges as needed
-      const analysisObject = analysisObjects.find((obj) => obj.id === currentAnalysisId);
-      const filters =analysisObject.filteredBy;
-  
-      for(let i=0;i<filters.length;i++) {
-          const cardFilter = document.createElement('span');
-          cardFilter.className = 'filter-badge'; // Apply the custom class
-          cardFilter.textContent= filters[i].value;
-          cardHeaderLeftColumn.appendChild(cardFilter);
-      
-      }
+    //create filter badges as needed
+    const analysisObject = analysisObjects.find((obj) => obj.id === currentAnalysisId);
+    const filters = analysisObject.filteredBy;
+
+    for (let i = 0; i < filters.length; i++) {
+      const cardFilter = document.createElement('span');
+      cardFilter.className = 'filter-badge'; // Apply the custom class
+      cardFilter.textContent = filters[i].value;
+      cardHeaderLeftColumn.appendChild(cardFilter);
+
+    }
 
     // Create the canvas element
     const canvas = document.createElement("canvas");
@@ -871,39 +869,39 @@ class AnalysisObject {
   generateClusteredDataArrayAndLabels(header, groupedBy, filteredBy) {
     // Updated function to check if an item matches all filters
     function matchesFilter(item, filters) {
-        // Loop through each filter
-        for (let i = 0; i < filters.length; i++) {
-            let filter = filters[i];
-            let filterHeader = filter.header;
-            let filterValue = filter.value;
+      // Loop through each filter
+      for (let i = 0; i < filters.length; i++) {
+        let filter = filters[i];
+        let filterHeader = filter.header;
+        let filterValue = filter.value;
 
-            // Check if this item matches the filter
-            if (item[filterHeader] === filterValue) {
-                // If it matches, continue to the next filter
-                continue;
-            } else {
-                // If it doesn't match, check if there is another filter with the same header and a matching value
-                let hasAnotherMatch = false;
-                for (let j = 0; j < filters.length; j++) {
-                    if (
-                        filters[j].header === filterHeader &&
-                        item[filterHeader] === filters[j].value
-                    ) {
-                        hasAnotherMatch = true;
-                        break;
-                    }
-                }
-                // If no other match is found for the same header, return false
-                if (!hasAnotherMatch) {
-                    return false;
-                }
+        // Check if this item matches the filter
+        if (item[filterHeader] === filterValue) {
+          // If it matches, continue to the next filter
+          continue;
+        } else {
+          // If it doesn't match, check if there is another filter with the same header and a matching value
+          let hasAnotherMatch = false;
+          for (let j = 0; j < filters.length; j++) {
+            if (
+              filters[j].header === filterHeader &&
+              item[filterHeader] === filters[j].value
+            ) {
+              hasAnotherMatch = true;
+              break;
             }
+          }
+          // If no other match is found for the same header, return false
+          if (!hasAnotherMatch) {
+            return false;
+          }
         }
+      }
 
-        // If the item passes all filters, return true
-        return true;
+      // If the item passes all filters, return true
+      return true;
     }
-  
+
     // Filter the data based on applied filters
     const filteredData = [];
     for (let i = 0; i < parsedCSVData.length; i++) {
@@ -913,41 +911,41 @@ class AnalysisObject {
       }
     }
     console.log("Filtered data:", filteredData);
-  
+
     // Create a map to count occurrences for each group
     const groupCounts = {};
     const valueCounts = {}; // To store total counts for each value across all groups
-  
+
     for (let i = 0; i < filteredData.length; i++) {
       let item = filteredData[i];
       let group = item[groupedBy];
       let value = item[header];
-  
+
       // Initialize group key if not present
       if (!groupCounts[group]) {
         groupCounts[group] = {};
       }
-  
+
       // Initialize value count if not present
       if (!groupCounts[group][value]) {
         groupCounts[group][value] = 0;
       }
-  
+
       // Increment the count for the current value in the group
       groupCounts[group][value]++;
-  
+
       // Increment the total count for the current value across all groups
       if (!valueCounts[value]) {
         valueCounts[value] = 0;
       }
       valueCounts[value]++;
     }
-  
+
     // Prepare labels and data arrays
     const labels = Object.keys(valueCounts);
-  
+
     const clusterLabels = Object.keys(groupCounts);
-  
+
     // Create data and PercentagesCounts arrays
     const data = [];
     const percentagesCounts = [];
@@ -960,14 +958,14 @@ class AnalysisObject {
         let count = groupCounts[groupKey][label] || 0;
         let total = valueCounts[label];
         let percentage = total > 0 ? Math.round((count / total) * 100) : 0;
-  
+
         groupData.push(percentage);
         groupPercentagesCounts.push(`${percentage}% (${count})`); // Concatenate percentage and count
       }
       data.push(groupData);
       percentagesCounts.push(groupPercentagesCounts);
     }
-  
+
     return {
       data, // Array of arrays with percentages for each group
       labels, // Labels for data points
@@ -975,7 +973,7 @@ class AnalysisObject {
       percentagesCounts, // Array of arrays with percentage and count strings for each group
     };
   }
-  
+
   // Function to create and render a horizontal clustered bar chart in a Bootstrap card component and append to 'step-body'
   renderClusteredChartInCard(chartObject) {
     // Pass chartObject as an argument
@@ -998,41 +996,41 @@ class AnalysisObject {
     cardHeaderleftColumn.classList.add("col-8");
     const cardTitle = document.createElement("h5");
     cardTitle.textContent = chartObject.title;
-    
-    
+
+
     cardHeaderleftColumn.appendChild(cardTitle);
     cardHeader.appendChild(cardHeaderleftColumn);
     cardBody.appendChild(cardHeader);
-    
-  // create the right column 
-  const cardHeaderRightColumn = document.createElement('div');
-  cardHeaderRightColumn.className='col-4 d-flex justify-content-end';
+
+    // create the right column 
+    const cardHeaderRightColumn = document.createElement('div');
+    cardHeaderRightColumn.className = 'col-4 d-flex justify-content-end';
 
     //create the chart type button
     const chartButton = document.createElement('button');
-    chartButton.classList.add('btn', 'btn-secondary','me-2','disabled');
-    chartButton.textContent='Clusters';
+    chartButton.classList.add('btn', 'btn-secondary', 'me-2', 'disabled');
+    chartButton.textContent = 'Clusters';
     cardHeaderRightColumn.appendChild(chartButton);
     cardHeader.appendChild(cardHeaderRightColumn);
-      
 
-  //create the bookmark button
-  const bookmarkButton = document.createElement('button');
-  bookmarkButton.classList.add('btn', 'btn-secondary');
-  bookmarkButton.innerHTML='<i class="fa-regular fa-bookmark"></i>';
-  cardHeaderRightColumn.appendChild(bookmarkButton);
-  cardHeader.appendChild(cardHeaderRightColumn);
+
+    //create the bookmark button
+    const bookmarkButton = document.createElement('button');
+    bookmarkButton.classList.add('btn', 'btn-secondary');
+    bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+    cardHeaderRightColumn.appendChild(bookmarkButton);
+    cardHeader.appendChild(cardHeaderRightColumn);
 
     //create filter badges as needed
     const analysisObject = analysisObjects.find((obj) => obj.id === currentAnalysisId);
-    const filters =analysisObject.filteredBy;
+    const filters = analysisObject.filteredBy;
 
-    for(let i=0;i<filters.length;i++) {
-        const cardFilter = document.createElement('span');
-        cardFilter.className = 'filter-badge'; // Apply the custom class
-        cardFilter.textContent= filters[i].value;
-        cardHeaderleftColumn.appendChild(cardFilter);
-    
+    for (let i = 0; i < filters.length; i++) {
+      const cardFilter = document.createElement('span');
+      cardFilter.className = 'filter-badge'; // Apply the custom class
+      cardFilter.textContent = filters[i].value;
+      cardHeaderleftColumn.appendChild(cardFilter);
+
     }
 
     // Create the canvas element
@@ -1841,12 +1839,9 @@ function setupAnalyzeStep() {
     //adjust the steppers
     document
       .getElementById("stepper-review")
-      .classList.remove("circle-primary");
-    document.getElementById("stepper-review").classList.add("circle-secondary");
-    document
-      .getElementById("stepper-analyze")
-      .classList.remove("circle-secondary");
-    document.getElementById("stepper-analyze").classList.add("circle-primary");
+      .classList.remove("stepper-primary");
+    document.getElementById("stepper-analyze")
+    document.getElementById("stepper-analyze").classList.add("stepper-primary");
 
     //update the step body. will keep as a separate function because this is going to be big
     updateStepBody();

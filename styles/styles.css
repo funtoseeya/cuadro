@@ -91,7 +91,33 @@ body {
 
 
 /* new styles */
+.stepper-paragraph {
+  margin-bottom: 0rem;
+  font-size: large;
+}
 
+
+
+.stepper {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.stepper-primary{
+  text-decoration:underline;
+  font-weight: bold;
+}
+
+@media (max-width: 576px) {
+  .stepper-paragraph {
+      font-size: 0.9rem; /* Adjust the font size as needed */
+  }
+
+  .stepper {
+    padding-left: 0.5rem;
+    padding-right:0.5rem
+  }
+}
 
 
 .circle {
