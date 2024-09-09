@@ -988,38 +988,43 @@ class AnalysisObject {
     const cardBody = document.createElement("div");
     cardBody.classList.add("card-body");
 
-    //create the header row, which will store functionality like chart type toggles
-    const cardHeader = document.createElement("div");
-    cardHeader.className = "row";
-    //create the header row's column and pop with the chart title
-    const cardHeaderleftColumn = document.createElement("div");
-    cardHeaderleftColumn.classList.add("col-8");
-    const cardTitle = document.createElement("h5");
-    cardTitle.textContent = chartObject.title;
+    //create the options, title and filters rows and columns - append to body
+    const cardOptionsRow = document.createElement("div");
+    cardOptionsRow.className = "row";
+    const cardTitleRow= document.createElement("div");
+    cardTitleRow.className = "row";
+    const cardFiltersRow= document.createElement("div");
+    cardFiltersRow.className = "row";
+    cardBody.appendChild(cardOptionsRow);
+    cardBody.appendChild(cardTitleRow);
+    cardBody.appendChild(cardFiltersRow);
 
-
-    cardHeaderleftColumn.appendChild(cardTitle);
-    cardHeader.appendChild(cardHeaderleftColumn);
-    cardBody.appendChild(cardHeader);
-
-    // create the right column 
-    const cardHeaderRightColumn = document.createElement('div');
-    cardHeaderRightColumn.className = 'col-4 d-flex justify-content-end';
+    const cardOptionsColumn = document.createElement('div')
+    cardOptionsColumn.classList.add('col-12','d-flex','justify-content-end');
+    const cardTitleColumn = document.createElement('div')
+    cardTitleColumn.classList.add('col-12');
+    const cardFiltersColumn= document.createElement('div')
+    cardFiltersColumn.classList.add('col-12');
+    cardOptionsRow.appendChild(cardOptionsColumn);
+    cardTitleRow.appendChild(cardTitleColumn);
+    cardFiltersRow.appendChild(cardFiltersColumn);
 
     //create the chart type button
     const chartButton = document.createElement('button');
     chartButton.classList.add('btn', 'btn-secondary', 'me-2', 'disabled');
     chartButton.textContent = 'Clusters';
-    cardHeaderRightColumn.appendChild(chartButton);
-    cardHeader.appendChild(cardHeaderRightColumn);
-
-
+    cardOptionsColumn.appendChild(chartButton);
+    
     //create the bookmark button
     const bookmarkButton = document.createElement('button');
     bookmarkButton.classList.add('btn', 'btn-secondary');
     bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
-    cardHeaderRightColumn.appendChild(bookmarkButton);
-    cardHeader.appendChild(cardHeaderRightColumn);
+    cardOptionsColumn.appendChild(bookmarkButton);
+
+    //create the title
+    const cardTitle = document.createElement("h5");
+    cardTitle.textContent = chartObject.title;
+    cardTitleColumn.appendChild(cardTitle);
 
     //create filter badges as needed
     const analysisObject = analysisObjects.find((obj) => obj.id === currentAnalysisId);
@@ -1029,7 +1034,7 @@ class AnalysisObject {
       const cardFilter = document.createElement('span');
       cardFilter.className = 'filter-badge'; // Apply the custom class
       cardFilter.textContent = filters[i].value;
-      cardHeaderleftColumn.appendChild(cardFilter);
+      cardFiltersColumn.appendChild(cardFilter);
 
     }
 
