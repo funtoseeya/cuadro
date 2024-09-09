@@ -476,6 +476,8 @@ function initializeReviewStep() {
                     <li><strong>Categorical (default):</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. </li>
                     <li><strong>Descriptive / Textual:</strong> Use this for qualitative / open-ended fields (e.g., comments, names, descriptions). We'll be able to categorize, summarize, and extract insights using AI. </li>
                     <li><strong>Numerical:</strong> This is for any field containing numerical values. We will compute these by summing them, rather than counting them.</li>
+                                        <li><strong>Date / Time:</strong> This is for any field containing timestamps. This is especially useful for generating time-based comparisons, such as line charts and so on.</li>
+
                 </ul>
             </div>
         </div>
@@ -754,45 +756,45 @@ class AnalysisObject {
     const cardBody = document.createElement("div");
     cardBody.classList.add("card-body");
 
-     //create the options, title and filters rows and columns - append to body
-     const cardOptionsRow = document.createElement("div");
-     cardOptionsRow.className = "row";
-     const cardTitleRow= document.createElement("div");
-     cardTitleRow.className = "row";
-     const cardFiltersRow= document.createElement("div");
-     cardFiltersRow.className = "row";
-     cardBody.appendChild(cardOptionsRow);
-     cardBody.appendChild(cardTitleRow);
-     cardBody.appendChild(cardFiltersRow);
- 
-     const cardOptionsColumn = document.createElement('div')
-     cardOptionsColumn.classList.add('col-12','d-flex','justify-content-end');
-     const cardTitleColumn = document.createElement('div')
-     cardTitleColumn.classList.add('col-12');
-     const cardFiltersColumn= document.createElement('div')
-     cardFiltersColumn.classList.add('col-12');
-     cardOptionsRow.appendChild(cardOptionsColumn);
-     cardTitleRow.appendChild(cardTitleColumn);
-     cardFiltersRow.appendChild(cardFiltersColumn);
- 
-     //create the chart type button
-     const chartButton = document.createElement('button');
-     chartButton.classList.add('btn', 'btn-secondary', 'me-2', 'disabled');
-     chartButton.textContent = 'Bars';
-     cardOptionsColumn.appendChild(chartButton);
-     
-     //create the bookmark button
-     const bookmarkButton = document.createElement('button');
-     bookmarkButton.classList.add('btn', 'btn-secondary');
-     bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
-     cardOptionsColumn.appendChild(bookmarkButton);
- 
-     //create the title
-     const cardTitle = document.createElement("h5");
-     cardTitle.textContent = chartObject.title;
-     cardTitleColumn.appendChild(cardTitle);
- 
-    
+    //create the options, title and filters rows and columns - append to body
+    const cardOptionsRow = document.createElement("div");
+    cardOptionsRow.className = "row";
+    const cardTitleRow = document.createElement("div");
+    cardTitleRow.className = "row";
+    const cardFiltersRow = document.createElement("div");
+    cardFiltersRow.className = "row";
+    cardBody.appendChild(cardOptionsRow);
+    cardBody.appendChild(cardTitleRow);
+    cardBody.appendChild(cardFiltersRow);
+
+    const cardOptionsColumn = document.createElement('div')
+    cardOptionsColumn.classList.add('col-12', 'd-flex', 'justify-content-end');
+    const cardTitleColumn = document.createElement('div')
+    cardTitleColumn.classList.add('col-12');
+    const cardFiltersColumn = document.createElement('div')
+    cardFiltersColumn.classList.add('col-12');
+    cardOptionsRow.appendChild(cardOptionsColumn);
+    cardTitleRow.appendChild(cardTitleColumn);
+    cardFiltersRow.appendChild(cardFiltersColumn);
+
+    //create the chart type button
+    const chartButton = document.createElement('button');
+    chartButton.classList.add('btn', 'btn-secondary', 'me-2', 'disabled');
+    chartButton.textContent = 'Bars';
+    cardOptionsColumn.appendChild(chartButton);
+
+    //create the bookmark button
+    const bookmarkButton = document.createElement('button');
+    bookmarkButton.classList.add('btn', 'btn-secondary');
+    bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+    cardOptionsColumn.appendChild(bookmarkButton);
+
+    //create the title
+    const cardTitle = document.createElement("h5");
+    cardTitle.textContent = chartObject.title;
+    cardTitleColumn.appendChild(cardTitle);
+
+
     //create filter badges as needed
     const analysisObject = analysisObjects.find((obj) => obj.id === currentAnalysisId);
     const filters = analysisObject.filteredBy;
@@ -998,19 +1000,19 @@ class AnalysisObject {
     //create the options, title and filters rows and columns - append to body
     const cardOptionsRow = document.createElement("div");
     cardOptionsRow.className = "row";
-    const cardTitleRow= document.createElement("div");
+    const cardTitleRow = document.createElement("div");
     cardTitleRow.className = "row";
-    const cardFiltersRow= document.createElement("div");
+    const cardFiltersRow = document.createElement("div");
     cardFiltersRow.className = "row";
     cardBody.appendChild(cardOptionsRow);
     cardBody.appendChild(cardTitleRow);
     cardBody.appendChild(cardFiltersRow);
 
     const cardOptionsColumn = document.createElement('div')
-    cardOptionsColumn.classList.add('col-12','d-flex','justify-content-end');
+    cardOptionsColumn.classList.add('col-12', 'd-flex', 'justify-content-end');
     const cardTitleColumn = document.createElement('div')
     cardTitleColumn.classList.add('col-12');
-    const cardFiltersColumn= document.createElement('div')
+    const cardFiltersColumn = document.createElement('div')
     cardFiltersColumn.classList.add('col-12');
     cardOptionsRow.appendChild(cardOptionsColumn);
     cardTitleRow.appendChild(cardTitleColumn);
@@ -1021,7 +1023,7 @@ class AnalysisObject {
     chartButton.classList.add('btn', 'btn-secondary', 'me-2', 'disabled');
     chartButton.textContent = 'Clusters';
     cardOptionsColumn.appendChild(chartButton);
-    
+
     //create the bookmark button
     const bookmarkButton = document.createElement('button');
     bookmarkButton.classList.add('btn', 'btn-secondary');
