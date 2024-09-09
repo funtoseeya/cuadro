@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuickCharts</title>
+    <title>Cuadro</title>
+    <link rel="icon" href="./images/signal-solid.svg" type="image/svg+xml">
+
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="styles/bootstrap.css">
     <link rel="stylesheet" href="styles/styles.css">
@@ -18,18 +20,35 @@
 </head>
 
 <body>
-    <div style="border-bottom: 1px solid #e5e5e5; padding: 0.5rem;">
+    <div style="border-bottom: 1px solid #e5e5e5">
         <div class="container">
             <div class="row">
-                <div class="col-12 col-md-3 align-items-center">
-                    <h1>QuickCharts</h1>
+                <div class="col-6 d-flex align-items-center justify-content-start">
+                    <i class="fa-solid fa-signal fa-2x" style="padding-right: 0.2rem;"></i>
+                    <h1 style="margin-bottom: 0px;">Cuadro</h1>
                 </div>
-                <!-- new version of the stepper-->
-                <div class="col-12 col-md-6  d-flex justify-content-center align-items-center">
-                    <p class="stepper-paragraph"><span id='stepper-upload' class="stepper stepper-primary">Upload</span> > <span id='stepper-review' class="stepper">Review</span> > <span id='stepper-analyze' class="stepper">Analyze</span> > <span id='stepper-export' class="stepper">Export</span></p>
+
+                <div class="col-6 d-flex align-items-center justify-content-end">
+                    <a class="navbar-nav-link nav-link nav-hover " style="font-weight: bold;" target="_blank"
+                        href="https://github.com/funtoseeya/quick-charts-prototype">About</a>
                 </div>
             </div>
         </div>
+    </div>
+    </div>
+    <div style="border-bottom: 1px solid #e5e5e5;">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 d-flex justify-content-center align-items-center">
+                    <p class="stepper-paragraph"><span id='stepper-upload' class="stepper stepper-primary">Upload</span>
+                        > <span id='stepper-review' class="stepper">Review</span> > <span id='stepper-analyze'
+                            class="stepper">Analyze</span> > <span id='stepper-export' class="stepper">Export</span></p>
+                </div>
+
+            </div>
+        </div>
+
+
     </div>
     <!-- File input element (hidden) -->
     <input type="file" id="file-input" style="display: none;" accept=".csv">
@@ -39,33 +58,11 @@
     <div id="toastContainer"></div>
 
 
-    <!-- Stepper Section --- DEPRECATED
-    <div id="stepper-container" class="container mt-5">
-        <div id="stepper-row" class="row text-center">
-            <div class="col-3 mb-4 mb-sm-0">
-                <div id="stepper-upload" class="circle circle-primary">1</div>
-                <div class="title mt-2">Upload</div>
-            </div>
-            <div class="col-3  mb-4 mb-sm-0">
-                <div id="stepper-review" class="circle circle-secondary">2</div>
-                <div class="title mt-2">Review</div>
-            </div>
-            <div class="col-3  mb-4 mb-sm-0">
-                <div id="stepper-analyze" class="circle circle-secondary">3</div>
-                <div class="title mt-2">Analyze</div>
-            </div>
-            <div class="col-3  mb-4 mb-sm-0">
-                <div id="stepper-export" class="circle circle-secondary">4</div>
-                <div class="title mt-2">Export</div>
-            </div>
-        </div>
-    </div>
--->
+
     <!--the main body of the app, where the user will upload, review, analyze and export their data-->
 
 
     <div id="step-body">
-
     </div>
 
     <!-- the app's main navigation panel, with next and previous buttons, analysis lists, and export formats-->

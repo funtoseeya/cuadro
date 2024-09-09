@@ -91,11 +91,14 @@ body {
 
 
 /* new styles */
+.nav-hover:hover {
+  color: blue; /* Your desired hover color */
+}
+
 .stepper-paragraph {
   margin-bottom: 0rem;
   font-size: large;
 }
-
 
 
 .stepper {
@@ -108,7 +111,7 @@ body {
   font-weight: bold;
 }
 
-@media (max-width: 576px) {
+@media (max-width: 991px) {
   .stepper-paragraph {
       font-size: 0.9rem; /* Adjust the font size as needed */
   }

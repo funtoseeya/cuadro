@@ -442,7 +442,7 @@ function initializeReviewStep() {
   // Call to setup the analyze button listener
   setupAnalyzeStep();
 
-  // Update stepper circle styling
+  // Update stepper styling
   const stepperUpload = document.getElementById("stepper-upload");
   stepperUpload.classList.remove("stepper-primary");
   const stepperReview = document.getElementById("stepper-review");
