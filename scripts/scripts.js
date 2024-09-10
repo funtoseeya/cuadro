@@ -288,7 +288,7 @@ function generateReviewTable(stepBody) {
       select.classList.add("form-select", "data-type-dropdown");
       const options = [
         "Categorical",
-        "Descriptive / Textual",
+        "Text string",
         "Numerical",
         "Date / Time",
       ]; //here are the options
@@ -336,7 +336,7 @@ function generateReviewTable(stepBody) {
       select.classList.add("form-select", "data-type-dropdown");
       const options = [
         "Categorical",
-        "Descriptive / Textual",
+        "Text string",
         "Numerical",
         "Date / Time",
       ]; //here are the options
@@ -474,7 +474,7 @@ function initializeReviewStep() {
                 Please take a minute to map your data. This will help us give you the best outputs for your needs.
                 <ul>
                     <li><strong>Categorical (default):</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. </li>
-                    <li><strong>Descriptive / Textual:</strong> Use this for qualitative / open-ended fields (e.g., comments, names, descriptions). We'll be able to categorize, summarize, and extract insights using AI. </li>
+                    <li><strong>Text string:</strong> Use this for qualitative / open-ended fields (e.g., comments, names, descriptions). </li>
                     <li><strong>Numerical:</strong> This is for any field containing numerical values. We will compute these by summing them, rather than counting them.</li>
                                         <li><strong>Date / Time:</strong> This is for any field containing timestamps. This is especially useful for generating time-based comparisons, such as line charts and so on.</li>
 
