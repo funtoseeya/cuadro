@@ -1408,6 +1408,21 @@ function handleIWantTo(event) {
   // Clear any existing content
   stepBody.innerHTML = "";
 
+  //create the back to start button, row and col
+  const backRow = document.createElement('div');
+  const backCol = document.createElement('div');
+  backCol.classList.add('col-12');
+  const backButton = document.createElement('button');
+  backButton.classList.add('btn','btn-tertiary','text-muted');
+  backButton.innerHTML=' <i class="fas fa-arrow-left" style="padding-right:0.2rem"></i> Back to analysis types';
+
+  backCol.appendChild(backButton);
+  backRow.appendChild(backCol);
+  stepBody.appendChild(backRow);
+
+  backButton.addEventListener('click',displayAnalysisOptions);
+
+
   // Create the container div and set its class
   const promptRow = document.createElement("div");
   promptRow.classList.add("row");
@@ -1933,9 +1948,9 @@ function showConfirmationDialog(message, onConfirm) {
 }
 
 // Function to initialize the back button listener, which takes the user back to the review step
-function InitializeBackButtonListener() {
+function InitializeReviewButtonListener() {
   // Add event listener to the back button
-  document.getElementById("back-button").addEventListener("click", () => {
+  document.getElementById("review-button").addEventListener("click", () => {
     // Define the confirmation message
     const message =
       "Your analysis will be lost. Are you sure you want to continue?";
@@ -1951,10 +1966,10 @@ function updateBottomPanel() {
     "panel-button-container-2"
   );
   panelButtonContainer2.innerHTML = `
-        <button id="back-button" class="btn btn-secondary">Back</button>
+        <button id="review-button" class="btn btn-secondary">Review</button>
         <button id="export-button" class="btn btn-primary disabled">Export</button>
     `;
-  InitializeBackButtonListener();
+  InitializeReviewButtonListener();
 }
 
 // Function to setup the analaysis step
