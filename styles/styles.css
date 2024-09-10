@@ -95,6 +95,10 @@ body {
   color: blue; /* Your desired hover color */
 }
 
+.card-hover:hover {
+  background: var(--tertiary-color);
+}
+
 .stepper-paragraph {
   margin-bottom: 0rem;
   font-size: large;
