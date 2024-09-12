@@ -1410,11 +1410,13 @@ function handleIWantTo(event) {
 
   //create the back to start button, row and col
   const backRow = document.createElement('div');
+  backRow.className='row';
+  backRow.style.marginBottom='0.5rem';
   const backCol = document.createElement('div');
   backCol.classList.add('col-12');
   const backButton = document.createElement('button');
   backButton.classList.add('btn','btn-tertiary','text-muted');
-  backButton.innerHTML=' <i class="fas fa-arrow-left" style="padding-right:0.2rem"></i> Back to analysis types';
+  backButton.innerHTML=' <i class="fas fa-arrow-left" style="padding-right:0.2rem"></i> Back to types';
 
   backCol.appendChild(backButton);
   backRow.appendChild(backCol);
@@ -1427,6 +1429,7 @@ function handleIWantTo(event) {
   const promptRow = document.createElement("div");
   promptRow.classList.add("row");
   promptRow.id = "prompt-row";
+  promptRow.style.margin='1rem';
 
   // Create four  column divs for the dropdowns and set their class
   const typeColumn = document.createElement("div");
@@ -1469,6 +1472,7 @@ function handleIWantTo(event) {
   const iWantSelect = document.createElement("button");
   iWantSelect.classList.add(
     "btn",
+    'truncate-btn',
     "btn-secondary",
     "form-select",
     "data-type-dropdown"
@@ -1606,7 +1610,7 @@ function createColumnDropdown() {
   // Create the span element for text
   const span = document.createElement("span");
   span.id = "using-these-values-text";
-  span.textContent = "using these columns";
+  span.textContent = "Using these columns";
 
   // Create the menu container
   const dropdownContainer = document.createElement("div");
@@ -1719,7 +1723,7 @@ function createGroupByDropdown() {
   // Create the span element for text
   const span = document.createElement("span");
   span.id = "group-by-text";
-  span.textContent = "grouped by";
+  span.textContent = "Compared by";
 
   // Create the menu container
   const dropdownContainer = document.createElement("div");
@@ -1813,7 +1817,7 @@ function createFilterButton() {
   // Create the span element for text
   const span = document.createElement("span");
   span.id = "filtered-by-text";
-  span.textContent = "filtered by";
+  span.textContent = "Filtered by";
 
   // Create the menu container
   const dropdownContainer = document.createElement("div");
