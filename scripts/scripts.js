@@ -170,17 +170,17 @@ async function handleFileSelection(event) {
       const columnCount = rows[0].split(",").length; // Count the number of columns in the first row
 
       // Check if the number of columns exceeds the maximum allowed (20 columns)
-      if (columnCount > 20) {
+      if (columnCount > 50) {
         alert(
-          "Only files with a maximum of 20 columns are supported. Please remove excess columns and try again."
+          "Only files with a maximum of 50 columns are supported. Please remove excess columns and try again."
         ); // Show an alert if there are too many columns
         return; // Exit the function early
       }
 
       // Check if the number of rows exceeds the maximum allowed (1000 rows)
-      if (rows.length > 1000) {
+      if (rows.length > 10000) {
         alert(
-          "Only files with a maximum of 1000 rows are supported. Please remove excess rows and try again."
+          "Only files with a maximum of 10,000 rows are supported. Please remove excess rows and try again."
         ); // Show an alert if there are too many rows
         return; // Exit the function early
       }
