@@ -1274,7 +1274,8 @@ function createCategoricalArray() {
 // new function to clear and uppdate the stepper body with analysis options
 function displayAnalysisOptions() {
   const stepBody = document.getElementById("step-body");
-
+  stepBody.classList.remove('mt-2');
+  stepBody.classList.add('mt-5');
   // Clear any existing content
   stepBody.innerHTML = "";
 
@@ -1404,14 +1405,14 @@ function displayAnalysisOptions() {
 function handleIWantTo(event) {
 
   const stepBody = document.getElementById("step-body");
-
+  stepBody.classList.remove('mt-5');
+  stepBody.classList.add('mt-2');
   // Clear any existing content
   stepBody.innerHTML = "";
 
   //create the back to start button, row and col
   const backRow = document.createElement('div');
   backRow.className='row';
-  backRow.style.marginBottom='0.5rem';
   const backCol = document.createElement('div');
   backCol.classList.add('col-12');
   const backButton = document.createElement('button');
@@ -1479,6 +1480,7 @@ function handleIWantTo(event) {
   );
   iWantSelect.type = "button";
   iWantSelect.style.width = "100%";
+  iWantSelect.style.fontSize='0.9rem';
   iWantSelect.textContent = "make a selection";
   iWantSelect.style.textAlign = "left";
   iWantSelect.id = "i-want-to-dropdown";
@@ -1620,12 +1622,14 @@ function createColumnDropdown() {
   const columnSelect = document.createElement("button");
   columnSelect.classList.add(
     "btn",
+    'truncate-btn',
     "btn-secondary",
     "form-select",
     "data-type-dropdown"
   );
   columnSelect.type = "button";
   columnSelect.style.width = "100%";
+  columnSelect.style.fontSize='0.9rem';
   columnSelect.textContent = "0 selected"; // Start with 0 selected
   columnSelect.style.textAlign = "left"; // Align text to the left
   columnSelect.id = "column-select";
@@ -1733,12 +1737,14 @@ function createGroupByDropdown() {
   const groupBySelect = document.createElement("button");
   groupBySelect.classList.add(
     "btn",
+    'truncate-btn',
     "btn-secondary",
     "form-select",
     "data-type-dropdown"
   );
   groupBySelect.type = "button";
   groupBySelect.style.width = "100%";
+  groupBySelect.style.fontSize='0.9rem';
   groupBySelect.textContent = "make a selection";
   groupBySelect.style.textAlign = "left"; // Align text to the left
   groupBySelect.id = "group-by-select";
@@ -1827,12 +1833,14 @@ function createFilterButton() {
   const filterSelect = document.createElement("button");
   filterSelect.classList.add(
     "btn",
+    'truncate-btn',
     "btn-secondary",
     "form-select",
     "data-type-dropdown"
   );
   filterSelect.type = "button";
   filterSelect.style.width = "100%";
+  filterSelect.style.fontSize='0.9rem';
   filterSelect.textContent = "0 selected"; // Start with 0 selected
   filterSelect.style.textAlign = "left"; // Align text to the left
   filterSelect.id = "filter-select";
