@@ -2031,7 +2031,7 @@ const toastDiv = document.getElementById("toastContainer"); // Replace with your
 <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
   <div class="toast border-0" style="background-color: #fff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 0.25rem;">
     <div class="toast-body bg-success text-white" style="border-radius: 0.25rem;">
-      <strong>Bookmarked added successfully!</strong>
+      <strong>Bookmark added successfully!</strong>
     </div>
   </div>
 </div>
