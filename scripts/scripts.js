@@ -40,7 +40,7 @@ let colorPalette = [
   "#f4a261",
   "#e9c46a"
 ];
-
+let bookmarks = {};
 
 //UPLOAD STEP
 
@@ -778,6 +778,11 @@ class AnalysisObject {
     bookmarkButton.classList.add('btn', 'btn-secondary');
     bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
     cardOptionsColumn.appendChild(bookmarkButton);
+    
+    bookmarkButton.setAttribute('isActive','false');
+    bookmarkButton.addEventListener('click', function() {
+      handleBookmark(bookmarkButton);
+    });
 
     //create the title
     const cardTitle = document.createElement("h5");
@@ -1020,6 +1025,11 @@ class AnalysisObject {
     bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
     cardOptionsColumn.appendChild(bookmarkButton);
 
+    bookmarkButton.setAttribute('isActive','false');
+    bookmarkButton.addEventListener('click', function() {
+      handleBookmark(bookmarkButton);
+    });
+
     //create the title
     const cardTitle = document.createElement("h5");
     cardTitle.textContent = chartObject.title;
@@ -1139,8 +1149,8 @@ class ChartObject {
     this.labels = labels; // Data required for chart generation
     this.percentagesCounts = percentagesCounts; // Labels for the data points
     this.clusterLabels = clusterLabels; // New property for cluster labels
-    this.backgroundColor = "#2d6a4f"; //
-    this.borderColor = "#2d6a4f"; //
+    this.backgroundColor = colorPalette[0]; //
+    this.borderColor = colorPalette[0]; //
     this.borderWidth = 1;
 
     this.barChartOptions = {
@@ -1294,7 +1304,7 @@ function displayAnalysisOptions() {
     );
     card.style.margin = "10px"; // Add some margin for spacing
     card.id = cardID;
-  
+
     // Card body
     const cardBody = document.createElement("div");
     cardBody.classList.add("card-body", "text-start");
@@ -1336,7 +1346,7 @@ function displayAnalysisOptions() {
 
   // Create the trend analysis column and card
   const analysisOptionCardTrendCol = document.createElement('div');
-  analysisOptionCardTrendCol.classList.add('col-12', 'col-sm-4','mb-2');
+  analysisOptionCardTrendCol.classList.add('col-12', 'col-sm-4', 'mb-2');
   const trendCard = document.createElement("div");
   trendCard.classList.add(
     "card", "h-100", "border-0", "shadow-sm", "rounded-3"
@@ -1402,25 +1412,25 @@ function handleIWantTo(event) {
 
   //create the back to start button, row and col
   const backRow = document.createElement('div');
-  backRow.className='row';
+  backRow.className = 'row';
   const backCol = document.createElement('div');
   backCol.classList.add('col-12');
   const backButton = document.createElement('button');
-  backButton.classList.add('btn','btn-tertiary','text-muted');
-  backButton.innerHTML=' <i class="fas fa-arrow-left" style="padding-right:0.2rem"></i> Back to types';
+  backButton.classList.add('btn', 'btn-tertiary', 'text-muted');
+  backButton.innerHTML = ' <i class="fas fa-arrow-left" style="padding-right:0.2rem"></i> Back to types';
 
   backCol.appendChild(backButton);
   backRow.appendChild(backCol);
   stepBody.appendChild(backRow);
 
-  backButton.addEventListener('click',displayAnalysisOptions);
+  backButton.addEventListener('click', displayAnalysisOptions);
 
 
   // Create the container div and set its class
   const promptRow = document.createElement("div");
   promptRow.classList.add("row");
   promptRow.id = "prompt-row";
-  promptRow.style.margin='1rem';
+  promptRow.style.margin = '1rem';
 
   // Create four  column divs for the dropdowns and set their class
   const typeColumn = document.createElement("div");
@@ -1470,7 +1480,7 @@ function handleIWantTo(event) {
   );
   iWantSelect.type = "button";
   iWantSelect.style.width = "100%";
-  iWantSelect.style.fontSize='0.9rem';
+  iWantSelect.style.fontSize = '0.9rem';
   iWantSelect.textContent = "make a selection";
   iWantSelect.style.textAlign = "left";
   iWantSelect.id = "i-want-to-dropdown";
@@ -1549,7 +1559,7 @@ function handleIWantTo(event) {
     usingColumn.innerHTML = "";
 
     groupColumn.classList.remove("col-md-6", "col-md-4");
-    groupColumn.classList.add("col-12", "col-sm-6","col-md-3");
+    groupColumn.classList.add("col-12", "col-sm-6", "col-md-3");
     groupColumn.innerHTML = "";
 
     filterColumn.classList.remove("col-md-6", "col-md-4");
@@ -1583,12 +1593,12 @@ function handleIWantTo(event) {
 
   iWantMenu.addEventListener("click", function (event) {
     const target = event.target.closest("a.dropdown-item");
-    let analysisType='';
-    if(target.innerText ==='simple analysis') {
-      analysisType = 'simple';  
+    let analysisType = '';
+    if (target.innerText === 'simple analysis') {
+      analysisType = 'simple';
     }
-    if(target.innerText ==='comparative analysis') {
-      analysisType = 'comparative';  
+    if (target.innerText === 'comparative analysis') {
+      analysisType = 'comparative';
     }
 
     handleIWantTo(analysisType);
@@ -1619,7 +1629,7 @@ function createColumnDropdown() {
   );
   columnSelect.type = "button";
   columnSelect.style.width = "100%";
-  columnSelect.style.fontSize='0.9rem';
+  columnSelect.style.fontSize = '0.9rem';
   columnSelect.textContent = "0 selected"; // Start with 0 selected
   columnSelect.style.textAlign = "left"; // Align text to the left
   columnSelect.id = "column-select";
@@ -1675,7 +1685,7 @@ function createColumnDropdown() {
   });
 
 
- 
+
 
 
 }
@@ -1734,7 +1744,7 @@ function createGroupByDropdown() {
   );
   groupBySelect.type = "button";
   groupBySelect.style.width = "100%";
-  groupBySelect.style.fontSize='0.9rem';
+  groupBySelect.style.fontSize = '0.9rem';
   groupBySelect.textContent = "make a selection";
   groupBySelect.style.textAlign = "left"; // Align text to the left
   groupBySelect.id = "group-by-select";
@@ -1830,7 +1840,7 @@ function createFilterButton() {
   );
   filterSelect.type = "button";
   filterSelect.style.width = "100%";
-  filterSelect.style.fontSize='0.9rem';
+  filterSelect.style.fontSize = '0.9rem';
   filterSelect.textContent = "0 selected"; // Start with 0 selected
   filterSelect.style.textAlign = "left"; // Align text to the left
   filterSelect.id = "filter-select";
@@ -2001,4 +2011,47 @@ function setupAnalyzeStep() {
     //create a new analysis object
     createAnalysis();
   });
+}
+
+function handleBookmark(target) {
+const bookmarkButton = target;
+let isActive = bookmarkButton.getAttribute('isActive');
+
+//if bookmark is turned on...
+if (isActive ==='false') {
+
+bookmarkButton.setAttribute('isActive', 'true');
+bookmarkButton.innerHTML ='<i class="fa-solid fa-bookmark"></i>'; //change the icon
+
+//success toast message
+const toastDiv = document.getElementById("toastContainer"); // Replace with your parent div ID
+    toastDiv.innerHTML = ""; // Clear any existing content
+
+    const toastHtml = `
+<div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
+  <div class="toast border-0" style="background-color: #fff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 0.25rem;">
+    <div class="toast-body bg-success text-white" style="border-radius: 0.25rem;">
+      <strong>Bookmarked added successfully!</strong>
+    </div>
+  </div>
+</div>
+
+`;
+
+toastDiv.innerHTML = toastHtml;
+
+    // Initialize the toast using Bootstrap's JS API
+    const toastElement = toastDiv.querySelector(".toast");
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+
+
+}
+if (isActive ==='true') {
+  bookmarkButton.setAttribute('isActive', 'false');
+  bookmarkButton.innerHTML ='<i class="fa-regular fa-bookmark"></i>';
+
+}
+
+
 }
