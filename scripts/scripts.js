@@ -778,9 +778,9 @@ class AnalysisObject {
     bookmarkButton.classList.add('btn', 'btn-secondary');
     bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
     cardOptionsColumn.appendChild(bookmarkButton);
-    
-    bookmarkButton.setAttribute('isActive','false');
-    bookmarkButton.addEventListener('click', function() {
+
+    bookmarkButton.setAttribute('isActive', 'false');
+    bookmarkButton.addEventListener('click', function () {
       handleBookmark(bookmarkButton);
     });
 
@@ -1025,8 +1025,8 @@ class AnalysisObject {
     bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
     cardOptionsColumn.appendChild(bookmarkButton);
 
-    bookmarkButton.setAttribute('isActive','false');
-    bookmarkButton.addEventListener('click', function() {
+    bookmarkButton.setAttribute('isActive', 'false');
+    bookmarkButton.addEventListener('click', function () {
       handleBookmark(bookmarkButton);
     });
 
@@ -2014,31 +2014,33 @@ function setupAnalyzeStep() {
 }
 
 function handleBookmark(target) {
-const bookmarkButton = target;
-let isActive = bookmarkButton.getAttribute('isActive');
+  const bookmarkButton = target;
+  let isActive = bookmarkButton.getAttribute('isActive');
 
-//if bookmark is turned on...
-if (isActive ==='false') {
+  //if bookmark is turned on...
+  if (isActive === 'false') {
 
-bookmarkButton.setAttribute('isActive', 'true');
-bookmarkButton.innerHTML ='<i class="fa-solid fa-bookmark"></i>'; //change the icon
+    bookmarkButton.setAttribute('isActive', 'true');
+    bookmarkButton.innerHTML = '<i style="color:white" class="fa-solid fa-bookmark"></i>'; //change the icon
+    bookmarkButton.classList.remove('btn-secondary');
+    bookmarkButton.classList.add('btn-primary');
 
-//success toast message
-const toastDiv = document.getElementById("toastContainer"); // Replace with your parent div ID
+    //success toast message
+    const toastDiv = document.getElementById("toastContainer"); // Replace with your parent div ID
     toastDiv.innerHTML = ""; // Clear any existing content
 
     const toastHtml = `
 <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
   <div class="toast border-0" style="background-color: #fff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 0.25rem;">
     <div class="toast-body bg-success text-white" style="border-radius: 0.25rem;">
-      <strong>Bookmark added successfully!</strong>
+      <strong>Item successfully bookmarked for export!</strong>
     </div>
   </div>
 </div>
 
 `;
 
-toastDiv.innerHTML = toastHtml;
+    toastDiv.innerHTML = toastHtml;
 
     // Initialize the toast using Bootstrap's JS API
     const toastElement = toastDiv.querySelector(".toast");
@@ -2046,12 +2048,15 @@ toastDiv.innerHTML = toastHtml;
     toast.show();
 
 
-}
-if (isActive ==='true') {
-  bookmarkButton.setAttribute('isActive', 'false');
-  bookmarkButton.innerHTML ='<i class="fa-regular fa-bookmark"></i>';
+  }
+  if (isActive === 'true') {
 
-}
+    bookmarkButton.setAttribute('isActive', 'false');
+    bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+    bookmarkButton.classList.remove('btn-primary');
+    bookmarkButton.classList.add('btn-secondary');
+
+  }
 
 
 }
