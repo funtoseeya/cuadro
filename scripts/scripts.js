@@ -420,24 +420,14 @@ function initializeReviewStep() {
     "panel-button-container-2"
   );
   panelButtonContainer1.innerHTML = "";
-  panelButtonContainer2.innerHTML = "";
+  panelButtonContainer2.innerHTML = `  <button id="restart-button" class="btn btn-secondary">Restart</button>
+  <button id="analyze-button" class="btn btn-primary">Analyze</button>`;
 
   // Create the restart button and add to bottom panel
-  const restartButton = document.createElement("button");
-  restartButton.id = "restart-button";
-  restartButton.className = "btn btn-secondary"; // Add the classes for styling
-  restartButton.textContent = "Restart"; // Set button text
-  panelButtonContainer2.appendChild(restartButton);
+  const restartButton = document.getElementById('restart-button');
   restartButton.addEventListener("click", () => {
     location.reload();
   }); // a confirmation dialog will appear due to a function above
-
-  // Create the analyze button and add to bottom panel
-  const analyzeButton = document.createElement("button");
-  analyzeButton.id = "analyze-button";
-  analyzeButton.className = "btn btn-primary"; // Add the classes for styling
-  analyzeButton.textContent = "Analyze"; // Set button text
-  panelButtonContainer2.appendChild(analyzeButton);
 
   // Call to setup the analyze button listener
   setupAnalyzeStep();
@@ -1979,7 +1969,7 @@ function updateBottomPanel() {
   );
   panelButtonContainer2.innerHTML = `
         <button id="review-button" class="btn btn-secondary">Review</button>
-        <button id="export-button" class="btn btn-primary disabled">Export</button>
+        <button id="export-button" class="btn btn-primary">Export</button>
     `;
   InitializeReviewButtonListener();
 }
