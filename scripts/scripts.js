@@ -585,10 +585,13 @@ class AnalysisObject {
       const labels = result.labels;
       const percentagesCounts = result.PercentagesCounts;
       const chartTitle = `Summary of ${value} data`;
+      const chartID = `advanced-${chartTitle.replace(/ /g, '-')}`; // Create the id based on the title, replacing spaces with hyphens
+
 
       // Create and add the chart
       const newChart = new ChartObject(
         chartTitle,
+        chartID,
         'bar',
         data,
         labels,
@@ -744,7 +747,6 @@ class AnalysisObject {
     // Create the card element
     const card = document.createElement('div');
     card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
-    card.id = `advanced-${chartObject.title.replace(/ /g, '-')}`; // Create the id based on the title, replacing spaces with hyphens
 
     // Create the card body element
     const cardBody = document.createElement('div');
@@ -781,21 +783,21 @@ class AnalysisObject {
     chartButton.textContent = 'Bars';
     cardOptionsColumn.appendChild(chartButton);
 
-    //create the bookmark button
-
+    //create the bookmark button and set whether it's active or not
     const bookmarkButton = document.createElement('button');
     bookmarkButton.classList.add('btn', 'btn-secondary');
-    const isCardBookmarked = bookmarks.some(id => obj.id === card.id);
-    if (isCardBookmarked) {
+    const isChartBookmarked = bookmarks.some(obj => obj.id === chartObject.id);
+    if (isChartBookmarked) {
       bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+      bookmarkButton.setAttribute('isActive', true);
     } else {
       bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+      bookmarkButton.setAttribute('isActive', false);
     }
     cardOptionsColumn.appendChild(bookmarkButton);
-
-    bookmarkButton.setAttribute('isActive', 'false');
+    
     bookmarkButton.addEventListener('click', function () {
-      handleBookmark(bookmarkButton);
+      handleBookmark(bookmarkButton,chartObject);
     });
 
     //create the title
@@ -852,6 +854,7 @@ class AnalysisObject {
       },
       options: chartObject.barChartOptions,
     });
+
   }
 
   addClusteredCharts() {
@@ -869,10 +872,12 @@ class AnalysisObject {
       const clusterLabels = result.clusterLabels;
       const percentagesCounts = result.percentagesCounts;
       const chartTitle = `Summary of ${value} data grouped by ${this.groupedBy}`;
+      const chartID = `advanced-${chartTitle.replace(/ /g, '-')}`; // Create the id based on the title, replacing spaces with hyphens
 
       // Create and add the chart
       const newChart = new ChartObject(
         chartTitle,
+        chartID,
         'bar',
         data,
         labels,
@@ -1037,15 +1042,21 @@ class AnalysisObject {
     chartButton.textContent = 'Clusters';
     cardOptionsColumn.appendChild(chartButton);
 
-    //create the bookmark button
+ 
+    //create the bookmark button and set whether it's active or not
     const bookmarkButton = document.createElement('button');
     bookmarkButton.classList.add('btn', 'btn-secondary');
-    bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+    const isChartBookmarked = bookmarks.some(obj => obj.id === chartObject.id);
+    if (isChartBookmarked) {
+      bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+      bookmarkButton.setAttribute('isActive', true);
+    } else {
+      bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+      bookmarkButton.setAttribute('isActive', false);
+    }
     cardOptionsColumn.appendChild(bookmarkButton);
-
-    bookmarkButton.setAttribute('isActive', 'false');
     bookmarkButton.addEventListener('click', function () {
-      handleBookmark(bookmarkButton);
+      handleBookmark(bookmarkButton,chartObject);
     });
 
     //create the title
@@ -1161,8 +1172,9 @@ function deleteAllAnalysisObjects() {
 
 // boilerplate for charts we create via the generic dropdown option.
 class ChartObject {
-  constructor(title, type, data, labels, percentagesCounts, clusterLabels) {
+  constructor(title,id,type, data, labels, percentagesCounts, clusterLabels) {
     this.title = title; // Title of the chart
+    this.id = id;
     this.type = type; // Type of the chart (e.g., 'bar', 'line')
     this.data = data; // Data required for chart generation
     this.labels = labels; // Data required for chart generation
@@ -1171,6 +1183,7 @@ class ChartObject {
     this.backgroundColor = colorPalette[0]; //
     this.borderColor = colorPalette[0]; //
     this.borderWidth = 1;
+    this.bookmarked = false;
 
     this.barChartOptions = {
       plugins: {
@@ -2048,17 +2061,20 @@ function setupAnalyzeStep() {
   });
 }
 
-function handleBookmark(target) {
+function handleBookmark(target,chart) {
   const bookmarkButton = target;
   let isActive = bookmarkButton.getAttribute('isActive');
 
-  //if bookmark is turned on...
+  //if bookmark is activated
   if (isActive === 'false') {
     bookmarkButton.setAttribute('isActive', 'true');
     bookmarkButton.innerHTML =
       '<i style="color:white" class="fa-solid fa-bookmark"></i>'; //change the icon
     bookmarkButton.classList.remove('btn-secondary');
     bookmarkButton.classList.add('btn-primary');
+    chartObject.bookmarked=true;
+    bookmarks.push(chart);
+    console.log(bookmarks);
 
     //success toast message
     const toastDiv = document.getElementById('toastContainer'); // Replace with your parent div ID
