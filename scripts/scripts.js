@@ -789,10 +789,10 @@ class AnalysisObject {
     const isChartBookmarked = bookmarks.some(obj => obj.id === chartObject.id);
     if (isChartBookmarked) {
       bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
-      bookmarkButton.setAttribute('isActive', true);
+      bookmarkButton.setAttribute('isActive', 'true');
     } else {
       bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
-      bookmarkButton.setAttribute('isActive', false);
+      bookmarkButton.setAttribute('isActive', 'false');
     }
     cardOptionsColumn.appendChild(bookmarkButton);
     
@@ -1049,10 +1049,10 @@ class AnalysisObject {
     const isChartBookmarked = bookmarks.some(obj => obj.id === chartObject.id);
     if (isChartBookmarked) {
       bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
-      bookmarkButton.setAttribute('isActive', true);
+      bookmarkButton.setAttribute('isActive', 'true');
     } else {
       bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
-      bookmarkButton.setAttribute('isActive', false);
+      bookmarkButton.setAttribute('isActive', 'false');
     }
     cardOptionsColumn.appendChild(bookmarkButton);
     bookmarkButton.addEventListener('click', function () {
@@ -2066,17 +2066,20 @@ function handleBookmark(target,chart) {
   let isActive = bookmarkButton.getAttribute('isActive');
 
   //if bookmark is activated
-  if (isActive === 'false') {
+  if (isActive==='false') {
+
+    //update the button
     bookmarkButton.setAttribute('isActive', 'true');
     bookmarkButton.innerHTML =
       '<i style="color:white" class="fa-solid fa-bookmark"></i>'; //change the icon
     bookmarkButton.classList.remove('btn-secondary');
     bookmarkButton.classList.add('btn-primary');
-    chartObject.bookmarked=true;
+    
+    //update chartobject and push to bookmarks array
+    chart.bookmarked=true;
     bookmarks.push(chart);
-    console.log(bookmarks);
 
-    //success toast message
+    //notify user with success toast message
     const toastDiv = document.getElementById('toastContainer'); // Replace with your parent div ID
     toastDiv.innerHTML = ''; // Clear any existing content
 
@@ -2090,18 +2093,35 @@ function handleBookmark(target,chart) {
 </div>
 
 `;
-
     toastDiv.innerHTML = toastHtml;
-
     // Initialize the toast using Bootstrap's JS API
     const toastElement = toastDiv.querySelector('.toast');
     const toast = new bootstrap.Toast(toastElement);
     toast.show();
+
+    console.log('bookmarks: ',bookmarks);
   }
-  if (isActive === 'true') {
+    
+  
+  //if bookmark is deactivated
+  if (isActive==='true') {
+
+    //update the button
     bookmarkButton.setAttribute('isActive', 'false');
     bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
     bookmarkButton.classList.remove('btn-primary');
     bookmarkButton.classList.add('btn-secondary');
+
+        //update chartobject and remove from bookmarks array
+        chart.bookmarked=false;
+        
+        function removeFromArray(arr, id) {
+          const index = arr.findIndex(obj => obj.id === id);  // Find the index of the object
+          if (index !== -1) {
+            arr.splice(index, 1);  // Remove the object at that index
+          }
+        }
+        removeFromArray(bookmarks,chart.id);
+console.log('bookmarks: ',bookmarks);
   }
 }
