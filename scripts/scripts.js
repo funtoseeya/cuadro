@@ -40,7 +40,7 @@ let colorPalette = [
   "#f4a261",
   "#e9c46a"
 ];
-let bookmarks = {};
+let bookmarks = [];
 
 //UPLOAD STEP
 
@@ -741,6 +741,7 @@ class AnalysisObject {
     // Create the card element
     const card = document.createElement("div");
     card.classList.add("card", "mt-4"); // Add Bootstrap card and margin classes
+    card.id = `advanced-${chartObject.title.replace(/ /g, '-')}`;     // Create the id based on the title, replacing spaces with hyphens
 
     // Create the card body element
     const cardBody = document.createElement("div");
@@ -774,10 +775,17 @@ class AnalysisObject {
     cardOptionsColumn.appendChild(chartButton);
 
     //create the bookmark button
+    
     const bookmarkButton = document.createElement('button');
     bookmarkButton.classList.add('btn', 'btn-secondary');
-    bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
-    cardOptionsColumn.appendChild(bookmarkButton);
+    const isCardBookmarked = bookmarks.some(id => obj.id === card.id);
+    if (isCardBookmarked) {
+      bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+    }
+    else {
+      bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+    }
+        cardOptionsColumn.appendChild(bookmarkButton);
 
     bookmarkButton.setAttribute('isActive', 'false');
     bookmarkButton.addEventListener('click', function () {
@@ -1152,6 +1160,7 @@ class ChartObject {
     this.backgroundColor = colorPalette[0]; //
     this.borderColor = colorPalette[0]; //
     this.borderWidth = 1;
+
 
     this.barChartOptions = {
       plugins: {
