@@ -6,15 +6,15 @@ Chart.register(ChartDataLabels);
 //function to make the step-body section's available width responsize
 function responsiveStepBody() {
   // Define the media query for small screens
-  const mediaQuerySm = window.matchMedia("(max-width: 576px)");
-  const stepBodyContainer = document.getElementById("step-body");
+  const mediaQuerySm = window.matchMedia('(max-width: 576px)');
+  const stepBodyContainer = document.getElementById('step-body');
 
   // Function to update classes based on screen size
   const updateClasses = () => {
     if (mediaQuerySm.matches) {
-      stepBodyContainer.className = "container mt-5";
+      stepBodyContainer.className = 'container mt-5';
     } else {
-      stepBodyContainer.className = "container mt-5 col-md-8 offset-md-2";
+      stepBodyContainer.className = 'container mt-5 col-md-8 offset-md-2';
     }
   };
 
@@ -22,7 +22,7 @@ function responsiveStepBody() {
   updateClasses();
 
   // check again whenever the window size changes
-  mediaQuerySm.addEventListener("change", updateClasses);
+  mediaQuerySm.addEventListener('change', updateClasses);
 }
 
 //GLOBAL VARIABLES
@@ -33,13 +33,7 @@ let parsedCSVData = []; // global array that stores the uploaded csv's data
 let analysisObjects = []; // Array to store analysis object instances
 let nextAnalysisId = 1; // Unique ID counter
 let currentAnalysisId = 1; //what analysis object the user is currently analyzing. set to 1 as the default, will update later.
-let colorPalette = [
-  "#264653",
-  "#e76f51",
-  "#2a9d8f",
-  "#f4a261",
-  "#e9c46a"
-];
+let colorPalette = ['#264653', '#e76f51', '#2a9d8f', '#f4a261', '#e9c46a'];
 let bookmarks = [];
 
 //UPLOAD STEP
@@ -51,7 +45,7 @@ responsiveStepBody();
 
 function alertUnsavedChanges(event) {
   // Most browsers will display a generic message, and custom messages are often ignored
-  const message = "Changes you made will not be saved.";
+  const message = 'Changes you made will not be saved.';
 
   // Setting event.returnValue is necessary for some browsers to show the alert
   event.returnValue = message;
@@ -62,58 +56,58 @@ function alertUnsavedChanges(event) {
 
 // Function to create and insert the upload step content
 function createUploadStepContent() {
-  const stepBody = document.getElementById("step-body");
+  const stepBody = document.getElementById('step-body');
 
   // Create the container for the upload content
-  const uploadContainer = document.createElement("div");
+  const uploadContainer = document.createElement('div');
   uploadContainer.classList.add(
-    "container",
-    "d-flex",
-    "flex-column",
-    "align-items-center",
-    "justify-content-center",
-    "text-center"
+    'container',
+    'd-flex',
+    'flex-column',
+    'align-items-center',
+    'justify-content-center',
+    'text-center'
   );
-  uploadContainer.style.width = "80%";
-  uploadContainer.style.minHeight = "200px";
-  uploadContainer.style.margin = "0 auto";
-  uploadContainer.style.border = "3px dashed var(--primary)";
-  uploadContainer.style.borderRadius = "5px";
+  uploadContainer.style.width = '80%';
+  uploadContainer.style.minHeight = '200px';
+  uploadContainer.style.margin = '0 auto';
+  uploadContainer.style.border = '3px dashed var(--primary)';
+  uploadContainer.style.borderRadius = '5px';
 
   // Create and add the upload icon
-  const uploadIcon = document.createElement("div");
+  const uploadIcon = document.createElement('div');
   uploadIcon.innerHTML = '<i class="fa-solid fa-upload fa-2x"></i>'; // Increased icon size for better visibility
   uploadContainer.appendChild(uploadIcon);
 
   // Create and add the upload text with line break
-  const uploadText = document.createElement("div");
-  uploadText.innerHTML = "Upload the CSV file you wish to analyze.";
-  uploadText.classList.add("my-3"); // Added margin for spacing
+  const uploadText = document.createElement('div');
+  uploadText.innerHTML = 'Upload the CSV file you wish to analyze.';
+  uploadText.classList.add('my-3'); // Added margin for spacing
   uploadContainer.appendChild(uploadText);
 
   // Create and add the "Choose file" button
-  const chooseFileButton = document.createElement("button");
-  chooseFileButton.className = "btn btn-secondary";
-  chooseFileButton.textContent = "Choose file";
-  chooseFileButton.id = "chooseFileButton";
+  const chooseFileButton = document.createElement('button');
+  chooseFileButton.className = 'btn btn-secondary';
+  chooseFileButton.textContent = 'Choose file';
+  chooseFileButton.id = 'chooseFileButton';
   uploadContainer.appendChild(chooseFileButton);
 
   // Clear existing content and append the upload container and its content to the step body
-  stepBody.innerHTML = "";
+  stepBody.innerHTML = '';
   stepBody.appendChild(uploadContainer);
 
   // Function to create and insert the Review button.
   function createReviewButton() {
     // Create the button element
-    const button = document.createElement("button");
-    button.id = "review-button";
-    button.className = "btn btn-primary disabled"; // disabled by default
-    button.textContent = "Review";
+    const button = document.createElement('button');
+    button.id = 'review-button';
+    button.className = 'btn btn-primary disabled'; // disabled by default
+    button.textContent = 'Review';
 
     // Insert the review button into the bottom panel
-    const container = document.getElementById("panel-button-container-2");
+    const container = document.getElementById('panel-button-container-2');
     container.appendChild(button);
-    button.addEventListener("click", initializeReviewStep);
+    button.addEventListener('click', initializeReviewStep);
   }
 
   // create the review button
@@ -125,20 +119,20 @@ createUploadStepContent();
 
 // Function to initialize the file input and listen for when it is clicked
 function initializeFileInput() {
-  const chooseFileButton = document.getElementById("chooseFileButton"); //the file button created in createUploadStepContent()
-  const fileInput = document.getElementById("file-input"); //this is somewhere hidden in the base HTML DOM
+  const chooseFileButton = document.getElementById('chooseFileButton'); //the file button created in createUploadStepContent()
+  const fileInput = document.getElementById('file-input'); //this is somewhere hidden in the base HTML DOM
 
   // When the choose file button is clicked, trigger a click event on the file input, which opens a dialog box
-  chooseFileButton.addEventListener("click", () => {
+  chooseFileButton.addEventListener('click', () => {
     fileInput.click();
   });
 
   // when a file is selected, trigger the file handling function
-  fileInput.addEventListener("change", handleFileSelection);
+  fileInput.addEventListener('change', handleFileSelection);
 }
 
 // Initialize file input setup as part of load
-document.addEventListener("DOMContentLoaded", initializeFileInput);
+document.addEventListener('DOMContentLoaded', initializeFileInput);
 
 // Function to handle file selection and validate CSV file
 async function handleFileSelection(event) {
@@ -147,8 +141,8 @@ async function handleFileSelection(event) {
 
   if (file) {
     // Validate file type
-    if (!file.name.endsWith(".csv")) {
-      alert("Please select a CSV file."); // Show an alert if the file is not a CSV
+    if (!file.name.endsWith('.csv')) {
+      alert('Please select a CSV file.'); // Show an alert if the file is not a CSV
       return; // Exit the function early
     }
 
@@ -156,7 +150,7 @@ async function handleFileSelection(event) {
     const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
     if (file.size > MAX_FILE_SIZE) {
       alert(
-        "The maximum supported file size is 5MB. Please select a smaller file."
+        'The maximum supported file size is 5MB. Please select a smaller file.'
       ); // Show an alert if the file is too large
       return; // Exit the function early
     }
@@ -166,13 +160,13 @@ async function handleFileSelection(event) {
     reader.onload = function (event) {
       // Define the function to be called when the file is successfully read
       const text = event.target.result; // Get the content of the file as a string
-      const rows = text.split("\n").filter((row) => row.trim() !== ""); // Split the content into rows and remove any empty rows
-      const columnCount = rows[0].split(",").length; // Count the number of columns in the first row
+      const rows = text.split('\n').filter(row => row.trim() !== ''); // Split the content into rows and remove any empty rows
+      const columnCount = rows[0].split(',').length; // Count the number of columns in the first row
 
       // Check if the number of columns exceeds the maximum allowed (20 columns)
       if (columnCount > 50) {
         alert(
-          "Only files with a maximum of 50 columns are supported. Please remove excess columns and try again."
+          'Only files with a maximum of 50 columns are supported. Please remove excess columns and try again.'
         ); // Show an alert if there are too many columns
         return; // Exit the function early
       }
@@ -180,33 +174,43 @@ async function handleFileSelection(event) {
       // Check if the number of rows exceeds the maximum allowed (1000 rows)
       if (rows.length > 10000) {
         alert(
-          "Only files with a maximum of 10,000 rows are supported. Please remove excess rows and try again."
+          'Only files with a maximum of 10,000 rows are supported. Please remove excess rows and try again.'
         ); // Show an alert if there are too many rows
         return; // Exit the function early
       }
 
-      // Simple header check to ensure the first row has at least one column
-      if (rows.length > 0 && rows[0].split(",").length < 1) {
-        alert("CSV file header is missing or incorrect."); // Show an alert if the first row (header) is missing or incorrect
+      // check to ensure the first row has at least one column
+      if (rows.length > 0 && rows[0].split(',').length < 1) {
+        alert('CSV file header is missing or incorrect.'); // Show an alert if the first row (header) is missing or incorrect
         return; // Exit the function early
       }
 
+      //check that all column headers are unique
+      const columnHeaderTitles = rows.length > 0 
+      ? rows[0].split(',').map(header => header.replace(/[\r\n]/g, '').trim()) // Remove \r \n and trim spaces
+      : []; 
+      const hasDuplicates =
+        new Set(columnHeaderTitles).size !== columnHeaderTitles.length;
+
+      if (hasDuplicates) {
+        alert('Please ensure that the titles of each column header are unique.');
+        return; // exit function early
+      }
       // Update UI with the name of the selected file
       updateUploadStepUI(file.name);
     };
-
     reader.readAsText(file); // Reads the content of the file as a text string
-  }
+  };
 }
 
 // Function to update the UI after a successful file upload
 function updateUploadStepUI(fileName) {
-  const stepBody = document.getElementById("step-body");
-  const uploadContainer = document.querySelector("#step-body > div");
+  const stepBody = document.getElementById('step-body');
+  const uploadContainer = document.querySelector('#step-body > div');
 
   // Update styles
   uploadContainer.style.border = `2px solid var(--primary-color)`;
-  uploadContainer.style.backgroundColor = "var(--secondary-color)";
+  uploadContainer.style.backgroundColor = 'var(--secondary-color)';
 
   // Clear existing content and append new content
   uploadContainer.innerHTML = `
@@ -216,11 +220,11 @@ function updateUploadStepUI(fileName) {
         <i class="fa-solid fa-rotate-left" ></i> Restart</a>`;
 
   //remove 'disabled' class from the review button so that they can move on.
-  let reviewButton = document.getElementById("review-button");
-  reviewButton.classList.remove("disabled");
+  let reviewButton = document.getElementById('review-button');
+  reviewButton.classList.remove('disabled');
 
   // Add the event listener that triggers a warning message whenever the user tries to close or refresh the tab
-  window.addEventListener("beforeunload", alertUnsavedChanges);
+  window.addEventListener('beforeunload', alertUnsavedChanges);
 }
 
 //REVIEW STEP
@@ -228,25 +232,25 @@ function updateUploadStepUI(fileName) {
 // Function to generate the review table
 function generateReviewTable(stepBody) {
   // Clear existing table if it exists
-  const existingTable = stepBody.querySelector("table");
+  const existingTable = stepBody.querySelector('table');
   if (existingTable) {
     existingTable.remove();
   }
 
-  const table = document.createElement("table");
-  table.classList.add("table", "custom-table");
+  const table = document.createElement('table');
+  table.classList.add('table', 'custom-table');
 
   // Create table header
-  const thead = document.createElement("thead"); //header
-  const headerRow = document.createElement("tr");
+  const thead = document.createElement('thead'); //header
+  const headerRow = document.createElement('tr');
 
   // create the header row columns
-  const header1 = document.createElement("th");
-  header1.textContent = "Column label";
-  const header2 = document.createElement("th");
-  header2.textContent = "Data samples";
-  const header3 = document.createElement("th");
-  header3.textContent = "Data type";
+  const header1 = document.createElement('th');
+  header1.textContent = 'Column label';
+  const header2 = document.createElement('th');
+  header2.textContent = 'Data samples';
+  const header3 = document.createElement('th');
+  header3.textContent = 'Data type';
 
   //append the row cells to the row, the row to the header, and the header to the table
   headerRow.appendChild(header1);
@@ -256,7 +260,7 @@ function generateReviewTable(stepBody) {
   table.appendChild(thead);
 
   // Create table body
-  const tbody = document.createElement("tbody");
+  const tbody = document.createElement('tbody');
   table.appendChild(tbody);
 
   //if the data type dropdowns had been configured already (i.e user accessed the review step via the back button in analyze step...)
@@ -264,37 +268,37 @@ function generateReviewTable(stepBody) {
     // Use saved dropdown state
     dropdownState.forEach(({ header, value }) => {
       //for each item in the dropdown state array...
-      const row = document.createElement("tr"); //create a row
+      const row = document.createElement('tr'); //create a row
 
-      const cell1 = document.createElement("td");
-      cell1.style.width = "25%";
+      const cell1 = document.createElement('td');
+      cell1.style.width = '25%';
       cell1.textContent = header; //the first column will contain the dropdown state header
       row.appendChild(cell1);
 
       // Data sample
-      const cell2 = document.createElement("td");
-      cell2.style.width = "50%";
+      const cell2 = document.createElement('td');
+      cell2.style.width = '50%';
       const samples = parsedCSVData
         .slice(0, 3)
-        .map((data) => data[header])
-        .join(", "); //get the first 3 rows, keep the values from the header that matches this loop, and join them together
+        .map(data => data[header])
+        .join(', '); //get the first 3 rows, keep the values from the header that matches this loop, and join them together
       cell2.textContent = samples;
       row.appendChild(cell2);
 
       // Data type dropdown
-      const cell3 = document.createElement("td");
-      cell3.style.width = "25%";
-      const select = document.createElement("select"); //third column will be a dropdown
-      select.classList.add("form-select", "data-type-dropdown");
+      const cell3 = document.createElement('td');
+      cell3.style.width = '25%';
+      const select = document.createElement('select'); //third column will be a dropdown
+      select.classList.add('form-select', 'data-type-dropdown');
       const options = [
-        "Categorical",
-        "Text string",
-        "Numerical",
-        "Date / Time",
+        'Categorical',
+        'Text string',
+        'Numerical',
+        'Date / Time',
       ]; //here are the options
-      options.forEach((option) => {
+      options.forEach(option => {
         //for each option...
-        const optionElement = document.createElement("option"); //create an item in the list
+        const optionElement = document.createElement('option'); //create an item in the list
         optionElement.value = option; //the item's value = the option name
         optionElement.textContent = option; //the item's textcontent = the option name
         select.appendChild(optionElement);
@@ -310,44 +314,44 @@ function generateReviewTable(stepBody) {
   } else if (parsedCSVData.length > 0) {
     const headers = Object.keys(parsedCSVData[0]); // use the keys from the 1st object in the array as the headers
 
-    headers.forEach((header) => {
+    headers.forEach(header => {
       //for each header
-      const row = document.createElement("tr"); //create a row
+      const row = document.createElement('tr'); //create a row
 
-      const cell1 = document.createElement("td");
-      cell1.style.width = "25%";
+      const cell1 = document.createElement('td');
+      cell1.style.width = '25%';
       cell1.textContent = header; //the first column will display the header
       row.appendChild(cell1);
 
       // Data sample
-      const cell2 = document.createElement("td");
-      cell2.style.width = "50%";
+      const cell2 = document.createElement('td');
+      cell2.style.width = '50%';
       const samples = parsedCSVData
         .slice(0, 3)
-        .map((data) => data[header])
-        .join(", "); //get the first three obj in the array, extract the data that matches the header, and display that data in the col
+        .map(data => data[header])
+        .join(', '); //get the first three obj in the array, extract the data that matches the header, and display that data in the col
       cell2.textContent = samples;
       row.appendChild(cell2);
 
       // Data type dropdown
-      const cell3 = document.createElement("td");
-      cell3.style.width = "25%";
-      const select = document.createElement("select"); //third row will be a dropdown
-      select.classList.add("form-select", "data-type-dropdown");
+      const cell3 = document.createElement('td');
+      cell3.style.width = '25%';
+      const select = document.createElement('select'); //third row will be a dropdown
+      select.classList.add('form-select', 'data-type-dropdown');
       const options = [
-        "Categorical",
-        "Text string",
-        "Numerical",
-        "Date / Time",
+        'Categorical',
+        'Text string',
+        'Numerical',
+        'Date / Time',
       ]; //here are the options
-      options.forEach((option) => {
+      options.forEach(option => {
         //for each option...
-        const optionElement = document.createElement("option"); //create a menu option
+        const optionElement = document.createElement('option'); //create a menu option
         optionElement.value = option;
         optionElement.textContent = option;
         select.appendChild(optionElement);
       });
-      select.addEventListener("change", function () {
+      select.addEventListener('change', function () {
         dataTypesToast(select.value);
       });
       cell3.appendChild(select);
@@ -356,7 +360,7 @@ function generateReviewTable(stepBody) {
       tbody.appendChild(row);
     });
   } else {
-    console.error("No data available for generating the review table.");
+    console.error('No data available for generating the review table.');
   }
 
   stepBody.appendChild(table);
@@ -365,14 +369,14 @@ function generateReviewTable(stepBody) {
 // Function to convert CSV string to an array of objects
 function csvToArray(csv) {
   // Split the CSV into lines and filter out any empty lines
-  const lines = csv.split("\n").filter((line) => line.trim() !== "");
+  const lines = csv.split('\n').filter(line => line.trim() !== '');
 
   // Split the first line into headers
-  const headers = lines[0].split(",");
+  const headers = lines[0].split(',');
 
   // Map the remaining lines to objects with keys from headers
-  const data = lines.slice(1).map((line) => {
-    const values = line.split(","); // Split each line into values
+  const data = lines.slice(1).map(line => {
+    const values = line.split(','); // Split each line into values
     let obj = {}; // Initialize an empty object
 
     // Assign each value to the corresponding header in the object
@@ -396,10 +400,10 @@ function readAndConvertCSV(file) {
     parsedCSVData = csvToArray(csv); // Convert CSV to array and store it globally
 
     // Log the parsed data for testing
-    console.log("Parsed CSV Data:", parsedCSVData);
+    console.log('Parsed CSV Data:', parsedCSVData);
 
     // Call generateReviewTable here to ensure it's called after parsing
-    generateReviewTable(document.getElementById("step-body"));
+    generateReviewTable(document.getElementById('step-body'));
   };
 
   // Read the file as a text string
@@ -409,23 +413,23 @@ function readAndConvertCSV(file) {
 // Function to initialize the "Review" step
 function initializeReviewStep() {
   // Clear step body content
-  const stepBody = document.getElementById("step-body");
-  stepBody.innerHTML = "";
+  const stepBody = document.getElementById('step-body');
+  stepBody.innerHTML = '';
 
   //clear the bottom panels
   const panelButtonContainer1 = document.getElementById(
-    "panel-button-container-1"
+    'panel-button-container-1'
   );
   const panelButtonContainer2 = document.getElementById(
-    "panel-button-container-2"
+    'panel-button-container-2'
   );
-  panelButtonContainer1.innerHTML = "";
+  panelButtonContainer1.innerHTML = '';
   panelButtonContainer2.innerHTML = `  <button id="restart-button" class="btn btn-secondary">Restart</button>
   <button id="analyze-button" class="btn btn-primary">Analyze</button>`;
 
   // Create the restart button and add to bottom panel
   const restartButton = document.getElementById('restart-button');
-  restartButton.addEventListener("click", () => {
+  restartButton.addEventListener('click', () => {
     location.reload();
   }); // a confirmation dialog will appear due to a function above
 
@@ -433,23 +437,22 @@ function initializeReviewStep() {
   setupAnalyzeStep();
 
   // Update stepper styling
-  const stepperUpload = document.getElementById("stepper-upload");
-  stepperUpload.classList.remove("stepper-primary");
-  const stepperReview = document.getElementById("stepper-review");
-  stepperReview.classList.add("stepper-primary");
+  const stepperUpload = document.getElementById('stepper-upload');
+  stepperUpload.classList.remove('stepper-primary');
+  const stepperReview = document.getElementById('stepper-review');
+  stepperReview.classList.add('stepper-primary');
 
   //Reset Analyze stepper button style in case you're coming back from Analyze
-  const stepperAnalyze = document.getElementById("stepper-analyze");
-  stepperAnalyze.classList.remove("stepper-primary");
-
+  const stepperAnalyze = document.getElementById('stepper-analyze');
+  stepperAnalyze.classList.remove('stepper-primary');
 
   //call fctn to delete any existing analysis objects in case you're coming back from Analyze
   deleteAllAnalysisObjects();
 
   // Create the accordion
-  const accordion = document.createElement("div");
-  accordion.classList.add("accordion", "w-100", "mb-3");
-  accordion.id = "dataTypeAccordion";
+  const accordion = document.createElement('div');
+  accordion.classList.add('accordion', 'w-100', 'mb-3');
+  accordion.id = 'dataTypeAccordion';
 
   accordion.innerHTML = `
     <div class="accordion-item mt-3">
@@ -485,9 +488,9 @@ function saveDropdownState() {
   dropdownState = []; //reset dropdown state to empty
 
   // Select all rows in the table body and iterate over each row
-  document.querySelectorAll("tbody tr").forEach((row) => {
+  document.querySelectorAll('tbody tr').forEach(row => {
     const header = row.children[0].textContent; // Get the text content of the first cell (header) in the current row
-    const dropdown = row.querySelector(".data-type-dropdown"); // Select the dropdown element within the current row
+    const dropdown = row.querySelector('.data-type-dropdown'); // Select the dropdown element within the current row
 
     // Add an object with the header and the selected dropdown value to the dropdownState array
     dropdownState.push({ header: header, value: dropdown.value });
@@ -496,9 +499,9 @@ function saveDropdownState() {
 
 //v1 won't really support any data other than Categorical. I want to notify our users about that
 function dataTypesToast(value) {
-  if (value !== "Categorical") {
-    const parentDiv = document.getElementById("toastContainer"); // Replace with your parent div ID
-    parentDiv.innerHTML = ""; // Clear any existing content
+  if (value !== 'Categorical') {
+    const parentDiv = document.getElementById('toastContainer'); // Replace with your parent div ID
+    parentDiv.innerHTML = ''; // Clear any existing content
 
     const toastHtml = `
             <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
@@ -516,7 +519,7 @@ function dataTypesToast(value) {
     parentDiv.innerHTML = toastHtml;
 
     // Initialize the toast using Bootstrap's JS API
-    const toastElement = parentDiv.querySelector(".toast");
+    const toastElement = parentDiv.querySelector('.toast');
     const toast = new bootstrap.Toast(toastElement);
     toast.show();
   }
@@ -529,12 +532,12 @@ class AnalysisObject {
   constructor() {
     //create a new empty object
     this.id = nextAnalysisId++; // Assign a unique ID that increments by 1 each time a new one is created
-    this.type = ""; // basic chart, comparison...
+    this.type = ''; // basic chart, comparison...
     this.usingThese = []; // the main column being processed
-    this.groupedBy = ""; // sometimes the data will be sliced by this column and displayed in the chart
+    this.groupedBy = ''; // sometimes the data will be sliced by this column and displayed in the chart
     this.filteredBy = []; // sometimes the data will be filtered by these values
     this.charts = []; // the array storing the charts created by the above parameters
-    this.label = ""; // Optional label for user naming
+    this.label = ''; // Optional label for user naming
   }
 
   //update the object and its parameters
@@ -554,13 +557,13 @@ class AnalysisObject {
   watchChanges() {
     //meant as a router that chooses what charts to produce depending on the inputs
     // Check if usingThese is not empty and analysisobject's type is 'generic'
-    if (this.usingThese.length > 0 && this.type === "simple") {
+    if (this.usingThese.length > 0 && this.type === 'simple') {
       this.addGenericCharts();
     }
     if (
       this.usingThese.length > 0 &&
-      this.type === "comparative" &&
-      this.groupedBy != ""
+      this.type === 'comparative' &&
+      this.groupedBy != ''
     ) {
       this.addClusteredCharts();
     }
@@ -569,7 +572,7 @@ class AnalysisObject {
   addGenericCharts() {
     //produces the data, labels and charts
     this.charts = []; // Clear any pre-existing charts before creating new ones
-    this.usingThese.forEach((value) => {
+    this.usingThese.forEach(value => {
       //iterates over each element in the this.usingThese array.
       // get the data we need to produce the chart
       const result = this.generateGenericDataArrayAndLabels(
@@ -586,7 +589,7 @@ class AnalysisObject {
       // Create and add the chart
       const newChart = new ChartObject(
         chartTitle,
-        "bar",
+        'bar',
         data,
         labels,
         percentagesCounts
@@ -641,7 +644,7 @@ class AnalysisObject {
         filteredCSVArray.push(item); // If it matches, add it to the filtered array
       }
     }
-    console.log("filtered csv array", filteredCSVArray);
+    console.log('filtered csv array', filteredCSVArray);
 
     // Count the occurrences of each unique value for the specified header
     let countMap = {}; // Initialize an empty object for counting
@@ -670,7 +673,7 @@ class AnalysisObject {
     for (let i = 0; i < keys.length; i++) {
       let key = keys[i]; // Get the current key
       let count = countMap[key]; // Get the count for the current key
-      let percentage = Math.round((count / totalCount) * 100); // Calculate the percentage
+      let percentage = Math.round(count / totalCount * 100); // Calculate the percentage
       let percentageCount = `${percentage}% (${count})`; //merge percentage and count - useful for data labels later
       data.push(percentage); // Add the percentage to the data array
       labels.push(key); // Add the key to the labels array
@@ -707,26 +710,26 @@ class AnalysisObject {
   // Function to render all chart objects
   prepChartContainer() {
     // Find the container where the cards will be appended
-    const stepBody = document.getElementById("step-body");
-    let cardsContainer = document.getElementById("cards-container");
+    const stepBody = document.getElementById('step-body');
+    let cardsContainer = document.getElementById('cards-container');
 
     if (cardsContainer) {
       //if the cards container was created in a previous call, empty it.
-      cardsContainer.innerHTML = "";
+      cardsContainer.innerHTML = '';
     } else {
       //if the cards container doesn't exist, create it within the stepbody div
-      cardsContainer = document.createElement("div");
-      cardsContainer.id = "cards-container";
+      cardsContainer = document.createElement('div');
+      cardsContainer.id = 'cards-container';
       stepBody.appendChild(cardsContainer);
     }
 
-    if (this.groupedBy === "") {
+    if (this.groupedBy === '') {
       // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
-      this.charts.forEach((chart) => {
+      this.charts.forEach(chart => {
         this.renderGenericChartInCard(chart);
       });
     } else {
-      this.charts.forEach((chart) => {
+      this.charts.forEach(chart => {
         this.renderClusteredChartInCard(chart);
       });
     }
@@ -736,33 +739,37 @@ class AnalysisObject {
   renderGenericChartInCard(chartObject) {
     //pass chartObject as an argument
     // Find the container where the cards will be appended
-    const container = document.getElementById("cards-container");
+    const container = document.getElementById('cards-container');
 
     // Create the card element
-    const card = document.createElement("div");
-    card.classList.add("card", "mt-4"); // Add Bootstrap card and margin classes
-    card.id = `advanced-${chartObject.title.replace(/ /g, '-')}`;     // Create the id based on the title, replacing spaces with hyphens
+    const card = document.createElement('div');
+    card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
+    card.id = `advanced-${chartObject.title.replace(/ /g, '-')}`; // Create the id based on the title, replacing spaces with hyphens
 
     // Create the card body element
-    const cardBody = document.createElement("div");
-    cardBody.classList.add("card-body");
+    const cardBody = document.createElement('div');
+    cardBody.classList.add('card-body');
 
     //create the options, title and filters rows and columns - append to body
-    const cardOptionsRow = document.createElement("div");
-    cardOptionsRow.className = "row";
-    const cardTitleRow = document.createElement("div");
-    cardTitleRow.className = "row";
-    const cardFiltersRow = document.createElement("div");
-    cardFiltersRow.className = "row";
+    const cardOptionsRow = document.createElement('div');
+    cardOptionsRow.className = 'row';
+    const cardTitleRow = document.createElement('div');
+    cardTitleRow.className = 'row';
+    const cardFiltersRow = document.createElement('div');
+    cardFiltersRow.className = 'row';
     cardBody.appendChild(cardOptionsRow);
     cardBody.appendChild(cardTitleRow);
     cardBody.appendChild(cardFiltersRow);
 
-    const cardOptionsColumn = document.createElement('div')
-    cardOptionsColumn.classList.add('col-12', 'd-flex', 'justify-content-end');
-    const cardTitleColumn = document.createElement('div')
+    const cardOptionsColumn = document.createElement('div');
+    cardOptionsColumn.classList.add(
+      'col-12',
+      'd-flex',
+      'justify-content-end'
+    );
+    const cardTitleColumn = document.createElement('div');
     cardTitleColumn.classList.add('col-12');
-    const cardFiltersColumn = document.createElement('div')
+    const cardFiltersColumn = document.createElement('div');
     cardFiltersColumn.classList.add('col-12');
     cardOptionsRow.appendChild(cardOptionsColumn);
     cardTitleRow.appendChild(cardTitleColumn);
@@ -775,17 +782,16 @@ class AnalysisObject {
     cardOptionsColumn.appendChild(chartButton);
 
     //create the bookmark button
-    
+
     const bookmarkButton = document.createElement('button');
     bookmarkButton.classList.add('btn', 'btn-secondary');
     const isCardBookmarked = bookmarks.some(id => obj.id === card.id);
     if (isCardBookmarked) {
       bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
-    }
-    else {
+    } else {
       bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
     }
-        cardOptionsColumn.appendChild(bookmarkButton);
+    cardOptionsColumn.appendChild(bookmarkButton);
 
     bookmarkButton.setAttribute('isActive', 'false');
     bookmarkButton.addEventListener('click', function () {
@@ -793,13 +799,14 @@ class AnalysisObject {
     });
 
     //create the title
-    const cardTitle = document.createElement("h5");
+    const cardTitle = document.createElement('h5');
     cardTitle.textContent = chartObject.title;
     cardTitleColumn.appendChild(cardTitle);
 
-
     //create filter badges as needed
-    const analysisObject = analysisObjects.find((obj) => obj.id === currentAnalysisId);
+    const analysisObject = analysisObjects.find(
+      obj => obj.id === currentAnalysisId
+    );
     const filters = analysisObject.filteredBy;
 
     for (let i = 0; i < filters.length; i++) {
@@ -807,12 +814,11 @@ class AnalysisObject {
       cardFilter.className = 'filter-badge'; // Apply the custom class
       cardFilter.textContent = filters[i].value;
       cardFiltersColumn.appendChild(cardFilter);
-
     }
 
     // Create the canvas element
-    const canvas = document.createElement("canvas");
-    canvas.style.width = "100%"; // Full width
+    const canvas = document.createElement('canvas');
+    canvas.style.width = '100%'; // Full width
 
     //calculate how many bars there will be and use that to calculate the canvas height
     canvas.style.height = `${100 + chartObject.data.length * 50}px`; //will be 100px if filters return no data and 125px if they return 1 bar
@@ -827,7 +833,7 @@ class AnalysisObject {
     container.appendChild(card);
 
     // Render the chart on the canvas
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
 
     new Chart(ctx, {
       //create a new chart using the properties of the chartObject being called as an argument in the function
@@ -850,7 +856,7 @@ class AnalysisObject {
 
   addClusteredCharts() {
     this.charts = []; // Clear existing charts
-    this.usingThese.forEach((value) => {
+    this.usingThese.forEach(value => {
       // Generate data, labels, and cluster labels for the clustered chart
       const result = this.generateClusteredDataArrayAndLabels(
         value,
@@ -867,7 +873,7 @@ class AnalysisObject {
       // Create and add the chart
       const newChart = new ChartObject(
         chartTitle,
-        "bar",
+        'bar',
         data,
         labels,
         percentagesCounts,
@@ -922,7 +928,7 @@ class AnalysisObject {
         filteredData.push(item);
       }
     }
-    console.log("Filtered data:", filteredData);
+    console.log('Filtered data:', filteredData);
 
     // Create a map to count occurrences for each group
     const groupCounts = {};
@@ -969,7 +975,7 @@ class AnalysisObject {
         let label = labels[j];
         let count = groupCounts[groupKey][label] || 0;
         let total = valueCounts[label];
-        let percentage = total > 0 ? Math.round((count / total) * 100) : 0;
+        let percentage = total > 0 ? Math.round(count / total * 100) : 0;
 
         groupData.push(percentage);
         groupPercentagesCounts.push(`${percentage}% (${count})`); // Concatenate percentage and count
@@ -990,32 +996,36 @@ class AnalysisObject {
   renderClusteredChartInCard(chartObject) {
     // Pass chartObject as an argument
     // Find the container where the cards will be appended
-    const container = document.getElementById("cards-container");
+    const container = document.getElementById('cards-container');
 
     // Create the card element
-    const card = document.createElement("div");
-    card.classList.add("card", "mt-4"); // Add Bootstrap card and margin classes
+    const card = document.createElement('div');
+    card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
 
     // Create the card body element
-    const cardBody = document.createElement("div");
-    cardBody.classList.add("card-body");
+    const cardBody = document.createElement('div');
+    cardBody.classList.add('card-body');
 
     //create the options, title and filters rows and columns - append to body
-    const cardOptionsRow = document.createElement("div");
-    cardOptionsRow.className = "row";
-    const cardTitleRow = document.createElement("div");
-    cardTitleRow.className = "row";
-    const cardFiltersRow = document.createElement("div");
-    cardFiltersRow.className = "row";
+    const cardOptionsRow = document.createElement('div');
+    cardOptionsRow.className = 'row';
+    const cardTitleRow = document.createElement('div');
+    cardTitleRow.className = 'row';
+    const cardFiltersRow = document.createElement('div');
+    cardFiltersRow.className = 'row';
     cardBody.appendChild(cardOptionsRow);
     cardBody.appendChild(cardTitleRow);
     cardBody.appendChild(cardFiltersRow);
 
-    const cardOptionsColumn = document.createElement('div')
-    cardOptionsColumn.classList.add('col-12', 'd-flex', 'justify-content-end');
-    const cardTitleColumn = document.createElement('div')
+    const cardOptionsColumn = document.createElement('div');
+    cardOptionsColumn.classList.add(
+      'col-12',
+      'd-flex',
+      'justify-content-end'
+    );
+    const cardTitleColumn = document.createElement('div');
     cardTitleColumn.classList.add('col-12');
-    const cardFiltersColumn = document.createElement('div')
+    const cardFiltersColumn = document.createElement('div');
     cardFiltersColumn.classList.add('col-12');
     cardOptionsRow.appendChild(cardOptionsColumn);
     cardTitleRow.appendChild(cardTitleColumn);
@@ -1039,12 +1049,14 @@ class AnalysisObject {
     });
 
     //create the title
-    const cardTitle = document.createElement("h5");
+    const cardTitle = document.createElement('h5');
     cardTitle.textContent = chartObject.title;
     cardTitleColumn.appendChild(cardTitle);
 
     //create filter badges as needed
-    const analysisObject = analysisObjects.find((obj) => obj.id === currentAnalysisId);
+    const analysisObject = analysisObjects.find(
+      obj => obj.id === currentAnalysisId
+    );
     const filters = analysisObject.filteredBy;
 
     for (let i = 0; i < filters.length; i++) {
@@ -1052,16 +1064,15 @@ class AnalysisObject {
       cardFilter.className = 'filter-badge'; // Apply the custom class
       cardFilter.textContent = filters[i].value;
       cardFiltersColumn.appendChild(cardFilter);
-
     }
 
     // Create the canvas element
-    const canvas = document.createElement("canvas");
-    canvas.style.width = "100%"; // Full width
+    const canvas = document.createElement('canvas');
+    canvas.style.width = '100%'; // Full width
 
     //calculate how many bars there will be and use that to calculate the canvas height
     let totalArrayValues = 0;
-    chartObject.data.forEach((subArray) => {
+    chartObject.data.forEach(subArray => {
       totalArrayValues += subArray.length;
     });
     canvas.style.height = `${100 + totalArrayValues * 25}px`; //will be 100px if filters return no data and 125px if they return 1 bar
@@ -1076,7 +1087,7 @@ class AnalysisObject {
     container.appendChild(card);
 
     // Render the chart on the canvas
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
 
     // Create the datasets for each cluster
     const datasets = chartObject.data.map((clusterData, index) => {
@@ -1095,7 +1106,7 @@ class AnalysisObject {
     });
 
     new Chart(ctx, {
-      type: "bar", // Use 'bar' type for horizontal bar chart
+      type: 'bar', // Use 'bar' type for horizontal bar chart
       data: {
         labels: chartObject.labels,
         datasets: datasets,
@@ -1115,7 +1126,7 @@ function createAnalysis() {
 
 // Function to update an existing AnalysisObject by ID
 function updateAnalysisById(id, updates) {
-  const analysis = analysisObjects.find((obj) => obj.id === id);
+  const analysis = analysisObjects.find(obj => obj.id === id);
   if (analysis) {
     // Apply updates only for the properties provided in the updates object
     const { type, usingThese, groupedBy, filteredBy, label } = updates;
@@ -1127,18 +1138,18 @@ function updateAnalysisById(id, updates) {
       label !== undefined ? label : analysis.label
     );
   } else {
-    console.error("AnalysisObject not found");
+    console.error('AnalysisObject not found');
   }
   console.log(analysis); // Log the  object to the console
 }
 
 // Function to delete an AnalysisObject by ID
 function deleteAnalysisObjectById(id) {
-  const index = analysisObjects.findIndex((obj) => obj.id === id);
+  const index = analysisObjects.findIndex(obj => obj.id === id);
   if (index !== -1) {
     analysisObjects.splice(index, 1); // Remove the object at the given index
   } else {
-    console.error("AnalysisObject not found");
+    console.error('AnalysisObject not found');
   }
 }
 
@@ -1161,7 +1172,6 @@ class ChartObject {
     this.borderColor = colorPalette[0]; //
     this.borderWidth = 1;
 
-
     this.barChartOptions = {
       plugins: {
         legend: {
@@ -1169,16 +1179,16 @@ class ChartObject {
         },
         // Change options for ALL labels of THIS CHART
         datalabels: {
-          color: "white",
-          anchor: "end",
-          align: "start",
+          color: 'white',
+          anchor: 'end',
+          align: 'start',
           formatter: (value, context) => {
             // Use percentagesCounts based on the index of the current data point
             return this.percentagesCounts[context.dataIndex];
           },
         },
       },
-      indexAxis: "y", // Make it a horizontal bar chart
+      indexAxis: 'y', // Make it a horizontal bar chart
       scales: {
         x: {
           // Make the data appear as percentages
@@ -1186,7 +1196,7 @@ class ChartObject {
           ticks: {
             callback: function (value) {
               // Format the x-axis ticks as percentages
-              return value.toFixed(0) + "%";
+              return value.toFixed(0) + '%';
             },
           },
         },
@@ -1205,7 +1215,7 @@ class ChartObject {
 
     this.clusteredBarChartOptions = {
       responsive: true,
-      indexAxis: "y", // Set to 'y' for horizontal bars
+      indexAxis: 'y', // Set to 'y' for horizontal bars
       scales: {
         x: {
           stacked: false, // Bars should not be stacked
@@ -1213,7 +1223,7 @@ class ChartObject {
             autoSkip: false, // Ensure all x-axis labels are visible
             callback: function (value) {
               // Format the x-axis ticks as percentages
-              return value.toFixed(0) + "%";
+              return value.toFixed(0) + '%';
             },
           },
         },
@@ -1231,9 +1241,9 @@ class ChartObject {
       plugins: {
         // Change options for ALL labels of THIS CHART
         datalabels: {
-          color: "white",
-          anchor: "end",
-          align: "start",
+          color: 'white',
+          anchor: 'end',
+          align: 'start',
           formatter: (value, context) => {
             // Use percentagesCounts array to get the correct label
             const datasetIndex = context.datasetIndex;
@@ -1242,7 +1252,7 @@ class ChartObject {
           },
         },
         legend: {
-          position: "top",
+          position: 'top',
         },
       },
     };
@@ -1252,19 +1262,19 @@ class ChartObject {
 // Function to create a new array to generate the filters dropdown
 function createCategoricalArray() {
   if (parsedCSVData.length === 0) {
-    console.error("No parsed CSV data available.");
+    console.error('No parsed CSV data available.');
     return [];
   }
 
   // Extract headers marked as "Categorical"
   const CategoricalHeaders = dropdownState
-    .filter((item) => item.value === "Categorical")
-    .map((item) => item.header);
+    .filter(item => item.value === 'Categorical')
+    .map(item => item.header);
 
   // Create a new array with unique values for each header marked as "Categorical"
-  const result = CategoricalHeaders.map((header) => {
+  const result = CategoricalHeaders.map(header => {
     const uniqueValues = [
-      ...new Set(parsedCSVData.map((item) => item[header])),
+      ...new Set(parsedCSVData.map(item => item[header])),
     ];
     return {
       [header]: uniqueValues,
@@ -1272,7 +1282,7 @@ function createCategoricalArray() {
   });
 
   // Log the result for debugging
-  console.log("Categorical Array:", result);
+  console.log('Categorical Array:', result);
 
   // Update the global CategoricalArray
   CategoricalArray = result;
@@ -1282,16 +1292,16 @@ function createCategoricalArray() {
 
 // new function to clear and uppdate the stepper body with analysis options
 function displayAnalysisOptions() {
-  const stepBody = document.getElementById("step-body");
+  const stepBody = document.getElementById('step-body');
   stepBody.classList.remove('mt-2');
   stepBody.classList.add('mt-5');
   // Clear any existing content
-  stepBody.innerHTML = "";
+  stepBody.innerHTML = '';
 
   // Create the "i want to text", col and row
-  const analysisOptionTextRow = document.createElement("div");
-  analysisOptionTextRow.classList.add("row");
-  analysisOptionTextRow.id = "analysis-option-text-row";
+  const analysisOptionTextRow = document.createElement('div');
+  analysisOptionTextRow.classList.add('row');
+  analysisOptionTextRow.id = 'analysis-option-text-row';
   const analysisOptionTextColumn = document.createElement('div');
   analysisOptionTextColumn.classList.add('col-12');
   const analysisOptionText = document.createElement('h5');
@@ -1301,38 +1311,43 @@ function displayAnalysisOptions() {
   stepBody.appendChild(analysisOptionTextRow);
 
   // Create the analysis option cards, cols, and row
-  const analysisOptionCardsRow = document.createElement("div");
-  analysisOptionCardsRow.classList.add("row");
-  analysisOptionCardsRow.id = "analysis-options-cards-row";
+  const analysisOptionCardsRow = document.createElement('div');
+  analysisOptionCardsRow.classList.add('row');
+  analysisOptionCardsRow.id = 'analysis-options-cards-row';
 
   // Helper function to create a card in a column
   function createCardInCol(cardID, column, title, description, iconHTML) {
-    const card = document.createElement("button");
+    const card = document.createElement('button');
     card.classList.add(
-      "card", "h-100", "border-0", "shadow-sm", "rounded-3", 'card-hover'
+      'card',
+      'h-100',
+      'border-0',
+      'shadow-sm',
+      'rounded-3',
+      'card-hover'
     );
-    card.style.margin = "10px"; // Add some margin for spacing
+    card.style.margin = '10px'; // Add some margin for spacing
     card.id = cardID;
 
     // Card body
-    const cardBody = document.createElement("div");
-    cardBody.classList.add("card-body", "text-start");
+    const cardBody = document.createElement('div');
+    cardBody.classList.add('card-body', 'text-start');
 
     // Add the icon
-    const iconContainer = document.createElement("div");
-    iconContainer.classList.add("mb-2");
+    const iconContainer = document.createElement('div');
+    iconContainer.classList.add('mb-2');
     iconContainer.innerHTML = iconHTML;
     cardBody.appendChild(iconContainer);
 
     // Add the title
-    const titleDiv = document.createElement("h5");
-    titleDiv.classList.add("card-title");
+    const titleDiv = document.createElement('h5');
+    titleDiv.classList.add('card-title');
     titleDiv.textContent = title;
     cardBody.appendChild(titleDiv);
 
     // Add the description
-    const descriptionDiv = document.createElement("p");
-    descriptionDiv.classList.add("card-text");
+    const descriptionDiv = document.createElement('p');
+    descriptionDiv.classList.add('card-text');
     descriptionDiv.textContent = description;
     cardBody.appendChild(descriptionDiv);
 
@@ -1346,43 +1361,60 @@ function displayAnalysisOptions() {
   // Create the simple analysis column and card
   const analysisOptionCardBasicCol = document.createElement('div');
   analysisOptionCardBasicCol.classList.add('col-12', 'col-sm-4', 'mb-2');
-  createCardInCol('simple-analysis-option', analysisOptionCardBasicCol, "Simple Analysis", "Summarize and filter data within a single category.", '<i class="fas fa-chart-bar"></i>');
+  createCardInCol(
+    'simple-analysis-option',
+    analysisOptionCardBasicCol,
+    'Simple Analysis',
+    'Summarize and filter data within a single category.',
+    '<i class="fas fa-chart-bar"></i>'
+  );
 
   // Create the comparative analysis column and card
   const analysisOptionCardCompareCol = document.createElement('div');
   analysisOptionCardCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2');
-  createCardInCol('comparative-analysis-option', analysisOptionCardCompareCol, "Comparative Analysis", "Compare and contrast data across multiple categories.", '<i class="fas fa-table"></i>');
+  createCardInCol(
+    'comparative-analysis-option',
+    analysisOptionCardCompareCol,
+    'Comparative Analysis',
+    'Compare and contrast data across multiple categories.',
+    '<i class="fas fa-table"></i>'
+  );
 
   // Create the trend analysis column and card
   const analysisOptionCardTrendCol = document.createElement('div');
   analysisOptionCardTrendCol.classList.add('col-12', 'col-sm-4', 'mb-2');
-  const trendCard = document.createElement("div");
+  const trendCard = document.createElement('div');
   trendCard.classList.add(
-    "card", "h-100", "border-0", "shadow-sm", "rounded-3"
+    'card',
+    'h-100',
+    'border-0',
+    'shadow-sm',
+    'rounded-3'
   );
   trendCard.style.backgroundColor = '#ececec';
-  trendCard.style.margin = "10px";
+  trendCard.style.margin = '10px';
 
   // trendcard body
-  const trendCardBody = document.createElement("div");
-  trendCardBody.classList.add("card-body", "text-start");
+  const trendCardBody = document.createElement('div');
+  trendCardBody.classList.add('card-body', 'text-start');
 
   // Add the trendcard icon
-  const trendIconContainer = document.createElement("div");
-  trendIconContainer.classList.add("mb-2");
-  trendIconContainer.innerHTML = '<i class="fas fa-chart-line"></i><span class="badge" style="background-color: #f4b400; margin-left:0.2rem; color: white; font-size: 0.875rem;">Coming Soon!</span>';
+  const trendIconContainer = document.createElement('div');
+  trendIconContainer.classList.add('mb-2');
+  trendIconContainer.innerHTML =
+    '<i class="fas fa-chart-line"></i><span class="badge" style="background-color: #f4b400; margin-left:0.2rem; color: white; font-size: 0.875rem;">Coming Soon!</span>';
   trendCardBody.appendChild(trendIconContainer);
 
   // Add the trendcard title
-  const TrendTitleDiv = document.createElement("h5");
-  TrendTitleDiv.classList.add("card-title");
-  TrendTitleDiv.textContent = "Trend Analysis";
+  const TrendTitleDiv = document.createElement('h5');
+  TrendTitleDiv.classList.add('card-title');
+  TrendTitleDiv.textContent = 'Trend Analysis';
   trendCardBody.appendChild(TrendTitleDiv);
 
   // Add the trendcard description
-  const trendDescriptionDiv = document.createElement("p");
-  trendDescriptionDiv.classList.add("card-text");
-  trendDescriptionDiv.textContent = "Uncover patterns and changes over time.";
+  const trendDescriptionDiv = document.createElement('p');
+  trendDescriptionDiv.classList.add('card-text');
+  trendDescriptionDiv.textContent = 'Uncover patterns and changes over time.';
   trendCardBody.appendChild(trendDescriptionDiv);
 
   // Append the trend card body to the card
@@ -1403,21 +1435,21 @@ function displayAnalysisOptions() {
   simpleCard.addEventListener('click', function () {
     handleIWantTo('simple');
   });
-  const comparativeCard = document.getElementById('comparative-analysis-option');
-  comparativeCard.addEventListener("click", function () {
+  const comparativeCard = document.getElementById(
+    'comparative-analysis-option'
+  );
+  comparativeCard.addEventListener('click', function () {
     handleIWantTo('comparative');
   });
-
 }
 
 // Handle the select change event
 function handleIWantTo(event) {
-
-  const stepBody = document.getElementById("step-body");
+  const stepBody = document.getElementById('step-body');
   stepBody.classList.remove('mt-5');
   stepBody.classList.add('mt-2');
   // Clear any existing content
-  stepBody.innerHTML = "";
+  stepBody.innerHTML = '';
 
   //create the back to start button, row and col
   const backRow = document.createElement('div');
@@ -1426,7 +1458,8 @@ function handleIWantTo(event) {
   backCol.classList.add('col-12');
   const backButton = document.createElement('button');
   backButton.classList.add('btn', 'btn-tertiary', 'text-muted');
-  backButton.innerHTML = ' <i class="fas fa-arrow-left" style="padding-right:0.2rem"></i> Back to types';
+  backButton.innerHTML =
+    ' <i class="fas fa-arrow-left" style="padding-right:0.2rem"></i> Back to types';
 
   backCol.appendChild(backButton);
   backRow.appendChild(backCol);
@@ -1434,30 +1467,28 @@ function handleIWantTo(event) {
 
   backButton.addEventListener('click', displayAnalysisOptions);
 
-
   // Create the container div and set its class
-  const promptRow = document.createElement("div");
-  promptRow.classList.add("row");
-  promptRow.id = "prompt-row";
+  const promptRow = document.createElement('div');
+  promptRow.classList.add('row');
+  promptRow.id = 'prompt-row';
   promptRow.style.margin = '1rem';
 
   // Create four  column divs for the dropdowns and set their class
-  const typeColumn = document.createElement("div");
-  typeColumn.id = "type-colum";
-  typeColumn.classList.add("col-12", "col-sm-6", "col-md-4");
+  const typeColumn = document.createElement('div');
+  typeColumn.id = 'type-colum';
+  typeColumn.classList.add('col-12', 'col-sm-6', 'col-md-4');
 
-  const usingColumn = document.createElement("div");
-  usingColumn.id = "using-column";
-  usingColumn.classList.add("col-12", "col-sm-6", "col-md-4");
+  const usingColumn = document.createElement('div');
+  usingColumn.id = 'using-column';
+  usingColumn.classList.add('col-12', 'col-sm-6', 'col-md-4');
 
-  const groupColumn = document.createElement("div");
-  groupColumn.id = "group-column";
+  const groupColumn = document.createElement('div');
+  groupColumn.id = 'group-column';
   //no class for now. just keep empty
 
-  const filterColumn = document.createElement("div");
-  filterColumn.id = "filter-column";
-  filterColumn.classList.add("col-12", "col-sm-6", "col-md-4");
-
+  const filterColumn = document.createElement('div');
+  filterColumn.id = 'filter-column';
+  filterColumn.classList.add('col-12', 'col-sm-6', 'col-md-4');
 
   // Append the col divs to the rowdiv
   promptRow.appendChild(typeColumn);
@@ -1469,52 +1500,52 @@ function handleIWantTo(event) {
   stepBody.appendChild(promptRow);
 
   // Create the i want text
-  const iWantText = document.createElement("span");
-  iWantText.id = "i-want-to-text";
-  iWantText.textContent = "I want to perform a...";
+  const iWantText = document.createElement('span');
+  iWantText.id = 'i-want-to-text';
+  iWantText.textContent = 'I want to perform a...';
 
   // Create the i want menu container
-  const iWantdropdownContainer = document.createElement("div");
-  iWantdropdownContainer.id = "i-want-to-dropdown-container";
-  iWantdropdownContainer.classList.add("dropdown");
+  const iWantdropdownContainer = document.createElement('div');
+  iWantdropdownContainer.id = 'i-want-to-dropdown-container';
+  iWantdropdownContainer.classList.add('dropdown');
 
   // Create the i want button
-  const iWantSelect = document.createElement("button");
+  const iWantSelect = document.createElement('button');
   iWantSelect.classList.add(
-    "btn",
+    'btn',
     'truncate-btn',
-    "btn-secondary",
-    "form-select",
-    "data-type-dropdown"
+    'btn-secondary',
+    'form-select',
+    'data-type-dropdown'
   );
-  iWantSelect.type = "button";
-  iWantSelect.style.width = "100%";
+  iWantSelect.type = 'button';
+  iWantSelect.style.width = '100%';
   iWantSelect.style.fontSize = '0.9rem';
-  iWantSelect.textContent = "make a selection";
-  iWantSelect.style.textAlign = "left";
-  iWantSelect.id = "i-want-to-dropdown";
-  iWantSelect.setAttribute("data-bs-toggle", "dropdown");
-  iWantSelect.setAttribute("aria-expanded", "false");
+  iWantSelect.textContent = 'make a selection';
+  iWantSelect.style.textAlign = 'left';
+  iWantSelect.id = 'i-want-to-dropdown';
+  iWantSelect.setAttribute('data-bs-toggle', 'dropdown');
+  iWantSelect.setAttribute('aria-expanded', 'false');
 
   // Create the options menu
-  const iWantMenu = document.createElement("ul");
-  iWantMenu.classList.add("dropdown-menu");
+  const iWantMenu = document.createElement('ul');
+  iWantMenu.classList.add('dropdown-menu');
 
   // Populate the new dropdown with types of comparisons
 
-  const simpleListItem = document.createElement("li");
-  const simpleListAnchor = document.createElement("a");
-  simpleListAnchor.classList.add("dropdown-item");
-  const simpleListAnchorText = document.createElement("label");
-  simpleListAnchorText.textContent = "simple analysis";
-  simpleListAnchor.setAttribute("data-value", "simple");
+  const simpleListItem = document.createElement('li');
+  const simpleListAnchor = document.createElement('a');
+  simpleListAnchor.classList.add('dropdown-item');
+  const simpleListAnchorText = document.createElement('label');
+  simpleListAnchorText.textContent = 'simple analysis';
+  simpleListAnchor.setAttribute('data-value', 'simple');
 
-  const compareListItem = document.createElement("li");
-  const compareListAnchor = document.createElement("a");
-  compareListAnchor.classList.add("dropdown-item");
-  const compareListAnchorText = document.createElement("label");
-  compareListAnchorText.textContent = "comparative analysis";
-  compareListAnchor.setAttribute("data-value", "comparative");
+  const compareListItem = document.createElement('li');
+  const compareListAnchor = document.createElement('a');
+  compareListAnchor.classList.add('dropdown-item');
+  const compareListAnchorText = document.createElement('label');
+  compareListAnchorText.textContent = 'comparative analysis';
+  compareListAnchor.setAttribute('data-value', 'comparative');
 
   //append options to menu
   simpleListAnchor.appendChild(simpleListAnchorText);
@@ -1533,10 +1564,8 @@ function handleIWantTo(event) {
   typeColumn.appendChild(iWantText);
   typeColumn.appendChild(iWantdropdownContainer);
 
-
   // If the value of the select dropdown is "generic"...
-  if (event === "simple") {
-
+  if (event === 'simple') {
     // Update select.textContent
     iWantSelect.textContent = 'simple analysis';
 
@@ -1549,9 +1578,8 @@ function handleIWantTo(event) {
     createColumnDropdown();
     createFilterButton();
   }
-  if (event === "comparative") {
-
-    // Update select.textContent 
+  if (event === 'comparative') {
+    // Update select.textContent
     iWantSelect.textContent = 'comparative analysis';
 
     //show group column
@@ -1560,20 +1588,20 @@ function handleIWantTo(event) {
     }
 
     // Readjust column widths
-    typeColumn.classList.remove("col-md-6", "col-md-4");
-    typeColumn.classList.add("col-md-3");
+    typeColumn.classList.remove('col-md-6', 'col-md-4');
+    typeColumn.classList.add('col-md-3');
 
-    usingColumn.classList.remove("col-md-6", "col-md-4");
-    usingColumn.classList.add("col-md-3");
-    usingColumn.innerHTML = "";
+    usingColumn.classList.remove('col-md-6', 'col-md-4');
+    usingColumn.classList.add('col-md-3');
+    usingColumn.innerHTML = '';
 
-    groupColumn.classList.remove("col-md-6", "col-md-4");
-    groupColumn.classList.add("col-12", "col-sm-6", "col-md-3");
-    groupColumn.innerHTML = "";
+    groupColumn.classList.remove('col-md-6', 'col-md-4');
+    groupColumn.classList.add('col-12', 'col-sm-6', 'col-md-3');
+    groupColumn.innerHTML = '';
 
-    filterColumn.classList.remove("col-md-6", "col-md-4");
-    filterColumn.classList.add("col-md-3");
-    filterColumn.innerHTML = "";
+    filterColumn.classList.remove('col-md-6', 'col-md-4');
+    filterColumn.classList.add('col-md-3');
+    filterColumn.innerHTML = '';
 
     // Create and append the required dropdowns
     createColumnDropdown();
@@ -1585,23 +1613,23 @@ function handleIWantTo(event) {
   updateAnalysisById(currentAnalysisId, {
     type: event,
     usingThese: [],
-    groupedBy: "",
+    groupedBy: '',
     filteredBy: [],
   });
 
   //remove any previously existing chart cards from the body
-  let cardsContainer = document.getElementById("cards-container");
+  let cardsContainer = document.getElementById('cards-container');
 
   if (cardsContainer) {
-    cardsContainer.innerHTML = "";
+    cardsContainer.innerHTML = '';
   } else {
-    cardsContainer = document.createElement("div");
-    cardsContainer.id = "cards-container";
+    cardsContainer = document.createElement('div');
+    cardsContainer.id = 'cards-container';
     stepBody.appendChild(cardsContainer);
   }
 
-  iWantMenu.addEventListener("click", function (event) {
-    const target = event.target.closest("a.dropdown-item");
+  iWantMenu.addEventListener('click', function (event) {
+    const target = event.target.closest('a.dropdown-item');
     let analysisType = '';
     if (target.innerText === 'simple analysis') {
       analysisType = 'simple';
@@ -1616,54 +1644,54 @@ function handleIWantTo(event) {
 
 // function to Create the Using dropdown
 function createColumnDropdown() {
-  const usingColumn = document.getElementById("using-column");
+  const usingColumn = document.getElementById('using-column');
 
   // Create the span element for text
-  const span = document.createElement("span");
-  span.id = "using-these-values-text";
-  span.textContent = "Using these columns";
+  const span = document.createElement('span');
+  span.id = 'using-these-values-text';
+  span.textContent = 'Using these columns';
 
   // Create the menu container
-  const dropdownContainer = document.createElement("div");
-  dropdownContainer.classList.add("dropdown");
+  const dropdownContainer = document.createElement('div');
+  dropdownContainer.classList.add('dropdown');
 
   // Create the button
-  const columnSelect = document.createElement("button");
+  const columnSelect = document.createElement('button');
   columnSelect.classList.add(
-    "btn",
+    'btn',
     'truncate-btn',
-    "btn-secondary",
-    "form-select",
-    "data-type-dropdown"
+    'btn-secondary',
+    'form-select',
+    'data-type-dropdown'
   );
-  columnSelect.type = "button";
-  columnSelect.style.width = "100%";
+  columnSelect.type = 'button';
+  columnSelect.style.width = '100%';
   columnSelect.style.fontSize = '0.9rem';
-  columnSelect.textContent = "0 selected"; // Start with 0 selected
-  columnSelect.style.textAlign = "left"; // Align text to the left
-  columnSelect.id = "column-select";
+  columnSelect.textContent = '0 selected'; // Start with 0 selected
+  columnSelect.style.textAlign = 'left'; // Align text to the left
+  columnSelect.id = 'column-select';
 
-  columnSelect.setAttribute("data-bs-toggle", "dropdown");
-  columnSelect.setAttribute("aria-expanded", "false");
+  columnSelect.setAttribute('data-bs-toggle', 'dropdown');
+  columnSelect.setAttribute('aria-expanded', 'false');
 
   // Create the menu
-  const columnMenu = document.createElement("ul");
-  columnMenu.classList.add("dropdown-menu");
-  columnMenu.id = "using-these-list";
+  const columnMenu = document.createElement('ul');
+  columnMenu.classList.add('dropdown-menu');
+  columnMenu.id = 'using-these-list';
 
   // Populate the new dropdown with options from the saved dropdown state
   dropdownState.forEach(({ header, value }) => {
-    if (value === "Categorical") {
-      const columnListItem = document.createElement("li");
-      const columnListAnchor = document.createElement("a");
-      columnListAnchor.classList.add("dropdown-item");
-      const columnListInput = document.createElement("input");
-      columnListInput.type = "checkbox";
+    if (value === 'Categorical') {
+      const columnListItem = document.createElement('li');
+      const columnListAnchor = document.createElement('a');
+      columnListAnchor.classList.add('dropdown-item');
+      const columnListInput = document.createElement('input');
+      columnListInput.type = 'checkbox';
       columnListInput.id = header;
       columnListInput.value = header;
 
-      const columnListLabel = document.createElement("label");
-      columnListLabel.style.marginLeft = "10px";
+      const columnListLabel = document.createElement('label');
+      columnListLabel.style.marginLeft = '10px';
       columnListLabel.htmlFor = header;
       columnListLabel.textContent = header;
 
@@ -1673,7 +1701,7 @@ function createColumnDropdown() {
       columnMenu.appendChild(columnListItem);
 
       // Add event listener to update button text when checkbox is changed
-      columnListInput.addEventListener("change", () => {
+      columnListInput.addEventListener('change', () => {
         updateSelectedCount();
         updateUsingTheseArray();
       });
@@ -1689,23 +1717,18 @@ function createColumnDropdown() {
   usingColumn.appendChild(dropdownContainer);
 
   // Prevent dropdown menu from closing when clicking inside
-  columnMenu.addEventListener("click", function (event) {
+  columnMenu.addEventListener('click', function (event) {
     event.stopPropagation();
   });
-
-
-
-
-
 }
 // Update the text of the columnSelect button based on selected checkboxes
 function updateSelectedCount() {
-  const columnSelect = document.getElementById("column-select");
+  const columnSelect = document.getElementById('column-select');
   const checkboxes = document.querySelectorAll(
     '#column-select ~ .dropdown-menu input[type="checkbox"]'
   );
   const selectedCount = Array.from(checkboxes).filter(
-    (checkbox) => checkbox.checked
+    checkbox => checkbox.checked
   ).length;
   columnSelect.textContent = `${selectedCount} selected`;
 }
@@ -1716,63 +1739,63 @@ function updateUsingTheseArray() {
     document.querySelectorAll(
       '#column-select ~ .dropdown-menu input[type="checkbox"]:checked'
     )
-  ).map((checkbox) => checkbox.value);
+  ).map(checkbox => checkbox.value);
 
   // Find the current AnalysisObject and update its usingThese array
-  const analysis = analysisObjects.find((obj) => obj.id === currentAnalysisId);
+  const analysis = analysisObjects.find(obj => obj.id === currentAnalysisId);
   if (analysis) {
     analysis.usingThese = selectedValues;
     analysis.watchChanges();
     console.log(analysis);
   } else {
-    console.error("AnalysisObject not found");
+    console.error('AnalysisObject not found');
   }
 }
 
 // function to create the group by dropdown necessary for comparisons
 function createGroupByDropdown() {
-  const groupColumn = document.getElementById("group-column");
+  const groupColumn = document.getElementById('group-column');
 
   // Create the span element for text
-  const span = document.createElement("span");
-  span.id = "group-by-text";
-  span.textContent = "Compared by";
+  const span = document.createElement('span');
+  span.id = 'group-by-text';
+  span.textContent = 'Compared by';
 
   // Create the menu container
-  const dropdownContainer = document.createElement("div");
-  dropdownContainer.classList.add("dropdown");
+  const dropdownContainer = document.createElement('div');
+  dropdownContainer.classList.add('dropdown');
 
   // Create the button
-  const groupBySelect = document.createElement("button");
+  const groupBySelect = document.createElement('button');
   groupBySelect.classList.add(
-    "btn",
+    'btn',
     'truncate-btn',
-    "btn-secondary",
-    "form-select",
-    "data-type-dropdown"
+    'btn-secondary',
+    'form-select',
+    'data-type-dropdown'
   );
-  groupBySelect.type = "button";
-  groupBySelect.style.width = "100%";
+  groupBySelect.type = 'button';
+  groupBySelect.style.width = '100%';
   groupBySelect.style.fontSize = '0.9rem';
-  groupBySelect.textContent = "make a selection";
-  groupBySelect.style.textAlign = "left"; // Align text to the left
-  groupBySelect.id = "group-by-select";
-  groupBySelect.setAttribute("data-bs-toggle", "dropdown");
-  groupBySelect.setAttribute("aria-expanded", "false");
+  groupBySelect.textContent = 'make a selection';
+  groupBySelect.style.textAlign = 'left'; // Align text to the left
+  groupBySelect.id = 'group-by-select';
+  groupBySelect.setAttribute('data-bs-toggle', 'dropdown');
+  groupBySelect.setAttribute('aria-expanded', 'false');
 
   // Create the menu
-  const groupByMenu = document.createElement("ul");
-  groupByMenu.classList.add("dropdown-menu");
-  groupByMenu.id = "group-by-menu";
+  const groupByMenu = document.createElement('ul');
+  groupByMenu.classList.add('dropdown-menu');
+  groupByMenu.id = 'group-by-menu';
 
   // Populate the group by dropdown with columns that were typed as "Categorical"
   dropdownState.forEach(({ header, value }) => {
-    if (value === "Categorical") {
-      const groupByListItem = document.createElement("li");
-      const groupByListAnchor = document.createElement("a");
-      groupByListAnchor.classList.add("dropdown-item");
-      groupByListAnchor.setAttribute("data-value", "open");
-      const groupByListAnchorText = document.createElement("label");
+    if (value === 'Categorical') {
+      const groupByListItem = document.createElement('li');
+      const groupByListAnchor = document.createElement('a');
+      groupByListAnchor.classList.add('dropdown-item');
+      groupByListAnchor.setAttribute('data-value', 'open');
+      const groupByListAnchorText = document.createElement('label');
       groupByListAnchorText.textContent = header;
       groupByListAnchor.id = header;
 
@@ -1792,18 +1815,18 @@ function createGroupByDropdown() {
   groupColumn.appendChild(dropdownContainer);
 
   // Add event listener for selection change, which will call a cascade of functions
-  groupByMenu.addEventListener("click", handleGroupByChange);
+  groupByMenu.addEventListener('click', handleGroupByChange);
 }
 
 // Handle the group by change event
 function handleGroupByChange(event) {
-  const target = event.target.closest("a.dropdown-item");
+  const target = event.target.closest('a.dropdown-item');
   if (!target) return;
 
-  const groupBySelect = document.getElementById("group-by-select");
+  const groupBySelect = document.getElementById('group-by-select');
 
   // Update groupby menu to display the selected value
-  groupBySelect.textContent = target.querySelector("label").textContent;
+  groupBySelect.textContent = target.querySelector('label').textContent;
 
   //call the function that updates the analysis object's groupBy property
   updateGroupByValue();
@@ -1811,89 +1834,90 @@ function handleGroupByChange(event) {
 
 //function to update the analysis object with the selected groupBy value
 function updateGroupByValue() {
-  const selectedValue = document.getElementById("group-by-select").textContent;
+  const selectedValue = document.getElementById('group-by-select')
+    .textContent;
 
   // Find the current AnalysisObject and update its groupBy property
-  const analysis = analysisObjects.find((obj) => obj.id === currentAnalysisId);
+  const analysis = analysisObjects.find(obj => obj.id === currentAnalysisId);
   if (analysis) {
     analysis.groupedBy = selectedValue;
     analysis.watchChanges();
     console.log(analysis);
   } else {
-    console.error("AnalysisObject not found");
+    console.error('AnalysisObject not found');
   }
 }
 
 // function to Create the filter dropdown using the Categorical array
 function createFilterButton() {
   const CategoricalArray1 = CategoricalArray; // Call the function to get the array
-  const filterColumn = document.getElementById("filter-column");
+  const filterColumn = document.getElementById('filter-column');
 
   // Create the span element for text
-  const span = document.createElement("span");
-  span.id = "filtered-by-text";
-  span.textContent = "Filtered by";
+  const span = document.createElement('span');
+  span.id = 'filtered-by-text';
+  span.textContent = 'Filtered by';
 
   // Create the menu container
-  const dropdownContainer = document.createElement("div");
-  dropdownContainer.classList.add("dropdown");
+  const dropdownContainer = document.createElement('div');
+  dropdownContainer.classList.add('dropdown');
 
   // Create the button
-  const filterSelect = document.createElement("button");
+  const filterSelect = document.createElement('button');
   filterSelect.classList.add(
-    "btn",
+    'btn',
     'truncate-btn',
-    "btn-secondary",
-    "form-select",
-    "data-type-dropdown"
+    'btn-secondary',
+    'form-select',
+    'data-type-dropdown'
   );
-  filterSelect.type = "button";
-  filterSelect.style.width = "100%";
+  filterSelect.type = 'button';
+  filterSelect.style.width = '100%';
   filterSelect.style.fontSize = '0.9rem';
-  filterSelect.textContent = "0 selected"; // Start with 0 selected
-  filterSelect.style.textAlign = "left"; // Align text to the left
-  filterSelect.id = "filter-select";
-  filterSelect.setAttribute("data-bs-toggle", "dropdown");
-  filterSelect.setAttribute("aria-expanded", "false");
+  filterSelect.textContent = '0 selected'; // Start with 0 selected
+  filterSelect.style.textAlign = 'left'; // Align text to the left
+  filterSelect.id = 'filter-select';
+  filterSelect.setAttribute('data-bs-toggle', 'dropdown');
+  filterSelect.setAttribute('aria-expanded', 'false');
 
   // Create the menu
-  const filterMenu = document.createElement("ul");
-  filterMenu.classList.add("dropdown-menu");
-  filterMenu.id = "filtered-by-list";
+  const filterMenu = document.createElement('ul');
+  filterMenu.classList.add('dropdown-menu');
+  filterMenu.id = 'filtered-by-list';
 
   let itemToHeaderMap = new Map();
 
   // Populate the dropdown with headers and options
-  CategoricalArray1.forEach((group) => {
+  CategoricalArray1.forEach(group => {
     for (const [header, values] of Object.entries(group)) {
-      values.forEach((value) => {
+      values.forEach(value => {
         itemToHeaderMap.set(value, header);
       });
       // Create and append header
-      const headerItem = document.createElement("li");
-      headerItem.classList.add("dropdown-header");
+      const headerItem = document.createElement('li');
+      headerItem.classList.add('dropdown-header');
       headerItem.textContent = header;
       filterMenu.appendChild(headerItem);
 
       // Create and append divider
-      const divider = document.createElement("li");
-      divider.classList.add("dropdown-divider");
+      const divider = document.createElement('li');
+      divider.classList.add('dropdown-divider');
       filterMenu.appendChild(divider);
 
       // Create and append options
-      values.forEach((value) => {
-        const item = document.createElement("li");
-        item.classList.add("dropdown-item");
+      values.forEach(value => {
+        const item = document.createElement('li');
+        item.classList.add('dropdown-item');
 
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
         checkbox.id = value;
         checkbox.value = value;
 
-        const label = document.createElement("label");
+        const label = document.createElement('label');
         label.htmlFor = value;
         label.textContent = value;
-        label.style.marginLeft = "10px";
+        label.style.marginLeft = '10px';
 
         item.appendChild(checkbox);
         item.appendChild(label);
@@ -1901,7 +1925,7 @@ function createFilterButton() {
         filterMenu.appendChild(item);
 
         // Add event listener to update button text when checkbox is changed
-        item.addEventListener("change", () => {
+        item.addEventListener('change', () => {
           updateFilteredCount();
           updateFilteredArray();
         });
@@ -1915,7 +1939,7 @@ function createFilterButton() {
       document.querySelectorAll(
         '#filter-select ~ .dropdown-menu input[type="checkbox"]:checked'
       )
-    ).map((checkbox) => {
+    ).map(checkbox => {
       const value = checkbox.value;
       const header = itemToHeaderMap.get(value);
       return { header, value };
@@ -1923,14 +1947,14 @@ function createFilterButton() {
 
     // Find the current AnalysisObject and update its filteredBy array
     const analysis = analysisObjects.find(
-      (obj) => obj.id === currentAnalysisId
+      obj => obj.id === currentAnalysisId
     );
     if (analysis) {
       analysis.filteredBy = selectedValues;
       analysis.watchChanges();
       console.log(analysis);
     } else {
-      console.error("AnalysisObject not found");
+      console.error('AnalysisObject not found');
     }
   }
 
@@ -1942,19 +1966,19 @@ function createFilterButton() {
   filterColumn.appendChild(dropdownContainer);
 
   // Prevent dropdown menu from closing when clicking inside
-  filterMenu.addEventListener("click", function (event) {
+  filterMenu.addEventListener('click', function (event) {
     event.stopPropagation();
   });
 }
 
 // Update the text of the filterSelect button based on selected checkboxes
 function updateFilteredCount() {
-  const filterSelect = document.getElementById("filter-select");
+  const filterSelect = document.getElementById('filter-select');
   const checkboxes = document.querySelectorAll(
     '#filter-select ~ .dropdown-menu input[type="checkbox"]'
   );
   const filteredCount = Array.from(checkboxes).filter(
-    (checkbox) => checkbox.checked
+    checkbox => checkbox.checked
   ).length;
   filterSelect.textContent = `${filteredCount} selected`;
 }
@@ -1971,10 +1995,10 @@ function showConfirmationDialog(message, onConfirm) {
 // Function to initialize the back button listener, which takes the user back to the review step
 function InitializeReviewButtonListener() {
   // Add event listener to the back button
-  document.getElementById("review-button").addEventListener("click", () => {
+  document.getElementById('review-button').addEventListener('click', () => {
     // Define the confirmation message
     const message =
-      "Your analysis will be lost. Are you sure you want to continue?";
+      'Your analysis will be lost. Are you sure you want to continue?';
 
     // Call showConfirmationDialog with the message and a callback to initializeReviewStep
     showConfirmationDialog(message, initializeReviewStep);
@@ -1984,7 +2008,7 @@ function InitializeReviewButtonListener() {
 // Update the Bottom Panel buttons and
 function updateBottomPanel() {
   const panelButtonContainer2 = document.getElementById(
-    "panel-button-container-2"
+    'panel-button-container-2'
   );
   panelButtonContainer2.innerHTML = `
         <button id="review-button" class="btn btn-secondary">Review</button>
@@ -1995,17 +2019,19 @@ function updateBottomPanel() {
 
 // Function to setup the analaysis step
 function setupAnalyzeStep() {
-  const analyzeButton = document.getElementById("analyze-button");
-  analyzeButton.addEventListener("click", () => {
+  const analyzeButton = document.getElementById('analyze-button');
+  analyzeButton.addEventListener('click', () => {
     //save the review table's configuration into an array
     saveDropdownState();
 
     //adjust the steppers
     document
-      .getElementById("stepper-review")
-      .classList.remove("stepper-primary");
-    document.getElementById("stepper-analyze")
-    document.getElementById("stepper-analyze").classList.add("stepper-primary");
+      .getElementById('stepper-review')
+      .classList.remove('stepper-primary');
+    document.getElementById('stepper-analyze');
+    document
+      .getElementById('stepper-analyze')
+      .classList.add('stepper-primary');
 
     //update the step body. will keep as a separate function because this is going to be big
     //updateStepBody();
@@ -2028,15 +2054,15 @@ function handleBookmark(target) {
 
   //if bookmark is turned on...
   if (isActive === 'false') {
-
     bookmarkButton.setAttribute('isActive', 'true');
-    bookmarkButton.innerHTML = '<i style="color:white" class="fa-solid fa-bookmark"></i>'; //change the icon
+    bookmarkButton.innerHTML =
+      '<i style="color:white" class="fa-solid fa-bookmark"></i>'; //change the icon
     bookmarkButton.classList.remove('btn-secondary');
     bookmarkButton.classList.add('btn-primary');
 
     //success toast message
-    const toastDiv = document.getElementById("toastContainer"); // Replace with your parent div ID
-    toastDiv.innerHTML = ""; // Clear any existing content
+    const toastDiv = document.getElementById('toastContainer'); // Replace with your parent div ID
+    toastDiv.innerHTML = ''; // Clear any existing content
 
     const toastHtml = `
 <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
@@ -2052,20 +2078,14 @@ function handleBookmark(target) {
     toastDiv.innerHTML = toastHtml;
 
     // Initialize the toast using Bootstrap's JS API
-    const toastElement = toastDiv.querySelector(".toast");
+    const toastElement = toastDiv.querySelector('.toast');
     const toast = new bootstrap.Toast(toastElement);
     toast.show();
-
-
   }
   if (isActive === 'true') {
-
     bookmarkButton.setAttribute('isActive', 'false');
     bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
     bookmarkButton.classList.remove('btn-primary');
     bookmarkButton.classList.add('btn-secondary');
-
   }
-
-
 }
