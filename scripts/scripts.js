@@ -483,7 +483,7 @@ function parseCSVToArray(file) {
 
 
 
-// Function to save the state of the dropdowns - useful for Analysis step and triggered when click on Analyze
+// Function to save the state of the data type dropdowns - useful for Analysis step and triggered when click on Analyze
 function saveDataTypestoArray() {
   dropdownState = []; //reset dropdown state to empty
 
@@ -1310,8 +1310,6 @@ function setupAnalyzeStep() {
     document.getElementById('review-button').addEventListener('click', () => {
       initializeReviewStep();
     });
-
-
 
     // run the function that creates the Categorical array, which is needed for the filter panel
     createCategoricalArray();
