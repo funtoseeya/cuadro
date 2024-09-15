@@ -456,7 +456,7 @@ function initializeReviewStep() {
         <h2 class="accordion-header" id="headingOne">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
                 <i class="fa fa-info-circle me-2" aria-hidden="true"></i>
-                Select a data type for each of your CSV file's columns
+                Review the data types for each of your CSV file's columns
             </button>
         </h2>
         <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
