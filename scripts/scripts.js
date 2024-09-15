@@ -226,6 +226,79 @@ function updateUploadStepUI(fileName) {
 
 //REVIEW STEP
 
+// Function to initialize the "Review" step
+function initializeReviewStep() {
+  // Clear step body content
+  const stepBody = document.getElementById('step-body');
+  stepBody.innerHTML = '';
+
+  //clear the bottom panels
+  const panelButtonContainer1 = document.getElementById(
+    'panel-button-container-1'
+  );
+  const panelButtonContainer2 = document.getElementById(
+    'panel-button-container-2'
+  );
+  panelButtonContainer1.innerHTML = `<button id="restart-button" class="btn btn-secondary"><i class="fas fa-arrow-left" style="padding-right:0.2rem"></i>Restart</button>`;
+  panelButtonContainer2.innerHTML = `  
+  <button id="analyze-button" class="btn btn-primary">Analyze<i class="fas fa-arrow-right" style="padding-left:0.2rem"></i></button>`;
+
+  // Create the restart button and add to bottom panel
+  const restartButton = document.getElementById('restart-button');
+  restartButton.addEventListener('click', () => {
+    location.reload();
+  }); // a confirmation dialog will appear due to a function above
+
+  // Call to setup the analyze button listener
+  setupAnalyzeStep();
+
+  // Update stepper styling
+  const stepperUpload = document.getElementById('stepper-upload');
+  stepperUpload.classList.remove('stepper-primary');
+  const stepperReview = document.getElementById('stepper-review');
+  stepperReview.classList.add('stepper-primary');
+
+  //Reset Analyze stepper button style in case you're coming back from Analyze
+  const stepperAnalyze = document.getElementById('stepper-analyze');
+  stepperAnalyze.classList.remove('stepper-primary');
+
+  //call fctn to delete any existing analysis objects in case you're coming back from Analyze
+  deleteAllAnalysisObjects();
+
+  // Create the accordion
+  const accordion = document.createElement('div');
+  accordion.classList.add('accordion', 'w-100', 'mb-3');
+  accordion.id = 'dataTypeAccordion';
+
+  accordion.innerHTML = `
+    <div class="accordion-item mt-3">
+        <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                <i class="fa fa-info-circle me-2" aria-hidden="true"></i>
+                Review the data types for each of your CSV file's columns
+            </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
+            <div class="accordion-body">
+                Please take a minute to map your data. This will help us give you the best outputs for your needs.
+                <ul>
+                    <li><strong>Categorical (default):</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. </li>
+                    <li><strong>Text string:</strong> Use this for qualitative / open-ended fields (e.g., comments, names, descriptions). </li>
+                    <li><strong>Numerical:</strong> This is for any field containing numerical values. We will compute these by summing them, rather than counting them.</li>
+                                        <li><strong>Date / Time:</strong> This is for any field containing timestamps. This is especially useful for generating time-based comparisons, such as line charts and so on.</li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+`;
+
+  stepBody.appendChild(accordion);
+
+  //this triggers a cascade of functions...transform csv into array and generate the review table
+  parseCSVToArray(selectedFile);
+}
+
 // Function to generate the review table
 function generateReviewTable(stepBody) {
   // Clear existing table if it exists
@@ -349,7 +422,7 @@ function generateReviewTable(stepBody) {
         select.appendChild(optionElement);
       });
       select.addEventListener('change', function () {
-        dataTypesToast(select.value);
+        unsupportedDataTypesToast(select.value);
       });
       cell3.appendChild(select);
       row.appendChild(cell3);
@@ -363,32 +436,33 @@ function generateReviewTable(stepBody) {
   stepBody.appendChild(table);
 }
 
-// Function to convert CSV string to an array of objects
-function csvToArray(csv) {
-  // Split the CSV into lines and filter out any empty lines
-  const lines = csv.split('\n').filter(line => line.trim() !== '');
-
-  // Split the first line into headers
-  const headers = lines[0].split(',');
-
-  // Map the remaining lines to objects with keys from headers
-  const data = lines.slice(1).map(line => {
-    const values = line.split(','); // Split each line into values
-    let obj = {}; // Initialize an empty object
-
-    // Assign each value to the corresponding header in the object
-    headers.forEach((header, index) => {
-      obj[header.trim()] = values[index].trim(); // Trim any extra whitespace
-    });
-
-    return obj; // Return the constructed object
-  });
-
-  return data; // Return the array of objects
-}
 
 // Function to read a CSV file and convert it to an array
-function readAndConvertCSV(file) {
+function parseCSVToArray(file) {
+  // Function to convert CSV string to an array of objects
+  function csvToArray(csv) {
+    // Split the CSV into lines and filter out any empty lines
+    const lines = csv.split('\n').filter(line => line.trim() !== '');
+
+    // Split the first line into headers
+    const headers = lines[0].split(',');
+
+    // Map the remaining lines to objects with keys from headers
+    const data = lines.slice(1).map(line => {
+      const values = line.split(','); // Split each line into values
+      let obj = {}; // Initialize an empty object
+
+      // Assign each value to the corresponding header in the object
+      headers.forEach((header, index) => {
+        obj[header.trim()] = values[index].trim(); // Trim any extra whitespace
+      });
+
+      return obj; // Return the constructed object
+    });
+
+    return data; // Return the array of objects
+  }
+
   const reader = new FileReader(); // Create a new FileReader instance
 
   // Define what to do when the file is successfully read
@@ -407,81 +481,10 @@ function readAndConvertCSV(file) {
   reader.readAsText(file);
 }
 
-// Function to initialize the "Review" step
-function initializeReviewStep() {
-  // Clear step body content
-  const stepBody = document.getElementById('step-body');
-  stepBody.innerHTML = '';
 
-  //clear the bottom panels
-  const panelButtonContainer1 = document.getElementById(
-    'panel-button-container-1'
-  );
-  const panelButtonContainer2 = document.getElementById(
-    'panel-button-container-2'
-  );
-  panelButtonContainer1.innerHTML = `<button id="restart-button" class="btn btn-secondary"><i class="fas fa-arrow-left" style="padding-right:0.2rem"></i>Restart</button>`;
-  panelButtonContainer2.innerHTML = `  
-  <button id="analyze-button" class="btn btn-primary">Analyze<i class="fas fa-arrow-right" style="padding-left:0.2rem"></i></button>`;
-
-  // Create the restart button and add to bottom panel
-  const restartButton = document.getElementById('restart-button');
-  restartButton.addEventListener('click', () => {
-    location.reload();
-  }); // a confirmation dialog will appear due to a function above
-
-  // Call to setup the analyze button listener
-  setupAnalyzeStep();
-
-  // Update stepper styling
-  const stepperUpload = document.getElementById('stepper-upload');
-  stepperUpload.classList.remove('stepper-primary');
-  const stepperReview = document.getElementById('stepper-review');
-  stepperReview.classList.add('stepper-primary');
-
-  //Reset Analyze stepper button style in case you're coming back from Analyze
-  const stepperAnalyze = document.getElementById('stepper-analyze');
-  stepperAnalyze.classList.remove('stepper-primary');
-
-  //call fctn to delete any existing analysis objects in case you're coming back from Analyze
-  deleteAllAnalysisObjects();
-
-  // Create the accordion
-  const accordion = document.createElement('div');
-  accordion.classList.add('accordion', 'w-100', 'mb-3');
-  accordion.id = 'dataTypeAccordion';
-
-  accordion.innerHTML = `
-    <div class="accordion-item mt-3">
-        <h2 class="accordion-header" id="headingOne">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                <i class="fa fa-info-circle me-2" aria-hidden="true"></i>
-                Review the data types for each of your CSV file's columns
-            </button>
-        </h2>
-        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
-            <div class="accordion-body">
-                Please take a minute to map your data. This will help us give you the best outputs for your needs.
-                <ul>
-                    <li><strong>Categorical (default):</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. </li>
-                    <li><strong>Text string:</strong> Use this for qualitative / open-ended fields (e.g., comments, names, descriptions). </li>
-                    <li><strong>Numerical:</strong> This is for any field containing numerical values. We will compute these by summing them, rather than counting them.</li>
-                                        <li><strong>Date / Time:</strong> This is for any field containing timestamps. This is especially useful for generating time-based comparisons, such as line charts and so on.</li>
-
-                </ul>
-            </div>
-        </div>
-    </div>
-`;
-
-  stepBody.appendChild(accordion);
-
-  //this triggers a cascade of functions...transform csv into array and generate the review table
-  readAndConvertCSV(selectedFile);
-}
 
 // Function to save the state of the dropdowns - useful for Analysis step and triggered when click on Analyze
-function saveDropdownState() {
+function saveDataTypestoArray() {
   dropdownState = []; //reset dropdown state to empty
 
   // Select all rows in the table body and iterate over each row
@@ -495,7 +498,7 @@ function saveDropdownState() {
 }
 
 //v1 won't really support any data other than Categorical. I want to notify our users about that
-function dataTypesToast(value) {
+function unsupportedDataTypesToast(value) {
   if (value !== 'Categorical') {
     const parentDiv = document.getElementById('toastContainer'); // Replace with your parent div ID
     parentDiv.innerHTML = ''; // Clear any existing content
@@ -538,7 +541,7 @@ class AnalysisObject {
   }
 
   //update the object and its parameters
-  update(
+  updateAnalysisObject(
     type = this.type,
     usingThese = this.usingThese,
     groupedBy = this.groupedBy,
@@ -551,7 +554,7 @@ class AnalysisObject {
     this.filteredBy = filteredBy; //update the parameter to what's passed as an argument
     this.label = label; //update the parameter to what's passed as an argument
   }
-  watchChanges() {
+  beginChartGenerationProcess() {
     //meant as a router that chooses what charts to produce depending on the inputs
     // Check if usingThese is not empty and analysisobject's type is 'generic'
     if (this.usingThese.length > 0 && this.type === 'simple') {
@@ -1127,7 +1130,7 @@ class AnalysisObject {
 }
 
 // Function to create and add a new Analysis object
-function createAnalysis() {
+function createAnalysisObject() {
   const newAnalysis = new AnalysisObject();
   analysisObjects.push(newAnalysis);
   console.log(newAnalysis); // Log the new object to the console
@@ -1140,7 +1143,7 @@ function updateAnalysisById(id, updates) {
   if (analysis) {
     // Apply updates only for the properties provided in the updates object
     const { type, usingThese, groupedBy, filteredBy, label } = updates;
-    analysis.update(
+    analysis.updateAnalysisObject(
       type !== undefined ? type : analysis.type,
       usingThese !== undefined ? usingThese : analysis.usingThese,
       groupedBy !== undefined ? groupedBy : analysis.groupedBy,
@@ -1271,12 +1274,56 @@ class ChartObject {
   }
 }
 
+// Function to setup the analaysis step
+function setupAnalyzeStep() {
+  const analyzeButton = document.getElementById('analyze-button');
+  analyzeButton.addEventListener('click', () => {
+    //save the review table's configuration into an array
+    saveDataTypestoArray();
+
+    //adjust the steppers
+    document.getElementById('stepper-review').classList.remove('stepper-primary');
+    document.getElementById('stepper-analyze');
+    document.getElementById('stepper-analyze').classList.add('stepper-primary');
+
+    //create the bookmarks button
+    const TopNavButtonContainer = document.getElementById('top-nav-button-container');
+    TopNavButtonContainer.innerHTML = `  
+    <button id="bookmarks-button" class="btn btn-secondary"><i class="fa-solid fa-bookmark" style="color:var(--primary-light); padding-right:0.2rem"></i>Bookmarks</button>`;
+
+    //update the step body. will keep as a separate function because this is going to be big
+    //updateStepBody();
+    displayAnalysisOptions();
+
+    //update the bottom panel. will keep as a separate function because this is going to be big
+    const panelButtonContainer1 = document.getElementById(
+      'panel-button-container-1'
+    );
+    const panelButtonContainer2 = document.getElementById(
+      'panel-button-container-2'
+    );
+    panelButtonContainer1.innerHTML = `
+          <button id="review-button" class="btn btn-secondary"><i class="fas fa-arrow-left" style="padding-right:0.2rem"></i>Review</button>`;
+    panelButtonContainer2.innerHTML = '';
+
+    // Add event listener to the review button
+    document.getElementById('review-button').addEventListener('click', () => {
+      initializeReviewStep();
+    });
+
+
+
+    // run the function that creates the Categorical array, which is needed for the filter panel
+    createCategoricalArray();
+
+    //create a new analysis object
+    createAnalysisObject()
+  });
+}
+
+
 // Function to create a new array to generate the filters dropdown
 function createCategoricalArray() {
-  if (parsedCSVData.length === 0) {
-    console.error('No parsed CSV data available.');
-    return [];
-  }
 
   // Extract headers marked as "Categorical"
   const CategoricalHeaders = dropdownState
@@ -1587,7 +1634,7 @@ function handleIWantTo(event) {
     }
 
     // Create and append the required dropdowns
-    createColumnDropdown();
+    createUsingTheseDropdown();
     createFilterButton();
   }
   if (event === 'comparative') {
@@ -1616,7 +1663,7 @@ function handleIWantTo(event) {
     filterColumn.innerHTML = '';
 
     // Create and append the required dropdowns
-    createColumnDropdown();
+    createUsingTheseDropdown();
     createGroupByDropdown();
     createFilterButton();
   }
@@ -1655,7 +1702,7 @@ function handleIWantTo(event) {
 }
 
 // function to Create the Using dropdown
-function createColumnDropdown() {
+function createUsingTheseDropdown() {
   const usingColumn = document.getElementById('using-column');
 
   // Create the span element for text
@@ -1714,7 +1761,7 @@ function createColumnDropdown() {
 
       // Add event listener to update button text when checkbox is changed
       columnListInput.addEventListener('change', () => {
-        updateSelectedCount();
+        updateUsingTheseCount();
         updateUsingTheseArray();
       });
     }
@@ -1734,7 +1781,7 @@ function createColumnDropdown() {
   });
 }
 // Update the text of the columnSelect button based on selected checkboxes
-function updateSelectedCount() {
+function updateUsingTheseCount() {
   const columnSelect = document.getElementById('column-select');
   const checkboxes = document.querySelectorAll(
     '#column-select ~ .dropdown-menu input[type="checkbox"]'
@@ -1757,7 +1804,7 @@ function updateUsingTheseArray() {
   const analysis = analysisObjects.find(obj => obj.id === currentAnalysisId);
   if (analysis) {
     analysis.usingThese = selectedValues;
-    analysis.watchChanges();
+    analysis.beginChartGenerationProcess();
     console.log(analysis);
   } else {
     console.error('AnalysisObject not found');
@@ -1853,7 +1900,7 @@ function updateGroupByValue() {
   const analysis = analysisObjects.find(obj => obj.id === currentAnalysisId);
   if (analysis) {
     analysis.groupedBy = selectedValue;
-    analysis.watchChanges();
+    analysis.beginChartGenerationProcess();
     console.log(analysis);
   } else {
     console.error('AnalysisObject not found');
@@ -1963,7 +2010,7 @@ function createFilterButton() {
     );
     if (analysis) {
       analysis.filteredBy = selectedValues;
-      analysis.watchChanges();
+      analysis.beginChartGenerationProcess();
       console.log(analysis);
     } else {
       console.error('AnalysisObject not found');
@@ -1995,70 +2042,10 @@ function updateFilteredCount() {
   filterSelect.textContent = `${filteredCount} selected`;
 }
 
-// Function to show a confirmation dialog when they hit the back button, as it will delete all analyses
-function showConfirmationDialog(message, onConfirm) {
-  const confirmed = window.confirm(message);
-
-  if (confirmed) {
-    onConfirm();
-  }
-}
-
-// Function to initialize the back button listener, which takes the user back to the review step
-function InitializeReviewButtonListener() {
-  // Add event listener to the back button
-  document.getElementById('review-button').addEventListener('click', () => {
-    initializeReviewStep();
-  });
-}
-
-// Update the Bottom Panel buttons and
-function updateBottomPanel() {
-  const panelButtonContainer1 = document.getElementById(
-    'panel-button-container-1'
-  );
-  const panelButtonContainer2 = document.getElementById(
-    'panel-button-container-2'
-  );
-  panelButtonContainer1.innerHTML = `
-        <button id="review-button" class="btn btn-secondary"><i class="fas fa-arrow-left" style="padding-right:0.2rem"></i>Review</button>`;
-  panelButtonContainer2.innerHTML = '';
-  InitializeReviewButtonListener();
-}
-
-// Function to setup the analaysis step
-function setupAnalyzeStep() {
-  const analyzeButton = document.getElementById('analyze-button');
-  analyzeButton.addEventListener('click', () => {
-    //save the review table's configuration into an array
-    saveDropdownState();
-
-    //adjust the steppers
-    document.getElementById('stepper-review').classList.remove('stepper-primary');
-    document.getElementById('stepper-analyze');
-    document.getElementById('stepper-analyze').classList.add('stepper-primary');
-
-    //create the bookmarks button
-    const TopNavButtonContainer = document.getElementById('top-nav-button-container');
-    TopNavButtonContainer.innerHTML = `  
-    <button id="bookmarks-button" class="btn btn-secondary"><i class="fa-solid fa-bookmark" style="color:var(--primary-light); padding-right:0.2rem"></i>Bookmarks</button>`;
-    
 
 
-    //update the step body. will keep as a separate function because this is going to be big
-    //updateStepBody();
-    displayAnalysisOptions();
 
-    //update the bottom panel. will keep as a separate function because this is going to be big
-    updateBottomPanel();
 
-    // run the function that creates the Categorical array, which is needed for the filter panel
-    createCategoricalArray();
-
-    //create a new analysis object
-    createAnalysis();
-  });
-}
 
 function handleBookmark(target, chart) {
   const bookmarkButton = target;
@@ -2086,7 +2073,7 @@ function handleBookmark(target, chart) {
 <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
   <div class="toast border-0" style="background-color: #fff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 0.25rem;">
     <div class="toast-body bg-success text-white" style="border-radius: 0.25rem;">
-      <strong>Item successfully bookmarked for export!</strong>
+      <strong>Item successfully bookmarked!</strong>
     </div>
   </div>
 </div>
