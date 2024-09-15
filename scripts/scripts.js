@@ -98,12 +98,12 @@ function createUploadStepContent() {
 
   // Function to create and insert the Review button.
   function createReviewButton() {
-        // Insert the review button into the bottom panel
+    // Insert the review button into the bottom panel
     const panelButtonContainer2 = document.getElementById('panel-button-container-2');
     panelButtonContainer2.innerHTML = `  
     <button id="review-button" class="btn btn-primary disabled">Review<i class="fas fa-arrow-right" style="padding-left:0.2rem"></i></button>`;
-  
-    const reviewButton = document.getElementById('review-button'); 
+
+    const reviewButton = document.getElementById('review-button');
     reviewButton.addEventListener('click', initializeReviewStep);
   }
 
@@ -183,9 +183,9 @@ async function handleFileSelection(event) {
       }
 
       //check that all column headers are unique
-      const columnHeaderTitles = rows.length > 0 
-      ? rows[0].split(',').map(header => header.replace(/[\r\n]/g, '').trim()) // Remove \r \n and trim spaces
-      : []; 
+      const columnHeaderTitles = rows.length > 0
+        ? rows[0].split(',').map(header => header.replace(/[\r\n]/g, '').trim()) // Remove \r \n and trim spaces
+        : [];
       const hasDuplicates =
         new Set(columnHeaderTitles).size !== columnHeaderTitles.length;
 
@@ -212,7 +212,7 @@ function updateUploadStepUI(fileName) {
   // Clear existing content and append new content
   uploadContainer.innerHTML = `
         <i class="fa-solid fa-check" style="font-size: 2em;"></i>
-        <div style="margin-top: 20px; font-color:white"><strong>Upload successful!</strong> <br> ${fileName}</div>
+        <div style="margin-top: 20px;"><strong>Upload successful!</strong> <br> ${fileName}</div>
         <a class="btn btn-secondary" style="margin-top: 40px; cursor: pointer;" onclick="location.reload();">
         <i class="fa-solid fa-rotate-left" ></i> Restart</a>`;
 
@@ -735,7 +735,7 @@ class AnalysisObject {
     };
   }
 
-  
+
 
   // Function to create and render a chart in a Bootstrap card component and append to 'step-body'
   renderGenericChartInCard(chartObject) {
@@ -794,9 +794,9 @@ class AnalysisObject {
       bookmarkButton.setAttribute('isActive', 'false');
     }
     cardOptionsColumn.appendChild(bookmarkButton);
-    
+
     bookmarkButton.addEventListener('click', function () {
-      handleBookmark(bookmarkButton,chartObject);
+      handleBookmark(bookmarkButton, chartObject);
     });
 
     //create the title
@@ -1041,7 +1041,7 @@ class AnalysisObject {
     chartButton.textContent = 'Clusters';
     cardOptionsColumn.appendChild(chartButton);
 
- 
+
     //create the bookmark button and set whether it's active or not
     const bookmarkButton = document.createElement('button');
     bookmarkButton.classList.add('btn', 'btn-secondary');
@@ -1055,7 +1055,7 @@ class AnalysisObject {
     }
     cardOptionsColumn.appendChild(bookmarkButton);
     bookmarkButton.addEventListener('click', function () {
-      handleBookmark(bookmarkButton,chartObject);
+      handleBookmark(bookmarkButton, chartObject);
     });
 
     //create the title
@@ -1171,7 +1171,7 @@ function deleteAllAnalysisObjects() {
 
 // boilerplate for charts we create via the generic dropdown option.
 class ChartObject {
-  constructor(title,id,type, data, labels, percentagesCounts, clusterLabels) {
+  constructor(title, id, type, data, labels, percentagesCounts, clusterLabels) {
     this.title = title; // Title of the chart
     this.id = id;
     this.type = type; // Type of the chart (e.g., 'bar', 'line')
@@ -2022,7 +2022,7 @@ function updateBottomPanel() {
   );
   panelButtonContainer1.innerHTML = `
         <button id="review-button" class="btn btn-secondary"><i class="fas fa-arrow-left" style="padding-right:0.2rem"></i>Review</button>`;
-  panelButtonContainer2.innerHTML='';
+  panelButtonContainer2.innerHTML = '';
   InitializeReviewButtonListener();
 }
 
@@ -2034,13 +2034,16 @@ function setupAnalyzeStep() {
     saveDropdownState();
 
     //adjust the steppers
-    document
-      .getElementById('stepper-review')
-      .classList.remove('stepper-primary');
+    document.getElementById('stepper-review').classList.remove('stepper-primary');
     document.getElementById('stepper-analyze');
-    document
-      .getElementById('stepper-analyze')
-      .classList.add('stepper-primary');
+    document.getElementById('stepper-analyze').classList.add('stepper-primary');
+
+    //create the bookmarks button
+    const TopNavButtonContainer = document.getElementById('top-nav-button-container');
+    TopNavButtonContainer.innerHTML = `  
+    <button id="bookmarks-button" class="btn btn-secondary"><i class="fa-solid fa-bookmark" style="color:var(--primary-light); padding-right:0.2rem"></i>Bookmarks</button>`;
+    
+
 
     //update the step body. will keep as a separate function because this is going to be big
     //updateStepBody();
@@ -2057,12 +2060,12 @@ function setupAnalyzeStep() {
   });
 }
 
-function handleBookmark(target,chart) {
+function handleBookmark(target, chart) {
   const bookmarkButton = target;
   let isActive = bookmarkButton.getAttribute('isActive');
 
   //if bookmark is activated
-  if (isActive==='false') {
+  if (isActive === 'false') {
 
     //update the button
     bookmarkButton.setAttribute('isActive', 'true');
@@ -2070,9 +2073,9 @@ function handleBookmark(target,chart) {
       '<i style="color:white" class="fa-solid fa-bookmark"></i>'; //change the icon
     bookmarkButton.classList.remove('btn-secondary');
     bookmarkButton.classList.add('btn-primary');
-    
+
     //update chartobject and push to bookmarks array
-    chart.bookmarked=true;
+    chart.bookmarked = true;
     bookmarks.push(chart);
 
     //notify user with success toast message
@@ -2095,12 +2098,12 @@ function handleBookmark(target,chart) {
     const toast = new bootstrap.Toast(toastElement);
     toast.show();
 
-    console.log('bookmarks: ',bookmarks);
+    console.log('bookmarks: ', bookmarks);
   }
-    
-  
+
+
   //if bookmark is deactivated
-  if (isActive==='true') {
+  if (isActive === 'true') {
 
     //update the button
     bookmarkButton.setAttribute('isActive', 'false');
@@ -2108,16 +2111,16 @@ function handleBookmark(target,chart) {
     bookmarkButton.classList.remove('btn-primary');
     bookmarkButton.classList.add('btn-secondary');
 
-        //update chartobject and remove from bookmarks array
-        chart.bookmarked=false;
-        
-        function removeFromArray(arr, id) {
-          const index = arr.findIndex(obj => obj.id === id);  // Find the index of the object
-          if (index !== -1) {
-            arr.splice(index, 1);  // Remove the object at that index
-          }
-        }
-        removeFromArray(bookmarks,chart.id);
-console.log('bookmarks: ',bookmarks);
+    //update chartobject and remove from bookmarks array
+    chart.bookmarked = false;
+
+    function removeFromArray(arr, id) {
+      const index = arr.findIndex(obj => obj.id === id);  // Find the index of the object
+      if (index !== -1) {
+        arr.splice(index, 1);  // Remove the object at that index
+      }
+    }
+    removeFromArray(bookmarks, chart.id);
+    console.log('bookmarks: ', bookmarks);
   }
 }

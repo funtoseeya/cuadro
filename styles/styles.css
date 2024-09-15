@@ -2,12 +2,12 @@
 :root {
  /*mod*/
  --primary: #264653;
- --secondary: #4d7382;
+ --secondary: #92b6c4;
  --primary-color: #264653;
  --primary-dark: #19333d;
  --primary-light: #6d94a4;
- --secondary-color: #4d7382;
- --tertiary-color: #6d94a4;
+ --secondary-color: #92b6c4;
+ --tertiary-color: #92b6c4;
  --background-color: white;
  --text-color: #081c15;
 
@@ -60,6 +60,12 @@ body {
   /*mod*/
   background-color: var(--tertiary-color) !important;
   color: var(--text-color);
+}
+
+.btn-success:hover {
+
+  background-color: var(--bs-success-light) !important;
+  color:white;
 }
 
 .btn-secondary {
