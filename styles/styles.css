@@ -1,13 +1,13 @@
 /* mod bootstrap*/
 :root {
  /*mod*/
- --primary: #2d6a4f;
- --secondary: #52b788;
- --primary-color: #2d6a4f;
- --primary-dark: #1b4332;
- --primary-light: #337959;
- --secondary-color: #52b788;
- --tertiary-color: #95d5b2;
+ --primary: #264653;
+ --secondary: #4d7382;
+ --primary-color: #264653;
+ --primary-dark: #19333d;
+ --primary-light: #6d94a4;
+ --secondary-color: #4d7382;
+ --tertiary-color: #6d94a4;
  --background-color: white;
  --text-color: #081c15;
 

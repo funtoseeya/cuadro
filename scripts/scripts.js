@@ -212,7 +212,7 @@ function updateUploadStepUI(fileName) {
   // Clear existing content and append new content
   uploadContainer.innerHTML = `
         <i class="fa-solid fa-check" style="font-size: 2em;"></i>
-        <div style="margin-top: 20px;"><strong>Upload successful!</strong> <br> ${fileName}</div>
+        <div style="margin-top: 20px; font-color:white"><strong>Upload successful!</strong> <br> ${fileName}</div>
         <a class="btn btn-secondary" style="margin-top: 40px; cursor: pointer;" onclick="location.reload();">
         <i class="fa-solid fa-rotate-left" ></i> Restart</a>`;
 
