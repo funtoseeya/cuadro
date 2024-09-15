@@ -836,7 +836,7 @@ class AnalysisObject {
     // Render the chart on the canvas
     const ctx = canvas.getContext('2d');
 
-    new Chart(ctx, {
+    new Chart(ctx, { //new chart in canvas
       //create a new chart using the properties of the chartObject being called as an argument in the function
       type: chartObject.type,
       data: {
@@ -1115,7 +1115,7 @@ class AnalysisObject {
       };
     });
 
-    new Chart(ctx, {
+    new Chart(ctx, { //new chart in canvas
       type: 'bar', // Use 'bar' type for horizontal bar chart
       data: {
         labels: chartObject.labels,
