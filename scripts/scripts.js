@@ -98,16 +98,13 @@ function createUploadStepContent() {
 
   // Function to create and insert the Review button.
   function createReviewButton() {
-    // Create the button element
-    const button = document.createElement('button');
-    button.id = 'review-button';
-    button.className = 'btn btn-primary disabled'; // disabled by default
-    button.textContent = 'Review';
-
-    // Insert the review button into the bottom panel
-    const container = document.getElementById('panel-button-container-2');
-    container.appendChild(button);
-    button.addEventListener('click', initializeReviewStep);
+        // Insert the review button into the bottom panel
+    const panelButtonContainer2 = document.getElementById('panel-button-container-2');
+    panelButtonContainer2.innerHTML = `  
+    <button id="review-button" class="btn btn-primary disabled">Review<i class="fas fa-arrow-right" style="padding-left:0.2rem"></i></button>`;
+  
+    const reviewButton = document.getElementById('review-button'); 
+    reviewButton.addEventListener('click', initializeReviewStep);
   }
 
   // create the review button
@@ -423,9 +420,9 @@ function initializeReviewStep() {
   const panelButtonContainer2 = document.getElementById(
     'panel-button-container-2'
   );
-  panelButtonContainer1.innerHTML = '';
-  panelButtonContainer2.innerHTML = `  <button id="restart-button" class="btn btn-secondary">Restart</button>
-  <button id="analyze-button" class="btn btn-primary">Analyze</button>`;
+  panelButtonContainer1.innerHTML = `<button id="restart-button" class="btn btn-secondary"><i class="fas fa-arrow-left" style="padding-right:0.2rem"></i>Restart</button>`;
+  panelButtonContainer2.innerHTML = `  
+  <button id="analyze-button" class="btn btn-primary">Analyze<i class="fas fa-arrow-right" style="padding-left:0.2rem"></i></button>`;
 
   // Create the restart button and add to bottom panel
   const restartButton = document.getElementById('restart-button');
@@ -536,7 +533,7 @@ class AnalysisObject {
     this.usingThese = []; // the main column being processed
     this.groupedBy = ''; // sometimes the data will be sliced by this column and displayed in the chart
     this.filteredBy = []; // sometimes the data will be filtered by these values
-    this.charts = []; // the array storing the charts created by the above parameters
+    this.chartObjects = []; // the array storing the charts created by the above parameters
     this.label = ''; // Optional label for user naming
   }
 
@@ -569,9 +566,37 @@ class AnalysisObject {
     }
   }
 
+  // Function to render all chart objects
+  prepChartContainer() {
+    // Find the container where the cards will be appended
+    const stepBody = document.getElementById('step-body');
+    let cardsContainer = document.getElementById('cards-container');
+
+    if (cardsContainer) {
+      //if the cards container was created in a previous call, empty it.
+      cardsContainer.innerHTML = '';
+    } else {
+      //if the cards container doesn't exist, create it within the stepbody div
+      cardsContainer = document.createElement('div');
+      cardsContainer.id = 'cards-container';
+      stepBody.appendChild(cardsContainer);
+    }
+
+    if (this.groupedBy === '') {
+      // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
+      this.chartObjects.forEach(chart => {
+        this.renderGenericChartInCard(chart);
+      });
+    } else {
+      this.chartObjects.forEach(chart => {
+        this.renderClusteredChartInCard(chart);
+      });
+    }
+  }
+
   addGenericCharts() {
     //produces the data, labels and charts
-    this.charts = []; // Clear any pre-existing charts before creating new ones
+    this.chartObjects = []; // Clear any pre-existing charts before creating new ones
     this.usingThese.forEach(value => {
       //iterates over each element in the this.usingThese array.
       // get the data we need to produce the chart
@@ -589,7 +614,7 @@ class AnalysisObject {
 
 
       // Create and add the chart
-      const newChart = new ChartObject(
+      const newChartObject = new ChartObject(
         chartTitle,
         chartID,
         'bar',
@@ -597,7 +622,7 @@ class AnalysisObject {
         labels,
         percentagesCounts
       ); //value= the current item in the usingthese foreach loop
-      this.charts.push(newChart); // add the new chart object at the end of the analysis object's charts array
+      this.chartObjects.push(newChartObject); // add the new chart object at the end of the analysis object's charts array
     });
     this.prepChartContainer(); // render all charts once their code and data is ready
   }
@@ -710,33 +735,7 @@ class AnalysisObject {
     };
   }
 
-  // Function to render all chart objects
-  prepChartContainer() {
-    // Find the container where the cards will be appended
-    const stepBody = document.getElementById('step-body');
-    let cardsContainer = document.getElementById('cards-container');
-
-    if (cardsContainer) {
-      //if the cards container was created in a previous call, empty it.
-      cardsContainer.innerHTML = '';
-    } else {
-      //if the cards container doesn't exist, create it within the stepbody div
-      cardsContainer = document.createElement('div');
-      cardsContainer.id = 'cards-container';
-      stepBody.appendChild(cardsContainer);
-    }
-
-    if (this.groupedBy === '') {
-      // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
-      this.charts.forEach(chart => {
-        this.renderGenericChartInCard(chart);
-      });
-    } else {
-      this.charts.forEach(chart => {
-        this.renderClusteredChartInCard(chart);
-      });
-    }
-  }
+  
 
   // Function to create and render a chart in a Bootstrap card component and append to 'step-body'
   renderGenericChartInCard(chartObject) {
@@ -858,7 +857,7 @@ class AnalysisObject {
   }
 
   addClusteredCharts() {
-    this.charts = []; // Clear existing charts
+    this.chartObjects = []; // Clear existing charts
     this.usingThese.forEach(value => {
       // Generate data, labels, and cluster labels for the clustered chart
       const result = this.generateClusteredDataArrayAndLabels(
@@ -875,7 +874,7 @@ class AnalysisObject {
       const chartID = `advanced-${chartTitle.replace(/ /g, '-')}`; // Create the id based on the title, replacing spaces with hyphens
 
       // Create and add the chart
-      const newChart = new ChartObject(
+      const newChartObject = new ChartObject(
         chartTitle,
         chartID,
         'bar',
@@ -884,7 +883,7 @@ class AnalysisObject {
         percentagesCounts,
         clusterLabels // Pass cluster labels to ChartObject
       );
-      this.charts.push(newChart);
+      this.chartObjects.push(newChartObject);
     });
     this.prepChartContainer(); // render clustered once the code and data is ready
   }
@@ -2009,24 +2008,21 @@ function showConfirmationDialog(message, onConfirm) {
 function InitializeReviewButtonListener() {
   // Add event listener to the back button
   document.getElementById('review-button').addEventListener('click', () => {
-    // Define the confirmation message
-    const message =
-      'Your analysis will be lost. Are you sure you want to continue?';
-
-    // Call showConfirmationDialog with the message and a callback to initializeReviewStep
-    showConfirmationDialog(message, initializeReviewStep);
+    initializeReviewStep();
   });
 }
 
 // Update the Bottom Panel buttons and
 function updateBottomPanel() {
+  const panelButtonContainer1 = document.getElementById(
+    'panel-button-container-1'
+  );
   const panelButtonContainer2 = document.getElementById(
     'panel-button-container-2'
   );
-  panelButtonContainer2.innerHTML = `
-        <button id="review-button" class="btn btn-secondary">Review</button>
-        <button id="export-button" class="btn btn-primary">Export</button>
-    `;
+  panelButtonContainer1.innerHTML = `
+        <button id="review-button" class="btn btn-secondary"><i class="fas fa-arrow-left" style="padding-right:0.2rem"></i>Review</button>`;
+  panelButtonContainer2.innerHTML='';
   InitializeReviewButtonListener();
 }
 
