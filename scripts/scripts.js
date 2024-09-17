@@ -613,8 +613,9 @@ class AnalysisObject {
       const labels = result.labels;
       const percentagesCounts = result.PercentagesCounts;
       const chartTitle = `Summary of ${value} data`;
-      const chartID = `advanced-${chartTitle.replace(/ /g, '-')}`; // Create the id based on the title, replacing spaces with hyphens
-
+      const filteredByString = this.filteredBy.map(item =>`${item.header}-${item.value}`).join();
+      const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
+      
 
       // Create and add the chart
       const newChartObject = new ChartObject(
@@ -623,7 +624,11 @@ class AnalysisObject {
         'bar',
         data,
         labels,
-        percentagesCounts
+        percentagesCounts,
+        [],
+        this.usingThese,
+        this.groupedBy,
+        this.filteredBy
       ); //value= the current item in the usingthese foreach loop
       this.chartObjects.push(newChartObject); // add the new chart object at the end of the analysis object's charts array
     });
@@ -874,7 +879,8 @@ class AnalysisObject {
       const clusterLabels = result.clusterLabels;
       const percentagesCounts = result.percentagesCounts;
       const chartTitle = `Summary of ${value} data grouped by ${this.groupedBy}`;
-      const chartID = `advanced-${chartTitle.replace(/ /g, '-')}`; // Create the id based on the title, replacing spaces with hyphens
+      const filteredByString = this.filteredBy.map(item =>`${item.header}-${item.value}`).join();
+      const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
       // Create and add the chart
       const newChartObject = new ChartObject(
@@ -884,7 +890,10 @@ class AnalysisObject {
         data,
         labels,
         percentagesCounts,
-        clusterLabels // Pass cluster labels to ChartObject
+        clusterLabels, // Pass cluster labels to ChartObject
+        this.usingThese,
+        this.groupedBy,
+        this.filteredBy
       );
       this.chartObjects.push(newChartObject);
     });
@@ -1138,7 +1147,7 @@ function createAnalysisObject() {
 }
 
 // Function to update an existing AnalysisObject by ID
-function updateAnalysisById(id, updates) {
+function updateAnalysisObjectById(id, updates) {
   const analysis = analysisObjects.find(obj => obj.id === id);
   if (analysis) {
     // Apply updates only for the properties provided in the updates object
@@ -1174,7 +1183,7 @@ function deleteAllAnalysisObjects() {
 
 // boilerplate for charts we create via the generic dropdown option.
 class ChartObject {
-  constructor(title, id, type, data, labels, percentagesCounts, clusterLabels) {
+  constructor(title, id, type, data, labels, percentagesCounts, clusterLabels,usingThese,groupedBy,filteredBy) {
     this.title = title; // Title of the chart
     this.id = id;
     this.type = type; // Type of the chart (e.g., 'bar', 'line')
@@ -1182,6 +1191,9 @@ class ChartObject {
     this.labels = labels; // Data required for chart generation
     this.percentagesCounts = percentagesCounts; // Labels for the data points
     this.clusterLabels = clusterLabels; // New property for cluster labels
+    this.usingThese = usingThese;
+    this.groupedBy = groupedBy;
+    this.filteredBy = filteredBy;
     this.backgroundColor = colorPalette[0]; //
     this.borderColor = colorPalette[0]; //
     this.borderWidth = 1;
@@ -1667,7 +1679,7 @@ function handleIWantTo(event) {
   }
 
   //update the current analysis object. scrap any previously existing info and give it a type
-  updateAnalysisById(currentAnalysisId, {
+  updateAnalysisObjectById(currentAnalysisId, {
     type: event,
     usingThese: [],
     groupedBy: '',
