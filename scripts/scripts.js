@@ -544,6 +544,9 @@ function setupAnalyzeStep() {
     TopNavButtonContainer.innerHTML = `  
     <button id="bookmarks-button" class="btn btn-secondary"><i class="fa-solid fa-bookmark" style="color:var(--primary-light); padding-right:0.2rem"></i>Bookmarks</button>`;
 
+    const bookmarksButton = document.getElementById('bookmarks-button');
+    bookmarksButton.addEventListener('click', openBookmarksOverlay);
+
     //update the step body. will keep as a separate function because this is going to be big
     //updateStepBody();
     displayAnalysisOptions();
@@ -1867,7 +1870,7 @@ renderSimpleChartInCard(chartObject, container) {
   cardOptionsColumn.appendChild(bookmarkButton);
 
   bookmarkButton.addEventListener('click', function () {
-    handleBookmark(bookmarkButton, chartObject);
+    addRemoveBookmark(bookmarkButton, chartObject);
   });
 
   //create the title
@@ -1983,7 +1986,7 @@ function renderComparativeChartInCard(chartObject, container) {
   }
   cardOptionsColumn.appendChild(bookmarkButton);
   bookmarkButton.addEventListener('click', function () {
-    handleBookmark(bookmarkButton, chartObject);
+    addRemoveBookmark(bookmarkButton, chartObject);
   });
 
   //create the title
@@ -2053,11 +2056,7 @@ function renderComparativeChartInCard(chartObject, container) {
   });
 }
 
-
-
-
-
-function handleBookmark(target, chart) {
+function addRemoveBookmark(target, chart) {
   const bookmarkButton = target;
   let isActive = bookmarkButton.getAttribute('isActive');
 
@@ -2120,4 +2119,17 @@ function handleBookmark(target, chart) {
     removeFromArray(bookmarks, chart.id);
     console.log('bookmarks: ', bookmarks);
   }
+}
+
+function openBookmarksOverlay() {
+console.log('opening bookmarks overlay...');
+
+const bookmarksOverlay=document.getElementById('bookmarks-overlay');
+bookmarksOverlay.style.width = "100%";
+const bookmarksOverlayCloseButton = document.getElementById('bookmarks-overlay-close-btn');
+bookmarksOverlayCloseButton.addEventListener('click', () => {
+  bookmarksOverlay.style.width = "0%";
+}
+)
+
 }

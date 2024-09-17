@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cuadro</title>
     <link rel="icon" href="./images/signal-solid.svg" type="image/svg+xml">
-
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="styles/bootstrap.css">
     <link rel="stylesheet" href="styles/styles.css">
@@ -14,22 +13,29 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0/dist/chart.min.js"></script><!--include chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script> <!--include charts.js labels-->
-
-
-
 </head>
-
 <body>
+        <!-- File input element (hidden) -->
+        <input type="file" id="file-input" style="display: none;" accept=".csv">
+
+        <!--bookmarks overlay-->
+        <div id="bookmarks-overlay" class="bookmarks-overlay">
+            <a class="close-bookmarks-overlay-btn" id="close-bookmarks-overlay-btn">&times;</a>    
+        </div>
+    
+        <!--a place where i can post notifications if ever-->
+        <div id="toastContainer"></div>    
+
+    <!--The top navigation bar-->
     <div style="border-bottom: 1px solid #e5e5e5">
         <div class="container">
             <div class="row mt-2 mb-2">
                 <div class="col-6 d-flex align-items-center justify-content-start">
                     <i class="fa-solid fa-signal fa-2x" style="padding-right: 0.2rem;color:var(--primary)"></i>
-                       <h1 style="margin-bottom: 0px;color:var(--primary)">Cuadro</h1>
+                    <h1 style="margin-bottom: 0px;color:var(--primary)">Cuadro</h1>
                 </div>
-
                 <div class="col-6 d-flex align-items-center justify-content-end" id="top-nav-button-container">
-                                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -38,36 +44,22 @@
         <div class="container">
             <div class="row">
                 <div class="col-12 d-flex justify-content-center align-items-center">
-                    <p class="stepper-paragraph" style="color:var(--primary)"><span id='stepper-upload' class="stepper stepper-primary">Upload</span>
+                    <p class="stepper-paragraph" style="color:var(--primary)"><span id='stepper-upload'
+                            class="stepper stepper-primary">Upload</span>
                         > <span id='stepper-review' class="stepper">Review</span> > <span id='stepper-analyze'
                             class="stepper">Analyze</span></p>
                 </div>
-
             </div>
         </div>
-
-
     </div>
-    <!-- File input element (hidden) -->
-    <input type="file" id="file-input" style="display: none;" accept=".csv">
-
-
-    <!--a place where i can post notifications if ever-->
-    <div id="toastContainer"></div>
-
-
 
     <!--the main body of the app, where the user will upload, review, analyze and export their data-->
-
-
     <div id="step-body">
     </div>
-
     <!-- the app's main navigation panel, with next and previous buttons, analysis lists, and export formats-->
     <div id="bottom-panel" class="container-fluid text-white">
         <div class="row justify-content-between align-items-center p-3">
             <div id="panel-button-container-1" class="col-auto">
-
             </div>
             <div id="panel-button-container-2" class="col-auto">
             </div>
