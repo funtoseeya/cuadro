@@ -527,6 +527,776 @@ function unsupportedDataTypesToast(value) {
 
 // ANALYZE STEP
 
+// Function to setup the analaysis step
+function setupAnalyzeStep() {
+  const analyzeButton = document.getElementById('analyze-button');
+  analyzeButton.addEventListener('click', () => {
+    //save the review table's configuration into an array
+    saveDataTypestoArray();
+
+    //adjust the steppers
+    document.getElementById('stepper-review').classList.remove('stepper-primary');
+    document.getElementById('stepper-analyze');
+    document.getElementById('stepper-analyze').classList.add('stepper-primary');
+
+    //create the bookmarks button
+    const TopNavButtonContainer = document.getElementById('top-nav-button-container');
+    TopNavButtonContainer.innerHTML = `  
+    <button id="bookmarks-button" class="btn btn-secondary"><i class="fa-solid fa-bookmark" style="color:var(--primary-light); padding-right:0.2rem"></i>Bookmarks</button>`;
+
+    //update the step body. will keep as a separate function because this is going to be big
+    //updateStepBody();
+    displayAnalysisOptions();
+
+    //update the bottom panel. will keep as a separate function because this is going to be big
+    const panelButtonContainer1 = document.getElementById(
+      'panel-button-container-1'
+    );
+    const panelButtonContainer2 = document.getElementById(
+      'panel-button-container-2'
+    );
+    panelButtonContainer1.innerHTML = `
+          <button id="review-button" class="btn btn-secondary"><i class="fas fa-arrow-left" style="padding-right:0.2rem"></i>Review</button>`;
+    panelButtonContainer2.innerHTML = '';
+
+    // Add event listener to the review button
+    document.getElementById('review-button').addEventListener('click', () => {
+      initializeReviewStep();
+    });
+
+    // run the function that creates the Categorical array, which is needed for the filter panel
+    createCategoricalArrayForFilterPanel();
+
+    //create a new analysis object
+    createAnalysisObject()
+  });
+}
+
+
+// Function to create a new array to generate the filters dropdown
+function createCategoricalArrayForFilterPanel() {
+
+  // Extract headers marked as "Categorical"
+  const CategoricalHeaders = dropdownState
+    .filter(item => item.value === 'Categorical')
+    .map(item => item.header);
+
+  // Create a new array with unique values for each header marked as "Categorical"
+  const result = CategoricalHeaders.map(header => {
+    const uniqueValues = [
+      ...new Set(parsedCSVData.map(item => item[header])),
+    ];
+    return {
+      [header]: uniqueValues,
+    };
+  });
+
+  // Log the result for debugging
+  console.log('Categorical Array:', result);
+
+  // Update the global CategoricalArray
+  CategoricalArray = result;
+
+  return result;
+}
+
+// new function to clear and uppdate the stepper body with analysis options
+function displayAnalysisOptions() {
+  const stepBody = document.getElementById('step-body');
+  stepBody.classList.remove('mt-2');
+  stepBody.classList.add('mt-5');
+  // Clear any existing content
+  stepBody.innerHTML = '';
+
+  // Create the "i want to text", col and row
+  const analysisOptionTextRow = document.createElement('div');
+  analysisOptionTextRow.classList.add('row');
+  analysisOptionTextRow.id = 'analysis-option-text-row';
+  const analysisOptionTextColumn = document.createElement('div');
+  analysisOptionTextColumn.classList.add('col-12');
+  const analysisOptionText = document.createElement('h5');
+  analysisOptionText.textContent = 'I want to perform a...';
+  analysisOptionTextColumn.appendChild(analysisOptionText);
+  analysisOptionTextRow.appendChild(analysisOptionTextColumn);
+  stepBody.appendChild(analysisOptionTextRow);
+
+  // Create the analysis option cards, cols, and row
+  const analysisOptionCardsRow = document.createElement('div');
+  analysisOptionCardsRow.classList.add('row');
+  analysisOptionCardsRow.id = 'analysis-options-cards-row';
+
+  // Helper function to create a card in a column
+  function createCardInCol(cardID, column, title, description, iconHTML) {
+    const card = document.createElement('button');
+    card.classList.add(
+      'card',
+      'h-100',
+      'border-0',
+      'shadow-sm',
+      'rounded-3',
+      'card-hover'
+    );
+    card.style.margin = '10px'; // Add some margin for spacing
+    card.id = cardID;
+
+    // Card body
+    const cardBody = document.createElement('div');
+    cardBody.classList.add('card-body', 'text-start');
+
+    // Add the icon
+    const iconContainer = document.createElement('div');
+    iconContainer.classList.add('mb-2');
+    iconContainer.innerHTML = iconHTML;
+    cardBody.appendChild(iconContainer);
+
+    // Add the title
+    const titleDiv = document.createElement('h5');
+    titleDiv.classList.add('card-title');
+    titleDiv.textContent = title;
+    cardBody.appendChild(titleDiv);
+
+    // Add the description
+    const descriptionDiv = document.createElement('p');
+    descriptionDiv.classList.add('card-text');
+    descriptionDiv.textContent = description;
+    cardBody.appendChild(descriptionDiv);
+
+    // Append the card body to the card
+    card.appendChild(cardBody);
+
+    // Append the card to the column
+    column.appendChild(card);
+  }
+
+  // Create the simple analysis column and card
+  const analysisOptionCardBasicCol = document.createElement('div');
+  analysisOptionCardBasicCol.classList.add('col-12', 'col-sm-4', 'mb-2');
+  createCardInCol(
+    'simple-analysis-option',
+    analysisOptionCardBasicCol,
+    'Simple Analysis',
+    'Summarize and filter data within a single category.',
+    '<i class="fas fa-chart-bar"></i>'
+  );
+
+  // Create the comparative analysis column and card
+  const analysisOptionCardCompareCol = document.createElement('div');
+  analysisOptionCardCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2');
+  createCardInCol(
+    'comparative-analysis-option',
+    analysisOptionCardCompareCol,
+    'Comparative Analysis',
+    'Compare and contrast data across multiple categories.',
+    '<i class="fas fa-table"></i>'
+  );
+
+  // Create the trend analysis column and card
+  const analysisOptionCardTrendCol = document.createElement('div');
+  analysisOptionCardTrendCol.classList.add('col-12', 'col-sm-4', 'mb-2');
+  const trendCard = document.createElement('div');
+  trendCard.classList.add(
+    'card',
+    'h-100',
+    'border-0',
+    'shadow-sm',
+    'rounded-3'
+  );
+  trendCard.style.backgroundColor = '#ececec';
+  trendCard.style.margin = '10px';
+
+  // trendcard body
+  const trendCardBody = document.createElement('div');
+  trendCardBody.classList.add('card-body', 'text-start');
+
+  // Add the trendcard icon
+  const trendIconContainer = document.createElement('div');
+  trendIconContainer.classList.add('mb-2');
+  trendIconContainer.innerHTML =
+    '<i class="fas fa-chart-line"></i><span class="badge" style="background-color: #f4b400; margin-left:0.2rem; color: white; font-size: 0.875rem;">Coming Soon!</span>';
+  trendCardBody.appendChild(trendIconContainer);
+
+  // Add the trendcard title
+  const TrendTitleDiv = document.createElement('h5');
+  TrendTitleDiv.classList.add('card-title');
+  TrendTitleDiv.textContent = 'Trend Analysis';
+  trendCardBody.appendChild(TrendTitleDiv);
+
+  // Add the trendcard description
+  const trendDescriptionDiv = document.createElement('p');
+  trendDescriptionDiv.classList.add('card-text');
+  trendDescriptionDiv.textContent = 'Uncover patterns and changes over time.';
+  trendCardBody.appendChild(trendDescriptionDiv);
+
+  // Append the trend card body to the card
+  trendCard.appendChild(trendCardBody);
+
+  // Append the trend card to the column
+  analysisOptionCardTrendCol.appendChild(trendCard);
+
+  // Append analysis columns to the row
+  analysisOptionCardsRow.appendChild(analysisOptionCardBasicCol);
+  analysisOptionCardsRow.appendChild(analysisOptionCardCompareCol);
+  analysisOptionCardsRow.appendChild(analysisOptionCardTrendCol);
+
+  // Append the row to the step body
+  stepBody.appendChild(analysisOptionCardsRow);
+
+  const simpleCard = document.getElementById('simple-analysis-option');
+  simpleCard.addEventListener('click', function () {
+    handleIWantTo('simple');
+  });
+  const comparativeCard = document.getElementById(
+    'comparative-analysis-option'
+  );
+  comparativeCard.addEventListener('click', function () {
+    handleIWantTo('comparative');
+  });
+}
+
+// Handle the select change event
+function handleIWantTo(event) {
+  const stepBody = document.getElementById('step-body');
+  stepBody.classList.remove('mt-5');
+  stepBody.classList.add('mt-2');
+  // Clear any existing content
+  stepBody.innerHTML = '';
+
+  //create the back to start button, row and col
+  const backRow = document.createElement('div');
+  backRow.className = 'row';
+  const backCol = document.createElement('div');
+  backCol.classList.add('col-12');
+  const backButton = document.createElement('button');
+  backButton.classList.add('btn', 'btn-tertiary', 'text-muted');
+  backButton.innerHTML =
+    ' <i class="fas fa-arrow-left" style="padding-right:0.2rem"></i> Back to types';
+
+  backCol.appendChild(backButton);
+  backRow.appendChild(backCol);
+  stepBody.appendChild(backRow);
+
+  backButton.addEventListener('click', displayAnalysisOptions);
+
+  // Create the container div and set its class
+  const promptRow = document.createElement('div');
+  promptRow.classList.add('row');
+  promptRow.id = 'prompt-row';
+  promptRow.style.margin = '1rem';
+
+  // Create four  column divs for the dropdowns and set their class
+  const typeColumn = document.createElement('div');
+  typeColumn.id = 'type-colum';
+  typeColumn.classList.add('col-12', 'col-sm-6', 'col-md-4');
+
+  const usingColumn = document.createElement('div');
+  usingColumn.id = 'using-column';
+  usingColumn.classList.add('col-12', 'col-sm-6', 'col-md-4');
+
+  const groupColumn = document.createElement('div');
+  groupColumn.id = 'group-column';
+  //no class for now. just keep empty
+
+  const filterColumn = document.createElement('div');
+  filterColumn.id = 'filter-column';
+  filterColumn.classList.add('col-12', 'col-sm-6', 'col-md-4');
+
+  // Append the col divs to the rowdiv
+  promptRow.appendChild(typeColumn);
+  promptRow.appendChild(usingColumn);
+  promptRow.appendChild(groupColumn);
+  promptRow.appendChild(filterColumn);
+
+  // Append the row div to the stepBody
+  stepBody.appendChild(promptRow);
+
+  // Create the i want text
+  const iWantText = document.createElement('span');
+  iWantText.id = 'i-want-to-text';
+  iWantText.style.fontSize='0.9rem';
+  iWantText.textContent = 'I want to perform a...';
+
+  // Create the i want menu container
+  const iWantdropdownContainer = document.createElement('div');
+  iWantdropdownContainer.id = 'i-want-to-dropdown-container';
+  iWantdropdownContainer.classList.add('dropdown');
+
+  // Create the i want button
+  const iWantSelect = document.createElement('button');
+  iWantSelect.classList.add(
+    'btn',
+    'truncate-btn',
+    'btn-secondary',
+    'form-select',
+    'data-type-dropdown'
+  );
+  iWantSelect.type = 'button';
+  iWantSelect.style.width = '100%';
+  iWantSelect.style.fontSize = '0.9rem';
+  iWantSelect.textContent = 'make a selection';
+  iWantSelect.style.textAlign = 'left';
+  iWantSelect.id = 'i-want-to-dropdown';
+  iWantSelect.setAttribute('data-bs-toggle', 'dropdown');
+  iWantSelect.setAttribute('aria-expanded', 'false');
+
+  // Create the options menu
+  const iWantMenu = document.createElement('ul');
+  iWantMenu.classList.add('dropdown-menu');
+
+  // Populate the new dropdown with types of comparisons
+
+  const simpleListItem = document.createElement('li');
+  const simpleListAnchor = document.createElement('a');
+  simpleListAnchor.classList.add('dropdown-item');
+  const simpleListAnchorText = document.createElement('label');
+  simpleListAnchorText.textContent = 'simple analysis';
+  simpleListAnchor.setAttribute('data-value', 'simple');
+
+  const compareListItem = document.createElement('li');
+  const compareListAnchor = document.createElement('a');
+  compareListAnchor.classList.add('dropdown-item');
+  const compareListAnchorText = document.createElement('label');
+  compareListAnchorText.textContent = 'comparative analysis';
+  compareListAnchor.setAttribute('data-value', 'comparative');
+
+  //append options to menu
+  simpleListAnchor.appendChild(simpleListAnchorText);
+  simpleListItem.appendChild(simpleListAnchor);
+  iWantMenu.appendChild(simpleListItem);
+
+  compareListAnchor.appendChild(compareListAnchorText);
+  compareListItem.appendChild(compareListAnchor);
+  iWantMenu.appendChild(compareListItem);
+
+  // Append elements to the dropdown container
+  iWantdropdownContainer.appendChild(iWantSelect);
+  iWantdropdownContainer.appendChild(iWantMenu);
+
+  // place the select dropdown to colDiv1
+  typeColumn.appendChild(iWantText);
+  typeColumn.appendChild(iWantdropdownContainer);
+
+  // If the value of the select dropdown is "generic"...
+  if (event === 'simple') {
+    // Update select.textContent
+    iWantSelect.textContent = 'simple analysis';
+
+    //hide group column
+    if (groupColumn) {
+      groupColumn.style.display = 'none';
+    }
+
+    // Create and append the required dropdowns
+    createUsingTheseDropdown();
+    createFilterButton();
+  }
+  if (event === 'comparative') {
+    // Update select.textContent
+    iWantSelect.textContent = 'comparative analysis';
+
+    //show group column
+    if (groupColumn) {
+      groupColumn.style.display = '';
+    }
+
+    // Readjust column widths
+    typeColumn.classList.remove('col-md-6', 'col-md-4');
+    typeColumn.classList.add('col-md-3');
+
+    usingColumn.classList.remove('col-md-6', 'col-md-4');
+    usingColumn.classList.add('col-md-3');
+    usingColumn.innerHTML = '';
+
+    groupColumn.classList.remove('col-md-6', 'col-md-4');
+    groupColumn.classList.add('col-12', 'col-sm-6', 'col-md-3');
+    groupColumn.innerHTML = '';
+
+    filterColumn.classList.remove('col-md-6', 'col-md-4');
+    filterColumn.classList.add('col-md-3');
+    filterColumn.innerHTML = '';
+
+    // Create and append the required dropdowns
+    createUsingTheseDropdown();
+    createGroupByDropdown();
+    createFilterButton();
+  }
+
+  //update the current analysis object. scrap any previously existing info and give it a type
+  updateAnalysisObjectById(currentAnalysisId, {
+    analysisType: event,
+    usingThese: [],
+    groupedBy: '',
+    filteredBy: [],
+  });
+
+  //remove any previously existing chart cards from the body
+  let cardsContainer = document.getElementById('step-body-cards-container');
+
+  if (cardsContainer) {
+    cardsContainer.innerHTML = '';
+  } else {
+    cardsContainer = document.createElement('div');
+    cardsContainer.id = 'step-body-cards-container';
+    stepBody.appendChild(cardsContainer);
+  }
+
+  iWantMenu.addEventListener('click', function (event) {
+    const target = event.target.closest('a.dropdown-item');
+    let analysisType = '';
+    if (target.innerText === 'simple analysis') {
+      analysisType = 'simple';
+    }
+    if (target.innerText === 'comparative analysis') {
+      analysisType = 'comparative';
+    }
+
+    handleIWantTo(analysisType);
+  });
+}
+
+// function to Create the Using dropdown
+function createUsingTheseDropdown() {
+  const usingColumn = document.getElementById('using-column');
+
+  // Create the span element for text
+  const span = document.createElement('span');
+  span.id = 'using-these-values-text';
+  span.style.fontSize = '0.9rem';
+  span.textContent = 'Using these columns';
+
+  // Create the menu container
+  const dropdownContainer = document.createElement('div');
+  dropdownContainer.classList.add('dropdown');
+
+  // Create the button
+  const columnSelect = document.createElement('button');
+  columnSelect.classList.add(
+    'btn',
+    'truncate-btn',
+    'btn-secondary',
+    'form-select',
+    'data-type-dropdown'
+  );
+  columnSelect.type = 'button';
+  columnSelect.style.width = '100%';
+  columnSelect.style.fontSize = '0.9rem';
+  columnSelect.textContent = '0 selected'; // Start with 0 selected
+  columnSelect.style.textAlign = 'left'; // Align text to the left
+  columnSelect.id = 'column-select';
+
+  columnSelect.setAttribute('data-bs-toggle', 'dropdown');
+  columnSelect.setAttribute('aria-expanded', 'false');
+
+  // Create the menu
+  const columnMenu = document.createElement('ul');
+  columnMenu.classList.add('dropdown-menu');
+  columnMenu.id = 'using-these-list';
+
+  // Populate the new dropdown with options from the saved dropdown state
+  dropdownState.forEach(({ header, value }) => {
+    if (value === 'Categorical') {
+      const columnListItem = document.createElement('li');
+      const columnListAnchor = document.createElement('a');
+      columnListAnchor.classList.add('dropdown-item');
+      const columnListInput = document.createElement('input');
+      columnListInput.type = 'checkbox';
+      columnListInput.id = header;
+      columnListInput.value = header;
+
+      const columnListLabel = document.createElement('label');
+      columnListLabel.style.marginLeft = '10px';
+      columnListLabel.htmlFor = header;
+      columnListLabel.textContent = header;
+
+      columnListAnchor.appendChild(columnListInput);
+      columnListAnchor.appendChild(columnListLabel);
+      columnListItem.appendChild(columnListAnchor);
+      columnMenu.appendChild(columnListItem);
+
+      // Add event listener to update button text when checkbox is changed
+      columnListInput.addEventListener('change', () => {
+        updateUsingTheseCount();
+        updateUsingTheseArray();
+      });
+    }
+  });
+
+  // Append elements to the dropdown container
+  dropdownContainer.appendChild(columnSelect);
+  dropdownContainer.appendChild(columnMenu);
+
+  // Append elements to usingcolumn
+  usingColumn.appendChild(span);
+  usingColumn.appendChild(dropdownContainer);
+
+  // Prevent dropdown menu from closing when clicking inside
+  columnMenu.addEventListener('click', function (event) {
+    event.stopPropagation();
+  });
+}
+// Update the text of the columnSelect button based on selected checkboxes
+function updateUsingTheseCount() {
+  const columnSelect = document.getElementById('column-select');
+  const checkboxes = document.querySelectorAll(
+    '#column-select ~ .dropdown-menu input[type="checkbox"]'
+  );
+  const selectedCount = Array.from(checkboxes).filter(
+    checkbox => checkbox.checked
+  ).length;
+  columnSelect.textContent = `${selectedCount} selected`;
+}
+
+// Update the usingThese array based on selected checkboxes
+function updateUsingTheseArray() {
+  const selectedValues = Array.from(
+    document.querySelectorAll(
+      '#column-select ~ .dropdown-menu input[type="checkbox"]:checked'
+    )
+  ).map(checkbox => checkbox.value);
+
+  // Find the current AnalysisObject and update its usingThese array
+  const analysis = analysisObjects.find(obj => obj.id === currentAnalysisId);
+  if (analysis) {
+    analysis.usingThese = selectedValues;
+    analysis.beginChartGenerationProcess();
+    console.log(analysis);
+  } else {
+    console.error('AnalysisObject not found');
+  }
+}
+
+// function to create the group by dropdown necessary for comparisons
+function createGroupByDropdown() {
+  const groupColumn = document.getElementById('group-column');
+
+  // Create the span element for text
+  const span = document.createElement('span');
+  span.id = 'group-by-text';
+  span.style.fontSize='0.9rem';
+  span.textContent = 'Compared by';
+
+  // Create the menu container
+  const dropdownContainer = document.createElement('div');
+  dropdownContainer.classList.add('dropdown');
+
+  // Create the button
+  const groupBySelect = document.createElement('button');
+  groupBySelect.classList.add(
+    'btn',
+    'truncate-btn',
+    'btn-secondary',
+    'form-select',
+    'data-type-dropdown'
+  );
+  groupBySelect.type = 'button';
+  groupBySelect.style.width = '100%';
+  groupBySelect.style.fontSize = '0.9rem';
+  groupBySelect.textContent = 'make a selection';
+  groupBySelect.style.textAlign = 'left'; // Align text to the left
+  groupBySelect.id = 'group-by-select';
+  groupBySelect.setAttribute('data-bs-toggle', 'dropdown');
+  groupBySelect.setAttribute('aria-expanded', 'false');
+
+  // Create the menu
+  const groupByMenu = document.createElement('ul');
+  groupByMenu.classList.add('dropdown-menu');
+  groupByMenu.id = 'group-by-menu';
+
+  // Populate the group by dropdown with columns that were typed as "Categorical"
+  dropdownState.forEach(({ header, value }) => {
+    if (value === 'Categorical') {
+      const groupByListItem = document.createElement('li');
+      const groupByListAnchor = document.createElement('a');
+      groupByListAnchor.classList.add('dropdown-item');
+      groupByListAnchor.setAttribute('data-value', 'open');
+      const groupByListAnchorText = document.createElement('label');
+      groupByListAnchorText.textContent = header;
+      groupByListAnchor.id = header;
+
+      //append all items to the group by menu
+      groupByListAnchor.appendChild(groupByListAnchorText);
+      groupByListItem.appendChild(groupByListAnchor);
+      groupByMenu.appendChild(groupByListItem);
+    }
+  });
+
+  // Append elements to the dropdown container
+  dropdownContainer.appendChild(groupBySelect);
+  dropdownContainer.appendChild(groupByMenu);
+
+  // Append elements to colDiv3
+  groupColumn.appendChild(span);
+  groupColumn.appendChild(dropdownContainer);
+
+  // Add event listener for selection change, which will call a cascade of functions
+  groupByMenu.addEventListener('click', handleGroupByChange);
+}
+
+// Handle the group by change event
+function handleGroupByChange(event) {
+  const target = event.target.closest('a.dropdown-item');
+  if (!target) return;
+
+  const groupBySelect = document.getElementById('group-by-select');
+
+  // Update groupby menu to display the selected value
+  groupBySelect.textContent = target.querySelector('label').textContent;
+
+  //call the function that updates the analysis object's groupBy property
+  updateGroupByValue();
+}
+
+//function to update the analysis object with the selected groupBy value
+function updateGroupByValue() {
+  const selectedValue = document.getElementById('group-by-select')
+    .textContent;
+
+  // Find the current AnalysisObject and update its groupBy property
+  const analysis = analysisObjects.find(obj => obj.id === currentAnalysisId);
+  if (analysis) {
+    analysis.groupedBy = selectedValue;
+    analysis.beginChartGenerationProcess();
+    console.log(analysis);
+  } else {
+    console.error('AnalysisObject not found');
+  }
+}
+
+// function to Create the filter dropdown using the Categorical array
+function createFilterButton() {
+  const filterColumn = document.getElementById('filter-column');
+
+  // Create the span element for text
+  const span = document.createElement('span');
+  span.id = 'filtered-by-text';
+  span.style.fontSize='0.9rem';
+  span.textContent = 'Filtered by';
+
+  // Create the menu container
+  const dropdownContainer = document.createElement('div');
+  dropdownContainer.classList.add('dropdown');
+
+  // Create the button
+  const filterSelect = document.createElement('button');
+  filterSelect.classList.add(
+    'btn',
+    'truncate-btn',
+    'btn-secondary',
+    'form-select',
+    'data-type-dropdown'
+  );
+  filterSelect.type = 'button';
+  filterSelect.style.width = '100%';
+  filterSelect.style.fontSize = '0.9rem';
+  filterSelect.textContent = '0 selected'; // Start with 0 selected
+  filterSelect.style.textAlign = 'left'; // Align text to the left
+  filterSelect.id = 'filter-select';
+  filterSelect.setAttribute('data-bs-toggle', 'dropdown');
+  filterSelect.setAttribute('aria-expanded', 'false');
+
+  // Create the menu
+  const filterMenu = document.createElement('ul');
+  filterMenu.classList.add('dropdown-menu');
+  filterMenu.id = 'filtered-by-list';
+
+  let itemToHeaderMap = new Map();
+
+  // Populate the dropdown with headers and options
+  CategoricalArray.forEach(group => {
+    for (const [header, values] of Object.entries(group)) {
+      values.forEach(value => {
+        itemToHeaderMap.set(value, header);
+      });
+      // Create and append header
+      const headerItem = document.createElement('li');
+      headerItem.classList.add('dropdown-header');
+      headerItem.textContent = header;
+      filterMenu.appendChild(headerItem);
+
+      // Create and append divider
+      const divider = document.createElement('li');
+      divider.classList.add('dropdown-divider');
+      filterMenu.appendChild(divider);
+
+      // Create and append options
+      values.forEach(value => {
+        const item = document.createElement('li');
+        item.classList.add('dropdown-item');
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = value;
+        checkbox.value = value;
+
+        const label = document.createElement('label');
+        label.htmlFor = value;
+        label.textContent = value;
+        label.style.marginLeft = '10px';
+
+        item.appendChild(checkbox);
+        item.appendChild(label);
+
+        filterMenu.appendChild(item);
+
+        // Add event listener to update button text when checkbox is changed
+        item.addEventListener('change', () => {
+          updateFilteredCount();
+          updateFilteredArray();
+        });
+      });
+    }
+  });
+
+  // Function to update the Filtered by array based on selected checkboxes
+  function updateFilteredArray() {
+    const selectedValues = Array.from(
+      document.querySelectorAll(
+        '#filter-select ~ .dropdown-menu input[type="checkbox"]:checked'
+      )
+    ).map(checkbox => {
+      const value = checkbox.value;
+      const header = itemToHeaderMap.get(value);
+      return { header, value };
+    });
+
+    // Find the current AnalysisObject and update its filteredBy array
+    const analysis = analysisObjects.find(
+      obj => obj.id === currentAnalysisId
+    );
+    if (analysis) {
+      analysis.filteredBy = selectedValues;
+      analysis.beginChartGenerationProcess();
+      console.log(analysis);
+    } else {
+      console.error('AnalysisObject not found');
+    }
+  }
+
+  // Append elements to the dropdown container
+  dropdownContainer.appendChild(filterSelect);
+  dropdownContainer.appendChild(filterMenu);
+
+  filterColumn.appendChild(span);
+  filterColumn.appendChild(dropdownContainer);
+
+  // Prevent dropdown menu from closing when clicking inside
+  filterMenu.addEventListener('click', function (event) {
+    event.stopPropagation();
+  });
+}
+
+// Update the text of the filterSelect button based on selected checkboxes
+function updateFilteredCount() {
+  const filterSelect = document.getElementById('filter-select');
+  const checkboxes = document.querySelectorAll(
+    '#filter-select ~ .dropdown-menu input[type="checkbox"]'
+  );
+  const filteredCount = Array.from(checkboxes).filter(
+    checkbox => checkbox.checked
+  ).length;
+  filterSelect.textContent = `${filteredCount} selected`;
+}
+
+
 // a boilerplate for analysis objects. users will be able to create many of them
 class AnalysisObject {
   constructor() {
@@ -866,7 +1636,7 @@ class AnalysisObject {
 prepChartContainerInStepBody() {
   // Find the step-body container where the cards will be appended
   const stepBody = document.getElementById('step-body');
-  let cardsContainer = document.getElementById('cards-container');
+  let cardsContainer = document.getElementById('step-body-cards-container');
 
   if (cardsContainer) {
     //if the cards container was created in a previous call, empty it.
@@ -874,272 +1644,22 @@ prepChartContainerInStepBody() {
   } else {
     //if the cards container doesn't exist, create it within the stepbody div
     cardsContainer = document.createElement('div');
-    cardsContainer.id = 'cards-container';
+    cardsContainer.id = 'step-body-cards-container';
     stepBody.appendChild(cardsContainer);
   }
 
   if (this.groupedBy === '') {
     // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
     this.chartObjects.forEach(chart => {
-      this.renderSimpleChartInCard(chart);
+      renderSimpleChartInCard(chart,cardsContainer);
     });
   } else {
     this.chartObjects.forEach(chart => {
-      this.renderComparativeChartInCard(chart);
+      renderComparativeChartInCard(chart,cardsContainer);
     });
   }
 }
-
-  // Function to create and render a chart in a Bootstrap card component and append to 'step-body'
-  renderSimpleChartInCard(chartObject) {
-    //pass chartObject as an argument
-    // Find the container where the cards will be appended
-    const container = document.getElementById('cards-container');
-
-    // Create the card element
-    const card = document.createElement('div');
-    card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
-
-    // Create the card body element
-    const cardBody = document.createElement('div');
-    cardBody.classList.add('card-body');
-
-    //create the options, title and filters rows and columns - append to body
-    const cardOptionsRow = document.createElement('div');
-    cardOptionsRow.className = 'row';
-    const cardTitleRow = document.createElement('div');
-    cardTitleRow.className = 'row';
-    const cardFiltersRow = document.createElement('div');
-    cardFiltersRow.className = 'row';
-    cardBody.appendChild(cardOptionsRow);
-    cardBody.appendChild(cardTitleRow);
-    cardBody.appendChild(cardFiltersRow);
-
-    const cardOptionsColumn = document.createElement('div');
-    cardOptionsColumn.classList.add(
-      'col-12',
-      'd-flex',
-      'justify-content-end'
-    );
-    const cardTitleColumn = document.createElement('div');
-    cardTitleColumn.classList.add('col-12');
-    const cardFiltersColumn = document.createElement('div');
-    cardFiltersColumn.classList.add('col-12');
-    cardOptionsRow.appendChild(cardOptionsColumn);
-    cardTitleRow.appendChild(cardTitleColumn);
-    cardFiltersRow.appendChild(cardFiltersColumn);
-
-    //create the chart type button
-    const chartButton = document.createElement('button');
-    chartButton.classList.add('btn', 'btn-secondary', 'me-2', 'disabled');
-    chartButton.textContent = 'Bars';
-    cardOptionsColumn.appendChild(chartButton);
-
-    //create the bookmark button and set whether it's active or not
-    const bookmarkButton = document.createElement('button');
-    bookmarkButton.classList.add('btn', 'btn-secondary');
-    const isChartBookmarked = bookmarks.some(obj => obj.id === chartObject.id);
-    if (isChartBookmarked) {
-      bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
-      bookmarkButton.setAttribute('isActive', 'true');
-    } else {
-      bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
-      bookmarkButton.setAttribute('isActive', 'false');
-    }
-    cardOptionsColumn.appendChild(bookmarkButton);
-
-    bookmarkButton.addEventListener('click', function () {
-      handleBookmark(bookmarkButton, chartObject);
-    });
-
-    //create the title
-    const cardTitle = document.createElement('h5');
-    cardTitle.textContent = chartObject.title;
-    cardTitleColumn.appendChild(cardTitle);
-
-    //create filter badges as needed
-    const analysisObject = analysisObjects.find(
-      obj => obj.id === currentAnalysisId
-    );
-    const filters = analysisObject.filteredBy;
-
-    for (let i = 0; i < filters.length; i++) {
-      const cardFilter = document.createElement('span');
-      cardFilter.className = 'filter-badge'; // Apply the custom class
-      cardFilter.textContent = filters[i].value;
-      cardFiltersColumn.appendChild(cardFilter);
-    }
-
-    // Create the canvas element
-    const canvas = document.createElement('canvas');
-    canvas.style.width = '100%'; // Full width
-
-    //calculate how many bars there will be and use that to calculate the canvas height
-    canvas.style.height = `${100 + chartObject.data.length * 50}px`; //will be 100px if filters return no data and 125px if they return 1 bar
-
-    // Append the canvas to the card body
-    cardBody.appendChild(canvas);
-
-    // Append the card body to the card
-    card.appendChild(cardBody);
-
-    // Append the card to the container
-    container.appendChild(card);
-
-    // Render the chart on the canvas
-    const ctx = canvas.getContext('2d');
-
-    new Chart(ctx, { //new chart in canvas
-      //create a new chart using the properties of the chartObject being called as an argument in the function
-      type: chartObject.type,
-      data: {
-        labels: chartObject.labels,
-        datasets: [
-          {
-            label: chartObject.title, //the tooltip label is just the series title
-            data: chartObject.data,
-            backgroundColor: chartObject.backgroundColor,
-            borderColor: chartObject.borderColor,
-            borderWidth: chartObject.borderWidth,
-          },
-        ],
-      },
-      options: chartObject.barChartOptions,
-    });
-
-  }
-
- 
-
   
-  // Function to create and render a horizontal clustered bar chart in a Bootstrap card component and append to 'step-body'
-  renderComparativeChartInCard(chartObject) {
-    // Pass chartObject as an argument
-    // Find the container where the cards will be appended
-    const container = document.getElementById('cards-container');
-
-    // Create the card element
-    const card = document.createElement('div');
-    card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
-
-    // Create the card body element
-    const cardBody = document.createElement('div');
-    cardBody.classList.add('card-body');
-
-    //create the options, title and filters rows and columns - append to body
-    const cardOptionsRow = document.createElement('div');
-    cardOptionsRow.className = 'row';
-    const cardTitleRow = document.createElement('div');
-    cardTitleRow.className = 'row';
-    const cardFiltersRow = document.createElement('div');
-    cardFiltersRow.className = 'row';
-    cardBody.appendChild(cardOptionsRow);
-    cardBody.appendChild(cardTitleRow);
-    cardBody.appendChild(cardFiltersRow);
-
-    const cardOptionsColumn = document.createElement('div');
-    cardOptionsColumn.classList.add(
-      'col-12',
-      'd-flex',
-      'justify-content-end'
-    );
-    const cardTitleColumn = document.createElement('div');
-    cardTitleColumn.classList.add('col-12');
-    const cardFiltersColumn = document.createElement('div');
-    cardFiltersColumn.classList.add('col-12');
-    cardOptionsRow.appendChild(cardOptionsColumn);
-    cardTitleRow.appendChild(cardTitleColumn);
-    cardFiltersRow.appendChild(cardFiltersColumn);
-
-    //create the chart type button
-    const chartButton = document.createElement('button');
-    chartButton.classList.add('btn', 'btn-secondary', 'me-2', 'disabled');
-    chartButton.textContent = 'Clusters';
-    cardOptionsColumn.appendChild(chartButton);
-
-
-    //create the bookmark button and set whether it's active or not
-    const bookmarkButton = document.createElement('button');
-    bookmarkButton.classList.add('btn', 'btn-secondary');
-    const isChartBookmarked = bookmarks.some(obj => obj.id === chartObject.id);
-    if (isChartBookmarked) {
-      bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
-      bookmarkButton.setAttribute('isActive', 'true');
-    } else {
-      bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
-      bookmarkButton.setAttribute('isActive', 'false');
-    }
-    cardOptionsColumn.appendChild(bookmarkButton);
-    bookmarkButton.addEventListener('click', function () {
-      handleBookmark(bookmarkButton, chartObject);
-    });
-
-    //create the title
-    const cardTitle = document.createElement('h5');
-    cardTitle.textContent = chartObject.title;
-    cardTitleColumn.appendChild(cardTitle);
-
-    //create filter badges as needed
-    const analysisObject = analysisObjects.find(
-      obj => obj.id === currentAnalysisId
-    );
-    const filters = analysisObject.filteredBy;
-
-    for (let i = 0; i < filters.length; i++) {
-      const cardFilter = document.createElement('span');
-      cardFilter.className = 'filter-badge'; // Apply the custom class
-      cardFilter.textContent = filters[i].value;
-      cardFiltersColumn.appendChild(cardFilter);
-    }
-
-    // Create the canvas element
-    const canvas = document.createElement('canvas');
-    canvas.style.width = '100%'; // Full width
-
-    //calculate how many bars there will be and use that to calculate the canvas height
-    let totalArrayValues = 0;
-    chartObject.data.forEach(subArray => {
-      totalArrayValues += subArray.length;
-    });
-    canvas.style.height = `${100 + totalArrayValues * 25}px`; //will be 100px if filters return no data and 125px if they return 1 bar
-
-    // Append the canvas to the card body
-    cardBody.appendChild(canvas);
-
-    // Append the card body to the card
-    card.appendChild(cardBody);
-
-    // Append the card to the container
-    container.appendChild(card);
-
-    // Render the chart on the canvas
-    const ctx = canvas.getContext('2d');
-
-    // Create the datasets for each cluster
-    const datasets = chartObject.data.map((clusterData, index) => {
-      // Cycle through colorPalette for background and border colors
-      const colorIndex = index % colorPalette.length;
-      const backgroundColor = colorPalette[colorIndex];
-      const borderColor = colorPalette[colorIndex];
-
-      return {
-        label: chartObject.clusterLabels[index], // Label for the cluster
-        data: clusterData,
-        backgroundColor: backgroundColor,
-        borderColor: borderColor,
-        borderWidth: 1, // Fixed border width
-      };
-    });
-
-    new Chart(ctx, { //new chart in canvas
-      type: 'bar', // Use 'bar' type for horizontal bar chart
-      data: {
-        labels: chartObject.labels,
-        datasets: datasets,
-      },
-      options: chartObject.clusteredBarChartOptions,
-    });
-  }
 }
 
 // Function to create and add a new Analysis object
@@ -1291,771 +1811,247 @@ class ChartObject {
   }
 }
 
-// Function to setup the analaysis step
-function setupAnalyzeStep() {
-  const analyzeButton = document.getElementById('analyze-button');
-  analyzeButton.addEventListener('click', () => {
-    //save the review table's configuration into an array
-    saveDataTypestoArray();
+function // Function to create and render a chart in a Bootstrap card component and append to 'step-body'
+renderSimpleChartInCard(chartObject, container) {
 
-    //adjust the steppers
-    document.getElementById('stepper-review').classList.remove('stepper-primary');
-    document.getElementById('stepper-analyze');
-    document.getElementById('stepper-analyze').classList.add('stepper-primary');
+  // Create the card element
+  const card = document.createElement('div');
+  card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
 
-    //create the bookmarks button
-    const TopNavButtonContainer = document.getElementById('top-nav-button-container');
-    TopNavButtonContainer.innerHTML = `  
-    <button id="bookmarks-button" class="btn btn-secondary"><i class="fa-solid fa-bookmark" style="color:var(--primary-light); padding-right:0.2rem"></i>Bookmarks</button>`;
+  // Create the card body element
+  const cardBody = document.createElement('div');
+  cardBody.classList.add('card-body');
 
-    //update the step body. will keep as a separate function because this is going to be big
-    //updateStepBody();
-    displayAnalysisOptions();
+  //create the options, title and filters rows and columns - append to body
+  const cardOptionsRow = document.createElement('div');
+  cardOptionsRow.className = 'row';
+  const cardTitleRow = document.createElement('div');
+  cardTitleRow.className = 'row';
+  const cardFiltersRow = document.createElement('div');
+  cardFiltersRow.className = 'row';
+  cardBody.appendChild(cardOptionsRow);
+  cardBody.appendChild(cardTitleRow);
+  cardBody.appendChild(cardFiltersRow);
 
-    //update the bottom panel. will keep as a separate function because this is going to be big
-    const panelButtonContainer1 = document.getElementById(
-      'panel-button-container-1'
-    );
-    const panelButtonContainer2 = document.getElementById(
-      'panel-button-container-2'
-    );
-    panelButtonContainer1.innerHTML = `
-          <button id="review-button" class="btn btn-secondary"><i class="fas fa-arrow-left" style="padding-right:0.2rem"></i>Review</button>`;
-    panelButtonContainer2.innerHTML = '';
+  const cardOptionsColumn = document.createElement('div');
+  cardOptionsColumn.classList.add(
+    'col-12',
+    'd-flex',
+    'justify-content-end'
+  );
+  const cardTitleColumn = document.createElement('div');
+  cardTitleColumn.classList.add('col-12');
+  const cardFiltersColumn = document.createElement('div');
+  cardFiltersColumn.classList.add('col-12');
+  cardOptionsRow.appendChild(cardOptionsColumn);
+  cardTitleRow.appendChild(cardTitleColumn);
+  cardFiltersRow.appendChild(cardFiltersColumn);
 
-    // Add event listener to the review button
-    document.getElementById('review-button').addEventListener('click', () => {
-      initializeReviewStep();
-    });
+  //create the chart type button
+  const chartButton = document.createElement('button');
+  chartButton.classList.add('btn', 'btn-secondary', 'me-2', 'disabled');
+  chartButton.textContent = 'Bars';
+  cardOptionsColumn.appendChild(chartButton);
 
-    // run the function that creates the Categorical array, which is needed for the filter panel
-    createCategoricalArrayForFilterPanel();
+  //create the bookmark button and set whether it's active or not
+  const bookmarkButton = document.createElement('button');
+  bookmarkButton.classList.add('btn', 'btn-secondary');
+  const isChartBookmarked = bookmarks.some(obj => obj.id === chartObject.id);
+  if (isChartBookmarked) {
+    bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+    bookmarkButton.setAttribute('isActive', 'true');
+  } else {
+    bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+    bookmarkButton.setAttribute('isActive', 'false');
+  }
+  cardOptionsColumn.appendChild(bookmarkButton);
 
-    //create a new analysis object
-    createAnalysisObject()
+  bookmarkButton.addEventListener('click', function () {
+    handleBookmark(bookmarkButton, chartObject);
   });
+
+  //create the title
+  const cardTitle = document.createElement('h5');
+  cardTitle.textContent = chartObject.title;
+  cardTitleColumn.appendChild(cardTitle);
+
+  //create filter badges as needed
+  const analysisObject = analysisObjects.find(
+    obj => obj.id === currentAnalysisId
+  );
+  const filters = analysisObject.filteredBy;
+
+  for (let i = 0; i < filters.length; i++) {
+    const cardFilter = document.createElement('span');
+    cardFilter.className = 'filter-badge'; // Apply the custom class
+    cardFilter.textContent = filters[i].value;
+    cardFiltersColumn.appendChild(cardFilter);
+  }
+
+  // Create the canvas element
+  const canvas = document.createElement('canvas');
+  canvas.style.width = '100%'; // Full width
+
+  //calculate how many bars there will be and use that to calculate the canvas height
+  canvas.style.height = `${100 + chartObject.data.length * 50}px`; //will be 100px if filters return no data and 125px if they return 1 bar
+
+  // Append the canvas to the card body
+  cardBody.appendChild(canvas);
+
+  // Append the card body to the card
+  card.appendChild(cardBody);
+
+  // Append the card to the container
+  container.appendChild(card);
+
+  // Render the chart on the canvas
+  const ctx = canvas.getContext('2d');
+
+  new Chart(ctx, { //new chart in canvas
+    //create a new chart using the properties of the chartObject being called as an argument in the function
+    type: chartObject.type,
+    data: {
+      labels: chartObject.labels,
+      datasets: [
+        {
+          label: chartObject.title, //the tooltip label is just the series title
+          data: chartObject.data,
+          backgroundColor: chartObject.backgroundColor,
+          borderColor: chartObject.borderColor,
+          borderWidth: chartObject.borderWidth,
+        },
+      ],
+    },
+    options: chartObject.barChartOptions,
+  });
+
 }
 
+// Function to create and render a horizontal clustered bar chart in a Bootstrap card component and append to 'step-body'
+function renderComparativeChartInCard(chartObject, container) {
 
-// Function to create a new array to generate the filters dropdown
-function createCategoricalArrayForFilterPanel() {
+  // Create the card element
+  const card = document.createElement('div');
+  card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
 
-  // Extract headers marked as "Categorical"
-  const CategoricalHeaders = dropdownState
-    .filter(item => item.value === 'Categorical')
-    .map(item => item.header);
+  // Create the card body element
+  const cardBody = document.createElement('div');
+  cardBody.classList.add('card-body');
 
-  // Create a new array with unique values for each header marked as "Categorical"
-  const result = CategoricalHeaders.map(header => {
-    const uniqueValues = [
-      ...new Set(parsedCSVData.map(item => item[header])),
-    ];
+  //create the options, title and filters rows and columns - append to body
+  const cardOptionsRow = document.createElement('div');
+  cardOptionsRow.className = 'row';
+  const cardTitleRow = document.createElement('div');
+  cardTitleRow.className = 'row';
+  const cardFiltersRow = document.createElement('div');
+  cardFiltersRow.className = 'row';
+  cardBody.appendChild(cardOptionsRow);
+  cardBody.appendChild(cardTitleRow);
+  cardBody.appendChild(cardFiltersRow);
+
+  const cardOptionsColumn = document.createElement('div');
+  cardOptionsColumn.classList.add(
+    'col-12',
+    'd-flex',
+    'justify-content-end'
+  );
+  const cardTitleColumn = document.createElement('div');
+  cardTitleColumn.classList.add('col-12');
+  const cardFiltersColumn = document.createElement('div');
+  cardFiltersColumn.classList.add('col-12');
+  cardOptionsRow.appendChild(cardOptionsColumn);
+  cardTitleRow.appendChild(cardTitleColumn);
+  cardFiltersRow.appendChild(cardFiltersColumn);
+
+  //create the chart type button
+  const chartButton = document.createElement('button');
+  chartButton.classList.add('btn', 'btn-secondary', 'me-2', 'disabled');
+  chartButton.textContent = 'Clusters';
+  cardOptionsColumn.appendChild(chartButton);
+
+
+  //create the bookmark button and set whether it's active or not
+  const bookmarkButton = document.createElement('button');
+  bookmarkButton.classList.add('btn', 'btn-secondary');
+  const isChartBookmarked = bookmarks.some(obj => obj.id === chartObject.id);
+  if (isChartBookmarked) {
+    bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+    bookmarkButton.setAttribute('isActive', 'true');
+  } else {
+    bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+    bookmarkButton.setAttribute('isActive', 'false');
+  }
+  cardOptionsColumn.appendChild(bookmarkButton);
+  bookmarkButton.addEventListener('click', function () {
+    handleBookmark(bookmarkButton, chartObject);
+  });
+
+  //create the title
+  const cardTitle = document.createElement('h5');
+  cardTitle.textContent = chartObject.title;
+  cardTitleColumn.appendChild(cardTitle);
+
+  //create filter badges as needed
+  const analysisObject = analysisObjects.find(
+    obj => obj.id === currentAnalysisId
+  );
+  const filters = analysisObject.filteredBy;
+
+  for (let i = 0; i < filters.length; i++) {
+    const cardFilter = document.createElement('span');
+    cardFilter.className = 'filter-badge'; // Apply the custom class
+    cardFilter.textContent = filters[i].value;
+    cardFiltersColumn.appendChild(cardFilter);
+  }
+
+  // Create the canvas element
+  const canvas = document.createElement('canvas');
+  canvas.style.width = '100%'; // Full width
+
+  //calculate how many bars there will be and use that to calculate the canvas height
+  let totalArrayValues = 0;
+  chartObject.data.forEach(subArray => {
+    totalArrayValues += subArray.length;
+  });
+  canvas.style.height = `${100 + totalArrayValues * 25}px`; //will be 100px if filters return no data and 125px if they return 1 bar
+
+  // Append the canvas to the card body
+  cardBody.appendChild(canvas);
+
+  // Append the card body to the card
+  card.appendChild(cardBody);
+
+  // Append the card to the container
+  container.appendChild(card);
+
+  // Render the chart on the canvas
+  const ctx = canvas.getContext('2d');
+
+  // Create the datasets for each cluster
+  const datasets = chartObject.data.map((clusterData, index) => {
+    // Cycle through colorPalette for background and border colors
+    const colorIndex = index % colorPalette.length;
+    const backgroundColor = colorPalette[colorIndex];
+    const borderColor = colorPalette[colorIndex];
+
     return {
-      [header]: uniqueValues,
+      label: chartObject.clusterLabels[index], // Label for the cluster
+      data: clusterData,
+      backgroundColor: backgroundColor,
+      borderColor: borderColor,
+      borderWidth: 1, // Fixed border width
     };
   });
 
-  // Log the result for debugging
-  console.log('Categorical Array:', result);
-
-  // Update the global CategoricalArray
-  CategoricalArray = result;
-
-  return result;
-}
-
-// new function to clear and uppdate the stepper body with analysis options
-function displayAnalysisOptions() {
-  const stepBody = document.getElementById('step-body');
-  stepBody.classList.remove('mt-2');
-  stepBody.classList.add('mt-5');
-  // Clear any existing content
-  stepBody.innerHTML = '';
-
-  // Create the "i want to text", col and row
-  const analysisOptionTextRow = document.createElement('div');
-  analysisOptionTextRow.classList.add('row');
-  analysisOptionTextRow.id = 'analysis-option-text-row';
-  const analysisOptionTextColumn = document.createElement('div');
-  analysisOptionTextColumn.classList.add('col-12');
-  const analysisOptionText = document.createElement('h5');
-  analysisOptionText.textContent = 'I want to perform a...';
-  analysisOptionTextColumn.appendChild(analysisOptionText);
-  analysisOptionTextRow.appendChild(analysisOptionTextColumn);
-  stepBody.appendChild(analysisOptionTextRow);
-
-  // Create the analysis option cards, cols, and row
-  const analysisOptionCardsRow = document.createElement('div');
-  analysisOptionCardsRow.classList.add('row');
-  analysisOptionCardsRow.id = 'analysis-options-cards-row';
-
-  // Helper function to create a card in a column
-  function createCardInCol(cardID, column, title, description, iconHTML) {
-    const card = document.createElement('button');
-    card.classList.add(
-      'card',
-      'h-100',
-      'border-0',
-      'shadow-sm',
-      'rounded-3',
-      'card-hover'
-    );
-    card.style.margin = '10px'; // Add some margin for spacing
-    card.id = cardID;
-
-    // Card body
-    const cardBody = document.createElement('div');
-    cardBody.classList.add('card-body', 'text-start');
-
-    // Add the icon
-    const iconContainer = document.createElement('div');
-    iconContainer.classList.add('mb-2');
-    iconContainer.innerHTML = iconHTML;
-    cardBody.appendChild(iconContainer);
-
-    // Add the title
-    const titleDiv = document.createElement('h5');
-    titleDiv.classList.add('card-title');
-    titleDiv.textContent = title;
-    cardBody.appendChild(titleDiv);
-
-    // Add the description
-    const descriptionDiv = document.createElement('p');
-    descriptionDiv.classList.add('card-text');
-    descriptionDiv.textContent = description;
-    cardBody.appendChild(descriptionDiv);
-
-    // Append the card body to the card
-    card.appendChild(cardBody);
-
-    // Append the card to the column
-    column.appendChild(card);
-  }
-
-  // Create the simple analysis column and card
-  const analysisOptionCardBasicCol = document.createElement('div');
-  analysisOptionCardBasicCol.classList.add('col-12', 'col-sm-4', 'mb-2');
-  createCardInCol(
-    'simple-analysis-option',
-    analysisOptionCardBasicCol,
-    'Simple Analysis',
-    'Summarize and filter data within a single category.',
-    '<i class="fas fa-chart-bar"></i>'
-  );
-
-  // Create the comparative analysis column and card
-  const analysisOptionCardCompareCol = document.createElement('div');
-  analysisOptionCardCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2');
-  createCardInCol(
-    'comparative-analysis-option',
-    analysisOptionCardCompareCol,
-    'Comparative Analysis',
-    'Compare and contrast data across multiple categories.',
-    '<i class="fas fa-table"></i>'
-  );
-
-  // Create the trend analysis column and card
-  const analysisOptionCardTrendCol = document.createElement('div');
-  analysisOptionCardTrendCol.classList.add('col-12', 'col-sm-4', 'mb-2');
-  const trendCard = document.createElement('div');
-  trendCard.classList.add(
-    'card',
-    'h-100',
-    'border-0',
-    'shadow-sm',
-    'rounded-3'
-  );
-  trendCard.style.backgroundColor = '#ececec';
-  trendCard.style.margin = '10px';
-
-  // trendcard body
-  const trendCardBody = document.createElement('div');
-  trendCardBody.classList.add('card-body', 'text-start');
-
-  // Add the trendcard icon
-  const trendIconContainer = document.createElement('div');
-  trendIconContainer.classList.add('mb-2');
-  trendIconContainer.innerHTML =
-    '<i class="fas fa-chart-line"></i><span class="badge" style="background-color: #f4b400; margin-left:0.2rem; color: white; font-size: 0.875rem;">Coming Soon!</span>';
-  trendCardBody.appendChild(trendIconContainer);
-
-  // Add the trendcard title
-  const TrendTitleDiv = document.createElement('h5');
-  TrendTitleDiv.classList.add('card-title');
-  TrendTitleDiv.textContent = 'Trend Analysis';
-  trendCardBody.appendChild(TrendTitleDiv);
-
-  // Add the trendcard description
-  const trendDescriptionDiv = document.createElement('p');
-  trendDescriptionDiv.classList.add('card-text');
-  trendDescriptionDiv.textContent = 'Uncover patterns and changes over time.';
-  trendCardBody.appendChild(trendDescriptionDiv);
-
-  // Append the trend card body to the card
-  trendCard.appendChild(trendCardBody);
-
-  // Append the trend card to the column
-  analysisOptionCardTrendCol.appendChild(trendCard);
-
-  // Append analysis columns to the row
-  analysisOptionCardsRow.appendChild(analysisOptionCardBasicCol);
-  analysisOptionCardsRow.appendChild(analysisOptionCardCompareCol);
-  analysisOptionCardsRow.appendChild(analysisOptionCardTrendCol);
-
-  // Append the row to the step body
-  stepBody.appendChild(analysisOptionCardsRow);
-
-  const simpleCard = document.getElementById('simple-analysis-option');
-  simpleCard.addEventListener('click', function () {
-    handleIWantTo('simple');
-  });
-  const comparativeCard = document.getElementById(
-    'comparative-analysis-option'
-  );
-  comparativeCard.addEventListener('click', function () {
-    handleIWantTo('comparative');
+  new Chart(ctx, { //new chart in canvas
+    type: 'bar', // Use 'bar' type for horizontal bar chart
+    data: {
+      labels: chartObject.labels,
+      datasets: datasets,
+    },
+    options: chartObject.clusteredBarChartOptions,
   });
 }
-
-// Handle the select change event
-function handleIWantTo(event) {
-  const stepBody = document.getElementById('step-body');
-  stepBody.classList.remove('mt-5');
-  stepBody.classList.add('mt-2');
-  // Clear any existing content
-  stepBody.innerHTML = '';
-
-  //create the back to start button, row and col
-  const backRow = document.createElement('div');
-  backRow.className = 'row';
-  const backCol = document.createElement('div');
-  backCol.classList.add('col-12');
-  const backButton = document.createElement('button');
-  backButton.classList.add('btn', 'btn-tertiary', 'text-muted');
-  backButton.innerHTML =
-    ' <i class="fas fa-arrow-left" style="padding-right:0.2rem"></i> Back to types';
-
-  backCol.appendChild(backButton);
-  backRow.appendChild(backCol);
-  stepBody.appendChild(backRow);
-
-  backButton.addEventListener('click', displayAnalysisOptions);
-
-  // Create the container div and set its class
-  const promptRow = document.createElement('div');
-  promptRow.classList.add('row');
-  promptRow.id = 'prompt-row';
-  promptRow.style.margin = '1rem';
-
-  // Create four  column divs for the dropdowns and set their class
-  const typeColumn = document.createElement('div');
-  typeColumn.id = 'type-colum';
-  typeColumn.classList.add('col-12', 'col-sm-6', 'col-md-4');
-
-  const usingColumn = document.createElement('div');
-  usingColumn.id = 'using-column';
-  usingColumn.classList.add('col-12', 'col-sm-6', 'col-md-4');
-
-  const groupColumn = document.createElement('div');
-  groupColumn.id = 'group-column';
-  //no class for now. just keep empty
-
-  const filterColumn = document.createElement('div');
-  filterColumn.id = 'filter-column';
-  filterColumn.classList.add('col-12', 'col-sm-6', 'col-md-4');
-
-  // Append the col divs to the rowdiv
-  promptRow.appendChild(typeColumn);
-  promptRow.appendChild(usingColumn);
-  promptRow.appendChild(groupColumn);
-  promptRow.appendChild(filterColumn);
-
-  // Append the row div to the stepBody
-  stepBody.appendChild(promptRow);
-
-  // Create the i want text
-  const iWantText = document.createElement('span');
-  iWantText.id = 'i-want-to-text';
-  iWantText.textContent = 'I want to perform a...';
-
-  // Create the i want menu container
-  const iWantdropdownContainer = document.createElement('div');
-  iWantdropdownContainer.id = 'i-want-to-dropdown-container';
-  iWantdropdownContainer.classList.add('dropdown');
-
-  // Create the i want button
-  const iWantSelect = document.createElement('button');
-  iWantSelect.classList.add(
-    'btn',
-    'truncate-btn',
-    'btn-secondary',
-    'form-select',
-    'data-type-dropdown'
-  );
-  iWantSelect.type = 'button';
-  iWantSelect.style.width = '100%';
-  iWantSelect.style.fontSize = '0.9rem';
-  iWantSelect.textContent = 'make a selection';
-  iWantSelect.style.textAlign = 'left';
-  iWantSelect.id = 'i-want-to-dropdown';
-  iWantSelect.setAttribute('data-bs-toggle', 'dropdown');
-  iWantSelect.setAttribute('aria-expanded', 'false');
-
-  // Create the options menu
-  const iWantMenu = document.createElement('ul');
-  iWantMenu.classList.add('dropdown-menu');
-
-  // Populate the new dropdown with types of comparisons
-
-  const simpleListItem = document.createElement('li');
-  const simpleListAnchor = document.createElement('a');
-  simpleListAnchor.classList.add('dropdown-item');
-  const simpleListAnchorText = document.createElement('label');
-  simpleListAnchorText.textContent = 'simple analysis';
-  simpleListAnchor.setAttribute('data-value', 'simple');
-
-  const compareListItem = document.createElement('li');
-  const compareListAnchor = document.createElement('a');
-  compareListAnchor.classList.add('dropdown-item');
-  const compareListAnchorText = document.createElement('label');
-  compareListAnchorText.textContent = 'comparative analysis';
-  compareListAnchor.setAttribute('data-value', 'comparative');
-
-  //append options to menu
-  simpleListAnchor.appendChild(simpleListAnchorText);
-  simpleListItem.appendChild(simpleListAnchor);
-  iWantMenu.appendChild(simpleListItem);
-
-  compareListAnchor.appendChild(compareListAnchorText);
-  compareListItem.appendChild(compareListAnchor);
-  iWantMenu.appendChild(compareListItem);
-
-  // Append elements to the dropdown container
-  iWantdropdownContainer.appendChild(iWantSelect);
-  iWantdropdownContainer.appendChild(iWantMenu);
-
-  // place the select dropdown to colDiv1
-  typeColumn.appendChild(iWantText);
-  typeColumn.appendChild(iWantdropdownContainer);
-
-  // If the value of the select dropdown is "generic"...
-  if (event === 'simple') {
-    // Update select.textContent
-    iWantSelect.textContent = 'simple analysis';
-
-    //hide group column
-    if (groupColumn) {
-      groupColumn.style.display = 'none';
-    }
-
-    // Create and append the required dropdowns
-    createUsingTheseDropdown();
-    createFilterButton();
-  }
-  if (event === 'comparative') {
-    // Update select.textContent
-    iWantSelect.textContent = 'comparative analysis';
-
-    //show group column
-    if (groupColumn) {
-      groupColumn.style.display = '';
-    }
-
-    // Readjust column widths
-    typeColumn.classList.remove('col-md-6', 'col-md-4');
-    typeColumn.classList.add('col-md-3');
-
-    usingColumn.classList.remove('col-md-6', 'col-md-4');
-    usingColumn.classList.add('col-md-3');
-    usingColumn.innerHTML = '';
-
-    groupColumn.classList.remove('col-md-6', 'col-md-4');
-    groupColumn.classList.add('col-12', 'col-sm-6', 'col-md-3');
-    groupColumn.innerHTML = '';
-
-    filterColumn.classList.remove('col-md-6', 'col-md-4');
-    filterColumn.classList.add('col-md-3');
-    filterColumn.innerHTML = '';
-
-    // Create and append the required dropdowns
-    createUsingTheseDropdown();
-    createGroupByDropdown();
-    createFilterButton();
-  }
-
-  //update the current analysis object. scrap any previously existing info and give it a type
-  updateAnalysisObjectById(currentAnalysisId, {
-    analysisType: event,
-    usingThese: [],
-    groupedBy: '',
-    filteredBy: [],
-  });
-
-  //remove any previously existing chart cards from the body
-  let cardsContainer = document.getElementById('cards-container');
-
-  if (cardsContainer) {
-    cardsContainer.innerHTML = '';
-  } else {
-    cardsContainer = document.createElement('div');
-    cardsContainer.id = 'cards-container';
-    stepBody.appendChild(cardsContainer);
-  }
-
-  iWantMenu.addEventListener('click', function (event) {
-    const target = event.target.closest('a.dropdown-item');
-    let analysisType = '';
-    if (target.innerText === 'simple analysis') {
-      analysisType = 'simple';
-    }
-    if (target.innerText === 'comparative analysis') {
-      analysisType = 'comparative';
-    }
-
-    handleIWantTo(analysisType);
-  });
-}
-
-// function to Create the Using dropdown
-function createUsingTheseDropdown() {
-  const usingColumn = document.getElementById('using-column');
-
-  // Create the span element for text
-  const span = document.createElement('span');
-  span.id = 'using-these-values-text';
-  span.textContent = 'Using these columns';
-
-  // Create the menu container
-  const dropdownContainer = document.createElement('div');
-  dropdownContainer.classList.add('dropdown');
-
-  // Create the button
-  const columnSelect = document.createElement('button');
-  columnSelect.classList.add(
-    'btn',
-    'truncate-btn',
-    'btn-secondary',
-    'form-select',
-    'data-type-dropdown'
-  );
-  columnSelect.type = 'button';
-  columnSelect.style.width = '100%';
-  columnSelect.style.fontSize = '0.9rem';
-  columnSelect.textContent = '0 selected'; // Start with 0 selected
-  columnSelect.style.textAlign = 'left'; // Align text to the left
-  columnSelect.id = 'column-select';
-
-  columnSelect.setAttribute('data-bs-toggle', 'dropdown');
-  columnSelect.setAttribute('aria-expanded', 'false');
-
-  // Create the menu
-  const columnMenu = document.createElement('ul');
-  columnMenu.classList.add('dropdown-menu');
-  columnMenu.id = 'using-these-list';
-
-  // Populate the new dropdown with options from the saved dropdown state
-  dropdownState.forEach(({ header, value }) => {
-    if (value === 'Categorical') {
-      const columnListItem = document.createElement('li');
-      const columnListAnchor = document.createElement('a');
-      columnListAnchor.classList.add('dropdown-item');
-      const columnListInput = document.createElement('input');
-      columnListInput.type = 'checkbox';
-      columnListInput.id = header;
-      columnListInput.value = header;
-
-      const columnListLabel = document.createElement('label');
-      columnListLabel.style.marginLeft = '10px';
-      columnListLabel.htmlFor = header;
-      columnListLabel.textContent = header;
-
-      columnListAnchor.appendChild(columnListInput);
-      columnListAnchor.appendChild(columnListLabel);
-      columnListItem.appendChild(columnListAnchor);
-      columnMenu.appendChild(columnListItem);
-
-      // Add event listener to update button text when checkbox is changed
-      columnListInput.addEventListener('change', () => {
-        updateUsingTheseCount();
-        updateUsingTheseArray();
-      });
-    }
-  });
-
-  // Append elements to the dropdown container
-  dropdownContainer.appendChild(columnSelect);
-  dropdownContainer.appendChild(columnMenu);
-
-  // Append elements to usingcolumn
-  usingColumn.appendChild(span);
-  usingColumn.appendChild(dropdownContainer);
-
-  // Prevent dropdown menu from closing when clicking inside
-  columnMenu.addEventListener('click', function (event) {
-    event.stopPropagation();
-  });
-}
-// Update the text of the columnSelect button based on selected checkboxes
-function updateUsingTheseCount() {
-  const columnSelect = document.getElementById('column-select');
-  const checkboxes = document.querySelectorAll(
-    '#column-select ~ .dropdown-menu input[type="checkbox"]'
-  );
-  const selectedCount = Array.from(checkboxes).filter(
-    checkbox => checkbox.checked
-  ).length;
-  columnSelect.textContent = `${selectedCount} selected`;
-}
-
-// Update the usingThese array based on selected checkboxes
-function updateUsingTheseArray() {
-  const selectedValues = Array.from(
-    document.querySelectorAll(
-      '#column-select ~ .dropdown-menu input[type="checkbox"]:checked'
-    )
-  ).map(checkbox => checkbox.value);
-
-  // Find the current AnalysisObject and update its usingThese array
-  const analysis = analysisObjects.find(obj => obj.id === currentAnalysisId);
-  if (analysis) {
-    analysis.usingThese = selectedValues;
-    analysis.beginChartGenerationProcess();
-    console.log(analysis);
-  } else {
-    console.error('AnalysisObject not found');
-  }
-}
-
-// function to create the group by dropdown necessary for comparisons
-function createGroupByDropdown() {
-  const groupColumn = document.getElementById('group-column');
-
-  // Create the span element for text
-  const span = document.createElement('span');
-  span.id = 'group-by-text';
-  span.textContent = 'Compared by';
-
-  // Create the menu container
-  const dropdownContainer = document.createElement('div');
-  dropdownContainer.classList.add('dropdown');
-
-  // Create the button
-  const groupBySelect = document.createElement('button');
-  groupBySelect.classList.add(
-    'btn',
-    'truncate-btn',
-    'btn-secondary',
-    'form-select',
-    'data-type-dropdown'
-  );
-  groupBySelect.type = 'button';
-  groupBySelect.style.width = '100%';
-  groupBySelect.style.fontSize = '0.9rem';
-  groupBySelect.textContent = 'make a selection';
-  groupBySelect.style.textAlign = 'left'; // Align text to the left
-  groupBySelect.id = 'group-by-select';
-  groupBySelect.setAttribute('data-bs-toggle', 'dropdown');
-  groupBySelect.setAttribute('aria-expanded', 'false');
-
-  // Create the menu
-  const groupByMenu = document.createElement('ul');
-  groupByMenu.classList.add('dropdown-menu');
-  groupByMenu.id = 'group-by-menu';
-
-  // Populate the group by dropdown with columns that were typed as "Categorical"
-  dropdownState.forEach(({ header, value }) => {
-    if (value === 'Categorical') {
-      const groupByListItem = document.createElement('li');
-      const groupByListAnchor = document.createElement('a');
-      groupByListAnchor.classList.add('dropdown-item');
-      groupByListAnchor.setAttribute('data-value', 'open');
-      const groupByListAnchorText = document.createElement('label');
-      groupByListAnchorText.textContent = header;
-      groupByListAnchor.id = header;
-
-      //append all items to the group by menu
-      groupByListAnchor.appendChild(groupByListAnchorText);
-      groupByListItem.appendChild(groupByListAnchor);
-      groupByMenu.appendChild(groupByListItem);
-    }
-  });
-
-  // Append elements to the dropdown container
-  dropdownContainer.appendChild(groupBySelect);
-  dropdownContainer.appendChild(groupByMenu);
-
-  // Append elements to colDiv3
-  groupColumn.appendChild(span);
-  groupColumn.appendChild(dropdownContainer);
-
-  // Add event listener for selection change, which will call a cascade of functions
-  groupByMenu.addEventListener('click', handleGroupByChange);
-}
-
-// Handle the group by change event
-function handleGroupByChange(event) {
-  const target = event.target.closest('a.dropdown-item');
-  if (!target) return;
-
-  const groupBySelect = document.getElementById('group-by-select');
-
-  // Update groupby menu to display the selected value
-  groupBySelect.textContent = target.querySelector('label').textContent;
-
-  //call the function that updates the analysis object's groupBy property
-  updateGroupByValue();
-}
-
-//function to update the analysis object with the selected groupBy value
-function updateGroupByValue() {
-  const selectedValue = document.getElementById('group-by-select')
-    .textContent;
-
-  // Find the current AnalysisObject and update its groupBy property
-  const analysis = analysisObjects.find(obj => obj.id === currentAnalysisId);
-  if (analysis) {
-    analysis.groupedBy = selectedValue;
-    analysis.beginChartGenerationProcess();
-    console.log(analysis);
-  } else {
-    console.error('AnalysisObject not found');
-  }
-}
-
-// function to Create the filter dropdown using the Categorical array
-function createFilterButton() {
-  const filterColumn = document.getElementById('filter-column');
-
-  // Create the span element for text
-  const span = document.createElement('span');
-  span.id = 'filtered-by-text';
-  span.textContent = 'Filtered by';
-
-  // Create the menu container
-  const dropdownContainer = document.createElement('div');
-  dropdownContainer.classList.add('dropdown');
-
-  // Create the button
-  const filterSelect = document.createElement('button');
-  filterSelect.classList.add(
-    'btn',
-    'truncate-btn',
-    'btn-secondary',
-    'form-select',
-    'data-type-dropdown'
-  );
-  filterSelect.type = 'button';
-  filterSelect.style.width = '100%';
-  filterSelect.style.fontSize = '0.9rem';
-  filterSelect.textContent = '0 selected'; // Start with 0 selected
-  filterSelect.style.textAlign = 'left'; // Align text to the left
-  filterSelect.id = 'filter-select';
-  filterSelect.setAttribute('data-bs-toggle', 'dropdown');
-  filterSelect.setAttribute('aria-expanded', 'false');
-
-  // Create the menu
-  const filterMenu = document.createElement('ul');
-  filterMenu.classList.add('dropdown-menu');
-  filterMenu.id = 'filtered-by-list';
-
-  let itemToHeaderMap = new Map();
-
-  // Populate the dropdown with headers and options
-  CategoricalArray.forEach(group => {
-    for (const [header, values] of Object.entries(group)) {
-      values.forEach(value => {
-        itemToHeaderMap.set(value, header);
-      });
-      // Create and append header
-      const headerItem = document.createElement('li');
-      headerItem.classList.add('dropdown-header');
-      headerItem.textContent = header;
-      filterMenu.appendChild(headerItem);
-
-      // Create and append divider
-      const divider = document.createElement('li');
-      divider.classList.add('dropdown-divider');
-      filterMenu.appendChild(divider);
-
-      // Create and append options
-      values.forEach(value => {
-        const item = document.createElement('li');
-        item.classList.add('dropdown-item');
-
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = value;
-        checkbox.value = value;
-
-        const label = document.createElement('label');
-        label.htmlFor = value;
-        label.textContent = value;
-        label.style.marginLeft = '10px';
-
-        item.appendChild(checkbox);
-        item.appendChild(label);
-
-        filterMenu.appendChild(item);
-
-        // Add event listener to update button text when checkbox is changed
-        item.addEventListener('change', () => {
-          updateFilteredCount();
-          updateFilteredArray();
-        });
-      });
-    }
-  });
-
-  // Function to update the Filtered by array based on selected checkboxes
-  function updateFilteredArray() {
-    const selectedValues = Array.from(
-      document.querySelectorAll(
-        '#filter-select ~ .dropdown-menu input[type="checkbox"]:checked'
-      )
-    ).map(checkbox => {
-      const value = checkbox.value;
-      const header = itemToHeaderMap.get(value);
-      return { header, value };
-    });
-
-    // Find the current AnalysisObject and update its filteredBy array
-    const analysis = analysisObjects.find(
-      obj => obj.id === currentAnalysisId
-    );
-    if (analysis) {
-      analysis.filteredBy = selectedValues;
-      analysis.beginChartGenerationProcess();
-      console.log(analysis);
-    } else {
-      console.error('AnalysisObject not found');
-    }
-  }
-
-  // Append elements to the dropdown container
-  dropdownContainer.appendChild(filterSelect);
-  dropdownContainer.appendChild(filterMenu);
-
-  filterColumn.appendChild(span);
-  filterColumn.appendChild(dropdownContainer);
-
-  // Prevent dropdown menu from closing when clicking inside
-  filterMenu.addEventListener('click', function (event) {
-    event.stopPropagation();
-  });
-}
-
-// Update the text of the filterSelect button based on selected checkboxes
-function updateFilteredCount() {
-  const filterSelect = document.getElementById('filter-select');
-  const checkboxes = document.querySelectorAll(
-    '#filter-select ~ .dropdown-menu input[type="checkbox"]'
-  );
-  const filteredCount = Array.from(checkboxes).filter(
-    checkbox => checkbox.checked
-  ).length;
-  filterSelect.textContent = `${filteredCount} selected`;
-}
-
 
 
 
