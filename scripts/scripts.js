@@ -569,35 +569,7 @@ class AnalysisObject {
     }
   }
 
-  // Function to render all chart objects
-  prepChartContainerInStepBody() {
-    // Find the step-body container where the cards will be appended
-    const stepBody = document.getElementById('step-body');
-    let cardsContainer = document.getElementById('cards-container');
-
-    if (cardsContainer) {
-      //if the cards container was created in a previous call, empty it.
-      cardsContainer.innerHTML = '';
-    } else {
-      //if the cards container doesn't exist, create it within the stepbody div
-      cardsContainer = document.createElement('div');
-      cardsContainer.id = 'cards-container';
-      stepBody.appendChild(cardsContainer);
-    }
-
-    if (this.groupedBy === '') {
-      // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
-      this.chartObjects.forEach(chart => {
-        this.renderGenericChartInCard(chart);
-      });
-    } else {
-      this.chartObjects.forEach(chart => {
-        this.renderClusteredChartInCard(chart);
-      });
-    }
-  }
-
-  addGenericCharts() {
+    addGenericCharts() {
     //produces the data, labels and charts
     this.chartObjects = []; // Clear any pre-existing charts before creating new ones
     this.usingThese.forEach(value => {
@@ -634,6 +606,43 @@ class AnalysisObject {
       this.chartObjects.push(newChartObject); // add the new chart object at the end of the analysis object's charts array
     });
     this.prepChartContainerInStepBody(); // render all charts once their code and data is ready
+  }
+
+  addClusteredCharts() {
+    this.chartObjects = []; // Clear existing charts
+    this.usingThese.forEach(value => {
+      // Generate data, labels, and cluster labels for the clustered chart
+      const result = this.generateClusteredDataArrayAndLabels(
+        value,
+        this.groupedBy,
+        this.filteredBy
+      );
+
+      const data = result.data;
+      const labels = result.labels;
+      const clusterLabels = result.clusterLabels;
+      const percentagesCounts = result.percentagesCounts;
+      const chartTitle = `Summary of ${value} data grouped by ${this.groupedBy}`;
+      const filteredByString = this.filteredBy.map(item =>`${item.header}-${item.value}`).join();
+      const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
+
+      // Create and add the chart
+      const newChartObject = new ChartObject(
+        this.analysisType,
+        chartTitle,
+        chartID,
+        'bar',
+        data,
+        labels,
+        percentagesCounts,
+        clusterLabels, // Pass cluster labels to ChartObject
+        this.usingThese,
+        this.groupedBy,
+        this.filteredBy
+      );
+      this.chartObjects.push(newChartObject);
+    });
+    this.prepChartContainerInStepBody(); // render clustered once the code and data is ready
   }
 
   generateGenericDataArrayAndLabels(header, filteredBy) {
@@ -744,7 +753,142 @@ class AnalysisObject {
     };
   }
 
+  generateClusteredDataArrayAndLabels(header, groupedBy, filteredBy) {
+    // Updated function to check if an item matches all filters
+    function matchesFilter(item, filters) {
+      // Loop through each filter
+      for (let i = 0; i < filters.length; i++) {
+        let filter = filters[i];
+        let filterHeader = filter.header;
+        let filterValue = filter.value;
 
+        // Check if this item matches the filter
+        if (item[filterHeader] === filterValue) {
+          // If it matches, continue to the next filter
+          continue;
+        } else {
+          // If it doesn't match, check if there is another filter with the same header and a matching value
+          let hasAnotherMatch = false;
+          for (let j = 0; j < filters.length; j++) {
+            if (
+              filters[j].header === filterHeader &&
+              item[filterHeader] === filters[j].value
+            ) {
+              hasAnotherMatch = true;
+              break;
+            }
+          }
+          // If no other match is found for the same header, return false
+          if (!hasAnotherMatch) {
+            return false;
+          }
+        }
+      }
+
+      // If the item passes all filters, return true
+      return true;
+    }
+
+    // Filter the data based on applied filters
+    const filteredData = [];
+    for (let i = 0; i < parsedCSVData.length; i++) {
+      let item = parsedCSVData[i];
+      if (matchesFilter(item, filteredBy)) {
+        filteredData.push(item);
+      }
+    }
+    console.log('Filtered data:', filteredData);
+
+    // Create a map to count occurrences for each group
+    const groupCounts = {};
+    const valueCounts = {}; // To store total counts for each value across all groups
+
+    for (let i = 0; i < filteredData.length; i++) {
+      let item = filteredData[i];
+      let group = item[groupedBy];
+      let value = item[header];
+
+      // Initialize group key if not present
+      if (!groupCounts[group]) {
+        groupCounts[group] = {};
+      }
+
+      // Initialize value count if not present
+      if (!groupCounts[group][value]) {
+        groupCounts[group][value] = 0;
+      }
+
+      // Increment the count for the current value in the group
+      groupCounts[group][value]++;
+
+      // Increment the total count for the current value across all groups
+      if (!valueCounts[value]) {
+        valueCounts[value] = 0;
+      }
+      valueCounts[value]++;
+    }
+
+    // Prepare labels and data arrays
+    const labels = Object.keys(valueCounts);
+
+    const clusterLabels = Object.keys(groupCounts);
+
+    // Create data and PercentagesCounts arrays
+    const data = [];
+    const percentagesCounts = [];
+    for (let i = 0; i < clusterLabels.length; i++) {
+      let groupKey = clusterLabels[i];
+      let groupData = [];
+      let groupPercentagesCounts = [];
+      for (let j = 0; j < labels.length; j++) {
+        let label = labels[j];
+        let count = groupCounts[groupKey][label] || 0;
+        let total = valueCounts[label];
+        let percentage = total > 0 ? Math.round(count / total * 100) : 0;
+
+        groupData.push(percentage);
+        groupPercentagesCounts.push(`${percentage}% (${count})`); // Concatenate percentage and count
+      }
+      data.push(groupData);
+      percentagesCounts.push(groupPercentagesCounts);
+    }
+
+    return {
+      data, // Array of arrays with percentages for each group
+      labels, // Labels for data points
+      clusterLabels, // Labels for each group
+      percentagesCounts, // Array of arrays with percentage and count strings for each group
+    };
+  }
+
+
+// Function to render all chart objects
+prepChartContainerInStepBody() {
+  // Find the step-body container where the cards will be appended
+  const stepBody = document.getElementById('step-body');
+  let cardsContainer = document.getElementById('cards-container');
+
+  if (cardsContainer) {
+    //if the cards container was created in a previous call, empty it.
+    cardsContainer.innerHTML = '';
+  } else {
+    //if the cards container doesn't exist, create it within the stepbody div
+    cardsContainer = document.createElement('div');
+    cardsContainer.id = 'cards-container';
+    stepBody.appendChild(cardsContainer);
+  }
+
+  if (this.groupedBy === '') {
+    // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
+    this.chartObjects.forEach(chart => {
+      this.renderGenericChartInCard(chart);
+    });
+  } else {
+    this.chartObjects.forEach(chart => {
+      this.renderClusteredChartInCard(chart);
+    });
+  }
+}
 
   // Function to create and render a chart in a Bootstrap card component and append to 'step-body'
   renderGenericChartInCard(chartObject) {
@@ -865,151 +1009,9 @@ class AnalysisObject {
 
   }
 
-  addClusteredCharts() {
-    this.chartObjects = []; // Clear existing charts
-    this.usingThese.forEach(value => {
-      // Generate data, labels, and cluster labels for the clustered chart
-      const result = this.generateClusteredDataArrayAndLabels(
-        value,
-        this.groupedBy,
-        this.filteredBy
-      );
+ 
 
-      const data = result.data;
-      const labels = result.labels;
-      const clusterLabels = result.clusterLabels;
-      const percentagesCounts = result.percentagesCounts;
-      const chartTitle = `Summary of ${value} data grouped by ${this.groupedBy}`;
-      const filteredByString = this.filteredBy.map(item =>`${item.header}-${item.value}`).join();
-      const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
-
-      // Create and add the chart
-      const newChartObject = new ChartObject(
-        this.analysisType,
-        chartTitle,
-        chartID,
-        'bar',
-        data,
-        labels,
-        percentagesCounts,
-        clusterLabels, // Pass cluster labels to ChartObject
-        this.usingThese,
-        this.groupedBy,
-        this.filteredBy
-      );
-      this.chartObjects.push(newChartObject);
-    });
-    this.prepChartContainerInStepBody(); // render clustered once the code and data is ready
-  }
-
-  generateClusteredDataArrayAndLabels(header, groupedBy, filteredBy) {
-    // Updated function to check if an item matches all filters
-    function matchesFilter(item, filters) {
-      // Loop through each filter
-      for (let i = 0; i < filters.length; i++) {
-        let filter = filters[i];
-        let filterHeader = filter.header;
-        let filterValue = filter.value;
-
-        // Check if this item matches the filter
-        if (item[filterHeader] === filterValue) {
-          // If it matches, continue to the next filter
-          continue;
-        } else {
-          // If it doesn't match, check if there is another filter with the same header and a matching value
-          let hasAnotherMatch = false;
-          for (let j = 0; j < filters.length; j++) {
-            if (
-              filters[j].header === filterHeader &&
-              item[filterHeader] === filters[j].value
-            ) {
-              hasAnotherMatch = true;
-              break;
-            }
-          }
-          // If no other match is found for the same header, return false
-          if (!hasAnotherMatch) {
-            return false;
-          }
-        }
-      }
-
-      // If the item passes all filters, return true
-      return true;
-    }
-
-    // Filter the data based on applied filters
-    const filteredData = [];
-    for (let i = 0; i < parsedCSVData.length; i++) {
-      let item = parsedCSVData[i];
-      if (matchesFilter(item, filteredBy)) {
-        filteredData.push(item);
-      }
-    }
-    console.log('Filtered data:', filteredData);
-
-    // Create a map to count occurrences for each group
-    const groupCounts = {};
-    const valueCounts = {}; // To store total counts for each value across all groups
-
-    for (let i = 0; i < filteredData.length; i++) {
-      let item = filteredData[i];
-      let group = item[groupedBy];
-      let value = item[header];
-
-      // Initialize group key if not present
-      if (!groupCounts[group]) {
-        groupCounts[group] = {};
-      }
-
-      // Initialize value count if not present
-      if (!groupCounts[group][value]) {
-        groupCounts[group][value] = 0;
-      }
-
-      // Increment the count for the current value in the group
-      groupCounts[group][value]++;
-
-      // Increment the total count for the current value across all groups
-      if (!valueCounts[value]) {
-        valueCounts[value] = 0;
-      }
-      valueCounts[value]++;
-    }
-
-    // Prepare labels and data arrays
-    const labels = Object.keys(valueCounts);
-
-    const clusterLabels = Object.keys(groupCounts);
-
-    // Create data and PercentagesCounts arrays
-    const data = [];
-    const percentagesCounts = [];
-    for (let i = 0; i < clusterLabels.length; i++) {
-      let groupKey = clusterLabels[i];
-      let groupData = [];
-      let groupPercentagesCounts = [];
-      for (let j = 0; j < labels.length; j++) {
-        let label = labels[j];
-        let count = groupCounts[groupKey][label] || 0;
-        let total = valueCounts[label];
-        let percentage = total > 0 ? Math.round(count / total * 100) : 0;
-
-        groupData.push(percentage);
-        groupPercentagesCounts.push(`${percentage}% (${count})`); // Concatenate percentage and count
-      }
-      data.push(groupData);
-      percentagesCounts.push(groupPercentagesCounts);
-    }
-
-    return {
-      data, // Array of arrays with percentages for each group
-      labels, // Labels for data points
-      clusterLabels, // Labels for each group
-      percentagesCounts, // Array of arrays with percentage and count strings for each group
-    };
-  }
-
+  
   // Function to create and render a horizontal clustered bar chart in a Bootstrap card component and append to 'step-body'
   renderClusteredChartInCard(chartObject) {
     // Pass chartObject as an argument
