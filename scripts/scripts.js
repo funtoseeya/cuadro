@@ -558,27 +558,27 @@ class AnalysisObject {
     //meant as a router that chooses what charts to produce depending on the inputs
     // Check if usingThese is not empty and analysisobject's type is 'generic'
     if (this.usingThese.length > 0 && this.analysisType === 'simple') {
-      this.addGenericCharts();
+      this.addSimpleChartObjects();
     }
     if (
       this.usingThese.length > 0 &&
       this.analysisType === 'comparative' &&
       this.groupedBy != ''
     ) {
-      this.addClusteredCharts();
+      this.addComparativeChartObjects();
     }
   }
 
-    addGenericCharts() {
+    addSimpleChartObjects() {
     //produces the data, labels and charts
     this.chartObjects = []; // Clear any pre-existing charts before creating new ones
     this.usingThese.forEach(value => {
       //iterates over each element in the this.usingThese array.
       // get the data we need to produce the chart
-      const result = this.generateGenericDataArrayAndLabels(
+      const result = this.generateSimpleChartObjectDataArrayAndLabels(
         value,
         this.filteredBy
-      ); // Get the result from the generateGenericDataArrayAndLabels method
+      ); 
 
       // Extract data and labels from the result object
       const data = result.data;
@@ -608,11 +608,11 @@ class AnalysisObject {
     this.prepChartContainerInStepBody(); // render all charts once their code and data is ready
   }
 
-  addClusteredCharts() {
+  addComparativeChartObjects() {
     this.chartObjects = []; // Clear existing charts
     this.usingThese.forEach(value => {
       // Generate data, labels, and cluster labels for the clustered chart
-      const result = this.generateClusteredDataArrayAndLabels(
+      const result = this.generateComparativeChartObjectDataArrayAndLabels(
         value,
         this.groupedBy,
         this.filteredBy
@@ -645,7 +645,7 @@ class AnalysisObject {
     this.prepChartContainerInStepBody(); // render clustered once the code and data is ready
   }
 
-  generateGenericDataArrayAndLabels(header, filteredBy) {
+  generateSimpleChartObjectDataArrayAndLabels(header, filteredBy) {
     // Helper function to check if an object matches all the filter criteria. OR within the the same header, AND between headers
     function matchesFilter(item, filters) {
       // Loop through each filter
@@ -753,7 +753,7 @@ class AnalysisObject {
     };
   }
 
-  generateClusteredDataArrayAndLabels(header, groupedBy, filteredBy) {
+  generateComparativeChartObjectDataArrayAndLabels(header, groupedBy, filteredBy) {
     // Updated function to check if an item matches all filters
     function matchesFilter(item, filters) {
       // Loop through each filter
