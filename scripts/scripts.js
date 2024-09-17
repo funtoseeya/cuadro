@@ -1329,7 +1329,7 @@ function setupAnalyzeStep() {
     });
 
     // run the function that creates the Categorical array, which is needed for the filter panel
-    createCategoricalArray();
+    createCategoricalArrayForFilterPanel();
 
     //create a new analysis object
     createAnalysisObject()
@@ -1338,7 +1338,7 @@ function setupAnalyzeStep() {
 
 
 // Function to create a new array to generate the filters dropdown
-function createCategoricalArray() {
+function createCategoricalArrayForFilterPanel() {
 
   // Extract headers marked as "Categorical"
   const CategoricalHeaders = dropdownState
@@ -1924,7 +1924,6 @@ function updateGroupByValue() {
 
 // function to Create the filter dropdown using the Categorical array
 function createFilterButton() {
-  const CategoricalArray1 = CategoricalArray; // Call the function to get the array
   const filterColumn = document.getElementById('filter-column');
 
   // Create the span element for text
@@ -1962,7 +1961,7 @@ function createFilterButton() {
   let itemToHeaderMap = new Map();
 
   // Populate the dropdown with headers and options
-  CategoricalArray1.forEach(group => {
+  CategoricalArray.forEach(group => {
     for (const [header, values] of Object.entries(group)) {
       values.forEach(value => {
         itemToHeaderMap.set(value, header);
