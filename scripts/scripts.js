@@ -532,7 +532,7 @@ class AnalysisObject {
   constructor() {
     //create a new empty object
     this.id = nextAnalysisId++; // Assign a unique ID that increments by 1 each time a new one is created
-    this.type = ''; // basic chart, comparison...
+    this.analysisType = ''; // simple, comparative, temporal...
     this.usingThese = []; // the main column being processed
     this.groupedBy = ''; // sometimes the data will be sliced by this column and displayed in the chart
     this.filteredBy = []; // sometimes the data will be filtered by these values
@@ -540,15 +540,15 @@ class AnalysisObject {
     this.label = ''; // Optional label for user naming
   }
 
-  //update the object and its parameters
+  //update the object's parameters. if any are not defined in the call, default to current value
   updateAnalysisObject(
-    type = this.type,
+    analysisType= this.analysisType,
     usingThese = this.usingThese,
     groupedBy = this.groupedBy,
     filteredBy = this.filteredBy,
     label = this.label
   ) {
-    this.type = type; //update the parameter to what's passed as an argument
+    this.analysisType = analysisType; //update the parameter to what's passed as an argument
     this.usingThese = usingThese; //update the parameter to what's passed as an argument
     this.groupedBy = groupedBy; //update the parameter to what's passed as an argument
     this.filteredBy = filteredBy; //update the parameter to what's passed as an argument
@@ -557,12 +557,12 @@ class AnalysisObject {
   beginChartGenerationProcess() {
     //meant as a router that chooses what charts to produce depending on the inputs
     // Check if usingThese is not empty and analysisobject's type is 'generic'
-    if (this.usingThese.length > 0 && this.type === 'simple') {
+    if (this.usingThese.length > 0 && this.analysisType === 'simple') {
       this.addGenericCharts();
     }
     if (
       this.usingThese.length > 0 &&
-      this.type === 'comparative' &&
+      this.analysisType === 'comparative' &&
       this.groupedBy != ''
     ) {
       this.addClusteredCharts();
@@ -570,8 +570,8 @@ class AnalysisObject {
   }
 
   // Function to render all chart objects
-  prepChartContainer() {
-    // Find the container where the cards will be appended
+  prepChartContainerInStepBody() {
+    // Find the step-body container where the cards will be appended
     const stepBody = document.getElementById('step-body');
     let cardsContainer = document.getElementById('cards-container');
 
@@ -619,6 +619,7 @@ class AnalysisObject {
 
       // Create and add the chart
       const newChartObject = new ChartObject(
+        this.analysisType,
         chartTitle,
         chartID,
         'bar',
@@ -632,7 +633,7 @@ class AnalysisObject {
       ); //value= the current item in the usingthese foreach loop
       this.chartObjects.push(newChartObject); // add the new chart object at the end of the analysis object's charts array
     });
-    this.prepChartContainer(); // render all charts once their code and data is ready
+    this.prepChartContainerInStepBody(); // render all charts once their code and data is ready
   }
 
   generateGenericDataArrayAndLabels(header, filteredBy) {
@@ -884,6 +885,7 @@ class AnalysisObject {
 
       // Create and add the chart
       const newChartObject = new ChartObject(
+        this.analysisType,
         chartTitle,
         chartID,
         'bar',
@@ -897,7 +899,7 @@ class AnalysisObject {
       );
       this.chartObjects.push(newChartObject);
     });
-    this.prepChartContainer(); // render clustered once the code and data is ready
+    this.prepChartContainerInStepBody(); // render clustered once the code and data is ready
   }
 
   generateClusteredDataArrayAndLabels(header, groupedBy, filteredBy) {
@@ -1151,9 +1153,9 @@ function updateAnalysisObjectById(id, updates) {
   const analysis = analysisObjects.find(obj => obj.id === id);
   if (analysis) {
     // Apply updates only for the properties provided in the updates object
-    const { type, usingThese, groupedBy, filteredBy, label } = updates;
+    const { analysisType, usingThese, groupedBy, filteredBy, label } = updates;
     analysis.updateAnalysisObject(
-      type !== undefined ? type : analysis.type,
+      analysisType !== undefined ? analysisType : analysis.analysisType,
       usingThese !== undefined ? usingThese : analysis.usingThese,
       groupedBy !== undefined ? groupedBy : analysis.groupedBy,
       filteredBy !== undefined ? filteredBy : analysis.filteredBy,
@@ -1183,7 +1185,8 @@ function deleteAllAnalysisObjects() {
 
 // boilerplate for charts we create via the generic dropdown option.
 class ChartObject {
-  constructor(title, id, type, data, labels, percentagesCounts, clusterLabels,usingThese,groupedBy,filteredBy) {
+  constructor(analysisType, title, id, type, data, labels, percentagesCounts, clusterLabels,usingThese,groupedBy,filteredBy) {
+    this.analysisType = analysisType;
     this.title = title; // Title of the chart
     this.id = id;
     this.type = type; // Type of the chart (e.g., 'bar', 'line')
@@ -1680,7 +1683,7 @@ function handleIWantTo(event) {
 
   //update the current analysis object. scrap any previously existing info and give it a type
   updateAnalysisObjectById(currentAnalysisId, {
-    type: event,
+    analysisType: event,
     usingThese: [],
     groupedBy: '',
     filteredBy: [],
