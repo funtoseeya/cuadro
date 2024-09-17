@@ -881,17 +881,17 @@ prepChartContainerInStepBody() {
   if (this.groupedBy === '') {
     // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
     this.chartObjects.forEach(chart => {
-      this.renderGenericChartInCard(chart);
+      this.renderSimpleChartInCard(chart);
     });
   } else {
     this.chartObjects.forEach(chart => {
-      this.renderClusteredChartInCard(chart);
+      this.renderComparativeChartInCard(chart);
     });
   }
 }
 
   // Function to create and render a chart in a Bootstrap card component and append to 'step-body'
-  renderGenericChartInCard(chartObject) {
+  renderSimpleChartInCard(chartObject) {
     //pass chartObject as an argument
     // Find the container where the cards will be appended
     const container = document.getElementById('cards-container');
@@ -1013,7 +1013,7 @@ prepChartContainerInStepBody() {
 
   
   // Function to create and render a horizontal clustered bar chart in a Bootstrap card component and append to 'step-body'
-  renderClusteredChartInCard(chartObject) {
+  renderComparativeChartInCard(chartObject) {
     // Pass chartObject as an argument
     // Find the container where the cards will be appended
     const container = document.getElementById('cards-container');
