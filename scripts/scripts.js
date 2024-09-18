@@ -1879,10 +1879,7 @@ function // Function to create and render a chart in a Bootstrap card component 
   cardTitleColumn.appendChild(cardTitle);
 
   //create filter badges as needed
-  const analysisObject = analysisObjects.find(
-    obj => obj.id === currentAnalysisId
-  );
-  const filters = analysisObject.filteredBy;
+  const filters = chartObject.filteredBy;
 
   for (let i = 0; i < filters.length; i++) {
     const cardFilter = document.createElement('span');
@@ -1995,10 +1992,7 @@ function renderComparativeChartInCard(chartObject, container) {
   cardTitleColumn.appendChild(cardTitle);
 
   //create filter badges as needed
-  const analysisObject = analysisObjects.find(
-    obj => obj.id === currentAnalysisId
-  );
-  const filters = analysisObject.filteredBy;
+  const filters = chartObject.filteredBy;
 
   for (let i = 0; i < filters.length; i++) {
     const cardFilter = document.createElement('span');
