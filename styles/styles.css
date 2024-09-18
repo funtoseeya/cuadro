@@ -250,7 +250,6 @@ body {
   font-weight: 900; /* FontAwesome solid icons weight */
   margin-right: 0.25rem; /* Space between icon and text */
 }
-
 .bookmarks-overlay {
   height: 100%;
   width: 0;
@@ -262,31 +261,21 @@ body {
   overflow-x: hidden;
 }
 
-.bookmarks-overlay a {
-  padding: 8px;
-  text-decoration: none;
+.bookmarks-overlay .close-bookmarks-overlay-btn {
   font-size: 36px;
   color: #818181;
-  display: block;
-  transition: 0.3s;
+  text-decoration: none;
 }
 
-.bookmarks-overlay a:hover, .bookmarks-overlay a:focus {
+.bookmarks-overlay .close-bookmarks-overlay-btn:hover,
+.bookmarks-overlay .close-bookmarks-overlay-btn:focus {
   color: #f1f1f1;
+  cursor: pointer;
 }
 
-.bookmarks-overlay .close-bookmarks-overlay-btn {
-  position: absolute;
-  top: 20px;
-  right: 45px;
-  font-size: 60px;
-}
-
+/* Responsive adjustment */
 @media screen and (max-height: 450px) {
-  .bookmarks-overlay a {font-size: 20px}
   .bookmarks-overlay .close-bookmarks-overlay-btn {
-  font-size: 40px;
-  top: 15px;
-  right: 35px;
+      font-size: 30px;
   }
 }

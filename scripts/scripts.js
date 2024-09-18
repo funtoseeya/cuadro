@@ -815,7 +815,7 @@ function handleIWantTo(event) {
   // Create the i want text
   const iWantText = document.createElement('span');
   iWantText.id = 'i-want-to-text';
-  iWantText.style.fontSize='0.9rem';
+  iWantText.style.fontSize = '0.9rem';
   iWantText.textContent = 'I want to perform a...';
 
   // Create the i want menu container
@@ -1074,7 +1074,7 @@ function createGroupByDropdown() {
   // Create the span element for text
   const span = document.createElement('span');
   span.id = 'group-by-text';
-  span.style.fontSize='0.9rem';
+  span.style.fontSize = '0.9rem';
   span.textContent = 'Compared by';
 
   // Create the menu container
@@ -1171,7 +1171,7 @@ function createFilterButton() {
   // Create the span element for text
   const span = document.createElement('span');
   span.id = 'filtered-by-text';
-  span.style.fontSize='0.9rem';
+  span.style.fontSize = '0.9rem';
   span.textContent = 'Filtered by';
 
   // Create the menu container
@@ -1315,7 +1315,7 @@ class AnalysisObject {
 
   //update the object's parameters. if any are not defined in the call, default to current value
   updateAnalysisObject(
-    analysisType= this.analysisType,
+    analysisType = this.analysisType,
     usingThese = this.usingThese,
     groupedBy = this.groupedBy,
     filteredBy = this.filteredBy,
@@ -1342,7 +1342,7 @@ class AnalysisObject {
     }
   }
 
-    addSimpleChartObjects() {
+  addSimpleChartObjects() {
     //produces the data, labels and charts
     this.chartObjects = []; // Clear any pre-existing charts before creating new ones
     this.usingThese.forEach(value => {
@@ -1351,16 +1351,16 @@ class AnalysisObject {
       const result = this.generateSimpleChartObjectDataArrayAndLabels(
         value,
         this.filteredBy
-      ); 
+      );
 
       // Extract data and labels from the result object
       const data = result.data;
       const labels = result.labels;
       const percentagesCounts = result.PercentagesCounts;
       const chartTitle = `Summary of ${value} data`;
-      const filteredByString = this.filteredBy.map(item =>`${item.header}-${item.value}`).join();
+      const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
-      
+
 
       // Create and add the chart
       const newChartObject = new ChartObject(
@@ -1396,7 +1396,7 @@ class AnalysisObject {
       const clusterLabels = result.clusterLabels;
       const percentagesCounts = result.percentagesCounts;
       const chartTitle = `Summary of ${value} data grouped by ${this.groupedBy}`;
-      const filteredByString = this.filteredBy.map(item =>`${item.header}-${item.value}`).join();
+      const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
       // Create and add the chart
@@ -1635,34 +1635,34 @@ class AnalysisObject {
   }
 
 
-// Function to render all chart objects
-prepChartContainerInStepBody() {
-  // Find the step-body container where the cards will be appended
-  const stepBody = document.getElementById('step-body');
-  let cardsContainer = document.getElementById('step-body-cards-container');
+  // Function to render all chart objects
+  prepChartContainerInStepBody() {
+    // Find the step-body container where the cards will be appended
+    const stepBody = document.getElementById('step-body');
+    let cardsContainer = document.getElementById('step-body-cards-container');
 
-  if (cardsContainer) {
-    //if the cards container was created in a previous call, empty it.
-    cardsContainer.innerHTML = '';
-  } else {
-    //if the cards container doesn't exist, create it within the stepbody div
-    cardsContainer = document.createElement('div');
-    cardsContainer.id = 'step-body-cards-container';
-    stepBody.appendChild(cardsContainer);
+    if (cardsContainer) {
+      //if the cards container was created in a previous call, empty it.
+      cardsContainer.innerHTML = '';
+    } else {
+      //if the cards container doesn't exist, create it within the stepbody div
+      cardsContainer = document.createElement('div');
+      cardsContainer.id = 'step-body-cards-container';
+      stepBody.appendChild(cardsContainer);
+    }
+
+    if (this.groupedBy === '') {
+      // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
+      this.chartObjects.forEach(chart => {
+        renderSimpleChartInCard(chart, cardsContainer);
+      });
+    } else {
+      this.chartObjects.forEach(chart => {
+        renderComparativeChartInCard(chart, cardsContainer);
+      });
+    }
   }
 
-  if (this.groupedBy === '') {
-    // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
-    this.chartObjects.forEach(chart => {
-      renderSimpleChartInCard(chart,cardsContainer);
-    });
-  } else {
-    this.chartObjects.forEach(chart => {
-      renderComparativeChartInCard(chart,cardsContainer);
-    });
-  }
-}
-  
 }
 
 // Function to create and add a new Analysis object
@@ -1710,7 +1710,7 @@ function deleteAllAnalysisObjects() {
 
 // boilerplate for charts we create via the generic dropdown option.
 class ChartObject {
-  constructor(analysisType, title, id, type, data, labels, percentagesCounts, clusterLabels,usingThese,groupedBy,filteredBy) {
+  constructor(analysisType, title, id, type, data, labels, percentagesCounts, clusterLabels, usingThese, groupedBy, filteredBy) {
     this.analysisType = analysisType;
     this.title = title; // Title of the chart
     this.id = id;
@@ -1815,7 +1815,7 @@ class ChartObject {
 }
 
 function // Function to create and render a chart in a Bootstrap card component and append to 'step-body'
-renderSimpleChartInCard(chartObject, container) {
+  renderSimpleChartInCard(chartObject, container) {
 
   // Create the card element
   const card = document.createElement('div');
@@ -2074,26 +2074,6 @@ function addRemoveBookmark(target, chart) {
     chart.bookmarked = true;
     bookmarks.push(chart);
 
-    //notify user with success toast message
-    const toastDiv = document.getElementById('toastContainer'); // Replace with your parent div ID
-    toastDiv.innerHTML = ''; // Clear any existing content
-
-    const toastHtml = `
-<div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
-  <div class="toast border-0" style="background-color: #fff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 0.25rem;">
-    <div class="toast-body bg-success text-white" style="border-radius: 0.25rem;">
-      <strong>Item successfully bookmarked!</strong>
-    </div>
-  </div>
-</div>
-
-`;
-    toastDiv.innerHTML = toastHtml;
-    // Initialize the toast using Bootstrap's JS API
-    const toastElement = toastDiv.querySelector('.toast');
-    const toast = new bootstrap.Toast(toastElement);
-    toast.show();
-
     console.log('bookmarks: ', bookmarks);
   }
 
@@ -2122,14 +2102,74 @@ function addRemoveBookmark(target, chart) {
 }
 
 function openBookmarksOverlay() {
-console.log('opening bookmarks overlay...');
+  // Set up overlay
+  const bookmarksOverlay = document.getElementById('bookmarks-overlay');
+  bookmarksOverlay.style.width = "100%";
 
-const bookmarksOverlay=document.getElementById('bookmarks-overlay');
-bookmarksOverlay.style.width = "100%";
-const bookmarksOverlayCloseButton = document.getElementById('bookmarks-overlay-close-btn');
-bookmarksOverlayCloseButton.addEventListener('click', () => {
-  bookmarksOverlay.style.width = "0%";
-}
-)
+  let bookmarksContainer = document.getElementById('bookmarks-container');
+  // if the container doesn't exist, create it and all of its children
+  if (!bookmarksContainer) {
+    const bookmarksContainer = document.createElement('div');
+    bookmarksContainer.id = 'bookmarks-container';
+    bookmarksContainer.classList.add('container');
+    bookmarksOverlay.appendChild(bookmarksContainer);
 
+    const closeButtonRow = document.createElement('div');
+    closeButtonRow.classList.add('row', 'justify-content-end');
+    bookmarksContainer.appendChild(closeButtonRow);
+
+    const closeButtonColumn = document.createElement('div');
+    closeButtonColumn.classList.add('col-auto'); // col-auto to make the column fit the content
+    closeButtonColumn.innerHTML = `
+    <a class="close-bookmarks-overlay-btn" id="close-bookmarks-overlay-btn" role="button">&times;</a>`;
+    closeButtonRow.appendChild(closeButtonColumn);
+
+    // Close the overlay when the close button is clicked
+    const bookmarksOverlayCloseButton = document.getElementById('close-bookmarks-overlay-btn');
+    bookmarksOverlayCloseButton.addEventListener('click', () => {
+      bookmarksOverlay.style.width = "0%";
+    });
+
+    //create the row and columns containing the title and the export button
+    const titleExportRow = document.createElement('div');
+    titleExportRow.classList.add('row');
+    bookmarksContainer.appendChild(titleExportRow);
+    const titleColumn = document.createElement('div');
+    titleColumn.classList.add('col-8', 'd-flex', 'align-items-center', 'justify-content-start');
+    titleColumn.innerHTML = '<h1>Bookmarks</h1>';
+    titleExportRow.appendChild(titleColumn);
+    const exportColumn = document.createElement('div');
+    exportColumn.classList.add('col-4', 'd-flex', 'align-items-center', 'justify-content-end');
+    titleExportRow.appendChild(exportColumn);
+    const exportButton = document.createElement('button');
+    exportButton.classList.add('btn', 'btn-primary');
+    exportButton.textContent = 'Export';
+    exportColumn.appendChild(exportButton);
+  
+
+  const bookmarksBodyContainer = document.createElement('div');
+  bookmarksBodyContainer.id='bookmarks-body-container';
+  bookmarksBodyContainer.classList.add('container', 'col-md-8', 'offset-md-2', 'mt-2');
+  bookmarksContainer.appendChild(bookmarksBodyContainer);
+  const bookmarksBodyRow = document.createElement('div');
+  bookmarksBodyRow.classList.add('row');
+  bookmarksBodyContainer.appendChild(bookmarksBodyRow);
+  const bookmarksBodyColumn = document.createElement('div');
+  bookmarksBodyColumn.id='bookmarks-body-column';
+  bookmarksBodyRow.appendChild(bookmarksBodyColumn);
+  }
+  else {
+    const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
+    bookmarksBodyColumn.innerHTML='';
+  }
+  for (let i = 0; i < bookmarks.length; i++) {
+    console.log(bookmarks[i].analysisType);
+    const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
+    if (bookmarks[i].analysisType === 'simple') {
+      renderSimpleChartInCard(bookmarks[i], bookmarksBodyColumn);
+    }
+    if (bookmarks[i].analysisType === 'comparative') {
+      renderComparativeChartInCard(bookmarks[i], bookmarksBodyColumn);
+    }
+  }
 }
