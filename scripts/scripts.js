@@ -1765,7 +1765,7 @@ class ChartObject {
           borderRadius: 5,
         },
       },
-      responsive: false, // Ensure the chart is not responsive
+      responsive: true, // Ensure the chart is  responsive
     };
 
     this.clusteredBarChartOptions = {
