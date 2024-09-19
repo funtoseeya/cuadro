@@ -2148,6 +2148,7 @@ function openBookmarksOverlay() {
     const bookmarksBodyContainer = document.createElement('div');
     bookmarksBodyContainer.id = 'bookmarks-body-container';
     bookmarksBodyContainer.classList.add('container', 'col-md-8', 'offset-md-2', 'mt-2');
+    bookmarksBodyContainer.style.marginBottom='50px';
     bookmarksContainer.appendChild(bookmarksBodyContainer);
     const bookmarksBodyRow = document.createElement('div');
     bookmarksBodyRow.classList.add('row');
