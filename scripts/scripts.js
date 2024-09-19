@@ -2100,7 +2100,7 @@ function openBookmarksOverlay() {
   const bookmarksOverlay = document.getElementById('bookmarks-overlay');
   bookmarksOverlay.style.width = "100%";
   bookmarksOverlay.style.display = 'block';
-  document.body.style.overflow = 'hidden';
+  document.body.style.overflowY = 'hidden';
 
   let bookmarksContainer = document.getElementById('bookmarks-container');
   // if the container doesn't exist, create it and all of its children
@@ -2125,7 +2125,7 @@ function openBookmarksOverlay() {
     bookmarksOverlayCloseButton.addEventListener('click', () => {
       bookmarksOverlay.style.width = "0%";
       bookmarksOverlay.style.display = 'none';
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflowY = 'scroll';
     });
 
     //create the row and columns containing the title and the export button
@@ -2160,6 +2160,45 @@ function openBookmarksOverlay() {
     const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
     bookmarksBodyColumn.innerHTML='';
   }
+
+  if (bookmarks.length===0) {
+    const emptyBookmarksContainer = document.getElementById('empty-bookmarks-container');
+    if (!emptyBookmarksContainer) {
+     const emptyBookmarksContainer=document.createElement('div');
+    emptyBookmarksContainer.id='empty-bookmarks-container';
+    const bookmarksContainer = document.getElementById('bookmarks-container');
+    bookmarksContainer.appendChild(emptyBookmarksContainer);
+    emptyBookmarksContainer.classList.add(
+    'container',
+    'd-flex',
+    'flex-column',
+    'align-items-center',
+    'justify-content-center',
+    'text-center'
+  );
+  emptyBookmarksContainer.style.width = '100%';
+  emptyBookmarksContainer.style.minHeight = '300px';
+  emptyBookmarksContainer.style.margin = '0 auto';
+  emptyBookmarksContainer.style.border = '3px solid var(--primary)';
+  emptyBookmarksContainer.style.backgroundColor='var(--secondary)';
+  emptyBookmarksContainer.style.borderRadius = '5px';
+  emptyBookmarksContainer.innerHTML=emptyBookmarksContainer.innerHTML = `
+  <div class="warning-icon">
+    <i class="fas fa-exclamation-triangle"></i>
+  </div>
+  <div class="bookmark-title" style="font-weight: bold; margin-top: 10px;">
+    No bookmarks to display
+  </div>
+  <div class="bookmark-description" style="margin-top: 5px;">
+    Save your favorite charts by clicking the bookmark icon in the top-right corner of their card.
+  </div>
+`;
+    }
+  }
+  else {
+    const emptyBookmarksContainer = document.getElementById('empty-bookmarks-container');
+    emptyBookmarksContainer.remove();
+
   for (let i = 0; i < bookmarks.length; i++) {
     console.log(bookmarks[i].analysisType);
     const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
@@ -2170,4 +2209,4 @@ function openBookmarksOverlay() {
       renderComparativeChartInCard(bookmarks[i], bookmarksBodyColumn);
     }
   }
-}
+}}
