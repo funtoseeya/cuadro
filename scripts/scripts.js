@@ -2074,7 +2074,7 @@ function addRemoveBookmark(target, chart) {
 
   //if bookmark is deactivated
   if (isActive === 'true') {
-
+    
     //update the button
     bookmarkButton.setAttribute('isActive', 'false');
     bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
