@@ -2143,46 +2143,46 @@ function openBookmarksOverlay() {
     exportButton.classList.add('btn', 'btn-primary');
     exportButton.textContent = 'Export';
     exportColumn.appendChild(exportButton);
-  
-  //build up the bookmarks body
-  const bookmarksBodyContainer = document.createElement('div');
-  bookmarksBodyContainer.id='bookmarks-body-container';
-  bookmarksBodyContainer.classList.add('container', 'col-md-8', 'offset-md-2', 'mt-2');
-  bookmarksContainer.appendChild(bookmarksBodyContainer);
-  const bookmarksBodyRow = document.createElement('div');
-  bookmarksBodyRow.classList.add('row');
-  bookmarksBodyContainer.appendChild(bookmarksBodyRow);
-  const bookmarksBodyColumn = document.createElement('div');
-  bookmarksBodyColumn.id='bookmarks-body-column';
-  bookmarksBodyRow.appendChild(bookmarksBodyColumn);
+
+    //build up the bookmarks body
+    const bookmarksBodyContainer = document.createElement('div');
+    bookmarksBodyContainer.id = 'bookmarks-body-container';
+    bookmarksBodyContainer.classList.add('container', 'col-md-8', 'offset-md-2', 'mt-2');
+    bookmarksContainer.appendChild(bookmarksBodyContainer);
+    const bookmarksBodyRow = document.createElement('div');
+    bookmarksBodyRow.classList.add('row');
+    bookmarksBodyContainer.appendChild(bookmarksBodyRow);
+    const bookmarksBodyColumn = document.createElement('div');
+    bookmarksBodyColumn.id = 'bookmarks-body-column';
+    bookmarksBodyRow.appendChild(bookmarksBodyColumn);
   }
   else {
     const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
-    bookmarksBodyColumn.innerHTML='';
+    bookmarksBodyColumn.innerHTML = '';
   }
 
-  if (bookmarks.length===0) {
+  if (bookmarks.length === 0) {
     const emptyBookmarksContainer = document.getElementById('empty-bookmarks-container');
     if (!emptyBookmarksContainer) {
-     const emptyBookmarksContainer=document.createElement('div');
-    emptyBookmarksContainer.id='empty-bookmarks-container';
-    const bookmarksContainer = document.getElementById('bookmarks-container');
-    bookmarksContainer.appendChild(emptyBookmarksContainer);
-    emptyBookmarksContainer.classList.add(
-    'container',
-    'd-flex',
-    'flex-column',
-    'align-items-center',
-    'justify-content-center',
-    'text-center'
-  );
-  emptyBookmarksContainer.style.width = '100%';
-  emptyBookmarksContainer.style.minHeight = '300px';
-  emptyBookmarksContainer.style.margin = '0 auto';
-  emptyBookmarksContainer.style.border = '3px solid var(--primary)';
-  emptyBookmarksContainer.style.backgroundColor='var(--secondary)';
-  emptyBookmarksContainer.style.borderRadius = '5px';
-  emptyBookmarksContainer.innerHTML=emptyBookmarksContainer.innerHTML = `
+      const emptyBookmarksContainer = document.createElement('div');
+      emptyBookmarksContainer.id = 'empty-bookmarks-container';
+      const bookmarksContainer = document.getElementById('bookmarks-container');
+      bookmarksContainer.appendChild(emptyBookmarksContainer);
+      emptyBookmarksContainer.classList.add(
+        'container',
+        'd-flex',
+        'flex-column',
+        'align-items-center',
+        'justify-content-center',
+        'text-center'
+      );
+      emptyBookmarksContainer.style.width = '100%';
+      emptyBookmarksContainer.style.minHeight = '300px';
+      emptyBookmarksContainer.style.margin = '0 auto';
+      emptyBookmarksContainer.style.border = '3px solid var(--primary)';
+      emptyBookmarksContainer.style.backgroundColor = 'var(--secondary)';
+      emptyBookmarksContainer.style.borderRadius = '5px';
+      emptyBookmarksContainer.innerHTML = emptyBookmarksContainer.innerHTML = `
   <div class="warning-icon">
     <i class="fas fa-exclamation-triangle"></i>
   </div>
@@ -2197,16 +2197,18 @@ function openBookmarksOverlay() {
   }
   else {
     const emptyBookmarksContainer = document.getElementById('empty-bookmarks-container');
-    emptyBookmarksContainer.remove();
-
-  for (let i = 0; i < bookmarks.length; i++) {
-    console.log(bookmarks[i].analysisType);
-    const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
-    if (bookmarks[i].analysisType === 'simple') {
-      renderSimpleChartInCard(bookmarks[i], bookmarksBodyColumn);
+    if (emptyBookmarksContainer) {
+      emptyBookmarksContainer.remove();
     }
-    if (bookmarks[i].analysisType === 'comparative') {
-      renderComparativeChartInCard(bookmarks[i], bookmarksBodyColumn);
+    for (let i = 0; i < bookmarks.length; i++) {
+      console.log(bookmarks[i].analysisType);
+      const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
+      if (bookmarks[i].analysisType === 'simple') {
+        renderSimpleChartInCard(bookmarks[i], bookmarksBodyColumn);
+      }
+      if (bookmarks[i].analysisType === 'comparative') {
+        renderComparativeChartInCard(bookmarks[i], bookmarksBodyColumn);
+      }
     }
   }
-}}
+}
