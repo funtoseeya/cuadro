@@ -2099,6 +2099,8 @@ function openBookmarksOverlay() {
   // Set up overlay
   const bookmarksOverlay = document.getElementById('bookmarks-overlay');
   bookmarksOverlay.style.width = "100%";
+  bookmarksOverlay.style.display = 'block';
+  document.body.style.overflow = 'hidden';
 
   let bookmarksContainer = document.getElementById('bookmarks-container');
   // if the container doesn't exist, create it and all of its children
@@ -2122,6 +2124,8 @@ function openBookmarksOverlay() {
     const bookmarksOverlayCloseButton = document.getElementById('close-bookmarks-overlay-btn');
     bookmarksOverlayCloseButton.addEventListener('click', () => {
       bookmarksOverlay.style.width = "0%";
+      bookmarksOverlay.style.display = 'none';
+      document.body.style.overflow = 'hidden';
     });
 
     //create the row and columns containing the title and the export button
@@ -2140,7 +2144,7 @@ function openBookmarksOverlay() {
     exportButton.textContent = 'Export';
     exportColumn.appendChild(exportButton);
   
-
+  //build up the bookmarks body
   const bookmarksBodyContainer = document.createElement('div');
   bookmarksBodyContainer.id='bookmarks-body-container';
   bookmarksBodyContainer.classList.add('container', 'col-md-8', 'offset-md-2', 'mt-2');

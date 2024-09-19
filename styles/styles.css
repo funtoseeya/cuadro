@@ -16,8 +16,7 @@
 }
 
 body {
-
-  /*mod*/
+  overflow-y: scroll; /* Always show vertical scrollbar */
   font-family: 'Lato', sans-serif;
   background-color: var(--background-color);
   color: var(--text-color);
@@ -200,6 +199,7 @@ body {
 
 #step-body {
   margin-bottom: 100px; /* Adjust this value to ensure the content doesn't overlap the bottom panel */
+
 }
 
 /* Custom  styles for the review table */
