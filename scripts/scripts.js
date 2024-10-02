@@ -1859,6 +1859,7 @@ function // Function to create and render a chart in a Bootstrap card component 
   //create the bookmark button and set whether it's active or not
   const bookmarkButton = document.createElement('button');
   bookmarkButton.classList.add('btn', 'btn-secondary');
+  bookmarkButton.setAttribute('bookmarkButtonIdentifier',chartObject.id);
   const isChartBookmarked = bookmarks.some(obj => obj.id === chartObject.id);
   if (isChartBookmarked) {
     bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
@@ -2074,13 +2075,16 @@ function addRemoveBookmark(target, chart) {
 
   //if bookmark is deactivated
   if (isActive === 'true') {
-    
-    //update the button
-    bookmarkButton.setAttribute('isActive', 'false');
-    bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
-    bookmarkButton.classList.remove('btn-primary');
-    bookmarkButton.classList.add('btn-secondary');
 
+    //update the button. if you're updating from the bookmarks overlay, you also want the button of the displayed chart object in the analysis step to be updated.
+    const bookmarkButtons = document.querySelectorAll(`[bookmarkButtonIdentifier="${chart.id}"]`);
+
+    for (let i=0; i<bookmarkButtons.length;i++) {
+    bookmarkButtons[i].setAttribute('isActive', 'false');
+    bookmarkButtons[i].innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+    bookmarkButtons[i].classList.remove('btn-primary');
+    bookmarkButtons[i].classList.add('btn-secondary');
+    }
     //update chartobject and remove from bookmarks array
     chart.bookmarked = false;
 
@@ -2092,6 +2096,17 @@ function addRemoveBookmark(target, chart) {
     }
     removeFromArray(bookmarks, chart.id);
     console.log('bookmarks: ', bookmarks);
+
+    //if you're deactivating from bookmarks overlay, we need to deactivate any chart object displayed in the analysis step
+    const currentAnalysisObject = analysisObjects.find(obj => obj.id === currentAnalysisId); //find the current analysis object
+    for (let i=0 ;i<currentAnalysisObject.chartObjects.length;i++) {//for each displayed chart object
+      if (currentAnalysisObject.chartObjects[i].id === chart.id) { //if the chart matches the id of the object just unbookmarked
+        currentAnalysisObject.chartObjects[i].bookmarked=false; //unbookmark the chart object (if hasn't been done already)
+        break; // Exit the loop as we found the matching chart object
+      }
+    }
+    console.log(currentAnalysisObject); //make sure that the charts bookmark setting is now set to off 
+        //update the bookmark icon
   }
 }
 
@@ -2148,7 +2163,7 @@ function openBookmarksOverlay() {
     const bookmarksBodyContainer = document.createElement('div');
     bookmarksBodyContainer.id = 'bookmarks-body-container';
     bookmarksBodyContainer.classList.add('container', 'col-md-8', 'offset-md-2', 'mt-2');
-    bookmarksBodyContainer.style.marginBottom='50px';
+    bookmarksBodyContainer.style.marginBottom = '50px';
     bookmarksContainer.appendChild(bookmarksBodyContainer);
     const bookmarksBodyRow = document.createElement('div');
     bookmarksBodyRow.classList.add('row');
@@ -2202,7 +2217,6 @@ function openBookmarksOverlay() {
       emptyBookmarksContainer.remove();
     }
     for (let i = 0; i < bookmarks.length; i++) {
-      console.log(bookmarks[i].analysisType);
       const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
       if (bookmarks[i].analysisType === 'simple') {
         renderSimpleChartInCard(bookmarks[i], bookmarksBodyColumn);
