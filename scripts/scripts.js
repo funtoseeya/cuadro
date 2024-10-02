@@ -2155,6 +2155,7 @@ function openBookmarksOverlay() {
     exportColumn.classList.add('col-4', 'd-flex', 'align-items-center', 'justify-content-end');
     titleExportRow.appendChild(exportColumn);
     const exportButton = document.createElement('button');
+    exportButton.id='export-button';
     exportButton.classList.add('btn', 'btn-primary');
     exportButton.textContent = 'Export';
     exportColumn.appendChild(exportButton);
@@ -2178,6 +2179,10 @@ function openBookmarksOverlay() {
   }
 
   if (bookmarks.length === 0) {
+    const exportButton = document.getElementById('export-button');
+    exportButton.classList.add('disabled'); //ensure the export button is  disabled
+
+    //create an empty state
     const emptyBookmarksContainer = document.getElementById('empty-bookmarks-container');
     if (!emptyBookmarksContainer) {
       const emptyBookmarksContainer = document.createElement('div');
@@ -2212,6 +2217,9 @@ function openBookmarksOverlay() {
     }
   }
   else {
+    const exportButton = document.getElementById('export-button');
+    exportButton.classList.remove('disabled'); //ensure the export button isn't disabled
+
     const emptyBookmarksContainer = document.getElementById('empty-bookmarks-container');
     if (emptyBookmarksContainer) {
       emptyBookmarksContainer.remove();
