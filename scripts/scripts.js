@@ -2432,14 +2432,6 @@ function exportAllBookmarkedCardsToPPTX() {
           h: imgHeight,
         });
 
-        // Add footer text to the slide
-        const footerText = "Powered by Cuadro";
-        slide.addText(footerText, {
-          x: 0, // Center horizontally
-          y: pageHeight - 0.5, // Position near the bottom
-          fontSize: 10,
-          align: 'center',
-        });
 
         // If there are more cards, add a new slide and process the next one
         if (cardIndex < cards.length - 1) {
