@@ -1859,7 +1859,7 @@ function // Function to create and render a chart in a Bootstrap card component 
   //create the bookmark button and set whether it's active or not
   const bookmarkButton = document.createElement('button');
   bookmarkButton.classList.add('btn', 'btn-secondary');
-  bookmarkButton.setAttribute('bookmarkButtonIdentifier',chartObject.id);
+  bookmarkButton.setAttribute('bookmarkButtonIdentifier', chartObject.id);
   const isChartBookmarked = bookmarks.some(obj => obj.id === chartObject.id);
   if (isChartBookmarked) {
     bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
@@ -1906,7 +1906,7 @@ function // Function to create and render a chart in a Bootstrap card component 
   container.appendChild(card);
 
   // Render the chart on the canvas
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
   new Chart(ctx, { //new chart in canvas
     //create a new chart using the properties of the chartObject being called as an argument in the function
@@ -2023,7 +2023,7 @@ function renderComparativeChartInCard(chartObject, container) {
   container.appendChild(card);
 
   // Render the chart on the canvas
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
   // Create the datasets for each cluster
   const datasets = chartObject.data.map((clusterData, index) => {
@@ -2079,11 +2079,11 @@ function addRemoveBookmark(target, chart) {
     //update the button. if you're updating from the bookmarks overlay, you also want the button of the displayed chart object in the analysis step to be updated.
     const bookmarkButtons = document.querySelectorAll(`[bookmarkButtonIdentifier="${chart.id}"]`);
 
-    for (let i=0; i<bookmarkButtons.length;i++) {
-    bookmarkButtons[i].setAttribute('isActive', 'false');
-    bookmarkButtons[i].innerHTML = '<i class="fa-regular fa-bookmark"></i>';
-    bookmarkButtons[i].classList.remove('btn-primary');
-    bookmarkButtons[i].classList.add('btn-secondary');
+    for (let i = 0; i < bookmarkButtons.length; i++) {
+      bookmarkButtons[i].setAttribute('isActive', 'false');
+      bookmarkButtons[i].innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+      bookmarkButtons[i].classList.remove('btn-primary');
+      bookmarkButtons[i].classList.add('btn-secondary');
     }
     //update chartobject and remove from bookmarks array
     chart.bookmarked = false;
@@ -2099,14 +2099,14 @@ function addRemoveBookmark(target, chart) {
 
     //if you're deactivating from bookmarks overlay, we need to deactivate any chart object displayed in the analysis step
     const currentAnalysisObject = analysisObjects.find(obj => obj.id === currentAnalysisId); //find the current analysis object
-    for (let i=0 ;i<currentAnalysisObject.chartObjects.length;i++) {//for each displayed chart object
+    for (let i = 0; i < currentAnalysisObject.chartObjects.length; i++) {//for each displayed chart object
       if (currentAnalysisObject.chartObjects[i].id === chart.id) { //if the chart matches the id of the object just unbookmarked
-        currentAnalysisObject.chartObjects[i].bookmarked=false; //unbookmark the chart object (if hasn't been done already)
+        currentAnalysisObject.chartObjects[i].bookmarked = false; //unbookmark the chart object (if hasn't been done already)
         break; // Exit the loop as we found the matching chart object
       }
     }
     console.log(currentAnalysisObject); //make sure that the charts bookmark setting is now set to off 
-        //update the bookmark icon
+    //update the bookmark icon
   }
 }
 
@@ -2154,11 +2154,69 @@ function openBookmarksOverlay() {
     const exportColumn = document.createElement('div');
     exportColumn.classList.add('col-4', 'd-flex', 'align-items-center', 'justify-content-end');
     titleExportRow.appendChild(exportColumn);
-    const exportButton = document.createElement('button');
-    exportButton.id='export-button';
-    exportButton.classList.add('btn', 'btn-primary');
-    exportButton.textContent = 'Export';
-    exportColumn.appendChild(exportButton);
+    
+    
+    
+  // Create the export menu container
+  const exportdropdownContainer = document.createElement('div');
+  exportdropdownContainer.id = 'export-dropdown-container';
+  exportdropdownContainer.classList.add('dropdown');
+
+  // Create the export button
+  const exportSelect = document.createElement('button');
+  exportSelect.id = 'export-button';
+  exportSelect.classList.add(
+    'btn',
+    'truncate-btn',
+    'btn-primary',
+    'form-select',
+    'data-type-dropdown'
+  );
+  exportSelect.type = 'button';
+  exportSelect.style.width = '100%';
+  exportSelect.textContent = 'Export';
+  exportSelect.style.textAlign = 'left';
+  exportSelect.setAttribute('data-bs-toggle', 'dropdown');
+  exportSelect.setAttribute('aria-expanded', 'false');
+
+  // Create the export options menu
+  const exportMenu = document.createElement('ul');
+  exportMenu.classList.add('dropdown-menu');
+
+  // Populate the export dropdown menu
+
+  const exportPDFListItem = document.createElement('li');
+  const exportPDFListAnchor = document.createElement('a');
+  exportPDFListAnchor.classList.add('dropdown-item');
+  const exportPDFListAnchorText = document.createElement('label');
+  exportPDFListAnchorText.textContent = 'PDF';
+  exportPDFListAnchor.setAttribute('data-value', 'simple');
+  exportPDFListAnchor.addEventListener('click', exportAllBookmarkedCardsToPDF);
+
+
+  const exportPPTListItem = document.createElement('li');
+  const exportPPTListAnchor = document.createElement('a');
+  exportPPTListAnchor.classList.add('dropdown-item', 'disabled'); // Add 'disabled' class for Bootstrap styling
+  const exportPPTListAnchorText = document.createElement('label');
+  exportPPTListAnchorText.textContent = 'PPT / Slides';
+  exportPPTListAnchor.setAttribute('data-value', 'simple');
+
+  //append options to menu
+  exportPDFListAnchor.appendChild(exportPDFListAnchorText);
+  exportPDFListItem.appendChild(exportPDFListAnchor);
+  exportMenu.appendChild(exportPDFListItem);
+
+  exportPPTListAnchor.appendChild(exportPPTListAnchorText);
+  exportPPTListItem.appendChild(exportPPTListAnchor);
+  exportMenu.appendChild(exportPPTListItem);
+
+  // Append elements to the dropdown container
+  exportdropdownContainer.appendChild(exportSelect);
+  exportdropdownContainer.appendChild(exportMenu);
+
+
+  exportColumn.appendChild(exportdropdownContainer);
+
 
     //build up the bookmarks body
     const bookmarksBodyContainer = document.createElement('div');
@@ -2233,5 +2291,89 @@ function openBookmarksOverlay() {
         renderComparativeChartInCard(bookmarks[i], bookmarksBodyColumn);
       }
     }
+    const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
+
+// Loop through each child in the bookmarksBodyColumn
+const children = bookmarksBodyColumn.children;
+for (let i = 0; i < children.length; i++) {
+    // Assign the attribute to each child
+    children[i].setAttribute('bookmarked', 'true'); 
+}
+
   }
+}
+
+// function for exporting all bookmarked cards to PDF
+function exportAllBookmarkedCardsToPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape' });
+
+  // Find all the cards on the page
+  const cards = document.querySelectorAll('[bookmarked="true"]');
+  let cardIndex = 0;
+
+  // Function to process each card one by one and add to PDF
+  function processNextCard() {
+    if (cardIndex < cards.length) {
+      const card = cards[cardIndex];
+
+      // Use html2canvas to convert the card to an image
+      html2canvas(card, { scale: 2 }).then(function (canvas) {
+        const imgData = canvas.toDataURL('image/png');
+
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        const maxWidth = 232;  // Maximum width in PDF units (landscape mode full page width)
+        const maxHeight = 160; // Maximum height in PDF units (arbitrary value you can adjust)
+
+        let imgWidth = canvas.width;
+        let imgHeight = canvas.height;
+
+        // Calculate aspect ratio
+        const aspectRatio = imgWidth / imgHeight;
+
+        // Adjust the width and height to fit within the max bounds
+        if (imgWidth > maxWidth) {
+          imgWidth = maxWidth;
+          imgHeight = maxWidth / aspectRatio;
+        }
+
+        if (imgHeight > maxHeight) {
+          imgHeight = maxHeight;
+          imgWidth = maxHeight * aspectRatio;
+        }
+
+        // Calculate the x and y position to center the image
+        const xOffset = (pageWidth - imgWidth) / 2;
+        const yOffset = (pageHeight - imgHeight) / 2;
+
+        // Now add the adjusted image to the PDF
+        doc.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
+
+        // Add footer text at the bottom of the page
+        const footerText = "Powered by Cuadro";
+        const footerX = (pageWidth - doc.getTextWidth(footerText)) / 2;  // Centered horizontally
+        const footerY = pageHeight - 10;  // 10 units from the bottom of the page
+
+        // Set font and add text to the page
+        doc.setFontSize(10);  // Set the font size for the footer
+        doc.text(footerText, footerX, footerY);
+
+        // If there are more cards, add a new page and process the next one
+        if (cardIndex < cards.length - 1) {
+          doc.addPage();
+        }
+
+        cardIndex++;
+        processNextCard(); // Process the next card
+      });
+    } else {
+      // Once all cards are processed, save the PDF
+      doc.save('charts.pdf');
+    }
+  }
+
+  // Start processing the first card
+  processNextCard();
 }
