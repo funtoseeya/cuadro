@@ -1,3 +1,4 @@
+
 //GENERAL SCRIPTS
 
 //turn on the charts data label plugin
@@ -2196,10 +2197,12 @@ function openBookmarksOverlay() {
 
   const exportPPTListItem = document.createElement('li');
   const exportPPTListAnchor = document.createElement('a');
-  exportPPTListAnchor.classList.add('dropdown-item', 'disabled'); // Add 'disabled' class for Bootstrap styling
+  exportPPTListAnchor.classList.add('dropdown-item'); 
   const exportPPTListAnchorText = document.createElement('label');
   exportPPTListAnchorText.textContent = 'PPT / Slides';
   exportPPTListAnchor.setAttribute('data-value', 'simple');
+  exportPPTListAnchor.addEventListener('click', exportAllBookmarkedCardsToPPTX);
+
 
   //append options to menu
   exportPDFListAnchor.appendChild(exportPDFListAnchorText);
@@ -2302,13 +2305,12 @@ for (let i = 0; i < children.length; i++) {
 
   }
 }
-
 // function for exporting all bookmarked cards to PDF
 function exportAllBookmarkedCardsToPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'landscape' });
 
-  // Find all the cards on the page
+  // Find all the bookmarked cards on the page
   const cards = document.querySelectorAll('[bookmarked="true"]');
   let cardIndex = 0;
 
@@ -2371,6 +2373,83 @@ function exportAllBookmarkedCardsToPDF() {
     } else {
       // Once all cards are processed, save the PDF
       doc.save('charts.pdf');
+    }
+  }
+
+  // Start processing the first card
+  processNextCard();
+}
+
+//function to export all bookmarks to pptx
+function exportAllBookmarkedCardsToPPTX() {
+  const pptx = new PptxGenJS(); // Create a new PPTX presentation
+  const cards = document.querySelectorAll('[bookmarked="true"]');
+  let cardIndex = 0;
+
+  // Function to process each card one by one and add to PPTX
+  function processNextCard() {
+    if (cardIndex < cards.length) {
+      const card = cards[cardIndex];
+
+      // Use html2canvas to convert the card to an image
+      html2canvas(card, { scale: 2 }).then(function (canvas) {
+        const imgData = canvas.toDataURL('image/png');
+
+        const pageWidth = pptx.width; // Width of the PPTX slide
+        const pageHeight = pptx.height; // Height of the PPTX slide
+
+        const maxWidth = 10;  // Maximum width in inches (adjust based on your needs)
+        const maxHeight = 7;  // Maximum height in inches (adjust based on your needs)
+
+        let imgWidth = canvas.width / 96; // Convert to inches (96 DPI)
+        let imgHeight = canvas.height / 96; // Convert to inches (96 DPI)
+
+        // Calculate aspect ratio
+        const aspectRatio = imgWidth / imgHeight;
+
+        // Adjust the width and height to fit within the max bounds
+        if (imgWidth > maxWidth) {
+          imgWidth = maxWidth;
+          imgHeight = maxWidth / aspectRatio;
+        }
+
+        if (imgHeight > maxHeight) {
+          imgHeight = maxHeight;
+          imgWidth = maxHeight * aspectRatio;
+        }
+
+        // Calculate the x and y position to center the image
+        const xOffset = (pageWidth - imgWidth) / 2; // Center horizontally
+        const yOffset = (pageHeight - imgHeight) / 2; // Center vertically
+
+        // Create a new slide and add the adjusted image to it
+        const slide = pptx.addSlide();
+        slide.addImage({
+          data: imgData,
+          x: xOffset,
+          y: yOffset,
+          w: imgWidth,
+          h: imgHeight,
+        });
+
+        // Add footer text to the slide
+        const footerText = "Powered by Cuadro";
+        slide.addText(footerText, {
+          x: 0, // Center horizontally
+          y: pageHeight - 0.5, // Position near the bottom
+          fontSize: 10,
+          align: 'center',
+        });
+
+        // If there are more cards, add a new slide and process the next one
+        if (cardIndex < cards.length - 1) {
+          cardIndex++;
+          processNextCard(); // Process the next card
+        } else {
+          // Once all cards are processed, save the PPTX
+          pptx.writeFile({ fileName: 'charts.pptx' });
+        }
+      });
     }
   }
 
