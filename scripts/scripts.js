@@ -2078,7 +2078,7 @@ function addRemoveBookmark(target, chart) {
   //if bookmark is deactivated
   if (isActive === 'true') {
 
-    //update the button. if you're updating from the bookmarks overlay, you also want the button of the displayed chart object in the analysis step to be updated.
+    //update all instances of button (could be 2 instances if its in bookmark overlay.
     const bookmarkButtons = document.querySelectorAll(`[bookmarkButtonIdentifier="${chart.id}"]`);
 
     for (let i = 0; i < bookmarkButtons.length; i++) {
