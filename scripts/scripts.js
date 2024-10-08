@@ -34,7 +34,7 @@ let parsedCSVData = []; // global array that stores the uploaded csv's data
 let analysisObjects = []; // Array to store analysis object instances
 let nextAnalysisId = 1; // Unique ID counter
 let currentAnalysisId = 1; //what analysis object the user is currently analyzing. set to 1 as the default, will update later.
-let colorPalette = ['#264653', '#e76f51', '#2a9d8f', '#f4a261', '#e9c46a'];
+let colorPalette = ['#393939', '#e76f51', '#2a9d8f', '#f4a261', '#e9c46a'];
 let bookmarks = [];
 
 //UPLOAD STEP
@@ -208,7 +208,7 @@ function updateUploadStepUI(fileName) {
 
   // Update styles
   uploadContainer.style.border = `2px solid var(--primary-color)`;
-  uploadContainer.style.backgroundColor = 'var(--secondary-color)';
+  uploadContainer.style.backgroundColor = 'var(--tertiary-color)';
 
   // Clear existing content and append new content
   uploadContainer.innerHTML = `
@@ -543,7 +543,7 @@ function setupAnalyzeStep() {
     //create the bookmarks button
     const TopNavButtonContainer = document.getElementById('top-nav-button-container');
     TopNavButtonContainer.innerHTML = `  
-    <button id="bookmarks-button" class="btn btn-secondary"><i class="fa-solid fa-bookmark" style="color:var(--primary-light); padding-right:0.2rem"></i>Bookmarks</button>`;
+    <button id="bookmarks-button" class="btn btn-secondary"><i class="fa-solid fa-bookmark" style="padding-right:0.2rem"></i>Bookmarks</button>`;
 
     const bookmarksButton = document.getElementById('bookmarks-button');
     bookmarksButton.addEventListener('click', openBookmarksOverlay);
@@ -1975,6 +1975,7 @@ function renderComparativeChartInCard(chartObject, container) {
   //create the bookmark button and set whether it's active or not
   const bookmarkButton = document.createElement('button');
   bookmarkButton.classList.add('btn', 'btn-secondary');
+  bookmarkButton.setAttribute('bookmarkButtonIdentifier', chartObject.id);
   const isChartBookmarked = bookmarks.some(obj => obj.id === chartObject.id);
   if (isChartBookmarked) {
     bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
@@ -2062,7 +2063,7 @@ function addRemoveBookmark(target, chart) {
     //update the button
     bookmarkButton.setAttribute('isActive', 'true');
     bookmarkButton.innerHTML =
-      '<i style="color:white" class="fa-solid fa-bookmark"></i>'; //change the icon
+      '<i class="fa-solid fa-bookmark"></i>'; //change the icon
     bookmarkButton.classList.remove('btn-secondary');
     bookmarkButton.classList.add('btn-primary');
 
@@ -2262,7 +2263,7 @@ function openBookmarksOverlay() {
       emptyBookmarksContainer.style.minHeight = '300px';
       emptyBookmarksContainer.style.margin = '0 auto';
       emptyBookmarksContainer.style.border = '3px solid var(--primary)';
-      emptyBookmarksContainer.style.backgroundColor = 'var(--secondary)';
+      emptyBookmarksContainer.style.backgroundColor = 'var(--tertiary-color)';
       emptyBookmarksContainer.style.borderRadius = '5px';
       emptyBookmarksContainer.innerHTML = emptyBookmarksContainer.innerHTML = `
   <div class="warning-icon">
