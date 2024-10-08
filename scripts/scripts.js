@@ -2169,9 +2169,7 @@ function openBookmarksOverlay() {
   exportSelect.classList.add(
     'btn',
     'truncate-btn',
-    'btn-primary',
-    'form-select',
-    'data-type-dropdown'
+    'btn-primary'
   );
   exportSelect.type = 'button';
   exportSelect.style.width = '100%';
