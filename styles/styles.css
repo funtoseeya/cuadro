@@ -45,6 +45,7 @@ body {
   cursor: not-allowed;
 }
 
+
 .btn-secondary {
 
   /*mod*/
@@ -59,22 +60,22 @@ body {
 
 }
 
-.btn-secondary:hover, .btn-secondary:focus {
+.btn-secondary:hover {
 
-  background-color: var(--secondary-color) !important;
+  background-color: var(--primary) !important;
   border-color: var(--primary-color) !important;
+  color:#fff;
+}
+
+.btn-secondary:focus .fa-regular{
   color:var(--primary);
 }
 
 
-
-.btn-primary:hover .fa-solid{
-  color:var(--primary);
+.btn-secondary:hover .fa-solid{
+  color:#fff;
 }
 
-.btn-secondary .fa-solid{
-  color:var(--primary);
-}
 
 .btn-success:hover {
 
@@ -99,7 +100,7 @@ body {
 
 .accordion {
 
---bs-accordion-active-bg: var(--secondary-color)
+--bs-accordion-active-bg: var(--tertiary-color);
 }
 
 .accordion-button {
@@ -122,7 +123,7 @@ body {
 }
 
 .card-hover:hover {
-  background: var(--secondary-color);
+  background: var(--tertiary-color);
 }
 
 .stepper-paragraph {

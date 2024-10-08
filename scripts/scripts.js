@@ -2276,7 +2276,7 @@ function openBookmarksOverlay() {
       emptyBookmarksContainer.style.minHeight = '300px';
       emptyBookmarksContainer.style.margin = '0 auto';
       emptyBookmarksContainer.style.border = '3px solid var(--primary)';
-      emptyBookmarksContainer.style.backgroundColor = 'var(--secondary-color)';
+      emptyBookmarksContainer.style.backgroundColor = 'var(--tertiary-color)';
       emptyBookmarksContainer.style.borderRadius = '5px';
       emptyBookmarksContainer.innerHTML = emptyBookmarksContainer.innerHTML = `
   <div class="warning-icon">

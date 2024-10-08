@@ -14,41 +14,45 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0/dist/chart.min.js"></script><!--include chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script> <!--include charts.js labels-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>       
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
 
 
 
 </head>
+
 <body>
-        <!-- File input element (hidden) -->
-        <input type="file" id="file-input" style="display: none;" accept=".csv">
+    <!-- File input element (hidden) -->
+    <input type="file" id="file-input" style="display: none;" accept=".csv">
 
-        <!--bookmarks overlay-->
-        <div id="bookmarks-overlay" class="bookmarks-overlay"></div>
-    
-        <!--a place where i can post notifications if ever-->
-        <div id="toastContainer"></div>    
+    <!--bookmarks overlay-->
+    <div id="bookmarks-overlay" class="bookmarks-overlay"></div>
 
-    <!--The top navigation bar-->
-    <div style="border-bottom: 1px solid #e5e5e5">
-        <div class="container">
-            <div class="row mt-2 mb-2">
-                <div class="col-8 offset-2">
-                    <div class="row">
-                <div class="col-6 d-flex align-items-center justify-content-start">
-                    <a href="#" onclick="location.reload(); return false;" style="text-decoration: none;">
-                        <h1 style="margin-bottom: 0px; color: var(--primary);">
-                            <i class="fa-solid fa-signal" style="padding-right: 0.2rem;"></i>Cuadro
-                        </h1>
-                    </a>
-                                    </div>
-                <div class="col-6 d-flex align-items-center justify-content-end" id="top-nav-button-container">
+    <!--a place where i can post notifications if ever-->
+    <div id="toastContainer"></div>
+
+   <!--The top navigation bar-->
+<div style="border-bottom: 1px solid #e5e5e5">
+    <div class="container">
+        <div class="row mt-2 mb-2">
+            <div class="col-12 col-md-8 offset-md-2">
+                <div class="row">
+                    <div class="col-6 d-flex align-items-center justify-content-start">
+                        <a href="#" onclick="location.reload(); return false;" style="text-decoration: none;">
+                            <h1 style="margin-bottom: 0px; color: var(--primary);">
+                                <i class="fa-solid fa-signal" style="padding-right: 0.2rem;"></i>Cuadro
+                            </h1>
+                        </a>
+                    </div>
+                    <div class="col-6 d-flex align-items-center justify-content-end" id="top-nav-button-container">
+                        <!-- Add buttons or content here if needed -->
+                    </div>
                 </div>
-            </div></div>
             </div>
         </div>
     </div>
+</div>
+
     </div>
     <div style="border-bottom: 1px solid #e5e5e5;">
         <div class="container">
