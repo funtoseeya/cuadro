@@ -34,21 +34,7 @@ let parsedCSVData = []; // global array that stores the uploaded csv's data
 let analysisObjects = []; // Array to store analysis object instances
 let nextAnalysisId = 1; // Unique ID counter
 let currentAnalysisId = 1; //what analysis object the user is currently analyzing. set to 1 as the default, will update later.
-let colorPalette = [  '#393939',  // Primary: Dark Gray
-  '#B3DAF1',  // Secondary: Soft Baby Blue
-  '#00BFC1',  // Soft Teal
-  '#FF6F61',  // Coral
-  '#FFD700',  // Gold
-  '#4CAF50',  // Green
-  '#FFCCCB',  // Light Pink
-  '#FF8C00',  // Dark Orange
-  '#6A5ACD',  // Slate Blue
-  '#DDA0DD',  // Plum
-  '#20B2AA',  // Light Sea Green
-  '#FF1493',  // Deep Pink
-  '#8A2BE2',  // Blue Violet
-  '#FF4500',  // Orange Red
-  '#87CEEB'];   // Sky Blue];
+let colorPalette = [  '#50514f','#247ba0','#f25f5c','#ffe066','#70c1b3','#6a4c93','#0ead69','#ffa5ab','#1982c4','#f3722c'];
 let bookmarks = [];
 
 //UPLOAD STEP

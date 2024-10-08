@@ -67,12 +67,15 @@ body {
   color:#fff;
 }
 
-.btn-secondary:focus .fa-regular{
+.btn-secondary:focus{
   color:var(--primary);
 }
 
+.btn-secondary:hover:focus{
+  color:#fff
+}
 
-.btn-secondary:hover .fa-solid{
+.btn-secondary:hover .fa-solid, .btn-secondary:hover .fa-regular{
   color:#fff;
 }
 
