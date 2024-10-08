@@ -34,7 +34,21 @@ let parsedCSVData = []; // global array that stores the uploaded csv's data
 let analysisObjects = []; // Array to store analysis object instances
 let nextAnalysisId = 1; // Unique ID counter
 let currentAnalysisId = 1; //what analysis object the user is currently analyzing. set to 1 as the default, will update later.
-let colorPalette = ['#393939', '#e76f51', '#2a9d8f', '#f4a261', '#e9c46a'];
+let colorPalette = [  '#393939',  // Primary: Dark Gray
+  '#B3DAF1',  // Secondary: Soft Baby Blue
+  '#00BFC1',  // Soft Teal
+  '#FF6F61',  // Coral
+  '#FFD700',  // Gold
+  '#4CAF50',  // Green
+  '#FFCCCB',  // Light Pink
+  '#FF8C00',  // Dark Orange
+  '#6A5ACD',  // Slate Blue
+  '#DDA0DD',  // Plum
+  '#20B2AA',  // Light Sea Green
+  '#FF1493',  // Deep Pink
+  '#8A2BE2',  // Blue Violet
+  '#FF4500',  // Orange Red
+  '#87CEEB'];   // Sky Blue];
 let bookmarks = [];
 
 //UPLOAD STEP
@@ -208,14 +222,13 @@ function updateUploadStepUI(fileName) {
 
   // Update styles
   uploadContainer.style.border = `2px solid var(--primary-color)`;
-  uploadContainer.style.backgroundColor = 'var(--tertiary-color)';
+  uploadContainer.style.backgroundColor = 'var(--bs-success-light)';
 
   // Clear existing content and append new content
   uploadContainer.innerHTML = `
         <i class="fa-solid fa-check" style="font-size: 2em;"></i>
         <div style="margin-top: 20px;"><strong>Upload successful!</strong> <br> ${fileName}</div>
-        <a class="btn btn-secondary" style="margin-top: 40px; cursor: pointer;" onclick="location.reload();">
-        <i class="fa-solid fa-rotate-left" ></i> Restart</a>`;
+        `;
 
   //remove 'disabled' class from the review button so that they can move on.
   let reviewButton = document.getElementById('review-button');
@@ -2263,7 +2276,7 @@ function openBookmarksOverlay() {
       emptyBookmarksContainer.style.minHeight = '300px';
       emptyBookmarksContainer.style.margin = '0 auto';
       emptyBookmarksContainer.style.border = '3px solid var(--primary)';
-      emptyBookmarksContainer.style.backgroundColor = 'var(--tertiary-color)';
+      emptyBookmarksContainer.style.backgroundColor = 'var(--secondary-color)';
       emptyBookmarksContainer.style.borderRadius = '5px';
       emptyBookmarksContainer.innerHTML = emptyBookmarksContainer.innerHTML = `
   <div class="warning-icon">

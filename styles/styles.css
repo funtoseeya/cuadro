@@ -4,16 +4,18 @@
 :root {
  /*mod*/
  --primary: #393939;
- --secondary: #00bfd8;
+ --secondary: #B3DAF1;
  --primary-color: #393939;
  --primary-dark: #212121;
  --primary-light: #626262;
- --secondary-color: #00bfd8;
+ --secondary-color: #B3DAF1;
  --tertiary-color: #d2d2d2;
  --background-color: white;
  --text-color: #393939;
 
 }
+
+
 
 body {
   overflow-y: scroll; /* Always show vertical scrollbar */
@@ -22,7 +24,7 @@ body {
   color: var(--text-color);
 }
 .btn:focus {
-  color: black;
+  color: #fff;
 }
 
 .btn-primary {
@@ -48,7 +50,7 @@ body {
   /*mod*/
   background-color: var(--background-color) !important;
   border-color: var(--primary-color) !important;
-  color: var(--text-color)
+  color: var(--primary)
 }
 
 .btn-secondary.disabled, .btn-secondary:disabled {
@@ -57,23 +59,21 @@ body {
 
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover, .btn-secondary:focus {
 
-  background-color: var(--primary-color) !important;
+  background-color: var(--secondary-color) !important;
   border-color: var(--primary-color) !important;
-  color:#fff;
+  color:var(--primary);
 }
 
-.btn-primary .fa-solid{
-  color:#fff
-}
+
 
 .btn-primary:hover .fa-solid{
   color:var(--primary);
 }
 
-.btn-secondary:hover .fa-solid{
-  color:#fff;
+.btn-secondary .fa-solid{
+  color:var(--primary);
 }
 
 .btn-success:hover {
@@ -99,7 +99,7 @@ body {
 
 .accordion {
 
---bs-accordion-active-bg: var(--primary)
+--bs-accordion-active-bg: var(--secondary-color)
 }
 
 .accordion-button {
@@ -108,7 +108,7 @@ body {
 }
 
 .accordion-button:not(.collapsed) {
-  color: #fff; /* Keeps text color consistent when expanded */
+  color: var(--primary); /* Keeps text color consistent when expanded */
 }
 
 .accordion-button i {
@@ -122,7 +122,7 @@ body {
 }
 
 .card-hover:hover {
-  background: var(--tertiary-color);
+  background: var(--secondary-color);
 }
 
 .stepper-paragraph {
