@@ -15,7 +15,9 @@
 
 }
 
-
+#cuadro-header-logo:hover {
+  opacity: 60%;
+}
 
 body {
   overflow-y: scroll; /* Always show vertical scrollbar */
