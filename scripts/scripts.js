@@ -436,6 +436,55 @@ function generateReviewTable(stepBody) {
   stepBody.appendChild(table);
 }
 
+// Function to read a CSV file and convert it to an array
+function parseCSVToArray(file) {
+  // Function to convert CSV string to an array of objects
+  function csvToArray(csv) {
+
+    // Split the CSV into lines and filter out any empty lines
+    const lines = csv.match(/(?:[^\n"]|"[^"]*")+/g).filter(line => line.trim() !== '');
+
+    // Split the first line into headers
+    const headers = lines[0].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+
+    // Map the remaining lines to objects with keys from headers
+    const data = lines.slice(1).map(line => {
+      const values = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/); // Split each line into values
+      let obj = {}; // Initialize an empty object
+
+      // Assign each value to the corresponding header in the object
+      headers.forEach((header, index) => {
+        obj[header] = values[index]; 
+      });
+
+      return obj; // Return the constructed object
+    });
+
+    return data; // Return the array of objects
+  }
+
+  const reader = new FileReader(); // Create a new FileReader instance
+
+  // Define what to do when the file is successfully read
+  reader.onload = function (e) {
+    const csv = e.target.result; // Get the content of the file
+    console.log('csvdata:',csv);
+    parsedCSVData = csvToArray(csv); // Convert CSV to array and store it globally
+
+    // Log the parsed data for testing
+    console.log('Parsed CSV Data:', parsedCSVData);
+
+    // Call generateReviewTable here to ensure it's called after parsing
+    generateReviewTable(document.getElementById('step-body'));
+  };
+
+  // Read the file as a text string
+  reader.readAsText(file);
+}
+
+ 
+
+
 
 // Function to read a CSV file and convert it to an array
 function parseCSVToArray(file) {
