@@ -585,7 +585,7 @@ function createCategoricalArrayForFilterPanel() {
 
   // Extract headers marked as "Categorical"
   const CategoricalHeaders = dropdownState
-    .filter(item => item.value === 'Categorical')
+    .filter(item => item.value !== 'Ignore')
     .map(item => item.header);
 
   // Create a new array with unique values for each header marked as "Categorical"
@@ -1007,7 +1007,7 @@ function createUsingTheseDropdown() {
 
   // Populate the new dropdown with options from the saved dropdown state
   dropdownState.forEach(({ header, value }) => {
-    if (value === 'Categorical') {
+    if (value === 'Categorical' && value === 'Numerical') {
       const columnListItem = document.createElement('li');
       const columnListAnchor = document.createElement('a');
       columnListAnchor.classList.add('dropdown-item');
