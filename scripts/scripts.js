@@ -1007,7 +1007,7 @@ function createUsingTheseDropdown() {
 
   // Populate the new dropdown with options from the saved dropdown state
   dropdownState.forEach(({ header, value }) => {
-    if (value === 'Categorical' && value === 'Numerical') {
+    if (value === 'Categorical') {
       const columnListItem = document.createElement('li');
       const columnListAnchor = document.createElement('a');
       columnListAnchor.classList.add('dropdown-item');
