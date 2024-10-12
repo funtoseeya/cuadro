@@ -998,6 +998,13 @@ function createUsingTheseDropdown() {
   columnMenu.classList.add('dropdown-menu');
   columnMenu.id = 'using-these-list';
 
+
+  columnMenu.style.maxHeight = '300px'; // Adjust max-height as needed
+  columnMenu.style.maxWidth = '400px';
+  columnMenu.style.overflowY = 'auto';
+  columnMenu.style.overflowX = 'hidden';
+
+
   // Populate the new dropdown with options from the saved dropdown state
   dropdownState.forEach(({ header, value }) => {
     if (value === 'Categorical') {
@@ -1108,6 +1115,11 @@ function createGroupByDropdown() {
   groupByMenu.classList.add('dropdown-menu');
   groupByMenu.id = 'group-by-menu';
 
+  groupByMenu.style.maxHeight = '300px'; // Adjust max-height as needed
+  groupByMenu.style.maxWidth = '400px';
+  groupByMenu.style.overflowY = 'auto';
+groupByMenu.style.overflowX = 'hidden';
+
   // Populate the group by dropdown with columns that were typed as "Categorical"
   dropdownState.forEach(({ header, value }) => {
     if (value === 'Categorical') {
@@ -1204,6 +1216,11 @@ function createFilterButton() {
   const filterMenu = document.createElement('ul');
   filterMenu.classList.add('dropdown-menu');
   filterMenu.id = 'filtered-by-list';
+
+  filterMenu.style.maxHeight = '300px'; // Adjust max-height as needed
+  filterMenu.style.maxWidth = '400px';
+filterMenu.style.overflowY = 'auto';
+filterMenu.style.overflowX = 'hidden';
 
   let itemToHeaderMap = new Map();
 
