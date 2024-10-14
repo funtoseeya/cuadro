@@ -34,7 +34,7 @@ let parsedCSVData = []; // global array that stores the uploaded csv's data
 let analysisObjects = []; // Array to store analysis object instances
 let nextAnalysisId = 1; // Unique ID counter
 let currentAnalysisId = 1; //what analysis object the user is currently analyzing. set to 1 as the default, will update later.
-let colorPalette = [  '#50514f','#247ba0','#f25f5c','#ffe066','#70c1b3','#6a4c93','#0ead69','#ffa5ab','#1982c4','#f3722c'];
+let colorPalette = ['#50514f', '#247ba0', '#f25f5c', '#ffe066', '#70c1b3', '#6a4c93', '#0ead69', '#ffa5ab', '#1982c4', '#f3722c'];
 let bookmarks = [];
 
 //UPLOAD STEP
@@ -455,7 +455,7 @@ function parseCSVToArray(file) {
 
       // Assign each value to the corresponding header in the object
       headers.forEach((header, index) => {
-        obj[header] = values[index]; 
+        obj[header] = values[index];
       });
 
       return obj; // Return the constructed object
@@ -469,7 +469,6 @@ function parseCSVToArray(file) {
   // Define what to do when the file is successfully read
   reader.onload = function (e) {
     const csv = e.target.result; // Get the content of the file
-    console.log('csvdata:',csv);
     parsedCSVData = csvToArray(csv); // Convert CSV to array and store it globally
 
     // Log the parsed data for testing
@@ -483,7 +482,7 @@ function parseCSVToArray(file) {
   reader.readAsText(file);
 }
 
- 
+
 
 
 
@@ -503,7 +502,7 @@ function saveDataTypestoArray() {
 
 //v1 won't really support any data other than Categorical. I want to notify our users about that
 function unsupportedDataTypesToast(value) {
-  if (value !== 'Categorical' && value !== 'Ignore' ) {
+  if (value !== 'Categorical' && value !== 'Ignore') {
     const parentDiv = document.getElementById('toastContainer'); // Replace with your parent div ID
     parentDiv.innerHTML = ''; // Clear any existing content
 
@@ -643,7 +642,7 @@ function displayAnalysisOptions() {
       'rounded-3',
       'card-hover'
     );
-    card.style.margin = '10px'; // Add some margin for spacing
+    card.style.margin = '5px'; // Add some margin for spacing
     card.id = cardID;
 
     // Card body
@@ -677,18 +676,29 @@ function displayAnalysisOptions() {
 
   // Create the simple analysis column and card
   const analysisOptionCardBasicCol = document.createElement('div');
-  analysisOptionCardBasicCol.classList.add('col-12', 'col-sm-4', 'mb-2');
+  analysisOptionCardBasicCol.classList.add('col-12', 'col-sm-3', 'mb-2');
   createCardInCol(
     'simple-analysis-option',
     analysisOptionCardBasicCol,
-    'Simple Analysis',
+    'Category Analysis',
     'Summarize and filter data within a single category.',
     '<i class="fas fa-chart-bar"></i>'
   );
 
+  // Create the numerical analysis column and card
+  const analysisOptionCardNumCol = document.createElement('div');
+  analysisOptionCardNumCol.classList.add('col-12', 'col-sm-3', 'mb-2');
+  createCardInCol(
+    'number-analysis-option',
+    analysisOptionCardNumCol,
+    'Numerical Analysis',
+    'Quantify the spread and frequency of numerical fields.',
+    '<i class="fa-solid fa-chart-area"></i>'
+  );
+
   // Create the comparative analysis column and card
   const analysisOptionCardCompareCol = document.createElement('div');
-  analysisOptionCardCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2');
+  analysisOptionCardCompareCol.classList.add('col-12', 'col-sm-3', 'mb-2');
   createCardInCol(
     'comparative-analysis-option',
     analysisOptionCardCompareCol,
@@ -699,7 +709,7 @@ function displayAnalysisOptions() {
 
   // Create the trend analysis column and card
   const analysisOptionCardTrendCol = document.createElement('div');
-  analysisOptionCardTrendCol.classList.add('col-12', 'col-sm-4', 'mb-2');
+  analysisOptionCardTrendCol.classList.add('col-12', 'col-sm-3', 'mb-2');
   const trendCard = document.createElement('div');
   trendCard.classList.add(
     'card',
@@ -742,6 +752,7 @@ function displayAnalysisOptions() {
 
   // Append analysis columns to the row
   analysisOptionCardsRow.appendChild(analysisOptionCardBasicCol);
+  analysisOptionCardsRow.appendChild(analysisOptionCardNumCol);
   analysisOptionCardsRow.appendChild(analysisOptionCardCompareCol);
   analysisOptionCardsRow.appendChild(analysisOptionCardTrendCol);
 
@@ -752,6 +763,12 @@ function displayAnalysisOptions() {
   simpleCard.addEventListener('click', function () {
     handleIWantTo('simple');
   });
+
+  const numbersCard = document.getElementById('number-analysis-option');
+  numbersCard.addEventListener('click', function () {
+    handleIWantTo('number');
+  });
+
   const comparativeCard = document.getElementById(
     'comparative-analysis-option'
   );
@@ -762,6 +779,16 @@ function displayAnalysisOptions() {
 
 // Handle the select change event
 function handleIWantTo(event) {
+
+  //update the current analysis object. scrap any previously existing info and give it a type
+  updateAnalysisObjectById(currentAnalysisId, {
+    analysisType: event,
+    usingThese: [],
+    groupedBy: '',
+    filteredBy: [],
+  });
+
+
   const stepBody = document.getElementById('step-body');
   stepBody.classList.remove('mt-5');
   stepBody.classList.add('mt-2');
@@ -858,6 +885,13 @@ function handleIWantTo(event) {
   simpleListAnchorText.textContent = 'simple analysis';
   simpleListAnchor.setAttribute('data-value', 'simple');
 
+  const numberListItem = document.createElement('li');
+  const numberListAnchor = document.createElement('a');
+  numberListAnchor.classList.add('dropdown-item');
+  const numberListAnchorText = document.createElement('label');
+  numberListAnchorText.textContent = 'numerical analysis';
+  numberListAnchor.setAttribute('data-value', 'number');
+
   const compareListItem = document.createElement('li');
   const compareListAnchor = document.createElement('a');
   compareListAnchor.classList.add('dropdown-item');
@@ -869,6 +903,10 @@ function handleIWantTo(event) {
   simpleListAnchor.appendChild(simpleListAnchorText);
   simpleListItem.appendChild(simpleListAnchor);
   iWantMenu.appendChild(simpleListItem);
+
+  numberListAnchor.appendChild(numberListAnchorText);
+  numberListItem.appendChild(numberListAnchor);
+  iWantMenu.appendChild(numberListItem);
 
   compareListAnchor.appendChild(compareListAnchorText);
   compareListItem.appendChild(compareListAnchor);
@@ -882,7 +920,8 @@ function handleIWantTo(event) {
   typeColumn.appendChild(iWantText);
   typeColumn.appendChild(iWantdropdownContainer);
 
-  // If the value of the select dropdown is "generic"...
+
+
   if (event === 'simple') {
     // Update select.textContent
     iWantSelect.textContent = 'simple analysis';
@@ -896,6 +935,22 @@ function handleIWantTo(event) {
     createUsingTheseDropdown();
     createFilterButton();
   }
+
+  // If the value of the select dropdown is "generic"...
+  if (event === 'number') {
+    // Update select.textContent
+    iWantSelect.textContent = 'numerical analysis';
+
+    //hide group column
+    if (groupColumn) {
+      groupColumn.style.display = 'none';
+    }
+
+    // Create and append the required dropdowns
+    createUsingTheseDropdown();
+    createFilterButton();
+  }
+
   if (event === 'comparative') {
     // Update select.textContent
     iWantSelect.textContent = 'comparative analysis';
@@ -927,13 +982,6 @@ function handleIWantTo(event) {
     createFilterButton();
   }
 
-  //update the current analysis object. scrap any previously existing info and give it a type
-  updateAnalysisObjectById(currentAnalysisId, {
-    analysisType: event,
-    usingThese: [],
-    groupedBy: '',
-    filteredBy: [],
-  });
 
   //remove any previously existing chart cards from the body
   let cardsContainer = document.getElementById('step-body-cards-container');
@@ -952,6 +1000,9 @@ function handleIWantTo(event) {
     if (target.innerText === 'simple analysis') {
       analysisType = 'simple';
     }
+    if (target.innerText === 'numerical analysis') {
+      analysisType = 'number';
+    }
     if (target.innerText === 'comparative analysis') {
       analysisType = 'comparative';
     }
@@ -962,6 +1013,7 @@ function handleIWantTo(event) {
 
 // function to Create the Using dropdown
 function createUsingTheseDropdown() {
+
   const usingColumn = document.getElementById('using-column');
 
   // Create the span element for text
@@ -998,16 +1050,20 @@ function createUsingTheseDropdown() {
   columnMenu.classList.add('dropdown-menu');
   columnMenu.id = 'using-these-list';
 
-
   columnMenu.style.maxHeight = '300px'; // Adjust max-height as needed
   columnMenu.style.maxWidth = '400px';
   columnMenu.style.overflowY = 'auto';
   columnMenu.style.overflowX = 'hidden';
 
+  //the type of analysis dictates what the users options should be
+  const currentAnalysisObject = analysisObjects.find(obj => obj.id === currentAnalysisId);
+  const analysisType = currentAnalysisObject.analysisType;
 
   // Populate the new dropdown with options from the saved dropdown state
   dropdownState.forEach(({ header, value }) => {
-    if (value === 'Categorical') {
+    if ((analysisType === 'comparative' && (value === 'Categorical' || value === 'Numerical')) ||
+      (analysisType === 'simple' && value === 'Categorical') ||
+      (analysisType === 'number' && value === 'Numerical')) {
       const columnListItem = document.createElement('li');
       const columnListAnchor = document.createElement('a');
       columnListAnchor.classList.add('dropdown-item');
@@ -1034,6 +1090,7 @@ function createUsingTheseDropdown() {
     }
   });
 
+
   // Append elements to the dropdown container
   dropdownContainer.appendChild(columnSelect);
   dropdownContainer.appendChild(columnMenu);
@@ -1047,6 +1104,7 @@ function createUsingTheseDropdown() {
     event.stopPropagation();
   });
 }
+
 // Update the text of the columnSelect button based on selected checkboxes
 function updateUsingTheseCount() {
   const columnSelect = document.getElementById('column-select');
@@ -1118,7 +1176,7 @@ function createGroupByDropdown() {
   groupByMenu.style.maxHeight = '300px'; // Adjust max-height as needed
   groupByMenu.style.maxWidth = '400px';
   groupByMenu.style.overflowY = 'auto';
-groupByMenu.style.overflowX = 'hidden';
+  groupByMenu.style.overflowX = 'hidden';
 
   // Populate the group by dropdown with columns that were typed as "Categorical"
   dropdownState.forEach(({ header, value }) => {
@@ -1219,8 +1277,8 @@ function createFilterButton() {
 
   filterMenu.style.maxHeight = '300px'; // Adjust max-height as needed
   filterMenu.style.maxWidth = '400px';
-filterMenu.style.overflowY = 'auto';
-filterMenu.style.overflowX = 'hidden';
+  filterMenu.style.overflowY = 'auto';
+  filterMenu.style.overflowX = 'hidden';
 
   let itemToHeaderMap = new Map();
 
@@ -1351,7 +1409,7 @@ class AnalysisObject {
   beginChartGenerationProcess() {
     //meant as a router that chooses what charts to produce depending on the inputs
     // Check if usingThese is not empty and analysisobject's type is 'generic'
-    if (this.usingThese.length > 0 && this.analysisType === 'simple') {
+    if (this.usingThese.length > 0 && (this.analysisType === 'simple' || this.analysisType === 'number')) {
       this.addSimpleChartObjects();
     }
     if (
@@ -2176,68 +2234,68 @@ function openBookmarksOverlay() {
     const exportColumn = document.createElement('div');
     exportColumn.classList.add('col-4', 'd-flex', 'align-items-center', 'justify-content-end');
     titleExportRow.appendChild(exportColumn);
-    
-    
-    
-  // Create the export menu container
-  const exportdropdownContainer = document.createElement('div');
-  exportdropdownContainer.id = 'export-dropdown-container';
-  exportdropdownContainer.classList.add('dropdown');
-
-  // Create the export button
-  const exportSelect = document.createElement('button');
-  exportSelect.id = 'export-button';
-  exportSelect.classList.add(
-    'btn',
-    'truncate-btn',
-    'btn-primary'
-  );
-  exportSelect.type = 'button';
-  exportSelect.style.width = '100%';
-  exportSelect.textContent = 'Export';
-  exportSelect.style.textAlign = 'left';
-  exportSelect.setAttribute('data-bs-toggle', 'dropdown');
-  exportSelect.setAttribute('aria-expanded', 'false');
-
-  // Create the export options menu
-  const exportMenu = document.createElement('ul');
-  exportMenu.classList.add('dropdown-menu');
-
-  // Populate the export dropdown menu
-
-  const exportPDFListItem = document.createElement('li');
-  const exportPDFListAnchor = document.createElement('a');
-  exportPDFListAnchor.classList.add('dropdown-item');
-  const exportPDFListAnchorText = document.createElement('label');
-  exportPDFListAnchorText.textContent = 'PDF';
-  exportPDFListAnchor.setAttribute('data-value', 'simple');
-  exportPDFListAnchor.addEventListener('click', exportAllBookmarkedCardsToPDF);
 
 
-  const exportPPTListItem = document.createElement('li');
-  const exportPPTListAnchor = document.createElement('a');
-  exportPPTListAnchor.classList.add('dropdown-item'); 
-  const exportPPTListAnchorText = document.createElement('label');
-  exportPPTListAnchorText.textContent = 'PPT / Slides';
-  exportPPTListAnchor.setAttribute('data-value', 'simple');
-  exportPPTListAnchor.addEventListener('click', exportAllBookmarkedCardsToPPTX);
+
+    // Create the export menu container
+    const exportdropdownContainer = document.createElement('div');
+    exportdropdownContainer.id = 'export-dropdown-container';
+    exportdropdownContainer.classList.add('dropdown');
+
+    // Create the export button
+    const exportSelect = document.createElement('button');
+    exportSelect.id = 'export-button';
+    exportSelect.classList.add(
+      'btn',
+      'truncate-btn',
+      'btn-primary'
+    );
+    exportSelect.type = 'button';
+    exportSelect.style.width = '100%';
+    exportSelect.textContent = 'Export';
+    exportSelect.style.textAlign = 'left';
+    exportSelect.setAttribute('data-bs-toggle', 'dropdown');
+    exportSelect.setAttribute('aria-expanded', 'false');
+
+    // Create the export options menu
+    const exportMenu = document.createElement('ul');
+    exportMenu.classList.add('dropdown-menu');
+
+    // Populate the export dropdown menu
+
+    const exportPDFListItem = document.createElement('li');
+    const exportPDFListAnchor = document.createElement('a');
+    exportPDFListAnchor.classList.add('dropdown-item');
+    const exportPDFListAnchorText = document.createElement('label');
+    exportPDFListAnchorText.textContent = 'PDF';
+    exportPDFListAnchor.setAttribute('data-value', 'simple');
+    exportPDFListAnchor.addEventListener('click', exportAllBookmarkedCardsToPDF);
 
 
-  //append options to menu
-  exportPDFListAnchor.appendChild(exportPDFListAnchorText);
-  exportPDFListItem.appendChild(exportPDFListAnchor);
-  exportMenu.appendChild(exportPDFListItem);
-
-  exportPPTListAnchor.appendChild(exportPPTListAnchorText);
-  exportPPTListItem.appendChild(exportPPTListAnchor);
-  exportMenu.appendChild(exportPPTListItem);
-
-  // Append elements to the dropdown container
-  exportdropdownContainer.appendChild(exportSelect);
-  exportdropdownContainer.appendChild(exportMenu);
+    const exportPPTListItem = document.createElement('li');
+    const exportPPTListAnchor = document.createElement('a');
+    exportPPTListAnchor.classList.add('dropdown-item');
+    const exportPPTListAnchorText = document.createElement('label');
+    exportPPTListAnchorText.textContent = 'PPT / Slides';
+    exportPPTListAnchor.setAttribute('data-value', 'simple');
+    exportPPTListAnchor.addEventListener('click', exportAllBookmarkedCardsToPPTX);
 
 
-  exportColumn.appendChild(exportdropdownContainer);
+    //append options to menu
+    exportPDFListAnchor.appendChild(exportPDFListAnchorText);
+    exportPDFListItem.appendChild(exportPDFListAnchor);
+    exportMenu.appendChild(exportPDFListItem);
+
+    exportPPTListAnchor.appendChild(exportPPTListAnchorText);
+    exportPPTListItem.appendChild(exportPPTListAnchor);
+    exportMenu.appendChild(exportPPTListItem);
+
+    // Append elements to the dropdown container
+    exportdropdownContainer.appendChild(exportSelect);
+    exportdropdownContainer.appendChild(exportMenu);
+
+
+    exportColumn.appendChild(exportdropdownContainer);
 
 
     //build up the bookmarks body
@@ -2315,12 +2373,12 @@ function openBookmarksOverlay() {
     }
     const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
 
-// Loop through each child in the bookmarksBodyColumn
-const children = bookmarksBodyColumn.children;
-for (let i = 0; i < children.length; i++) {
-    // Assign the attribute to each child
-    children[i].setAttribute('bookmarked', 'true'); 
-}
+    // Loop through each child in the bookmarksBodyColumn
+    const children = bookmarksBodyColumn.children;
+    for (let i = 0; i < children.length; i++) {
+      // Assign the attribute to each child
+      children[i].setAttribute('bookmarked', 'true');
+    }
 
   }
 }
