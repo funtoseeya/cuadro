@@ -1073,7 +1073,7 @@ function createUsingTheseDropdown() {
 
   // Populate the new dropdown with options from the saved dropdown state
   dropdownState.forEach(({ header, value }) => {
-    if ((analysisType === 'comparative' && value === 'Categorical') ||
+    if ((analysisType === 'comparative' &&  (value === 'Categorical' || value === 'Numerical')) ||
       (analysisType === 'simple' && value === 'Categorical') ||
       (analysisType === 'number' && value === 'Numerical')) {
       const columnListItem = document.createElement('li');
@@ -1798,6 +1798,12 @@ return {
       }
     }
     console.log('Filtered data:', filteredData);
+
+    const headerType = dropdownState.find(item => item.header === header).value;
+
+
+    
+
 
     // Create a map to count occurrences for each group
     const groupCounts = {};
