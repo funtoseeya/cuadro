@@ -502,7 +502,7 @@ function saveDataTypestoArray() {
 
 //v1 won't really support any data other than Categorical. I want to notify our users about that
 function unsupportedDataTypesToast(value) {
-  if (value !== 'Categorical' && value !== 'Ignore') {
+  if (value === 'Date / Time') {
     const parentDiv = document.getElementById('toastContainer'); // Replace with your parent div ID
     parentDiv.innerHTML = ''; // Clear any existing content
 
@@ -513,8 +513,8 @@ function unsupportedDataTypesToast(value) {
                         <strong class="mr-auto">Coming soon</strong>
                     </div>
                     <div class="toast-body">
-                    We do not yet support data types other than "Categorical".
-                    <br> Data associated to all other types will be ignored.
+                    We do not yet support Date / Time based data.
+                    <br> It's coming soon though!
                     </div>
                 </div>
             </div>`;
