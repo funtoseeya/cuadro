@@ -207,8 +207,8 @@ function updateUploadStepUI(fileName) {
   const uploadContainer = document.querySelector('#step-body > div');
 
   // Update styles
-  uploadContainer.style.border = `2px solid var(--primary-color)`;
-  uploadContainer.style.backgroundColor = 'var(--bs-success-light)';
+  uploadContainer.style.border = `3px solid var(--bs-success-light)`;
+  
 
   // Clear existing content and append new content
   uploadContainer.innerHTML = `
