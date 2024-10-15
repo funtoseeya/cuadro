@@ -1061,7 +1061,7 @@ function createUsingTheseDropdown() {
 
   // Populate the new dropdown with options from the saved dropdown state
   dropdownState.forEach(({ header, value }) => {
-    if ((analysisType === 'comparative' && (value === 'Categorical' || value === 'Numerical')) ||
+    if ((analysisType === 'comparative' && value === 'Categorical') ||
       (analysisType === 'simple' && value === 'Categorical') ||
       (analysisType === 'number' && value === 'Numerical')) {
       const columnListItem = document.createElement('li');
@@ -1409,8 +1409,11 @@ class AnalysisObject {
   beginChartGenerationProcess() {
     //meant as a router that chooses what charts to produce depending on the inputs
     // Check if usingThese is not empty and analysisobject's type is 'generic'
-    if (this.usingThese.length > 0 && (this.analysisType === 'simple' || this.analysisType === 'number')) {
+    if (this.usingThese.length > 0 && this.analysisType === 'simple') {
       this.addSimpleChartObjects();
+    }
+    if (this.usingThese.length > 0 && this.analysisType === 'number') {
+      this.addNumberChartObjects();
     }
     if (
       this.usingThese.length > 0 &&
@@ -1458,6 +1461,45 @@ class AnalysisObject {
       this.chartObjects.push(newChartObject); // add the new chart object at the end of the analysis object's charts array
     });
     this.prepChartContainerInStepBody(); // render all charts once their code and data is ready
+  }
+
+  addNumberChartObjects() {
+    //produces the data, labels and charts
+    this.chartObjects = []; // Clear any pre-existing charts before creating new ones
+    this.usingThese.forEach(value => {
+      //iterates over each element in the this.usingThese array.
+      // get the data we need to produce the chart
+      const result = this.generateNumberChartObjectDataArrayAndLabels(
+        value,
+        this.filteredBy
+      );
+
+      // Extract data and labels from the result object
+      const data = result.data;
+      const labels = result.labels;
+      const percentagesCounts = '';
+      const chartTitle = `Distribution of ${value} data`;
+      const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
+      const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
+
+      // Create and add the chart
+      const newChartObject = new ChartObject(
+        this.analysisType,
+        chartTitle,
+        chartID,
+        'line',
+        data,
+        labels,
+        percentagesCounts,
+        [],
+        this.usingThese,
+        this.groupedBy,
+        this.filteredBy
+      ); //value= the current item in the usingthese foreach loop
+      this.chartObjects.push(newChartObject); // add the new chart object at the end of the analysis object's charts array
+    });
+    this.prepChartContainerInStepBody(); // render all charts once their code and data is ready
+
   }
 
   addComparativeChartObjects() {
@@ -1605,6 +1647,99 @@ class AnalysisObject {
     };
   }
 
+  generateNumberChartObjectDataArrayAndLabels(header, filteredBy) {
+    // Helper function to check if an object matches all the filter criteria. OR within the the same header, AND between headers
+    function matchesFilter(item, filters) {
+      // Loop through each filter
+      for (let i = 0; i < filters.length; i++) {
+        let filter = filters[i];
+        let header = filter.header;
+        let value = filter.value;
+
+        // Check if this item matches the filter
+        if (item[header] === value) {
+          // If it matches, continue to the next filter
+          continue;
+        } else {
+          // If it doesn't match, check if there is another filter with the same header and a matching value
+          let hasAnotherMatch = false;
+          for (let j = 0; j < filters.length; j++) {
+            if (
+              filters[j].header === header &&
+              item[header] === filters[j].value
+            ) {
+              hasAnotherMatch = true;
+              break;
+            }
+          }
+          // If no other match is found for the same header, return false
+          if (!hasAnotherMatch) {
+            return false;
+          }
+        }
+      }
+
+      // If the item passes all filters, return true
+      return true;
+    }
+
+    // Filter the array based on applied filters
+    let filteredCSVArray = []; // Initialize an empty array for filtered items
+    for (let i = 0; i < parsedCSVData.length; i++) {
+      let item = parsedCSVData[i]; // Get the current item from parsedCSVData
+      if (matchesFilter(item, filteredBy)) {
+        // Check if the item matches the filters
+        filteredCSVArray.push(item); // If it matches, add it to the filtered array
+      }
+    }
+    console.log('filtered csv array', filteredCSVArray);
+    console.log('header:',header);
+
+    const numbers = filteredCSVArray.map(obj => obj[header]);
+console.log('numbers: ', numbers);
+
+    // Step 1: Calculate the range of the data
+    const minValue = Math.round(Math.min(...numbers) * 0.8);
+    const maxValue = Math.round(Math.max(...numbers) * 1.2);
+    const dataRange = maxValue - minValue;
+
+    // Step 2: Calculate the number of bins (e.g., using Sturges' rule)
+    const numBins = Math.ceil(Math.log2(numbers.length) + 1);
+
+    // Step 3: Calculate the bin size based on the data range
+    const binSize = Math.ceil(dataRange / numBins);
+
+
+    // Step 4: Create the bins dynamically
+    const bins = [];
+    for (let i = minValue; i <= maxValue; i += binSize) {
+      bins.push(i);
+    }
+
+    // Step 5: Count how many values fall into each bin
+    const frequencies = new Array(bins.length).fill(0);
+    numbers.forEach(value => {
+      for (let i = 0; i < bins.length - 1; i++) {
+        if (value >= bins[i] && value < bins[i + 1]) {
+          frequencies[i] += 1;
+          break;
+        }
+      }
+    });
+
+    // Step 6: Prepare the labels (bin centers) for x-axis and frequencies for y-axis
+    const binCenters = bins.map((bin, index) => Math.round(bin + binSize / 2));
+
+    console.log('data: ', frequencies);
+    console.log('labels: ', binCenters);
+
+    return {
+      data: frequencies, // Return the sorted data array
+      labels: binCenters, // Return the sorted labels array
+    };
+
+  }
+
   generateComparativeChartObjectDataArrayAndLabels(header, groupedBy, filteredBy) {
     // Updated function to check if an item matches all filters
     function matchesFilter(item, filters) {
@@ -1730,12 +1865,17 @@ class AnalysisObject {
       stepBody.appendChild(cardsContainer);
     }
 
-    if (this.groupedBy === '') {
-      // Iterate over each chart in the charts array of the analysis object being called / passed as an argument
+    if (this.analysisType === 'simple') {
       this.chartObjects.forEach(chart => {
         renderSimpleChartInCard(chart, cardsContainer);
       });
-    } else {
+    }
+    if (this.analysisType === 'number') {
+      this.chartObjects.forEach(chart => {
+        renderNumberChartInCard(chart, cardsContainer);
+      });
+    }
+    if (this.analysisType === 'comparative') {
       this.chartObjects.forEach(chart => {
         renderComparativeChartInCard(chart, cardsContainer);
       });
@@ -2005,6 +2145,142 @@ function // Function to create and render a chart in a Bootstrap card component 
     options: chartObject.barChartOptions,
   });
 
+}
+
+function renderNumberChartInCard(chartObject, container) {
+
+  // Create the card element
+  const card = document.createElement('div');
+  card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
+
+  // Create the card body element
+  const cardBody = document.createElement('div');
+  cardBody.classList.add('card-body');
+
+  //create the options, title and filters rows and columns - append to body
+  const cardOptionsRow = document.createElement('div');
+  cardOptionsRow.className = 'row';
+  const cardTitleRow = document.createElement('div');
+  cardTitleRow.className = 'row';
+  const cardFiltersRow = document.createElement('div');
+  cardFiltersRow.className = 'row';
+  cardBody.appendChild(cardOptionsRow);
+  cardBody.appendChild(cardTitleRow);
+  cardBody.appendChild(cardFiltersRow);
+
+  const cardOptionsColumn = document.createElement('div');
+  cardOptionsColumn.classList.add(
+    'col-12',
+    'd-flex',
+    'justify-content-end'
+  );
+  const cardTitleColumn = document.createElement('div');
+  cardTitleColumn.classList.add('col-12');
+  const cardFiltersColumn = document.createElement('div');
+  cardFiltersColumn.classList.add('col-12');
+  cardOptionsRow.appendChild(cardOptionsColumn);
+  cardTitleRow.appendChild(cardTitleColumn);
+  cardFiltersRow.appendChild(cardFiltersColumn);
+
+  //create the chart type button
+  const chartButton = document.createElement('button');
+  chartButton.classList.add('btn', 'btn-secondary', 'me-2', 'disabled');
+  chartButton.textContent = 'Area';
+  cardOptionsColumn.appendChild(chartButton);
+
+  //create the bookmark button and set whether it's active or not
+  const bookmarkButton = document.createElement('button');
+  bookmarkButton.classList.add('btn', 'btn-secondary');
+  bookmarkButton.setAttribute('bookmarkButtonIdentifier', chartObject.id);
+  const isChartBookmarked = bookmarks.some(obj => obj.id === chartObject.id);
+  if (isChartBookmarked) {
+    bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+    bookmarkButton.setAttribute('isActive', 'true');
+  } else {
+    bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+    bookmarkButton.setAttribute('isActive', 'false');
+  }
+  cardOptionsColumn.appendChild(bookmarkButton);
+
+  bookmarkButton.addEventListener('click', function () {
+    addRemoveBookmark(bookmarkButton, chartObject);
+  });
+
+  //create the title
+  const cardTitle = document.createElement('h5');
+  cardTitle.textContent = chartObject.title;
+  cardTitleColumn.appendChild(cardTitle);
+
+  //create filter badges as needed
+  const filters = chartObject.filteredBy;
+
+  for (let i = 0; i < filters.length; i++) {
+    const cardFilter = document.createElement('span');
+    cardFilter.className = 'filter-badge'; // Apply the custom class
+    cardFilter.textContent = filters[i].value;
+    cardFiltersColumn.appendChild(cardFilter);
+  }
+
+  // Create the canvas element
+  const canvas = document.createElement('canvas');
+  canvas.style.width = '100%'; // Full width
+
+  //calculate how many bars there will be and use that to calculate the canvas height
+  canvas.style.height = `${100 + chartObject.data.length * 50}px`; //will be 100px if filters return no data and 125px if they return 1 bar
+
+  // Append the canvas to the card body
+  cardBody.appendChild(canvas);
+
+  // Append the card body to the card
+  card.appendChild(cardBody);
+
+  // Append the card to the container
+  container.appendChild(card);
+
+  // Render the chart on the canvas
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+  new Chart(ctx, {
+    type: chartObject.type,
+    data: {
+      labels: chartObject.labels,
+      datasets: [
+        {
+          label: chartObject.title,
+          data: chartObject.data,
+          fill: true,
+          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          tension: 0.4
+        }
+      ]
+    },
+    
+    options: {
+      plugins: {
+        tooltip: {
+          enabled: false
+        },
+        datalabels: {
+          display: false
+        },
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          ticks: {
+            display: false // Hides the y-axis ticks
+          },
+          grid: {
+            display: false // Optionally, hides y-axis grid lines too
+          }
+        }
+      }
+    }
+  });
+  
 }
 
 // Function to create and render a horizontal clustered bar chart in a Bootstrap card component and append to 'step-body'
