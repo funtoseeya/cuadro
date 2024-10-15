@@ -423,6 +423,9 @@ function generateReviewTable(stepBody) {
         select.appendChild(optionElement);
       });
       select.addEventListener('change', function () {
+        if (select.value === 'Numerical') {
+        NumberFormattingWarning(header);
+        }
         unsupportedDataTypesToast(select.value);
       });
       cell3.appendChild(select);
@@ -500,7 +503,16 @@ function saveDataTypestoArray() {
   });
 }
 
-//v1 won't really support any data other than Categorical. I want to notify our users about that
+function NumberFormattingWarning(event) {
+  for (let i=0; i < parsedCSVData.length; i++) {
+    const numberCheck = Number(parsedCSVData[i][event].trim());
+    if (isNaN(numberCheck)) {
+      alert('At least one of the values in this field is not a number. Please review your data or select another data type.');
+      break;
+}
+}
+}
+
 function unsupportedDataTypesToast(value) {
   if (value === 'Date / Time') {
     const parentDiv = document.getElementById('toastContainer'); // Replace with your parent div ID
