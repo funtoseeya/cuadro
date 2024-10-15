@@ -424,7 +424,7 @@ function generateReviewTable(stepBody) {
       });
       select.addEventListener('change', function () {
         if (select.value === 'Numerical') {
-        NumberFormattingWarning(header);
+          NumberFormattingWarning(header);
         }
         unsupportedDataTypesToast(select.value);
       });
@@ -504,13 +504,13 @@ function saveDataTypestoArray() {
 }
 
 function NumberFormattingWarning(event) {
-  for (let i=0; i < parsedCSVData.length; i++) {
+  for (let i = 0; i < parsedCSVData.length; i++) {
     const numberCheck = Number(parsedCSVData[i][event].trim());
     if (isNaN(numberCheck)) {
       alert('At least one of the values in this field is not a number. Please review your data or select another data type.');
       break;
-}
-}
+    }
+  }
 }
 
 function unsupportedDataTypesToast(value) {
@@ -1073,7 +1073,7 @@ function createUsingTheseDropdown() {
 
   // Populate the new dropdown with options from the saved dropdown state
   dropdownState.forEach(({ header, value }) => {
-    if ((analysisType === 'comparative' &&  (value === 'Categorical' || value === 'Numerical')) ||
+    if ((analysisType === 'comparative' && (value === 'Categorical' || value === 'Numerical')) ||
       (analysisType === 'simple' && value === 'Categorical') ||
       (analysisType === 'number' && value === 'Numerical')) {
       const columnListItem = document.createElement('li');
@@ -1466,7 +1466,7 @@ class AnalysisObject {
         labels,
         percentagesCounts,
         [],
-        this.usingThese,
+        value,
         this.groupedBy,
         this.filteredBy
       ); //value= the current item in the usingthese foreach loop
@@ -1504,7 +1504,7 @@ class AnalysisObject {
         labels,
         percentagesCounts,
         [],
-        this.usingThese,
+        value,
         this.groupedBy,
         this.filteredBy
       ); //value= the current item in the usingthese foreach loop
@@ -1528,7 +1528,14 @@ class AnalysisObject {
       const labels = result.labels;
       const clusterLabels = result.clusterLabels;
       const percentagesCounts = result.percentagesCounts;
-      const chartTitle = `Summary of ${value} data grouped by ${this.groupedBy}`;
+      const UsingTheseType = dropdownState.find(obj => obj.header === value);
+      let chartTitle ='';
+      if (UsingTheseType.value==="Categorical") {
+      chartTitle = `Summary of '${value}' grouped by '${this.groupedBy}'`;
+    }
+    if (UsingTheseType.value==="Numerical") {
+      chartTitle = `Sum total of '${value}' by '${this.groupedBy}'`;
+    }
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
@@ -1542,7 +1549,7 @@ class AnalysisObject {
         labels,
         percentagesCounts,
         clusterLabels, // Pass cluster labels to ChartObject
-        this.usingThese,
+        value,
         this.groupedBy,
         this.filteredBy
       );
@@ -1708,49 +1715,49 @@ class AnalysisObject {
 
     const numbers = filteredCSVArray.map(obj => Number(obj[header].trim()));
     console.log('numbers: ', numbers);
-// Step 1: Calculate the range of the data
-const minValue = Math.min(...numbers);
-const maxValue = Math.max(...numbers);
-const dataRange = maxValue - minValue;
+    // Step 1: Calculate the range of the data
+    const minValue = Math.min(...numbers);
+    const maxValue = Math.max(...numbers);
+    const dataRange = maxValue - minValue;
 
-// Step 2: Calculate the number of bins dynamically
-let numBins = Math.min(Math.ceil(1 + Math.log2(numbers.length)), 20); // Sturges' Rule with a cap at 20
+    // Step 2: Calculate the number of bins dynamically
+    let numBins = Math.min(Math.ceil(1 + Math.log2(numbers.length)), 20); // Sturges' Rule with a cap at 20
 
-// Step 3: Calculate the bin width without rounding
-const binSize = dataRange / numBins;
+    // Step 3: Calculate the bin width without rounding
+    const binSize = dataRange / numBins;
 
-// Step 4: Create the bins dynamically
-const bins = [];
-for (let i = minValue; i <= maxValue; i += binSize) {
-  bins.push(i);
-}
-
-// Step 5: Count how many values fall into each bin
-const frequencies = new Array(bins.length - 1).fill(0);
-numbers.forEach(value => {
-  for (let i = 0; i < bins.length - 1; i++) {
-    if (value >= bins[i] && value < bins[i + 1]) {
-      frequencies[i] += 1;
-      break;
+    // Step 4: Create the bins dynamically
+    const bins = [];
+    for (let i = minValue; i <= maxValue; i += binSize) {
+      bins.push(i);
     }
-  }
-  if (value === maxValue) frequencies[frequencies.length - 1] += 1; // Edge case for max value
-});
 
-// Step 6: Prepare the labels as ranges for x-axis, adjusting the final bin to include maxValue
-const binRanges = bins.slice(0, -1).map((bin, index) => {
-  if (index === bins.length - 2) { // Last bin
-    return `${Math.floor(bin)}-${maxValue}`;
-  }
-  return `${Math.floor(bin)}-${Math.floor(bins[index + 1] - 1)}`;
-});
-console.log('data: ', frequencies);
-console.log('labels: ', binRanges);
+    // Step 5: Count how many values fall into each bin
+    const frequencies = new Array(bins.length - 1).fill(0);
+    numbers.forEach(value => {
+      for (let i = 0; i < bins.length - 1; i++) {
+        if (value >= bins[i] && value < bins[i + 1]) {
+          frequencies[i] += 1;
+          break;
+        }
+      }
+      if (value === maxValue) frequencies[frequencies.length - 1] += 1; // Edge case for max value
+    });
 
-return {
-  data: frequencies,
-  labels: binRanges,
-};
+    // Step 6: Prepare the labels as ranges for x-axis, adjusting the final bin to include maxValue
+    const binRanges = bins.slice(0, -1).map((bin, index) => {
+      if (index === bins.length - 2) { // Last bin
+        return `${Math.floor(bin)}-${maxValue}`;
+      }
+      return `${Math.floor(bin)}-${Math.floor(bins[index + 1] - 1)}`;
+    });
+    console.log('data: ', frequencies);
+    console.log('labels: ', binRanges);
+
+    return {
+      data: frequencies,
+      labels: binRanges,
+    };
   }
 
   generateComparativeChartObjectDataArrayAndLabels(header, groupedBy, filteredBy) {
@@ -1800,71 +1807,110 @@ return {
     console.log('Filtered data:', filteredData);
 
     const headerType = dropdownState.find(item => item.header === header).value;
-
-
+    console.log('dropdownState: ', dropdownState);
     
+    
+    if (headerType === 'Categorical') {
 
+      // Create a map to count occurrences for each group
+      const groupCounts = {};
+      const valueCounts = {}; // To store total counts for each value across all groups
 
-    // Create a map to count occurrences for each group
-    const groupCounts = {};
-    const valueCounts = {}; // To store total counts for each value across all groups
+      for (let i = 0; i < filteredData.length; i++) {
+        let item = filteredData[i];
+        let group = item[groupedBy];
+        let value = item[header];
 
-    for (let i = 0; i < filteredData.length; i++) {
-      let item = filteredData[i];
-      let group = item[groupedBy];
-      let value = item[header];
+        // Initialize group key if not present
+        if (!groupCounts[group]) {
+          groupCounts[group] = {};
+        }
 
-      // Initialize group key if not present
-      if (!groupCounts[group]) {
-        groupCounts[group] = {};
+        // Initialize value count if not present
+        if (!groupCounts[group][value]) {
+          groupCounts[group][value] = 0;
+        }
+
+        // Increment the count for the current value in the group
+        groupCounts[group][value]++;
+
+        // Increment the total count for the current value across all groups
+        if (!valueCounts[value]) {
+          valueCounts[value] = 0;
+        }
+        valueCounts[value]++;
       }
 
-      // Initialize value count if not present
-      if (!groupCounts[group][value]) {
-        groupCounts[group][value] = 0;
+      // Prepare labels and data arrays
+      const labels = Object.keys(valueCounts);
+
+      const clusterLabels = Object.keys(groupCounts);
+
+      // Create data and PercentagesCounts arrays
+      const data = [];
+      const percentagesCounts = [];
+      for (let i = 0; i < clusterLabels.length; i++) {
+        let groupKey = clusterLabels[i];
+        let groupData = [];
+        let groupPercentagesCounts = [];
+        for (let j = 0; j < labels.length; j++) {
+          let label = labels[j];
+          let count = groupCounts[groupKey][label] || 0;
+          let total = valueCounts[label];
+          let percentage = total > 0 ? Math.round(count / total * 100) : 0;
+
+          groupData.push(percentage);
+          groupPercentagesCounts.push(`${percentage}% (${count})`); // Concatenate percentage and count
+        }
+        data.push(groupData);
+        percentagesCounts.push(groupPercentagesCounts);
       }
 
-      // Increment the count for the current value in the group
-      groupCounts[group][value]++;
 
-      // Increment the total count for the current value across all groups
-      if (!valueCounts[value]) {
-        valueCounts[value] = 0;
-      }
-      valueCounts[value]++;
+      return {
+        data, // Array of arrays with percentages for each group
+        labels, // Labels for data points
+        clusterLabels, // Labels for each group
+        percentagesCounts, // Array of arrays with percentage and count strings for each group
+      };
     }
 
-    // Prepare labels and data arrays
-    const labels = Object.keys(valueCounts);
-
-    const clusterLabels = Object.keys(groupCounts);
-
-    // Create data and PercentagesCounts arrays
-    const data = [];
-    const percentagesCounts = [];
-    for (let i = 0; i < clusterLabels.length; i++) {
-      let groupKey = clusterLabels[i];
-      let groupData = [];
-      let groupPercentagesCounts = [];
-      for (let j = 0; j < labels.length; j++) {
-        let label = labels[j];
-        let count = groupCounts[groupKey][label] || 0;
-        let total = valueCounts[label];
-        let percentage = total > 0 ? Math.round(count / total * 100) : 0;
-
-        groupData.push(percentage);
-        groupPercentagesCounts.push(`${percentage}% (${count})`); // Concatenate percentage and count
+    if (headerType === 'Numerical') {
+      // Create a map to sum values for each group
+      const groupSums = {};
+    
+      for (let i = 0; i < filteredData.length; i++) {
+        let item = filteredData[i];
+        let group = item[groupedBy];
+        let value = parseFloat(item[header]); // Convert to float to handle numerical values
+    
+        // Check if the value is a number
+        if (isNaN(value)) {
+          console.warn(`Non-numeric value found for ${header}:`, item[header]);
+          continue; // Skip this item if the value is not a number
+        }
+    
+        // Initialize group key if not present
+        if (!groupSums[group]) {
+          groupSums[group] = 0;
+        }
+    
+        // Increment the sum for the current value in the group
+        groupSums[group] += value; // Sum the numerical values
       }
-      data.push(groupData);
-      percentagesCounts.push(groupPercentagesCounts);
+    
+      // Prepare labels and data arrays
+      const labels = Object.keys(groupSums); // Unique groups for cluster labels
+      const data = labels.map(groupKey => groupSums[groupKey]); // Sums for each group
+      const clusterLabels = data;
+            
+      return {
+        data, // Array with sums for each group
+        labels, 
+        clusterLabels// Labels for each group
+      };
     }
-
-    return {
-      data, // Array of arrays with percentages for each group
-      labels, // Labels for data points
-      clusterLabels, // Labels for each group
-      percentagesCounts, // Array of arrays with percentage and count strings for each group
-    };
+    
   }
 
 
@@ -1960,8 +2006,8 @@ class ChartObject {
     this.usingThese = usingThese;
     this.groupedBy = groupedBy;
     this.filteredBy = filteredBy;
-    this.backgroundColor = colorPalette[0]; //
-    this.borderColor = colorPalette[0]; //
+    this.backgroundColor = 'rgba(75, 192, 192, 0.2)'; //
+    this.borderColor = 'rgba(75, 192, 192, 1)'; //
     this.borderWidth = 1;
     this.bookmarked = false;
 
@@ -1972,7 +2018,7 @@ class ChartObject {
         },
         // Change options for ALL labels of THIS CHART
         datalabels: {
-          color: 'white',
+          color: 'black',
           anchor: 'end',
           align: 'start',
           formatter: (value, context) => {
@@ -2005,6 +2051,40 @@ class ChartObject {
       },
       responsive: true, // Ensure the chart is  responsive
     };
+
+    this.numberBarChartOptions = {
+      plugins: {
+        legend: {
+          display: false,
+        },
+        // Change options for ALL labels of THIS CHART
+        datalabels: {
+          color: 'black',
+          anchor: 'end',
+          align: 'start',
+          
+        },
+      },
+      indexAxis: 'y', // Make it a horizontal bar chart
+      scales: {
+        x: {
+          // Make the data appear as percentages
+          beginAtZero: true,
+          
+        },
+        y: {
+          // You can customize the y-axis as needed
+        },
+      },
+      elements: {
+        bar: {
+          borderWidth: 1,
+          borderRadius: 5,
+        },
+      },
+      responsive: true, // Ensure the chart is  responsive
+    };
+
 
     this.clusteredBarChartOptions = {
       responsive: true,
@@ -2274,10 +2354,10 @@ function renderNumberChartInCard(chartObject, container) {
         }
       ]
     },
-    
+
     options: {
       plugins: {
-        
+
         datalabels: {
           display: false
         },
@@ -2289,7 +2369,7 @@ function renderNumberChartInCard(chartObject, container) {
         y: {
           ticks: {
             stepSize: 1, // Set tick interval to 1
-            callback: function(value) {
+            callback: function (value) {
               return Number.isInteger(value) ? value : null; // Show only integer values
             }
           }
@@ -2297,12 +2377,15 @@ function renderNumberChartInCard(chartObject, container) {
       }
     }
   });
-  
+
 }
 
 // Function to create and render a horizontal clustered bar chart in a Bootstrap card component and append to 'step-body'
 function renderComparativeChartInCard(chartObject, container) {
 
+  //some renderings will depend on the usingthese datatype
+  const UsingTheseType = dropdownState.find(obj => obj.header === chartObject.usingThese);
+  
   // Create the card element
   const card = document.createElement('div');
   card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
@@ -2339,7 +2422,13 @@ function renderComparativeChartInCard(chartObject, container) {
   //create the chart type button
   const chartButton = document.createElement('button');
   chartButton.classList.add('btn', 'btn-secondary', 'me-2', 'disabled');
+  if (UsingTheseType.value === 'Categorical') {
   chartButton.textContent = 'Clusters';
+  }
+  if (UsingTheseType.value === 'Numerical') {
+    chartButton.textContent = 'Bars';
+    }
+    
   cardOptionsColumn.appendChild(chartButton);
 
 
@@ -2414,14 +2503,41 @@ function renderComparativeChartInCard(chartObject, container) {
     };
   });
 
-  new Chart(ctx, { //new chart in canvas
-    type: 'bar', // Use 'bar' type for horizontal bar chart
-    data: {
-      labels: chartObject.labels,
-      datasets: datasets,
-    },
-    options: chartObject.clusteredBarChartOptions,
-  });
+  let  chartOptions = '';
+  if (UsingTheseType.value==='Categorical') {
+    new Chart(ctx, { //new chart in canvas
+      type: 'bar', // Use 'bar' type for horizontal bar chart
+      data: {
+        labels: chartObject.labels,
+        datasets: datasets,
+      },
+      options: chartObject.clusteredBarChartOptions,
+    });
+  }
+  if (UsingTheseType.value==='Numerical') {
+    
+    new Chart(ctx, { //new chart in canvas
+      //create a new chart using the properties of the chartObject being called as an argument in the function
+      type: chartObject.type,
+      data: {
+        labels: chartObject.labels,
+        datasets: [
+          {
+            label: chartObject.title, //the tooltip label is just the series title
+            data: chartObject.data,
+            backgroundColor: chartObject.backgroundColor,
+            borderColor: chartObject.borderColor,
+            borderWidth: chartObject.borderWidth,
+          },
+        ],
+      },
+      options: chartObject.numberBarChartOptions,
+    });
+  
+  }
+
+  
+ 
 }
 
 function addRemoveBookmark(target, chart) {
