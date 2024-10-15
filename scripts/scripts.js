@@ -2642,6 +2642,9 @@ function openBookmarksOverlay() {
       if (bookmarks[i].analysisType === 'simple') {
         renderSimpleChartInCard(bookmarks[i], bookmarksBodyColumn);
       }
+      if (bookmarks[i].analysisType === 'number') {
+        renderNumberChartInCard(bookmarks[i], bookmarksBodyColumn);
+      }
       if (bookmarks[i].analysisType === 'comparative') {
         renderComparativeChartInCard(bookmarks[i], bookmarksBodyColumn);
       }
