@@ -1693,51 +1693,52 @@ class AnalysisObject {
       }
     }
     console.log('filtered csv array', filteredCSVArray);
-    console.log('header:',header);
 
-    const numbers = filteredCSVArray.map(obj => obj[header]);
-console.log('numbers: ', numbers);
+    const numbers = filteredCSVArray.map(obj => Number(obj[header].trim()));
+    console.log('numbers: ', numbers);
+// Step 1: Calculate the range of the data
+const minValue = Math.min(...numbers);
+const maxValue = Math.max(...numbers);
+const dataRange = maxValue - minValue;
 
-    // Step 1: Calculate the range of the data
-    const minValue = Math.round(Math.min(...numbers) * 0.8);
-    const maxValue = Math.round(Math.max(...numbers) * 1.2);
-    const dataRange = maxValue - minValue;
+// Step 2: Calculate the number of bins dynamically
+let numBins = Math.min(Math.ceil(1 + Math.log2(numbers.length)), 20); // Sturges' Rule with a cap at 20
 
-    // Step 2: Calculate the number of bins (e.g., using Sturges' rule)
-    const numBins = Math.ceil(Math.log2(numbers.length) + 1);
+// Step 3: Calculate the bin width without rounding
+const binSize = dataRange / numBins;
 
-    // Step 3: Calculate the bin size based on the data range
-    const binSize = Math.ceil(dataRange / numBins);
+// Step 4: Create the bins dynamically
+const bins = [];
+for (let i = minValue; i <= maxValue; i += binSize) {
+  bins.push(i);
+}
 
-
-    // Step 4: Create the bins dynamically
-    const bins = [];
-    for (let i = minValue; i <= maxValue; i += binSize) {
-      bins.push(i);
+// Step 5: Count how many values fall into each bin
+const frequencies = new Array(bins.length - 1).fill(0);
+numbers.forEach(value => {
+  for (let i = 0; i < bins.length - 1; i++) {
+    if (value >= bins[i] && value < bins[i + 1]) {
+      frequencies[i] += 1;
+      break;
     }
+  }
+  if (value === maxValue) frequencies[frequencies.length - 1] += 1; // Edge case for max value
+});
 
-    // Step 5: Count how many values fall into each bin
-    const frequencies = new Array(bins.length).fill(0);
-    numbers.forEach(value => {
-      for (let i = 0; i < bins.length - 1; i++) {
-        if (value >= bins[i] && value < bins[i + 1]) {
-          frequencies[i] += 1;
-          break;
-        }
-      }
-    });
+// Step 6: Prepare the labels as ranges for x-axis, adjusting the final bin to include maxValue
+const binRanges = bins.slice(0, -1).map((bin, index) => {
+  if (index === bins.length - 2) { // Last bin
+    return `${Math.floor(bin)}-${maxValue}`;
+  }
+  return `${Math.floor(bin)}-${Math.floor(bins[index + 1] - 1)}`;
+});
+console.log('data: ', frequencies);
+console.log('labels: ', binRanges);
 
-    // Step 6: Prepare the labels (bin centers) for x-axis and frequencies for y-axis
-    const binCenters = bins.map((bin, index) => Math.round(bin + binSize / 2));
-
-    console.log('data: ', frequencies);
-    console.log('labels: ', binCenters);
-
-    return {
-      data: frequencies, // Return the sorted data array
-      labels: binCenters, // Return the sorted labels array
-    };
-
+return {
+  data: frequencies,
+  labels: binRanges,
+};
   }
 
   generateComparativeChartObjectDataArrayAndLabels(header, groupedBy, filteredBy) {
@@ -2258,9 +2259,7 @@ function renderNumberChartInCard(chartObject, container) {
     
     options: {
       plugins: {
-        tooltip: {
-          enabled: false
-        },
+        
         datalabels: {
           display: false
         },
@@ -2271,10 +2270,10 @@ function renderNumberChartInCard(chartObject, container) {
       scales: {
         y: {
           ticks: {
-            display: false // Hides the y-axis ticks
-          },
-          grid: {
-            display: false // Optionally, hides y-axis grid lines too
+            stepSize: 1, // Set tick interval to 1
+            callback: function(value) {
+              return Number.isInteger(value) ? value : null; // Show only integer values
+            }
           }
         }
       }
