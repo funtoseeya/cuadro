@@ -29,6 +29,10 @@ body {
   color: #fff;
 }
 
+#grapesMenuButton:focus {
+  color:#212121;
+}
+
 .btn-primary {
   /*mod*/
   background-color: var(--primary-color) !important;

@@ -556,12 +556,17 @@ function setupAnalyzeStep() {
 
     //create the bookmarks button
     const TopNavButtonContainer = document.getElementById('top-nav-button-container');
-    TopNavButtonContainer.innerHTML = `  
+    const bookmarkButtonContainer=document.getElementById('bookmark-button-container');
+    if(!bookmarkButtonContainer) {
+    const bookmarkButtonContainer = document.createElement('div');
+    bookmarkButtonContainer.id='bookmark-button-container';
+    bookmarkButtonContainer.innerHTML = `  
     <button id="bookmarks-button" class="btn btn-secondary"><i class="fa-solid fa-bookmark" style="padding-right:0.2rem"></i>Bookmarks</button>`;
-
+    TopNavButtonContainer.appendChild(bookmarkButtonContainer);
+  
     const bookmarksButton = document.getElementById('bookmarks-button');
     bookmarksButton.addEventListener('click', openBookmarksOverlay);
-
+  }
     //update the step body. will keep as a separate function because this is going to be big
     //updateStepBody();
     displayAnalysisOptions();
