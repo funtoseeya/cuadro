@@ -626,8 +626,9 @@ function createCategoricalArrayForFilterPanel() {
 // new function to clear and uppdate the stepper body with analysis options
 function displayAnalysisOptions() {
   const stepBody = document.getElementById('step-body');
+  stepBody.classList.remove('mt-5');
   stepBody.classList.remove('mt-2');
-  stepBody.classList.add('mt-5');
+  stepBody.classList.add('mt-3');
   // Clear any existing content
   stepBody.innerHTML = '';
 
@@ -644,9 +645,10 @@ function displayAnalysisOptions() {
   stepBody.appendChild(analysisOptionTextRow);
 
   // Create the analysis option cards, cols, and row
-  const analysisOptionCardsRow = document.createElement('div');
-  analysisOptionCardsRow.classList.add('row');
-  analysisOptionCardsRow.id = 'analysis-options-cards-row';
+  const analysisOptionCardsRow1 = document.createElement('div');
+  analysisOptionCardsRow1.classList.add('row');
+  const analysisOptionCardsRow2 = document.createElement('div');
+  analysisOptionCardsRow2.classList.add('row');
 
   // Helper function to create a card in a column
   function createCardInCol(cardID, column, title, description, iconHTML) {
@@ -693,88 +695,73 @@ function displayAnalysisOptions() {
 
   // Create the simple analysis column and card
   const analysisOptionCardBasicCol = document.createElement('div');
-  analysisOptionCardBasicCol.classList.add('col-12', 'col-sm-3', 'mb-2');
+  analysisOptionCardBasicCol.classList.add('col-12', 'col-sm-4', 'mb-2');
   createCardInCol(
     'simple-analysis-option',
     analysisOptionCardBasicCol,
     'Category Analysis',
-    'Summarize and filter data within a single category.',
+    `Break down each of a field's categories by count and percentage.`,
     '<i class="fas fa-chart-bar"></i>'
   );
 
   // Create the numerical analysis column and card
   const analysisOptionCardNumCol = document.createElement('div');
-  analysisOptionCardNumCol.classList.add('col-12', 'col-sm-3', 'mb-2');
+  analysisOptionCardNumCol.classList.add('col-12', 'col-sm-4', 'mb-2');
   createCardInCol(
     'number-analysis-option',
     analysisOptionCardNumCol,
     'Numerical Analysis',
-    'Quantify the spread and frequency of numerical fields.',
+    `Group numbers into ranges and visualize their distributions.`,
     '<i class="fa-solid fa-chart-area"></i>'
   );
 
   // Create the comparative analysis column and card
   const analysisOptionCardCompareCol = document.createElement('div');
-  analysisOptionCardCompareCol.classList.add('col-12', 'col-sm-3', 'mb-2');
+  analysisOptionCardCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2');
   createCardInCol(
     'comparative-analysis-option',
     analysisOptionCardCompareCol,
-    'Comparative Analysis',
-    'Compare and contrast data across multiple categories.',
+    'Category Comparison',
+    'Compare and distribute two categorical fields into sub-categories.',
     '<i class="fas fa-table"></i>'
   );
 
+  // Create the comparative analysis column and card
+  const analysisOptionCardNumCompareCol = document.createElement('div');
+  analysisOptionCardNumCompareCol.classList.add('col-12', 'col-sm-4','offset-sm-2', 'mb-2');
+  createCardInCol(
+    'number-comparative-analysis-option',
+    analysisOptionCardNumCompareCol,
+    'Numerical Comparison',
+    'Add up numbers and group them into categories.',
+    '<i class="fas fa-table"></i>'
+  ); 
+
   // Create the trend analysis column and card
   const analysisOptionCardTrendCol = document.createElement('div');
-  analysisOptionCardTrendCol.classList.add('col-12', 'col-sm-3', 'mb-2');
-  const trendCard = document.createElement('div');
-  trendCard.classList.add(
-    'card',
-    'h-100',
-    'border-0',
-    'shadow-sm',
-    'rounded-3'
-  );
-  trendCard.style.backgroundColor = '#ececec';
-  trendCard.style.margin = '10px';
+  analysisOptionCardTrendCol.classList.add('col-12', 'col-sm-4', 'mb-2');
+  createCardInCol(
+    'trend-analysis-option',
+    analysisOptionCardTrendCol,
+    'Trend Analysis',
+    'Uncover patterns and changes over time.',
+    '<i class="fas fa-chart-line"></i><span class="badge" style="background-color: #f4b400; margin-left:0.2rem; color: white; font-size: 0.875rem;">Coming Soon!</span>'
+  ); 
 
-  // trendcard body
-  const trendCardBody = document.createElement('div');
-  trendCardBody.classList.add('card-body', 'text-start');
-
-  // Add the trendcard icon
-  const trendIconContainer = document.createElement('div');
-  trendIconContainer.classList.add('mb-2');
-  trendIconContainer.innerHTML =
-    '<i class="fas fa-chart-line"></i><span class="badge" style="background-color: #f4b400; margin-left:0.2rem; color: white; font-size: 0.875rem;">Coming Soon!</span>';
-  trendCardBody.appendChild(trendIconContainer);
-
-  // Add the trendcard title
-  const TrendTitleDiv = document.createElement('h5');
-  TrendTitleDiv.classList.add('card-title');
-  TrendTitleDiv.textContent = 'Trend Analysis';
-  trendCardBody.appendChild(TrendTitleDiv);
-
-  // Add the trendcard description
-  const trendDescriptionDiv = document.createElement('p');
-  trendDescriptionDiv.classList.add('card-text');
-  trendDescriptionDiv.textContent = 'Uncover patterns and changes over time.';
-  trendCardBody.appendChild(trendDescriptionDiv);
-
-  // Append the trend card body to the card
-  trendCard.appendChild(trendCardBody);
-
-  // Append the trend card to the column
-  analysisOptionCardTrendCol.appendChild(trendCard);
-
-  // Append analysis columns to the row
-  analysisOptionCardsRow.appendChild(analysisOptionCardBasicCol);
-  analysisOptionCardsRow.appendChild(analysisOptionCardNumCol);
-  analysisOptionCardsRow.appendChild(analysisOptionCardCompareCol);
-  analysisOptionCardsRow.appendChild(analysisOptionCardTrendCol);
+   // Append analysis columns to the row
+  analysisOptionCardsRow1.appendChild(analysisOptionCardBasicCol);
+  analysisOptionCardsRow1.appendChild(analysisOptionCardNumCol);
+  analysisOptionCardsRow1.appendChild(analysisOptionCardCompareCol);
+  analysisOptionCardsRow2.appendChild(analysisOptionCardNumCompareCol);
+  analysisOptionCardsRow2.appendChild(analysisOptionCardTrendCol);
 
   // Append the row to the step body
-  stepBody.appendChild(analysisOptionCardsRow);
+  stepBody.appendChild(analysisOptionCardsRow1);
+  stepBody.appendChild(analysisOptionCardsRow2);
+
+  const trendCard = document.getElementById('trend-analysis-option');
+  trendCard.style.backgroundColor = '#ececec';
+  trendCard.style.cursor='default';
 
   const simpleCard = document.getElementById('simple-analysis-option');
   simpleCard.addEventListener('click', function () {
@@ -807,7 +794,7 @@ function handleIWantTo(event) {
 
 
   const stepBody = document.getElementById('step-body');
-  stepBody.classList.remove('mt-5');
+  stepBody.classList.remove('mt-3');
   stepBody.classList.add('mt-2');
   // Clear any existing content
   stepBody.innerHTML = '';
