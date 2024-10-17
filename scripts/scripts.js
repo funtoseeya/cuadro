@@ -208,7 +208,7 @@ function updateUploadStepUI(fileName) {
 
   // Update styles
   uploadContainer.style.border = `3px solid var(--bs-success-light)`;
-  
+
 
   // Clear existing content and append new content
   uploadContainer.innerHTML = `
@@ -556,17 +556,17 @@ function setupAnalyzeStep() {
 
     //create the bookmarks button
     const TopNavButtonContainer = document.getElementById('top-nav-button-container');
-    const bookmarkButtonContainer=document.getElementById('bookmark-button-container');
-    if(!bookmarkButtonContainer) {
-    const bookmarkButtonContainer = document.createElement('div');
-    bookmarkButtonContainer.id='bookmark-button-container';
-    bookmarkButtonContainer.innerHTML = `  
+    const bookmarkButtonContainer = document.getElementById('bookmark-button-container');
+    if (!bookmarkButtonContainer) {
+      const bookmarkButtonContainer = document.createElement('div');
+      bookmarkButtonContainer.id = 'bookmark-button-container';
+      bookmarkButtonContainer.innerHTML = `  
     <button id="bookmarks-button" class="btn btn-secondary"><i class="fa-solid fa-bookmark" style="padding-right:0.2rem"></i>Bookmarks</button>`;
-    TopNavButtonContainer.appendChild(bookmarkButtonContainer);
-  
-    const bookmarksButton = document.getElementById('bookmarks-button');
-    bookmarksButton.addEventListener('click', openBookmarksOverlay);
-  }
+      TopNavButtonContainer.appendChild(bookmarkButtonContainer);
+
+      const bookmarksButton = document.getElementById('bookmarks-button');
+      bookmarksButton.addEventListener('click', openBookmarksOverlay);
+    }
     //update the step body. will keep as a separate function because this is going to be big
     //updateStepBody();
     displayAnalysisOptions();
@@ -710,7 +710,7 @@ function displayAnalysisOptions() {
   createCardInCol(
     'number-analysis-option',
     analysisOptionCardNumCol,
-    'Numerical Analysis',
+    'Number analysis',
     `Group numbers into ranges and visualize their distributions.`,
     '<i class="fa-solid fa-chart-area"></i>'
   );
@@ -728,14 +728,14 @@ function displayAnalysisOptions() {
 
   // Create the comparative analysis column and card
   const analysisOptionCardNumCompareCol = document.createElement('div');
-  analysisOptionCardNumCompareCol.classList.add('col-12', 'col-sm-4','offset-sm-2', 'mb-2');
+  analysisOptionCardNumCompareCol.classList.add('col-12', 'col-sm-4', 'offset-sm-2', 'mb-2');
   createCardInCol(
     'number-comparative-analysis-option',
     analysisOptionCardNumCompareCol,
-    'Numerical Comparison',
+    'Number Comparison',
     'Add up numbers and group them into categories.',
     '<i class="fas fa-table"></i>'
-  ); 
+  );
 
   // Create the trend analysis column and card
   const analysisOptionCardTrendCol = document.createElement('div');
@@ -746,9 +746,9 @@ function displayAnalysisOptions() {
     'Trend Analysis',
     'Uncover patterns and changes over time.',
     '<i class="fas fa-chart-line"></i><span class="badge" style="background-color: #f4b400; margin-left:0.2rem; color: white; font-size: 0.875rem;">Coming Soon!</span>'
-  ); 
+  );
 
-   // Append analysis columns to the row
+  // Append analysis columns to the row
   analysisOptionCardsRow1.appendChild(analysisOptionCardBasicCol);
   analysisOptionCardsRow1.appendChild(analysisOptionCardNumCol);
   analysisOptionCardsRow1.appendChild(analysisOptionCardCompareCol);
@@ -761,7 +761,7 @@ function displayAnalysisOptions() {
 
   const trendCard = document.getElementById('trend-analysis-option');
   trendCard.style.backgroundColor = '#ececec';
-  trendCard.style.cursor='default';
+  trendCard.style.cursor = 'default';
 
   const simpleCard = document.getElementById('simple-analysis-option');
   simpleCard.addEventListener('click', function () {
@@ -779,6 +779,9 @@ function displayAnalysisOptions() {
   comparativeCard.addEventListener('click', function () {
     handleIWantTo('comparative');
   });
+
+  const numberComparativeCard = document.getElementById('number-comparative-analysis-option');
+  numberComparativeCard.addEventListener('click', function () { handleIWantTo('number-comparative') });
 }
 
 // Handle the select change event
@@ -886,22 +889,29 @@ function handleIWantTo(event) {
   const simpleListAnchor = document.createElement('a');
   simpleListAnchor.classList.add('dropdown-item');
   const simpleListAnchorText = document.createElement('label');
-  simpleListAnchorText.textContent = 'simple analysis';
+  simpleListAnchorText.textContent = 'category analysis';
   simpleListAnchor.setAttribute('data-value', 'simple');
 
   const numberListItem = document.createElement('li');
   const numberListAnchor = document.createElement('a');
   numberListAnchor.classList.add('dropdown-item');
   const numberListAnchorText = document.createElement('label');
-  numberListAnchorText.textContent = 'numerical analysis';
+  numberListAnchorText.textContent = 'number analysis';
   numberListAnchor.setAttribute('data-value', 'number');
 
   const compareListItem = document.createElement('li');
   const compareListAnchor = document.createElement('a');
   compareListAnchor.classList.add('dropdown-item');
   const compareListAnchorText = document.createElement('label');
-  compareListAnchorText.textContent = 'comparative analysis';
+  compareListAnchorText.textContent = 'category comparison';
   compareListAnchor.setAttribute('data-value', 'comparative');
+
+  const numberCompareListItem = document.createElement('li');
+  const numberCompareListAnchor = document.createElement('a');
+  numberCompareListAnchor.classList.add('dropdown-item');
+  const numberCompareListAnchorText = document.createElement('label');
+  numberCompareListAnchorText.textContent = 'number comparison';
+  numberCompareListAnchor.setAttribute('data-value', 'number-comparative');
 
   //append options to menu
   simpleListAnchor.appendChild(simpleListAnchorText);
@@ -916,6 +926,10 @@ function handleIWantTo(event) {
   compareListItem.appendChild(compareListAnchor);
   iWantMenu.appendChild(compareListItem);
 
+  numberCompareListAnchor.appendChild(numberCompareListAnchorText);
+  numberCompareListItem.appendChild(numberCompareListAnchor);
+  iWantMenu.appendChild(numberCompareListItem);
+
   // Append elements to the dropdown container
   iWantdropdownContainer.appendChild(iWantSelect);
   iWantdropdownContainer.appendChild(iWantMenu);
@@ -928,7 +942,7 @@ function handleIWantTo(event) {
 
   if (event === 'simple') {
     // Update select.textContent
-    iWantSelect.textContent = 'simple analysis';
+    iWantSelect.textContent = 'category analysis';
 
     //hide group column
     if (groupColumn) {
@@ -936,14 +950,14 @@ function handleIWantTo(event) {
     }
 
     // Create and append the required dropdowns
-    createUsingTheseDropdown();
+    createUsingTheseDropdown(event);
     createFilterButton();
   }
 
   // If the value of the select dropdown is "generic"...
   if (event === 'number') {
     // Update select.textContent
-    iWantSelect.textContent = 'numerical analysis';
+    iWantSelect.textContent = 'number analysis';
 
     //hide group column
     if (groupColumn) {
@@ -951,18 +965,23 @@ function handleIWantTo(event) {
     }
 
     // Create and append the required dropdowns
-    createUsingTheseDropdown();
+    createUsingTheseDropdown(event);
     createFilterButton();
   }
 
-  if (event === 'comparative') {
+  if (event === 'comparative' || event === 'number-comparative') {
     // Update select.textContent
-    iWantSelect.textContent = 'comparative analysis';
-
+    if (event === 'comparative') {
+      iWantSelect.textContent = 'category comparison';
+    }
+    if (event === 'number-comparative') {
+      iWantSelect.textContent = 'number comparison';
+    }
     //show group column
     if (groupColumn) {
       groupColumn.style.display = '';
     }
+
 
     // Readjust column widths
     typeColumn.classList.remove('col-md-6', 'col-md-4');
@@ -981,7 +1000,7 @@ function handleIWantTo(event) {
     filterColumn.innerHTML = '';
 
     // Create and append the required dropdowns
-    createUsingTheseDropdown();
+    createUsingTheseDropdown(event);
     createGroupByDropdown();
     createFilterButton();
   }
@@ -1001,14 +1020,17 @@ function handleIWantTo(event) {
   iWantMenu.addEventListener('click', function (event) {
     const target = event.target.closest('a.dropdown-item');
     let analysisType = '';
-    if (target.innerText === 'simple analysis') {
+    if (target.innerText === 'category analysis') {
       analysisType = 'simple';
     }
-    if (target.innerText === 'numerical analysis') {
+    if (target.innerText === 'number analysis') {
       analysisType = 'number';
     }
-    if (target.innerText === 'comparative analysis') {
+    if (target.innerText === 'category comparison') {
       analysisType = 'comparative';
+    }
+    if (target.innerText === 'number comparison') {
+      analysisType = 'number-comparative';
     }
 
     handleIWantTo(analysisType);
@@ -1016,7 +1038,7 @@ function handleIWantTo(event) {
 }
 
 // function to Create the Using dropdown
-function createUsingTheseDropdown() {
+function createUsingTheseDropdown(event) {
 
   const usingColumn = document.getElementById('using-column');
 
@@ -1065,9 +1087,10 @@ function createUsingTheseDropdown() {
 
   // Populate the new dropdown with options from the saved dropdown state
   dropdownState.forEach(({ header, value }) => {
-    if ((analysisType === 'comparative' && (value === 'Categorical' || value === 'Numerical')) ||
-      (analysisType === 'simple' && value === 'Categorical') ||
-      (analysisType === 'number' && value === 'Numerical')) {
+    if (
+      ((event === 'simple' || event === 'comparative') && value === 'Categorical') ||
+      ((event === 'number' || event === 'number-comparative') && value === 'Numerical')
+    ) {
       const columnListItem = document.createElement('li');
       const columnListAnchor = document.createElement('a');
       columnListAnchor.classList.add('dropdown-item');
@@ -1421,7 +1444,7 @@ class AnalysisObject {
     }
     if (
       this.usingThese.length > 0 &&
-      this.analysisType === 'comparative' &&
+      (this.analysisType === 'comparative' || this.analysisType === 'number-comparative') &&
       this.groupedBy != ''
     ) {
       this.addComparativeChartObjects();
@@ -1521,13 +1544,13 @@ class AnalysisObject {
       const clusterLabels = result.clusterLabels;
       const percentagesCounts = result.percentagesCounts;
       const UsingTheseType = dropdownState.find(obj => obj.header === value);
-      let chartTitle ='';
-      if (UsingTheseType.value==="Categorical") {
-      chartTitle = `Summary of '${value}' grouped by '${this.groupedBy}'`;
-    }
-    if (UsingTheseType.value==="Numerical") {
-      chartTitle = `Sum total of '${value}' by '${this.groupedBy}'`;
-    }
+      let chartTitle = '';
+      if (UsingTheseType.value === "Categorical") {
+        chartTitle = `Count of '${value}' categories grouped by '${this.groupedBy}'`;
+      }
+      if (UsingTheseType.value === "Numerical") {
+        chartTitle = `Total '${value}' by '${this.groupedBy}'`;
+      }
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
@@ -1800,8 +1823,8 @@ class AnalysisObject {
 
     const headerType = dropdownState.find(item => item.header === header).value;
     console.log('dropdownState: ', dropdownState);
-    
-    
+
+
     if (headerType === 'Categorical') {
 
       // Create a map to count occurrences for each group
@@ -1870,39 +1893,39 @@ class AnalysisObject {
     if (headerType === 'Numerical') {
       // Create a map to sum values for each group
       const groupSums = {};
-    
+
       for (let i = 0; i < filteredData.length; i++) {
         let item = filteredData[i];
         let group = item[groupedBy];
         let value = parseFloat(item[header]); // Convert to float to handle numerical values
-    
+
         // Check if the value is a number
         if (isNaN(value)) {
           console.warn(`Non-numeric value found for ${header}:`, item[header]);
           continue; // Skip this item if the value is not a number
         }
-    
+
         // Initialize group key if not present
         if (!groupSums[group]) {
           groupSums[group] = 0;
         }
-    
+
         // Increment the sum for the current value in the group
         groupSums[group] += value; // Sum the numerical values
       }
-    
+
       // Prepare labels and data arrays
       const labels = Object.keys(groupSums); // Unique groups for cluster labels
       const data = labels.map(groupKey => groupSums[groupKey]); // Sums for each group
       const clusterLabels = data;
-            
+
       return {
         data, // Array with sums for each group
-        labels, 
+        labels,
         clusterLabels// Labels for each group
       };
     }
-    
+
   }
 
 
@@ -1932,7 +1955,7 @@ class AnalysisObject {
         renderNumberChartInCard(chart, cardsContainer);
       });
     }
-    if (this.analysisType === 'comparative') {
+    if (this.analysisType === 'comparative' || this.analysisType ==='number-comparative') {
       this.chartObjects.forEach(chart => {
         renderComparativeChartInCard(chart, cardsContainer);
       });
@@ -2054,7 +2077,7 @@ class ChartObject {
           color: 'black',
           anchor: 'end',
           align: 'start',
-          
+
         },
       },
       indexAxis: 'y', // Make it a horizontal bar chart
@@ -2062,7 +2085,7 @@ class ChartObject {
         x: {
           // Make the data appear as percentages
           beginAtZero: true,
-          
+
         },
         y: {
           // You can customize the y-axis as needed
@@ -2377,7 +2400,7 @@ function renderComparativeChartInCard(chartObject, container) {
 
   //some renderings will depend on the usingthese datatype
   const UsingTheseType = dropdownState.find(obj => obj.header === chartObject.usingThese);
-  
+
   // Create the card element
   const card = document.createElement('div');
   card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
@@ -2415,12 +2438,12 @@ function renderComparativeChartInCard(chartObject, container) {
   const chartButton = document.createElement('button');
   chartButton.classList.add('btn', 'btn-secondary', 'me-2', 'disabled');
   if (UsingTheseType.value === 'Categorical') {
-  chartButton.textContent = 'Clusters';
+    chartButton.textContent = 'Clusters';
   }
   if (UsingTheseType.value === 'Numerical') {
     chartButton.textContent = 'Bars';
-    }
-    
+  }
+
   cardOptionsColumn.appendChild(chartButton);
 
 
@@ -2495,8 +2518,8 @@ function renderComparativeChartInCard(chartObject, container) {
     };
   });
 
-  let  chartOptions = '';
-  if (UsingTheseType.value==='Categorical') {
+  let chartOptions = '';
+  if (UsingTheseType.value === 'Categorical') {
     new Chart(ctx, { //new chart in canvas
       type: 'bar', // Use 'bar' type for horizontal bar chart
       data: {
@@ -2506,8 +2529,8 @@ function renderComparativeChartInCard(chartObject, container) {
       options: chartObject.clusteredBarChartOptions,
     });
   }
-  if (UsingTheseType.value==='Numerical') {
-    
+  if (UsingTheseType.value === 'Numerical') {
+
     new Chart(ctx, { //new chart in canvas
       //create a new chart using the properties of the chartObject being called as an argument in the function
       type: chartObject.type,
@@ -2525,11 +2548,11 @@ function renderComparativeChartInCard(chartObject, container) {
       },
       options: chartObject.numberBarChartOptions,
     });
-  
+
   }
 
-  
- 
+
+
 }
 
 function addRemoveBookmark(target, chart) {
