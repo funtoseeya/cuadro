@@ -1466,7 +1466,7 @@ class AnalysisObject {
       const data = result.data;
       const labels = result.labels;
       const percentagesCounts = result.PercentagesCounts;
-      const chartTitle = `Summary of ${value} data`;
+      const chartTitle = `Distribution of '${value}' categories`;
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
@@ -1505,7 +1505,7 @@ class AnalysisObject {
       const data = result.data;
       const labels = result.labels;
       const percentagesCounts = '';
-      const chartTitle = `Distribution of ${value} data`;
+      const chartTitle = `Numeric distribution of '${value}'`;
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
@@ -1546,7 +1546,7 @@ class AnalysisObject {
       const UsingTheseType = dropdownState.find(obj => obj.header === value);
       let chartTitle = '';
       if (UsingTheseType.value === "Categorical") {
-        chartTitle = `Count of '${value}' categories grouped by '${this.groupedBy}'`;
+        chartTitle = `Count of '${value}' categories broken down into '${this.groupedBy}' sub-categories`;
       }
       if (UsingTheseType.value === "Numerical") {
         chartTitle = `Total '${value}' by '${this.groupedBy}'`;
