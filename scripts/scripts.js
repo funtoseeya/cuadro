@@ -2354,6 +2354,11 @@ function renderNumberChartInCard(chartObject, container) {
   // Render the chart on the canvas
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
+  //create min y value
+  const minDataValue = Math.min(...chartObject.data);
+  const yMinValue = minDataValue > 100 ? minDataValue * 0.9 : 0; // Adjusts to 90% of the min value, or 0 if min is small
+  
+
   new Chart(ctx, {
     type: chartObject.type,
     data: {
@@ -2382,6 +2387,7 @@ function renderNumberChartInCard(chartObject, container) {
       },
       scales: {
         y: {
+          min: yMinValue,
           ticks: {
             stepSize: 1, // Set tick interval to 1
             callback: function (value) {
