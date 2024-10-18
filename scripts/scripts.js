@@ -2035,7 +2035,7 @@ class ChartObject {
         datalabels: {
           color: 'black',
           anchor: 'end',
-          align: 'start',
+          align: 'right',
           formatter: (value, context) => {
             // Use percentagesCounts based on the index of the current data point
             return this.percentagesCounts[context.dataIndex];
@@ -2076,7 +2076,7 @@ class ChartObject {
         datalabels: {
           color: 'black',
           anchor: 'end',
-          align: 'start',
+          align: 'right',
 
         },
       },
@@ -2131,7 +2131,7 @@ class ChartObject {
         datalabels: {
           color: 'white',
           anchor: 'end',
-          align: 'start',
+          align: 'right',
           formatter: (value, context) => {
             // Use percentagesCounts array to get the correct label
             const datasetIndex = context.datasetIndex;
