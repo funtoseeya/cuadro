@@ -104,20 +104,6 @@ function createUploadStepContent() {
   // Clear existing content and append the upload container and its content to the step body
   stepBody.innerHTML = '';
   stepBody.appendChild(uploadContainer);
-
-  // Function to create and insert the Review button.
-  function createReviewButton() {
-    // Insert the review button into the bottom panel
-    const panelButtonContainer2 = document.getElementById('panel-button-container-2');
-    panelButtonContainer2.innerHTML = `  
-    <button id="review-button" class="btn btn-primary disabled">Review<i class="fas fa-arrow-right" style="padding-left:0.2rem"></i></button>`;
-
-    const reviewButton = document.getElementById('review-button');
-    reviewButton.addEventListener('click', initializeReviewStep);
-  }
-
-  // create the review button
-  createReviewButton();
 }
 
 // Create the upload step as part of onload
@@ -203,39 +189,21 @@ async function handleFileSelection(event) {
         return; // exit function early
       }
       // Update UI with the name of the selected file
-      updateUploadStepUI(file.name);
+      initializeReviewStep();
     };
     reader.readAsText(file); // Reads the content of the file as a text string
   };
 }
 
-// Function to update the UI after a successful file upload
-function updateUploadStepUI(fileName) {
-  const stepBody = document.getElementById('step-body');
-  const uploadContainer = document.querySelector('#step-body > div');
-
-  // Update styles
-  uploadContainer.style.border = `3px solid var(--bs-success-light)`;
-
-
-  // Clear existing content and append new content
-  uploadContainer.innerHTML = `
-        <i class="fa-solid fa-check" style="font-size: 2em;"></i>
-        <div style="margin-top: 20px;"><strong>Upload successful!</strong> <br> ${fileName}</div>
-        `;
-
-  //remove 'disabled' class from the review button so that they can move on.
-  let reviewButton = document.getElementById('review-button');
-  reviewButton.classList.remove('disabled');
-
-  // Add the event listener that triggers a warning message whenever the user tries to close or refresh the tab
-  window.addEventListener('beforeunload', alertUnsavedChanges);
-}
 
 //REVIEW STEP
 
 // Function to initialize the "Review" step
 function initializeReviewStep() {
+
+   // Add the event listener that triggers a warning message whenever the user tries to close or refresh the tab
+   window.addEventListener('beforeunload', alertUnsavedChanges);
+
   // Clear step body content
   const stepBody = document.getElementById('step-body');
   stepBody.innerHTML = '';
@@ -283,7 +251,7 @@ function initializeReviewStep() {
         <h2 class="accordion-header" id="headingOne">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
                 <i class="fa fa-info-circle me-2" aria-hidden="true"></i>
-                Review the data types for each of your CSV file's columns
+                Review each of your fields' data types
             </button>
         </h2>
         <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
@@ -324,9 +292,9 @@ function generateReviewTable(stepBody) {
 
   // create the header row columns
   const header1 = document.createElement('th');
-  header1.textContent = 'Column label';
+  header1.textContent = 'Field name';
   const header2 = document.createElement('th');
-  header2.textContent = 'Data samples';
+  header2.textContent = 'Sample data';
   const header3 = document.createElement('th');
   header3.textContent = 'Data type';
 
