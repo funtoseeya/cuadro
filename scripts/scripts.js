@@ -1022,7 +1022,7 @@ function createUsingTheseDropdown(event) {
   const span = document.createElement('span');
   span.id = 'using-these-values-text';
   span.style.fontSize = '0.9rem';
-  span.textContent = 'Using these columns';
+  span.textContent = 'Using these fields';
 
   // Create the menu container
   const dropdownContainer = document.createElement('div');
@@ -1147,7 +1147,7 @@ function createGroupByDropdown() {
   const span = document.createElement('span');
   span.id = 'group-by-text';
   span.style.fontSize = '0.9rem';
-  span.textContent = 'Compared by';
+  span.textContent = 'grouped by';
 
   // Create the menu container
   const dropdownContainer = document.createElement('div');
@@ -1997,8 +1997,8 @@ class ChartObject {
     this.usingThese = usingThese;
     this.groupedBy = groupedBy;
     this.filteredBy = filteredBy;
-    this.backgroundColor = 'rgba(75, 192, 192, 0.2)'; //
-    this.borderColor = 'rgba(75, 192, 192, 1)'; //
+    this.backgroundColor = 'rgba(36, 123, 160, 0.2)'; //
+    this.borderColor = 'rgba(36, 123, 160, 1)'; //
     this.borderWidth = 1;
     this.bookmarked = false;
 
@@ -2010,7 +2010,7 @@ class ChartObject {
         // Change options for ALL labels of THIS CHART
         datalabels: {
           color: 'black',
-          anchor: 'end',
+          anchor: 'start',
           align: 'end',
           formatter: (value, context) => {
             // Use percentagesCounts based on the index of the current data point
@@ -2051,7 +2051,7 @@ class ChartObject {
         // Change options for ALL labels of THIS CHART
         datalabels: {
           color: 'black',
-          anchor: 'end',
+          anchor: 'start',
           align: 'end',
 
         },
@@ -2106,7 +2106,7 @@ class ChartObject {
         // Change options for ALL labels of THIS CHART
         datalabels: {
           color: 'black',
-          anchor: 'end',
+          anchor: 'start',
           align: 'end',
           formatter: (value, context) => {
             // Use percentagesCounts array to get the correct label
@@ -2344,8 +2344,8 @@ function renderNumberChartInCard(chartObject, container) {
           label: chartObject.title,
           data: chartObject.data,
           fill: true,
-          borderColor: 'rgba(75, 192, 192, 1)',
-          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          borderColor: 'rgba(36, 123, 160, 1)',
+          backgroundColor: 'rgba(36, 123, 160, 0.2)',
           tension: 0.4
         }
       ]
