@@ -258,10 +258,10 @@ function initializeReviewStep() {
             <div class="accordion-body">
                 Please take a minute to map your data. This will help us give you the best outputs for your needs.
                 <ul>
-                    <li><strong>Categorical (default):</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. </li>
+                    <li><strong>Categorical (default):</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. A field with unique values doesn't fall into Categorical - it should be set to Ignore.</li>
                     <li><strong>Numerical:</strong> This is for any field containing numerical values. We will compute these by summing them, rather than counting them.</li>
                                         <li><strong>Date / Time:</strong> This is for any field containing timestamps. This is especially useful for generating time-based comparisons, such as line charts and so on.</li>
-                    <li><strong>Ignore:</strong> Assign this to any field that doesn't fall into the above categories. e.g. text strings, unique identifiers, etc.</li>
+                    <li><strong>Ignore:</strong> Assign this to any field that doesn't fall into the above categories. e.g. comments, names, unique identifiers, etc.</li>
 
                 </ul>
             </div>
@@ -615,7 +615,7 @@ function displayAnalysisOptions() {
   const analysisOptionTextColumn = document.createElement('div');
   analysisOptionTextColumn.classList.add('col-12');
   const analysisOptionText = document.createElement('h5');
-  analysisOptionText.textContent = 'I want to perform a...';
+  analysisOptionText.textContent = 'What do you want to see?';
   analysisOptionTextColumn.appendChild(analysisOptionText);
   analysisOptionTextRow.appendChild(analysisOptionTextColumn);
   stepBody.appendChild(analysisOptionTextRow);
@@ -675,8 +675,8 @@ function displayAnalysisOptions() {
   createCardInCol(
     'simple-analysis-option',
     analysisOptionCardBasicCol,
-    'Category Analysis',
-    `Break down each of a field's categories by count and percentage.`,
+    'Category Frequencies',
+    `Display categories and their frequency of occurrence in a bar chart.`,
     '<i class="fas fa-chart-bar"></i>'
   );
 
@@ -686,8 +686,8 @@ function displayAnalysisOptions() {
   createCardInCol(
     'number-analysis-option',
     analysisOptionCardNumCol,
-    'Number analysis',
-    `Group numbers into ranges and visualize their distributions.`,
+    'Number Frequencies',
+    `Group numbers into ranges and display their distribution in an area chart.`,
     '<i class="fa-solid fa-chart-area"></i>'
   );
 
@@ -697,8 +697,8 @@ function displayAnalysisOptions() {
   createCardInCol(
     'comparative-analysis-option',
     analysisOptionCardCompareCol,
-    'Category Comparison',
-    'Compare and distribute two categorical fields into sub-categories.',
+    'Sub-category Frequencies',
+    `Group fields into sub-categories and display distributions in a clustered chart.`,
     '<i class="fas fa-table"></i>'
   );
 
@@ -708,9 +708,9 @@ function displayAnalysisOptions() {
   createCardInCol(
     'number-comparative-analysis-option',
     analysisOptionCardNumCompareCol,
-    'Number Comparison',
-    'Add up numbers and group them into categories.',
-    '<i class="fas fa-table"></i>'
+    'Sum by Category',
+    'Add up numbers and group them into categories within a bar chart.',
+    '<i class="fa-solid fa-calculator"></i>'
   );
 
   // Create the trend analysis column and card
@@ -830,7 +830,7 @@ function handleIWantTo(event) {
   const iWantText = document.createElement('span');
   iWantText.id = 'i-want-to-text';
   iWantText.style.fontSize = '0.9rem';
-  iWantText.textContent = 'I want to perform a...';
+  iWantText.textContent = 'What do you want to see?';
 
   // Create the i want menu container
   const iWantdropdownContainer = document.createElement('div');
@@ -865,28 +865,28 @@ function handleIWantTo(event) {
   const simpleListAnchor = document.createElement('a');
   simpleListAnchor.classList.add('dropdown-item');
   const simpleListAnchorText = document.createElement('label');
-  simpleListAnchorText.textContent = 'category analysis';
+  simpleListAnchorText.textContent = 'category frequencies';
   simpleListAnchor.setAttribute('data-value', 'simple');
 
   const numberListItem = document.createElement('li');
   const numberListAnchor = document.createElement('a');
   numberListAnchor.classList.add('dropdown-item');
   const numberListAnchorText = document.createElement('label');
-  numberListAnchorText.textContent = 'number analysis';
+  numberListAnchorText.textContent = 'number frequencies';
   numberListAnchor.setAttribute('data-value', 'number');
 
   const compareListItem = document.createElement('li');
   const compareListAnchor = document.createElement('a');
   compareListAnchor.classList.add('dropdown-item');
   const compareListAnchorText = document.createElement('label');
-  compareListAnchorText.textContent = 'category comparison';
+  compareListAnchorText.textContent = 'sub-category frequencies';
   compareListAnchor.setAttribute('data-value', 'comparative');
 
   const numberCompareListItem = document.createElement('li');
   const numberCompareListAnchor = document.createElement('a');
   numberCompareListAnchor.classList.add('dropdown-item');
   const numberCompareListAnchorText = document.createElement('label');
-  numberCompareListAnchorText.textContent = 'number comparison';
+  numberCompareListAnchorText.textContent = 'sum by category';
   numberCompareListAnchor.setAttribute('data-value', 'number-comparative');
 
   //append options to menu
@@ -918,7 +918,7 @@ function handleIWantTo(event) {
 
   if (event === 'simple') {
     // Update select.textContent
-    iWantSelect.textContent = 'category analysis';
+    iWantSelect.textContent = 'category frequencies';
 
     //hide group column
     if (groupColumn) {
@@ -933,7 +933,7 @@ function handleIWantTo(event) {
   // If the value of the select dropdown is "generic"...
   if (event === 'number') {
     // Update select.textContent
-    iWantSelect.textContent = 'number analysis';
+    iWantSelect.textContent = 'number frequencies';
 
     //hide group column
     if (groupColumn) {
@@ -948,10 +948,10 @@ function handleIWantTo(event) {
   if (event === 'comparative' || event === 'number-comparative') {
     // Update select.textContent
     if (event === 'comparative') {
-      iWantSelect.textContent = 'category comparison';
+      iWantSelect.textContent = 'sub-category frequencies';
     }
     if (event === 'number-comparative') {
-      iWantSelect.textContent = 'number comparison';
+      iWantSelect.textContent = 'sum by category';
     }
     //show group column
     if (groupColumn) {
@@ -996,16 +996,16 @@ function handleIWantTo(event) {
   iWantMenu.addEventListener('click', function (event) {
     const target = event.target.closest('a.dropdown-item');
     let analysisType = '';
-    if (target.innerText === 'category analysis') {
+    if (target.innerText === 'category frequencies') {
       analysisType = 'simple';
     }
-    if (target.innerText === 'number analysis') {
+    if (target.innerText === 'number frequencies') {
       analysisType = 'number';
     }
-    if (target.innerText === 'category comparison') {
+    if (target.innerText === 'sub-category frequencies') {
       analysisType = 'comparative';
     }
-    if (target.innerText === 'number comparison') {
+    if (target.innerText === 'sum by category') {
       analysisType = 'number-comparative';
     }
 
