@@ -89,7 +89,7 @@ function createUploadStepContent() {
     // create instructional text under the choose file button
     const instructionsText = document.createElement('p');
     instructionsText.classList.add('text-muted','text-centered','mb-3','small');
-    instructionsText.textContent='The file should contain a table with columns for fields to analyze and rows for data.'
+    instructionsText.textContent='The file should contain a table with columns for fields and rows for entries.'
     uploadContainer.appendChild(instructionsText)
 
   // Create and add the "Choose file" button
