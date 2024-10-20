@@ -1524,7 +1524,7 @@ class AnalysisObject {
       const UsingTheseType = dropdownState.find(obj => obj.header === value);
       let chartTitle = '';
       if (UsingTheseType.value === "Categorical") {
-        chartTitle = `Percentage breakdown of '${value}'-'${this.groupedBy}' sub-categories`;
+        chartTitle = `Percentage breakdown of '${value}-${this.groupedBy}' sub-categories`;
       }
       if (UsingTheseType.value === "Numerical") {
         chartTitle = `Sum of '${value}' by '${this.groupedBy}'`;
@@ -2209,7 +2209,7 @@ function // Function to create and render a chart in a Bootstrap card component 
   canvas.style.width = '100%'; // Full width
 
   //calculate how many bars there will be and use that to calculate the canvas height
-  canvas.style.height = `400px`; //will be 100px if filters return no data and 125px if they return 1 bar
+  canvas.style.height = `350px`; //will be 100px if filters return no data and 125px if they return 1 bar
 
   // Append the canvas to the card body
   cardBody.appendChild(canvas);
@@ -2323,7 +2323,7 @@ function renderNumberChartInCard(chartObject, container) {
   canvas.style.width = '100%'; // Full width
 
   //calculate how many bars there will be and use that to calculate the canvas height
-  canvas.style.height = `400px`; //will be 100px if filters return no data and 125px if they return 1 bar
+  canvas.style.height = `350px`; //will be 100px if filters return no data and 125px if they return 1 bar
 
   // Append the canvas to the card body
   cardBody.appendChild(canvas);
@@ -2477,7 +2477,7 @@ function renderComparativeChartInCard(chartObject, container) {
   chartObject.data.forEach(subArray => {
     totalArrayValues += subArray.length;
   });
-  canvas.style.height = `400px`; //will be 100px if filters return no data and 125px if they return 1 bar
+  canvas.style.height = `350px`; //will be 100px if filters return no data and 125px if they return 1 bar
 
   // Append the canvas to the card body
   cardBody.appendChild(canvas);
@@ -2898,8 +2898,8 @@ function exportAllBookmarkedCardsToPPTX() {
         const pageWidth = pptx.width; // Width of the PPTX slide
         const pageHeight = pptx.height; // Height of the PPTX slide
 
-        const maxWidth = 10;  // Maximum width in inches (adjust based on your needs)
-        const maxHeight = 7;  // Maximum height in inches (adjust based on your needs)
+        const maxWidth = 7;  // Maximum width in inches (adjust based on your needs)
+        const maxHeight = 5;  // Maximum height in inches (adjust based on your needs)
 
         let imgWidth = canvas.width / 96; // Convert to inches (96 DPI)
         let imgHeight = canvas.height / 96; // Convert to inches (96 DPI)
