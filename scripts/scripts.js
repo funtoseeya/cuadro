@@ -1442,7 +1442,7 @@ class AnalysisObject {
       const data = result.data;
       const labels = result.labels;
       const percentagesCounts = result.PercentagesCounts;
-      const chartTitle = `Distribution of '${value}' categories`;
+      const chartTitle = `Percentage breakdown of '${value}' categories`;
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
@@ -1481,7 +1481,7 @@ class AnalysisObject {
       const data = result.data;
       const labels = result.labels;
       const percentagesCounts = '';
-      const chartTitle = `Numeric distribution of '${value}'`;
+      const chartTitle = `Count of '${value}' divided into ranges`;
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
@@ -1522,10 +1522,10 @@ class AnalysisObject {
       const UsingTheseType = dropdownState.find(obj => obj.header === value);
       let chartTitle = '';
       if (UsingTheseType.value === "Categorical") {
-        chartTitle = `Count of '${value}' categories broken down into '${this.groupedBy}' sub-categories`;
+        chartTitle = `Percentage breakdown of '${value}'-'${this.groupedBy}' sub-categories`;
       }
       if (UsingTheseType.value === "Numerical") {
-        chartTitle = `Total '${value}' by '${this.groupedBy}'`;
+        chartTitle = `Sum of '${value}' by '${this.groupedBy}'`;
       }
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
@@ -2009,6 +2009,7 @@ class ChartObject {
         },
         // Change options for ALL labels of THIS CHART
         datalabels: {
+          rotation: 90,        // Rotates the labels vertically
           color: 'black',
           anchor: 'start',
           align: 'end',
@@ -2018,9 +2019,9 @@ class ChartObject {
           },
         },
       },
-      indexAxis: 'y', // Make it a horizontal bar chart
+      indexAxis: 'x', // Make it a horizontal bar chart
       scales: {
-        x: {
+        y: {
           // Make the data appear as percentages
           beginAtZero: true,
           ticks: {
@@ -2050,15 +2051,17 @@ class ChartObject {
         },
         // Change options for ALL labels of THIS CHART
         datalabels: {
+          rotation: 90,        // Rotates the labels vertically
+
           color: 'black',
           anchor: 'start',
           align: 'end',
 
         },
       },
-      indexAxis: 'y', // Make it a horizontal bar chart
+      indexAxis: 'x', // Make it a horizontal bar chart
       scales: {
-        x: {
+        y: {
           // Make the data appear as percentages
           beginAtZero: true,
 
@@ -2079,9 +2082,9 @@ class ChartObject {
 
     this.clusteredBarChartOptions = {
       responsive: true,
-      indexAxis: 'y', // Set to 'y' for horizontal bars
+      indexAxis: 'x', // Set to 'y' for horizontal bars
       scales: {
-        x: {
+        y: {
           stacked: false, // Bars should not be stacked
           ticks: {
             autoSkip: false, // Ensure all x-axis labels are visible
@@ -2091,7 +2094,7 @@ class ChartObject {
             },
           },
         },
-        y: {
+        x: {
           stacked: false, // Bars should not be stacked
           beginAtZero: true,
         },
@@ -2105,6 +2108,7 @@ class ChartObject {
       plugins: {
         // Change options for ALL labels of THIS CHART
         datalabels: {
+          rotation: 90,        // Rotates the labels vertically
           color: 'black',
           anchor: 'start',
           align: 'end',
@@ -2203,7 +2207,7 @@ function // Function to create and render a chart in a Bootstrap card component 
   canvas.style.width = '100%'; // Full width
 
   //calculate how many bars there will be and use that to calculate the canvas height
-  canvas.style.height = `${100 + chartObject.data.length * 50}px`; //will be 100px if filters return no data and 125px if they return 1 bar
+  canvas.style.height = `400px`; //will be 100px if filters return no data and 125px if they return 1 bar
 
   // Append the canvas to the card body
   cardBody.appendChild(canvas);
@@ -2229,6 +2233,7 @@ function // Function to create and render a chart in a Bootstrap card component 
           backgroundColor: chartObject.backgroundColor,
           borderColor: chartObject.borderColor,
           borderWidth: chartObject.borderWidth,
+          maxBarThickness: 50
         },
       ],
     },
@@ -2316,7 +2321,7 @@ function renderNumberChartInCard(chartObject, container) {
   canvas.style.width = '100%'; // Full width
 
   //calculate how many bars there will be and use that to calculate the canvas height
-  canvas.style.height = `${100 + chartObject.data.length * 50}px`; //will be 100px if filters return no data and 125px if they return 1 bar
+  canvas.style.height = `400px`; //will be 100px if filters return no data and 125px if they return 1 bar
 
   // Append the canvas to the card body
   cardBody.appendChild(canvas);
@@ -2470,7 +2475,7 @@ function renderComparativeChartInCard(chartObject, container) {
   chartObject.data.forEach(subArray => {
     totalArrayValues += subArray.length;
   });
-  canvas.style.height = `${100 + totalArrayValues * 25}px`; //will be 100px if filters return no data and 125px if they return 1 bar
+  canvas.style.height = `400px`; //will be 100px if filters return no data and 125px if they return 1 bar
 
   // Append the canvas to the card body
   cardBody.appendChild(canvas);
@@ -2497,6 +2502,7 @@ function renderComparativeChartInCard(chartObject, container) {
       backgroundColor: backgroundColor,
       borderColor: borderColor,
       borderWidth: 1, // Fixed border width
+      maxBarThickness: 50
     };
   });
 
@@ -2525,6 +2531,8 @@ function renderComparativeChartInCard(chartObject, container) {
             backgroundColor: chartObject.backgroundColor,
             borderColor: chartObject.borderColor,
             borderWidth: chartObject.borderWidth,
+            maxBarThickness: 50
+
           },
         ],
       },
