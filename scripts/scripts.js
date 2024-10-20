@@ -2031,8 +2031,8 @@ class ChartObject {
             },
           },
         },
-        y: {
-          // You can customize the y-axis as needed
+        x: {
+          // You can customize the axis as needed
         },
       },
       elements: {
