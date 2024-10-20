@@ -698,7 +698,7 @@ function displayAnalysisOptions() {
     'comparative-analysis-option',
     analysisOptionCardCompareCol,
     'Sub-category Frequencies',
-    `Group fields into sub-categories and display distributions in a clustered chart.`,
+    `Distribute fields into sub-categories within a clustered chart.`,
     '<i class="fas fa-table"></i>'
   );
 
@@ -2779,6 +2779,10 @@ function openBookmarksOverlay() {
       if (bookmarks[i].analysisType === 'comparative') {
         renderComparativeChartInCard(bookmarks[i], bookmarksBodyColumn);
       }
+      if (bookmarks[i].analysisType === 'number-comparative') {
+        renderComparativeChartInCard(bookmarks[i], bookmarksBodyColumn);
+      }
+
     }
     const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
 
