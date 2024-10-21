@@ -31,6 +31,7 @@ let selectedFile; // Global variable to store the file. we need this to create a
 let dropdownState = []; //global variable to save dropdowns in the review table. we need this to save the user's con
 let CategoricalArray = []; //global array that saves all unique values of columns tagged as Categorical - useful for filters
 let parsedCSVData = []; // global array that stores the uploaded csv's data
+const guessedCSVheaderClassification = {}; // To store the guessed classification of each header
 let analysisObjects = []; // Array to store analysis object instances
 let nextAnalysisId = 1; // Unique ID counter
 let currentAnalysisId = 1; //what analysis object the user is currently analyzing. set to 1 as the default, will update later.
@@ -401,6 +402,7 @@ function generateReviewTable(stepBody) {
         optionElement.textContent = option;
         select.appendChild(optionElement);
       });
+      select.value= guessedCSVheaderClassification[header];
       select.addEventListener('change', function () {
         if (select.value === 'Numerical') {
           NumberFormattingWarning(header);
@@ -455,6 +457,7 @@ function parseCSVToArray(file) {
 
     // Log the parsed data for testing
     console.log('Parsed CSV Data:', parsedCSVData);
+    guessDataTypes();
 
     // Call generateReviewTable here to ensure it's called after parsing
     generateReviewTable(document.getElementById('step-body'));
@@ -480,6 +483,43 @@ function saveDataTypestoArray() {
     // Add an object with the header and the selected dropdown value to the dropdownState array
     dropdownState.push({ header: header, value: dropdown.value });
   });
+}
+
+function guessDataTypes() {
+//assume each header is a number. if not a number, see if category. if not category, ignore
+
+const headers = Object.keys(parsedCSVData[0]);//get an array listing each header. 
+
+
+headers.forEach(header =>{
+  const values = parsedCSVData.map(row => row[header]); //create an array of all the values relating to that header in the big array
+  let isNumeric = true;
+
+  for (let i = 0; i < values.length; i++) {
+    const numberCheck = Number(values[i].trim());
+    if (isNaN(numberCheck)) {
+      isNumeric = false;  
+      break;
+    }
+  }
+
+ // If the column is numeric, classify it as 'numeric'
+ if (isNumeric) {
+  guessedCSVheaderClassification[header] = 'Numerical';
+ }
+ else {
+  const uniqueValues = new Set(values); // Get the unique values
+  const uniqueRatio = uniqueValues.size / values.length;
+  if (uniqueRatio<0.6){
+guessedCSVheaderClassification[header] = 'Categorical';
+  }
+  else {
+    guessedCSVheaderClassification[header] = 'Ignore';
+  }
+ }
+})
+console.log('guessed header classifications: ',guessedCSVheaderClassification);
+
 }
 
 function NumberFormattingWarning(event) {
