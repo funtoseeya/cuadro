@@ -85,14 +85,10 @@ function createUploadStepContent() {
   // Create and add the upload text with line break
   const uploadText = document.createElement('div');
   uploadText.innerHTML = 'Upload the CSV file you wish to analyze.';
-  uploadText.classList.add('mt-3'); // Added margin for spacing
+  uploadText.classList.add('my-3'); // Added margin for spacing
   uploadContainer.appendChild(uploadText);
 
-    // create instructional text under the choose file button
-    const instructionsText = document.createElement('p');
-    instructionsText.classList.add('text-muted','text-centered','mb-3','small');
-    instructionsText.textContent='The file should contain a table with columns for fields and rows for entries.'
-    uploadContainer.appendChild(instructionsText)
+
 
   // Create and add the "Choose file" button
   const chooseFileButton = document.createElement('button');
@@ -101,7 +97,12 @@ function createUploadStepContent() {
   chooseFileButton.id = 'chooseFileButton';
   uploadContainer.appendChild(chooseFileButton);
 
-
+  const sampleFile = document.createElement('a');
+  sampleFile.classList.add('text-decoration-none','small','mt-3','sample-data-link');
+sampleFile.href = `../Football player stats.csv`; // Path to the file
+sampleFile.download = 'Football player stats.csv'; // Suggest the filename for download
+sampleFile.innerHTML = '<i class="fa-solid fa-download"></i> Sample data : Football Player Stats'; // Text for the link
+uploadContainer.appendChild(sampleFile);
 
   // Clear existing content and append the upload container and its content to the step body
   stepBody.innerHTML = '';

@@ -15,6 +15,14 @@
 
 }
 
+.sample-data-link {
+  color:#247ba0;
+}
+
+.sample-data-link:hover {
+  color:#1c607d;
+}
+
 #cuadro-header-logo:hover {
   opacity: 60%;
 }
