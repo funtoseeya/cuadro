@@ -486,31 +486,28 @@ function saveDataTypestoArray() {
 }
 
 function guessDataTypes() {
-//assume each header is a number. if not a number, see if category. if not category, ignore
 
 const headers = Object.keys(parsedCSVData[0]);//get an array listing each header. 
 
-
 headers.forEach(header =>{
-  const values = parsedCSVData.map(row => row[header]); //create an array of all the values relating to that header in the big array
+  const values = parsedCSVData.map(row => row[header]); //an array of all the values relating to that header in the big array
   let isNumeric = true;
 
-  for (let i = 0; i < values.length; i++) {
+  for (let i = 0; i < values.length; i++) { //go thru all values and ensure they are numbers
     const numberCheck = Number(values[i].trim());
     if (isNaN(numberCheck)) {
-      isNumeric = false;  
+      isNumeric = false;  //if at least one value isn't numeric, we say so and move on
       break;
     }
   }
 
- // If the column is numeric, classify it as 'numeric'
  if (isNumeric) {
   guessedCSVheaderClassification[header] = 'Numerical';
  }
  else {
-  const uniqueValues = new Set(values); // Get the unique values
+  const uniqueValues = new Set(values); //find all unique values relating to the header
   const uniqueRatio = uniqueValues.size / values.length;
-  if (uniqueRatio<0.6){
+  if (uniqueRatio<0.4){ // if the ratio of unique values to actual values is low, chances are high that it's categorical
 guessedCSVheaderClassification[header] = 'Categorical';
   }
   else {
@@ -519,7 +516,6 @@ guessedCSVheaderClassification[header] = 'Categorical';
  }
 })
 console.log('guessed header classifications: ',guessedCSVheaderClassification);
-
 }
 
 function NumberFormattingWarning(event) {
