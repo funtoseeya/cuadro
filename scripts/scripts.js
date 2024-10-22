@@ -2208,6 +2208,7 @@ function // Function to create and render a chart in a Bootstrap card component 
   chartButton.textContent = 'Bars';
   cardOptionsColumn.appendChild(chartButton);
 
+
   //create the bookmark button and set whether it's active or not
   const bookmarkButton = document.createElement('button');
   bookmarkButton.classList.add('btn', 'btn-secondary');
@@ -2754,7 +2755,7 @@ function openBookmarksOverlay() {
     //build up the bookmarks body
     const bookmarksBodyContainer = document.createElement('div');
     bookmarksBodyContainer.id = 'bookmarks-body-container';
-    bookmarksBodyContainer.classList.add('container', 'col-md-8', 'offset-md-2', 'mt-2');
+    bookmarksBodyContainer.classList.add('col-md-8', 'offset-md-2', 'mt-2');
     bookmarksBodyContainer.style.marginBottom = '50px';
     bookmarksContainer.appendChild(bookmarksBodyContainer);
     const bookmarksBodyRow = document.createElement('div');
