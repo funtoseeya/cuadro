@@ -21,6 +21,18 @@
 
 .sample-data-link:hover {
   color:#1c607d;
+  cursor: pointer;
+
+}
+
+.data-type-button {
+  color:var(--primary-light);
+}
+
+.data-type-button:hover {
+  color:var(--primary-dark);
+  cursor: pointer;
+
 }
 
 #cuadro-header-logo:hover {
@@ -286,6 +298,37 @@ body {
 /* Responsive adjustment */
 @media screen and (max-height: 450px) {
   .bookmarks-overlay .close-bookmarks-overlay-btn {
+      font-size: 30px;
+  }
+}
+
+
+.data-type-settings-overlay {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 2000;
+  top: 0;
+  left: 0;
+  background-color: white;
+  overflow-x: hidden;
+}
+
+.data-type-settings-overlay .close-data-type-settings-overlay-btn {
+  font-size: 36px;
+  color: var(--primary-light);
+  text-decoration: none;
+}
+
+.data-type-settings-overlay .close-data-type-settings-overlay-btn:hover,
+.data-type-settings-overlay .close-data-type-settings-overlay-btn:focus {
+  color: #f1f1f1;
+  cursor: pointer;
+}
+
+/* Responsive adjustment */
+@media screen and (max-height: 450px) {
+  .data-type-settings-overlay .close-data-type-settings-overlay-btn {
       font-size: 30px;
   }
 }

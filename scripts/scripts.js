@@ -35,7 +35,7 @@ const guessedCSVheaderClassification = {}; // To store the guessed classificatio
 let analysisObjects = []; // Array to store analysis object instances
 let nextAnalysisId = 1; // Unique ID counter
 let currentAnalysisId = 1; //what analysis object the user is currently analyzing. set to 1 as the default, will update later.
-let colorPalette = ['#247ba0', '#f25f5c', '#ffe066','#50514f', '#70c1b3', '#6a4c93', '#0ead69', '#ffa5ab', '#1982c4', '#f3722c'];
+let colorPalette = ['#247ba0', '#f25f5c', '#ffe066', '#50514f', '#70c1b3', '#6a4c93', '#0ead69', '#ffa5ab', '#1982c4', '#f3722c'];
 let colorPaletteWithOpacity = ['rgba(36, 123, 160, 0.4)', 'rgba(242, 95, 92, 0.4)', 'rgba(255, 224, 102, 0.4)', 'rgba(80, 81, 79, 0.4)', 'rgba(112, 193, 179, 0.4)', 'rgba(106, 76, 147, 0.4)', 'rgba(14, 173, 105, 0.4)', 'rgba(255, 165, 171, 0.4)', 'rgba(25, 130, 196, 0.4)', 'rgba(243, 114, 44, 0.4)'];
 
 let bookmarks = [];
@@ -85,7 +85,7 @@ function createUploadStepContent() {
 
   // Create and add the upload text with line break
   const uploadText = document.createElement('div');
-  uploadText.innerHTML = 'Upload the CSV file you wish to analyze.';
+  uploadText.innerHTML = 'Upload the CSV file you wish to create charts with.';
   uploadText.classList.add('my-3'); // Added margin for spacing
   uploadContainer.appendChild(uploadText);
 
@@ -99,11 +99,11 @@ function createUploadStepContent() {
   uploadContainer.appendChild(chooseFileButton);
 
   const sampleFile = document.createElement('a');
-  sampleFile.classList.add('text-decoration-none','small','mt-3','sample-data-link');
-sampleFile.href = `../Football player stats.csv`; // Path to the file
-sampleFile.download = 'Football player stats.csv'; // Suggest the filename for download
-sampleFile.innerHTML = '<i class="fa-solid fa-download"></i> Sample data : Football Player Stats'; // Text for the link
-uploadContainer.appendChild(sampleFile);
+  sampleFile.classList.add('text-decoration-none', 'small', 'mt-3', 'sample-data-link');
+  sampleFile.href = `../Football player stats.csv`; // Path to the file
+  sampleFile.download = 'Football player stats.csv'; // Suggest the filename for download
+  sampleFile.innerHTML = '<i class="fa-solid fa-download"></i> Sample data : Football Player Stats'; // Text for the link
+  uploadContainer.appendChild(sampleFile);
 
   // Clear existing content and append the upload container and its content to the step body
   stepBody.innerHTML = '';
@@ -192,8 +192,7 @@ async function handleFileSelection(event) {
         alert('Please ensure that the titles of each column header are unique.');
         return; // exit function early
       }
-      // Update UI with the name of the selected file
-      initializeReviewStep();
+      setupAnalyzeStep();
     };
     reader.readAsText(file); // Reads the content of the file as a text string
   };
@@ -202,87 +201,12 @@ async function handleFileSelection(event) {
 
 //REVIEW STEP
 
-// Function to initialize the "Review" step
-function initializeReviewStep() {
 
-   // Add the event listener that triggers a warning message whenever the user tries to close or refresh the tab
-   window.addEventListener('beforeunload', alertUnsavedChanges);
-
-  // Clear step body content
-  const stepBody = document.getElementById('step-body');
-  stepBody.innerHTML = '';
-
-  //clear the bottom panels
-  const panelButtonContainer1 = document.getElementById(
-    'panel-button-container-1'
-  );
-  const panelButtonContainer2 = document.getElementById(
-    'panel-button-container-2'
-  );
-  panelButtonContainer1.innerHTML = `<button id="restart-button" class="btn btn-secondary"><i class="fas fa-arrow-left" style="padding-right:0.2rem"></i>Restart</button>`;
-  panelButtonContainer2.innerHTML = `  
-  <button id="analyze-button" class="btn btn-primary">Analyze<i class="fas fa-arrow-right" style="padding-left:0.2rem"></i></button>`;
-
-  // Create the restart button and add to bottom panel
-  const restartButton = document.getElementById('restart-button');
-  restartButton.addEventListener('click', () => {
-    location.reload();
-  }); // a confirmation dialog will appear due to a function above
-
-  // Call to setup the analyze button listener
-  setupAnalyzeStep();
-
-  // Update stepper styling
-  const stepperUpload = document.getElementById('stepper-upload');
-  stepperUpload.classList.remove('stepper-primary');
-  const stepperReview = document.getElementById('stepper-review');
-  stepperReview.classList.add('stepper-primary');
-
-  //Reset Analyze stepper button style in case you're coming back from Analyze
-  const stepperAnalyze = document.getElementById('stepper-analyze');
-  stepperAnalyze.classList.remove('stepper-primary');
-
-  //call fctn to delete any existing analysis objects in case you're coming back from Analyze
-  deleteAllAnalysisObjects();
-
-  // Create the accordion
-  const accordion = document.createElement('div');
-  accordion.classList.add('accordion', 'w-100', 'mb-3');
-  accordion.id = 'dataTypeAccordion';
-
-  accordion.innerHTML = `
-    <div class="accordion-item mt-3">
-        <h2 class="accordion-header" id="headingOne">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                <i class="fa fa-info-circle me-2" aria-hidden="true"></i>
-                Review your fields' assigned data types
-            </button>
-        </h2>
-        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
-            <div class="accordion-body">
-                 We've made some calculated but imperfect guesses at assigning data types to your fields. Please take a minute to review them.
-                <ul>
-                    <li><strong>Categorical:</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. A field with unique values doesn't fall into Categorical - it should be set to Ignore.</li>
-                    <li><strong>Numerical:</strong> This is for any field containing numerical values. We will compute these by summing them, rather than counting them.</li>
-                                        <li><strong>Date / Time:</strong> This is for any field containing timestamps. This is especially useful for generating time-based comparisons, such as line charts and so on.</li>
-                    <li><strong>Ignore:</strong> Assign this to any field that doesn't fall into the above categories. e.g. comments, names, unique identifiers, etc.</li>
-
-                </ul>
-            </div>
-        </div>
-    </div>
-`;
-
-  stepBody.appendChild(accordion);
-
-  //this triggers a cascade of functions...transform csv into array and generate the review table
-  parseCSVToArray(selectedFile);
-}
 
 // Function to generate the review table
-function generateReviewTable(stepBody) {
+function generateReviewTable(body) {
   // Clear existing table if it exists
-  const existingTable = stepBody.querySelector('table');
+  const existingTable = body.querySelector('table');
   if (existingTable) {
     existingTable.remove();
   }
@@ -313,112 +237,64 @@ function generateReviewTable(stepBody) {
   const tbody = document.createElement('tbody');
   table.appendChild(tbody);
 
-  //if the data type dropdowns had been configured already (i.e user accessed the review step via the back button in analyze step...)
-  if (dropdownState.length > 0) {
-    // Use saved dropdown state
-    dropdownState.forEach(({ header, value }) => {
-      //for each item in the dropdown state array...
-      const row = document.createElement('tr'); //create a row
+  // Use saved dropdown state
+  dropdownState.forEach(({ header, value }) => {
+    //for each item in the dropdown state array...
+    const row = document.createElement('tr'); //create a row
 
-      const cell1 = document.createElement('td');
-      cell1.style.width = '25%';
-      cell1.textContent = header; //the first column will contain the dropdown state header
-      row.appendChild(cell1);
+    const cell1 = document.createElement('td');
+    cell1.style.width = '25%';
+    cell1.textContent = header; //the first column will contain the dropdown state header
+    row.appendChild(cell1);
 
-      // Data sample
-      const cell2 = document.createElement('td');
-      cell2.style.width = '50%';
-      const samples = parsedCSVData
-        .slice(0, 3)
-        .map(data => data[header])
-        .join(', '); //get the first 3 rows, keep the values from the header that matches this loop, and join them together
-      cell2.textContent = samples;
-      row.appendChild(cell2);
+    // Data sample
+    const cell2 = document.createElement('td');
+    cell2.style.width = '50%';
+    const samples = parsedCSVData
+      .slice(0, 3)
+      .map(data => data[header])
+      .join(', '); //get the first 3 rows, keep the values from the header that matches this loop, and join them together
+    cell2.textContent = samples;
+    row.appendChild(cell2);
 
-      // Data type dropdown
-      const cell3 = document.createElement('td');
-      cell3.style.width = '25%';
-      const select = document.createElement('select'); //third column will be a dropdown
-      select.classList.add('form-select', 'data-type-dropdown');
-      const options = [
-        'Categorical',
-        'Numerical',
-        'Date / Time',
-        'Ignore'
+    // Data type dropdown
+    const cell3 = document.createElement('td');
+    cell3.style.width = '25%';
+    const select = document.createElement('select'); //third column will be a dropdown
+    select.classList.add('form-select', 'data-type-dropdown');
+    const options = [
+      'Categorical',
+      'Numerical',
+      'Date / Time',
+      'Ignore'
 
-      ]; //here are the options
-      options.forEach(option => {
-        //for each option...
-        const optionElement = document.createElement('option'); //create an item in the list
-        optionElement.value = option; //the item's value = the option name
-        optionElement.textContent = option; //the item's textcontent = the option name
-        select.appendChild(optionElement);
-      });
-      select.value = value; // the dropdown's value will be the one that's saved
-      cell3.appendChild(select);
-      row.appendChild(cell3);
+    ]; //here are the options
+    options.forEach(option => {
+      //for each option...
+      const optionElement = document.createElement('option'); //create an item in the list
+      optionElement.value = option; //the item's value = the option name
+      optionElement.textContent = option; //the item's textcontent = the option name
+      select.appendChild(optionElement);
+    });
+    select.value = value; // the dropdown's value will be the one that's saved
 
-      tbody.appendChild(row);
+    select.addEventListener('change', function(event) {
+      const selectedValue = event.target.value;
+      if (selectedValue === 'Numerical'){
+      NumberFormattingWarning(header);
+    }
+      if (selectedValue ==='Date / Time'){
+      unsupportedDataTypesToast();
+    }
     });
 
-    //if the previous rule failed and the csv has data in it...it should...
-  } else if (parsedCSVData.length > 0) {
-    const headers = Object.keys(parsedCSVData[0]); // use the keys from the 1st object in the array as the headers
+    cell3.appendChild(select);
+    row.appendChild(cell3);
 
-    headers.forEach(header => {
-      //for each header
-      const row = document.createElement('tr'); //create a row
+    tbody.appendChild(row);
+  });
 
-      const cell1 = document.createElement('td');
-      cell1.style.width = '25%';
-      cell1.textContent = header; //the first column will display the header
-      row.appendChild(cell1);
-
-      // Data sample
-      const cell2 = document.createElement('td');
-      cell2.style.width = '50%';
-      const samples = parsedCSVData
-        .slice(0, 3)
-        .map(data => data[header])
-        .join(', '); //get the first three obj in the array, extract the data that matches the header, and display that data in the col
-      cell2.textContent = samples;
-      row.appendChild(cell2);
-
-      // Data type dropdown
-      const cell3 = document.createElement('td');
-      cell3.style.width = '25%';
-      const select = document.createElement('select'); //third row will be a dropdown
-      select.classList.add('form-select', 'data-type-dropdown');
-      const options = [
-        'Categorical',
-        'Numerical',
-        'Date / Time',
-        'Ignore'
-      ]; //here are the options
-      options.forEach(option => {
-        //for each option...
-        const optionElement = document.createElement('option'); //create a menu option
-        optionElement.value = option;
-        optionElement.textContent = option;
-        select.appendChild(optionElement);
-      });
-      select.value= guessedCSVheaderClassification[header];
-      select.addEventListener('change', function () {
-        if (select.value === 'Numerical') {
-          NumberFormattingWarning(header);
-        }
-        unsupportedDataTypesToast(select.value);
-      });
-      cell3.appendChild(select);
-      row.appendChild(cell3);
-
-      tbody.appendChild(row);
-    });
-  } else {
-    console.error('No data available for generating the review table.');
-  }
-
-  stepBody.appendChild(table);
+  body.appendChild(table);
 }
 
 // Function to read a CSV file and convert it to an array
@@ -459,16 +335,13 @@ function parseCSVToArray(file) {
     console.log('Parsed CSV Data:', parsedCSVData);
     guessDataTypes();
 
-    // Call generateReviewTable here to ensure it's called after parsing
-    generateReviewTable(document.getElementById('step-body'));
+    // run the function that creates the Categorical array, which is needed for the filter panel
+  createCategoricalArrayForFilterPanel();
   };
 
   // Read the file as a text string
   reader.readAsText(file);
 }
-
-
-
 
 
 // Function to save the state of the data type dropdowns - useful for Analysis step and triggered when click on Analyze
@@ -487,35 +360,38 @@ function saveDataTypestoArray() {
 
 function guessDataTypes() {
 
-const headers = Object.keys(parsedCSVData[0]);//get an array listing each header. 
+  const headers = Object.keys(parsedCSVData[0]);//get an array listing each header. 
 
-headers.forEach(header =>{
-  const values = parsedCSVData.map(row => row[header]); //an array of all the values relating to that header in the big array
-  let isNumeric = true;
+  headers.forEach(header => {
+    const values = parsedCSVData.map(row => row[header]); //an array of all the values relating to that header in the big array
+    let isNumeric = true;
 
-  for (let i = 0; i < values.length; i++) { //go thru all values and ensure they are numbers
-    const numberCheck = Number(values[i].trim());
-    if (isNaN(numberCheck)) {
-      isNumeric = false;  //if at least one value isn't numeric, we say so and move on
-      break;
+    for (let i = 0; i < values.length; i++) { //go thru all values and ensure they are numbers
+      const numberCheck = Number(values[i].trim());
+      if (isNaN(numberCheck)) {
+        isNumeric = false;  //if at least one value isn't numeric, we say so and move on
+        break;
+      }
     }
-  }
 
- if (isNumeric) {
-  guessedCSVheaderClassification[header] = 'Numerical';
- }
- else {
-  const uniqueValues = new Set(values); //find all unique values relating to the header
-  const uniqueRatio = uniqueValues.size / values.length;
-  if (uniqueRatio<0.4){ // if the ratio of unique values to actual values is low, chances are high that it's categorical
-guessedCSVheaderClassification[header] = 'Categorical';
-  }
-  else {
-    guessedCSVheaderClassification[header] = 'Ignore';
-  }
- }
-})
-console.log('guessed header classifications: ',guessedCSVheaderClassification);
+    if (isNumeric) {
+      guessedCSVheaderClassification[header] = 'Numerical';
+    }
+    else {
+      const uniqueValues = new Set(values); //find all unique values relating to the header
+      const uniqueRatio = uniqueValues.size / values.length;
+      if (uniqueRatio < 0.4) { // if the ratio of unique values to actual values is low, chances are high that it's categorical
+        guessedCSVheaderClassification[header] = 'Categorical';
+      }
+      else {
+        guessedCSVheaderClassification[header] = 'Ignore';
+      }
+    }
+    //need to push these to dropdown state as default values. 
+    dropdownState.push({ header: header, value: guessedCSVheaderClassification[header] });
+
+  })
+
 }
 
 function NumberFormattingWarning(event) {
@@ -528,8 +404,7 @@ function NumberFormattingWarning(event) {
   }
 }
 
-function unsupportedDataTypesToast(value) {
-  if (value === 'Date / Time') {
+function unsupportedDataTypesToast() {
     const parentDiv = document.getElementById('toastContainer'); // Replace with your parent div ID
     parentDiv.innerHTML = ''; // Clear any existing content
 
@@ -553,68 +428,69 @@ function unsupportedDataTypesToast(value) {
     const toast = new bootstrap.Toast(toastElement);
     toast.show();
   }
-}
+
 
 // ANALYZE STEP
 
 // Function to setup the analaysis step
 function setupAnalyzeStep() {
-  const analyzeButton = document.getElementById('analyze-button');
-  analyzeButton.addEventListener('click', () => {
-    //save the review table's configuration into an array
-    saveDataTypestoArray();
 
-    //adjust the steppers
-    document.getElementById('stepper-review').classList.remove('stepper-primary');
-    document.getElementById('stepper-analyze');
-    document.getElementById('stepper-analyze').classList.add('stepper-primary');
+  window.addEventListener('beforeunload', alertUnsavedChanges);
 
-    //create the bookmarks button
-    const TopNavButtonContainer = document.getElementById('top-nav-button-container');
-    const bookmarkButtonContainer = document.getElementById('bookmark-button-container');
-    if (!bookmarkButtonContainer) {
-      const bookmarkButtonContainer = document.createElement('div');
-      bookmarkButtonContainer.id = 'bookmark-button-container';
-      bookmarkButtonContainer.innerHTML = `  
+
+
+  //adjust the steppers
+  document.getElementById('stepper-upload').classList.remove('stepper-primary');
+  document.getElementById('stepper-analyze').classList.add('stepper-primary');
+
+  //create the bookmarks button
+  const TopNavButtonContainer = document.getElementById('top-nav-button-container');
+  const bookmarkButtonContainer = document.getElementById('bookmark-button-container');
+  if (!bookmarkButtonContainer) {
+    const bookmarkButtonContainer = document.createElement('div');
+    bookmarkButtonContainer.id = 'bookmark-button-container';
+    bookmarkButtonContainer.innerHTML = `  
     <button id="bookmarks-button" class="btn btn-secondary"><i class="fa-solid fa-bookmark" style="padding-right:0.2rem"></i>Bookmarks</button>`;
-      TopNavButtonContainer.appendChild(bookmarkButtonContainer);
+    TopNavButtonContainer.appendChild(bookmarkButtonContainer);
 
-      const bookmarksButton = document.getElementById('bookmarks-button');
-      bookmarksButton.addEventListener('click', openBookmarksOverlay);
-    }
-    //update the step body. will keep as a separate function because this is going to be big
-    //updateStepBody();
-    displayAnalysisOptions();
+    const bookmarksButton = document.getElementById('bookmarks-button');
+    bookmarksButton.addEventListener('click', openBookmarksOverlay);
+  }
+  //update the step body. will keep as a separate function because this is going to be big
+  //updateStepBody();
+  displayAnalysisOptions();
 
-    //update the bottom panel. will keep as a separate function because this is going to be big
-    const panelButtonContainer1 = document.getElementById(
-      'panel-button-container-1'
-    );
-    const panelButtonContainer2 = document.getElementById(
-      'panel-button-container-2'
-    );
-    panelButtonContainer1.innerHTML = `
-          <button id="review-button" class="btn btn-secondary"><i class="fas fa-arrow-left" style="padding-right:0.2rem"></i>Review</button>`;
-    panelButtonContainer2.innerHTML = '';
+  //update the bottom panel. will keep as a separate function because this is going to be big
+  const panelButtonContainer1 = document.getElementById(
+    'panel-button-container-1'
+  );
+  const panelButtonContainer2 = document.getElementById(
+    'panel-button-container-2'
+  );
+  panelButtonContainer1.innerHTML = `
+  <button id="restart-button" class="btn btn-secondary"><i class="fas fa-arrow-left" style="padding-right:0.2rem"></i>Restart</button>`;
 
-    // Add event listener to the review button
-    document.getElementById('review-button').addEventListener('click', () => {
-      initializeReviewStep();
-    });
+  panelButtonContainer2.innerHTML = '';
 
-    // run the function that creates the Categorical array, which is needed for the filter panel
-    createCategoricalArrayForFilterPanel();
+  // Create the restart button and add to bottom panel
+  const restartButton = document.getElementById('restart-button');
+  restartButton.addEventListener('click', () => {
+    location.reload();
+  }); // a confirmation dialog will appear due to a function above
 
-    //create a new analysis object
-    createAnalysisObject()
-  });
+  //this triggers a cascade of functions...transform csv into array, guess types, assign to dropdown state...
+  parseCSVToArray(selectedFile);
+
+  //create a new analysis object
+  createAnalysisObject();
+
 }
 
 
 // Function to create a new array to generate the filters dropdown
 function createCategoricalArrayForFilterPanel() {
 
-  // Extract headers marked as "Categorical"
+  // Extract headers marked as "Categorical" or 'Numerical'
   const CategoricalHeaders = dropdownState
     .filter(item => item.value !== 'Ignore')
     .map(item => item.header);
@@ -638,6 +514,124 @@ function createCategoricalArrayForFilterPanel() {
   return result;
 }
 
+function openDataTypeSettingsOverlay() {
+
+  //call fctn to delete any existing analysis objects in case you're coming back from Analyze
+  deleteAllAnalysisObjects();
+
+  // Set up overlay
+  const dataTypeSettingsOverlay = document.getElementById('data-type-settings-overlay');
+  dataTypeSettingsOverlay.style.width = "100%";
+  dataTypeSettingsOverlay.style.display = 'block';
+  document.body.style.overflowY = 'hidden';
+
+  const Container = document.getElementById('data-types-container');
+  if (Container) {
+    Container.remove();
+  }
+
+    const dataTypesContainer = document.createElement('div');
+    dataTypesContainer.id = 'data-types-container';
+    dataTypesContainer.classList.add('container');
+    dataTypeSettingsOverlay.appendChild(dataTypesContainer);
+
+    const closeButtonRow = document.createElement('div');
+    closeButtonRow.classList.add('row', 'justify-content-end');
+    dataTypesContainer.appendChild(closeButtonRow);
+
+    const closeButtonColumn = document.createElement('div');
+    closeButtonColumn.classList.add('col-auto'); // col-auto to make the column fit the content
+    closeButtonColumn.innerHTML = `
+    <a class="close-data-type-settings-overlay-btn" id="close-data-type-settings-overlay-btn" role="button">&times;</a>`;
+    closeButtonRow.appendChild(closeButtonColumn);
+
+    // Close the overlay when the close button is clicked
+    const dataTypesOverlayCloseButton = document.getElementById('close-data-type-settings-overlay-btn');
+    dataTypesOverlayCloseButton.addEventListener('click', () => {
+      dataTypeSettingsOverlay.style.width = "0%";
+      dataTypeSettingsOverlay.style.display = 'none';
+      document.body.style.overflowY = 'scroll';
+       
+       createAnalysisObject();
+      displayAnalysisOptions();
+    });
+
+    //create the row and columns containing the title
+    const titleRow = document.createElement('div');
+    titleRow.classList.add('row');
+    dataTypesContainer.appendChild(titleRow);
+    const titleColumn = document.createElement('div');
+    titleColumn.classList.add('col-6', 'd-flex', 'align-items-center', 'justify-content-start');
+    titleColumn.innerHTML = '<h1>Data Type Settings</h1>';
+    const SaveColumn = document.createElement('div');
+    SaveColumn.classList.add('col-6', 'd-flex', 'align-items-center', 'justify-content-end');
+    const SaveButton = document.createElement('button');
+    SaveButton.classList.add('btn', 'btn-primary');
+    SaveButton.textContent = 'Save Settings';
+    titleRow.appendChild(titleColumn);
+    titleRow.appendChild(SaveColumn);
+    SaveColumn.appendChild(SaveButton);
+
+    SaveButton.addEventListener('click', function () {
+
+      //save the review table's configuration into an array
+      saveDataTypestoArray();
+      // run the function that creates the Categorical array, which is needed for the filter panel
+      createCategoricalArrayForFilterPanel();
+
+      //create a new analysis object
+      createAnalysisObject();
+
+      dataTypeSettingsOverlay.style.width = "0%";
+      dataTypeSettingsOverlay.style.display = 'none';
+      document.body.style.overflowY = 'scroll';
+      displayAnalysisOptions();
+
+    })
+
+
+    //build up the body
+    const dataTypeSettingsRow = document.createElement('div');
+    dataTypeSettingsRow.classList.add('row');
+    const dataTypeSettingsCol = document.createElement('div');
+    dataTypeSettingsCol.classList.add('col-md-8','offset-md-2');
+    dataTypesContainer.appendChild(dataTypeSettingsRow);
+    dataTypeSettingsRow.appendChild(dataTypeSettingsCol);
+
+    // Create the accordion
+    const accordion = document.createElement('div');
+    accordion.classList.add('accordion', 'w-100', 'mb-3');
+    accordion.id = 'dataTypeAccordion';
+
+    accordion.innerHTML = `
+    <div class="accordion-item mt-3">
+        <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                <i class="fa fa-info-circle me-2" aria-hidden="true"></i>
+                Review your fields' assigned data types
+            </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
+            <div class="accordion-body">
+                 We've made some calculated but imperfect guesses at assigning data types to your fields. Please take a minute to review them.
+                <ul>
+                    <li><strong>Categorical:</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. A field with unique values doesn't fall into Categorical - it should be set to Ignore.</li>
+                    <li><strong>Numerical:</strong> This is for any field containing numerical values. We will compute these by summing them, rather than counting them.</li>
+                                        <li><strong>Date / Time:</strong> This is for any field containing timestamps. This is especially useful for generating time-based comparisons, such as line charts and so on.</li>
+                    <li><strong>Ignore:</strong> Assign this to any field that doesn't fall into the above categories. e.g. comments, names, unique identifiers, etc.</li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+`;
+
+    dataTypeSettingsCol.appendChild(accordion);
+    generateReviewTable(dataTypeSettingsCol);
+  }
+
+
+
 // new function to clear and uppdate the stepper body with analysis options
 function displayAnalysisOptions() {
   const stepBody = document.getElementById('step-body');
@@ -652,12 +646,25 @@ function displayAnalysisOptions() {
   analysisOptionTextRow.classList.add('row');
   analysisOptionTextRow.id = 'analysis-option-text-row';
   const analysisOptionTextColumn = document.createElement('div');
-  analysisOptionTextColumn.classList.add('col-12');
+  analysisOptionTextColumn.classList.add('col-6');
   const analysisOptionText = document.createElement('h5');
   analysisOptionText.textContent = 'What do you want to see?';
   analysisOptionTextColumn.appendChild(analysisOptionText);
   analysisOptionTextRow.appendChild(analysisOptionTextColumn);
+
+  //create the data type settings button
+  const dataTypeSettingsColumn = document.createElement('div');
+  dataTypeSettingsColumn.classList.add('col-6', 'd-flex', 'justify-content-end', 'align-items-center');
+  const dataTypeButton = document.createElement('a');
+  dataTypeButton.classList.add('text-decoration-none', 'data-type-button');
+  dataTypeButton.innerHTML = '<i class="fa-solid fa-gear"></i> Data Type Settings';
+  dataTypeSettingsColumn.appendChild(dataTypeButton);
+  analysisOptionTextRow.appendChild(dataTypeSettingsColumn);
+
   stepBody.appendChild(analysisOptionTextRow);
+  dataTypeButton.addEventListener('click', function () {
+    openDataTypeSettingsOverlay();
+  })
 
   // Create the analysis option cards, cols, and row
   const analysisOptionCardsRow1 = document.createElement('div');
@@ -821,7 +828,7 @@ function handleIWantTo(event) {
   const backRow = document.createElement('div');
   backRow.className = 'row';
   const backCol = document.createElement('div');
-  backCol.classList.add('col-12');
+  backCol.classList.add('col-6');
   const backButton = document.createElement('button');
   backButton.classList.add('btn', 'btn-tertiary', 'text-muted');
   backButton.innerHTML =
@@ -832,6 +839,20 @@ function handleIWantTo(event) {
   stepBody.appendChild(backRow);
 
   backButton.addEventListener('click', displayAnalysisOptions);
+
+
+  //create the data type settings button
+  const dataTypeSettingsColumn = document.createElement('div');
+  dataTypeSettingsColumn.classList.add('col-6', 'd-flex', 'justify-content-end', 'align-items-center');
+  const dataTypeButton = document.createElement('a');
+  dataTypeButton.classList.add('text-decoration-none', 'data-type-button');
+  dataTypeButton.innerHTML = '<i class="fa-solid fa-gear"></i> Data Type Settings';
+  dataTypeSettingsColumn.appendChild(dataTypeButton);
+  backRow.appendChild(dataTypeSettingsColumn);
+
+  dataTypeButton.addEventListener('click', function () {
+    openDataTypeSettingsOverlay();
+  })
 
   // Create the container div and set its class
   const promptRow = document.createElement('div');
@@ -1633,7 +1654,6 @@ class AnalysisObject {
         filteredCSVArray.push(item); // If it matches, add it to the filtered array
       }
     }
-    console.log('filtered csv array', filteredCSVArray);
 
     // Count the occurrences of each unique value for the specified header
     let countMap = {}; // Initialize an empty object for counting
@@ -1970,7 +1990,7 @@ class AnalysisObject {
         renderNumberChartInCard(chart, cardsContainer);
       });
     }
-    if (this.analysisType === 'comparative' || this.analysisType ==='number-comparative') {
+    if (this.analysisType === 'comparative' || this.analysisType === 'number-comparative') {
       this.chartObjects.forEach(chart => {
         renderComparativeChartInCard(chart, cardsContainer);
       });
@@ -2378,7 +2398,7 @@ function renderNumberChartInCard(chartObject, container) {
   //create min y value
   const minDataValue = Math.min(...chartObject.data);
   const yMinValue = minDataValue > 100 ? minDataValue * 0.9 : 0; // Adjusts to 90% of the min value, or 0 if min is small
-  
+
 
   new Chart(ctx, {
     type: chartObject.type,
