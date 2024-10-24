@@ -55,7 +55,7 @@ function handleEmail() {
   welcomeText.innerHTML = `👋 Welcome to Cuadro!`;
 
   const welcomeSubText = document.createElement('p');
-  welcomeSubText.innerHTML= `Effortlessly create, filter, compare, and share charts — all with just a few clicks.<a style="text-decoration:none;" href="https://cuadro.io" target="_blank"> Learn more here <i class="fa-solid fa-arrow-up-right-from-square"></i>.</a>`;
+  welcomeSubText.innerHTML= `Effortlessly create, filter, compare, and share charts — all with just a few clicks.<a style="text-decoration:none;color:#1c607d" href="https://cuadro.io" target="_blank"> Learn more here <i class="fa-solid fa-arrow-up-right-from-square"></i>.</a>`;
 
   welcomeRow.appendChild(welcomeText);
   welcomeRow.appendChild(welcomeSubText);
