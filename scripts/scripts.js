@@ -50,10 +50,25 @@ function checkEmailInLocalStorage() {
 
   if (userEmail) {
     // If an email exists, skip the form and go directly to the next step
-    createUploadStepContent();
+    checkLocalStorageData();
   } else {
     // If no email exists, show the email input form
     handleEmail();
+  }
+}
+
+function checkLocalStorageData() {
+  const localStorageData = localStorage.getItem('parsedCSVData');
+  if (localStorageData) {
+    const topNav = document.getElementById('top-nav');
+    topNav.style.display = 'block';
+
+    const stepBody = document.getElementById('step-body');
+    stepBody.classList.add('mt-5');
+    setupAnalyzeStep();
+  }
+  else {
+    createUploadStepContent();
   }
 }
 
@@ -215,7 +230,7 @@ function createUploadStepContent() {
 
   // Create and add the upload text with line break
   const uploadText = document.createElement('h3');
-  uploadText.className='mb-3';
+  uploadText.className = 'mb-3';
   uploadText.innerHTML = `We'll help you create several insightful charts and comparisons in just a few clicks.`;
   uploadContainer.appendChild(uploadText);
 
@@ -467,7 +482,7 @@ function parseCSVToArray(file) {
   reader.onload = function (e) {
     const csv = e.target.result; // Get the content of the file
     parsedCSVData = csvToArray(csv); // Convert CSV to array and store it globally
-
+    localStorage.setItem('parsedCSVData', JSON.stringify(parsedCSVData));
 
     // Log the parsed data for testing
     console.log('Parsed CSV Data:', parsedCSVData);
@@ -599,10 +614,18 @@ function setupAnalyzeStep() {
 
   displayAnalysisOptions();
 
+  const localStorageData = localStorage.getItem('parsedCSVData');
 
-  //this triggers a cascade of functions...transform csv into array, guess types, assign to dropdown state...
-  parseCSVToArray(selectedFile);
+  if (!localStorageData) {
+    //this triggers a cascade of functions...transform csv into array, guess types, assign to dropdown state...
+    parseCSVToArray(selectedFile);
+  }
 
+  else {
+    parsedCSVData = JSON.parse(localStorage.getItem('parsedCSVData'));
+    guessDataTypes();
+    createCategoricalArrayForFilterPanel();
+  }
   //create a new analysis object
   createAnalysisObject();
 
@@ -658,11 +681,15 @@ function openDataTypeSettingsOverlay() {
   dataTypeSettingsOverlay.appendChild(dataTypesContainer);
 
   const closeButtonRow = document.createElement('div');
-  closeButtonRow.classList.add('row', 'justify-content-end');
+  closeButtonRow.classList.add('row','align-');
   dataTypesContainer.appendChild(closeButtonRow);
 
+
+  
+
+  //create the close button
   const closeButtonColumn = document.createElement('div');
-  closeButtonColumn.classList.add('col-auto'); // col-auto to make the column fit the content
+  closeButtonColumn.classList.add('col-12', 'd-flex', 'align-items-center', 'justify-content-end'); // col-auto to make the column fit the content
   closeButtonColumn.innerHTML = `
     <a class="close-data-type-settings-overlay-btn" id="close-data-type-settings-overlay-btn" role="button">&times;</a>`;
   closeButtonRow.appendChild(closeButtonColumn);
@@ -684,9 +711,12 @@ function openDataTypeSettingsOverlay() {
   dataTypesContainer.appendChild(titleRow);
   const titleColumn = document.createElement('div');
   titleColumn.classList.add('col-6', 'd-flex', 'align-items-center', 'justify-content-start');
-  titleColumn.innerHTML = '<h1>Data Type Settings</h1>';
+  titleColumn.innerHTML = '<h1>Data Settings</h1>';
+
+  //add a section for the save button
   const SaveColumn = document.createElement('div');
   SaveColumn.classList.add('col-6', 'd-flex', 'align-items-center', 'justify-content-end');
+
   const SaveButton = document.createElement('button');
   SaveButton.classList.add('btn', 'btn-primary');
   SaveButton.textContent = 'Save Settings';
@@ -774,8 +804,9 @@ function displayAnalysisOptions() {
   stepBody.appendChild(buttonRow);
   const restartButton = document.createElement('a');
   restartButton.classList.add('text-decoration-none', 'tertiary-button')
-  restartButton.innerHTML = `<i class="fas fa-rotate-left" style="padding-right:0.2rem"></i>Restart`;
+  restartButton.innerHTML = `<i class="fas fa-rotate-left" style="padding-right:0.2rem"></i>New Analysis`;
   restartButton.addEventListener('click', () => {
+    localStorage.removeItem('parsedCSVData');
     location.reload();
   }); // a confirmation dialog will appear due to a function above
   restartColumn.appendChild(restartButton);
@@ -785,7 +816,7 @@ function displayAnalysisOptions() {
   dataTypeSettingsColumn.classList.add('col-6', 'd-flex', 'justify-content-end', 'align-items-center');
   const dataTypeButton = document.createElement('a');
   dataTypeButton.classList.add('text-decoration-none', 'tertiary-button');
-  dataTypeButton.innerHTML = '<i class="fa-solid fa-gear"></i> Data Type Settings';
+  dataTypeButton.innerHTML = '<i class="fa-solid fa-gear"></i> Data Settings';
   dataTypeSettingsColumn.appendChild(dataTypeButton);
   buttonRow.appendChild(dataTypeSettingsColumn);
 
@@ -987,7 +1018,7 @@ function handleIWantTo(event) {
   dataTypeSettingsColumn.classList.add('col-6', 'd-flex', 'justify-content-end', 'align-items-center');
   const dataTypeButton = document.createElement('a');
   dataTypeButton.classList.add('text-decoration-none', 'tertiary-button');
-  dataTypeButton.innerHTML = '<i class="fa-solid fa-gear"></i> Data Type Settings';
+  dataTypeButton.innerHTML = '<i class="fa-solid fa-gear"></i> Data Settings';
   dataTypeSettingsColumn.appendChild(dataTypeButton);
   backRow.appendChild(dataTypeSettingsColumn);
 
