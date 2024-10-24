@@ -439,9 +439,7 @@ function setupAnalyzeStep() {
 
 
 
-  //adjust the steppers
-  document.getElementById('stepper-upload').classList.remove('stepper-primary');
-  document.getElementById('stepper-analyze').classList.add('stepper-primary');
+  
 
   //create the bookmarks button
   const TopNavButtonContainer = document.getElementById('top-nav-button-container');
