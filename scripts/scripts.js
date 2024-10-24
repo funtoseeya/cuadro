@@ -2815,13 +2815,13 @@ function openBookmarksOverlay() {
       emptyBookmarksContainer.style.borderRadius = '5px';
       emptyBookmarksContainer.innerHTML = emptyBookmarksContainer.innerHTML = `
   <div class="warning-icon">
-    <i class="fas fa-exclamation-triangle"></i>
+    <i class="fas fa-bookmark"></i>
   </div>
   <div class="bookmark-title" style="font-weight: bold; margin-top: 10px;">
-    No bookmarks to display
+    This is where your bookmarked charts will be saved.
   </div>
   <div class="bookmark-description" style="margin-top: 5px;">
-    Save your favorite charts by clicking the bookmark icon in the top-right corner of their card.
+    You can view them all here or export them to ppt or pdf.
   </div>
 `;
     }
