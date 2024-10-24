@@ -220,6 +220,9 @@ function createUploadStepContent() {
   // Clear existing content and append the upload container and its content to the step body
   stepBody.innerHTML = '';
   stepBody.appendChild(uploadContainer);
+
+  initializeFileInput();
+
 }
 
 
@@ -237,8 +240,6 @@ function initializeFileInput() {
   fileInput.addEventListener('change', handleFileSelection);
 }
 
-// Initialize file input setup as part of load
-document.addEventListener('DOMContentLoaded', initializeFileInput);
 
 // Function to handle file selection and validate CSV file
 async function handleFileSelection(event) {
