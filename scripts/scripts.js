@@ -77,14 +77,14 @@ function handleEmail() {
   welcomeText.innerHTML = `👋 Welcome to Cuadro!`;
 
   const welcomeSubText = document.createElement('p');
-  welcomeSubText.innerHTML= `Effortlessly create, filter, compare, and share charts — all with just a few clicks.<a style="text-decoration:none;color:#1c607d" href="https://cuadro.io" target="_blank"> Learn more here <i class="fa-solid fa-arrow-up-right-from-square"></i>.</a>`;
+  welcomeSubText.innerHTML = `Effortlessly create, filter, compare, and share charts — all with just a few clicks.<a style="text-decoration:none;color:#1c607d" href="https://cuadro.io" target="_blank"> Learn more here <i class="fa-solid fa-arrow-up-right-from-square"></i>.</a>`;
 
   welcomeRow.appendChild(welcomeText);
   welcomeRow.appendChild(welcomeSubText);
-  
+
   // Append welcomeRow to the registrationContainer
   registrationContainer.appendChild(welcomeRow);
-  
+
   // Create a new row for the form
   const formRow = document.createElement('div');
   formRow.classList.add('row', 'text-center');
@@ -123,18 +123,18 @@ function handleEmail() {
 
   // Append the form group to the form
   earlyAccessForm.appendChild(formGroup);
-  
+
   // Append the form to the new formRow
   formRow.appendChild(earlyAccessForm);
-  
+
   // Append the formRow to the registrationContainer
   registrationContainer.appendChild(formRow);
-  
+
   // Finally, append the registrationContainer to stepBody
   stepBody.appendChild(registrationContainer);
 
   // Handle form submission
-  earlyAccessForm.addEventListener('submit', function(event) {
+  earlyAccessForm.addEventListener('submit', function (event) {
     event.preventDefault(); // Prevent default form submission
 
     const email = emailInput.value; // Get the email input value
@@ -155,18 +155,18 @@ function handleEmail() {
       body: formData,
       mode: 'no-cors' // Use no-cors mode to prevent CORS issues
     })
-    .then(response => {
-      
-      // Store the email in localStorage
-    localStorage.setItem('userEmail', email);
+      .then(response => {
 
-      // Trigger the createUploadStepContent function
-      createUploadStepContent(); // Call your function here
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('There was a problem with your submission. Please try again.');
-    });
+        // Store the email in localStorage
+        localStorage.setItem('userEmail', email);
+
+        // Trigger the createUploadStepContent function
+        createUploadStepContent(); // Call your function here
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('There was a problem with your submission. Please try again.');
+      });
   });
 }
 
@@ -188,10 +188,10 @@ function alertUnsavedChanges(event) {
 
 // Function to create and insert the upload step content
 function createUploadStepContent() {
- 
+
   const topNav = document.getElementById('top-nav');
-  topNav.style.display='block';
- 
+  topNav.style.display = 'block';
+
   const stepBody = document.getElementById('step-body');
   stepBody.classList.add('mt-5');
 
@@ -203,19 +203,20 @@ function createUploadStepContent() {
     'flex-column',
     'align-items-start',
     'justify-content-center'
-    
+
   );
 
-  uploadContainer.style.width='80%';
+  uploadContainer.style.width = '80%';
 
-//create upload header
-const uploadHeader = document.createElement('h1');
-uploadHeader.textContent= `Upload a CSV file`;
-uploadContainer.appendChild(uploadHeader);
+  //create upload header
+  const uploadHeader = document.createElement('h1');
+  uploadHeader.textContent = `Upload your CSV file`;
+  uploadContainer.appendChild(uploadHeader);
 
   // Create and add the upload text with line break
   const uploadText = document.createElement('h3');
-  uploadText.innerHTML = `We'll make some charts based on the analyses you want to make.`;
+  uploadText.className='mb-3';
+  uploadText.innerHTML = `We'll help you create several insightful charts and comparisons in just a few clicks.`;
   uploadContainer.appendChild(uploadText);
 
 
@@ -232,14 +233,14 @@ uploadContainer.appendChild(uploadHeader);
   sampleFile.href = `../Football player stats.csv`; // Path to the file
   sampleFile.download = 'Football player stats.csv'; // Suggest the filename for download
   sampleFile.textContent = `here's a sample file.`; // Text for the link
-  
+
   const sampleText = document.createElement('p');
-  sampleText.className='mt-2 text-muted small';
+  sampleText.className = 'mt-3 text-muted small';
   sampleText.innerHTML = `If you just want to play around, `; // Only set the initial text
   sampleText.appendChild(sampleFile); // Append the anchor element to the paragraph
-  
+
   uploadContainer.appendChild(sampleText);
-  
+
 
 
   // Clear existing content and append the upload container and its content to the step body
@@ -414,14 +415,14 @@ function generateReviewTable(body) {
     });
     select.value = value; // the dropdown's value will be the one that's saved
 
-    select.addEventListener('change', function(event) {
+    select.addEventListener('change', function (event) {
       const selectedValue = event.target.value;
-      if (selectedValue === 'Numerical'){
-      NumberFormattingWarning(header);
-    }
-      if (selectedValue ==='Date / Time'){
-      unsupportedDataTypesToast();
-    }
+      if (selectedValue === 'Numerical') {
+        NumberFormattingWarning(header);
+      }
+      if (selectedValue === 'Date / Time') {
+        unsupportedDataTypesToast();
+      }
     });
 
     cell3.appendChild(select);
@@ -467,12 +468,16 @@ function parseCSVToArray(file) {
     const csv = e.target.result; // Get the content of the file
     parsedCSVData = csvToArray(csv); // Convert CSV to array and store it globally
 
+
     // Log the parsed data for testing
     console.log('Parsed CSV Data:', parsedCSVData);
+
+    //this guesses what each fields types are
     guessDataTypes();
 
-    // run the function that creates the Categorical array, which is needed for the filter panel
-  createCategoricalArrayForFilterPanel();
+    // this creates the filter options
+    createCategoricalArrayForFilterPanel();
+
   };
 
   // Read the file as a text string
@@ -541,10 +546,10 @@ function NumberFormattingWarning(event) {
 }
 
 function unsupportedDataTypesToast() {
-    const parentDiv = document.getElementById('toastContainer'); // Replace with your parent div ID
-    parentDiv.innerHTML = ''; // Clear any existing content
+  const parentDiv = document.getElementById('toastContainer'); // Replace with your parent div ID
+  parentDiv.innerHTML = ''; // Clear any existing content
 
-    const toastHtml = `
+  const toastHtml = `
             <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
                 <div class="toast" style="background-color: #fff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
                     <div class="toast-header" style="background-color: #ffce44;">
@@ -557,13 +562,13 @@ function unsupportedDataTypesToast() {
                 </div>
             </div>`;
 
-    parentDiv.innerHTML = toastHtml;
+  parentDiv.innerHTML = toastHtml;
 
-    // Initialize the toast using Bootstrap's JS API
-    const toastElement = parentDiv.querySelector('.toast');
-    const toast = new bootstrap.Toast(toastElement);
-    toast.show();
-  }
+  // Initialize the toast using Bootstrap's JS API
+  const toastElement = parentDiv.querySelector('.toast');
+  const toast = new bootstrap.Toast(toastElement);
+  toast.show();
+}
 
 
 // ANALYZE STEP
@@ -575,7 +580,7 @@ function setupAnalyzeStep() {
 
 
 
-  
+
 
   //create the bookmarks button
   const TopNavButtonContainer = document.getElementById('top-nav-button-container');
@@ -590,8 +595,8 @@ function setupAnalyzeStep() {
     const bookmarksButton = document.getElementById('bookmarks-button');
     bookmarksButton.addEventListener('click', openBookmarksOverlay);
   }
- 
-  
+
+
   displayAnalysisOptions();
 
 
@@ -647,80 +652,80 @@ function openDataTypeSettingsOverlay() {
     Container.remove();
   }
 
-    const dataTypesContainer = document.createElement('div');
-    dataTypesContainer.id = 'data-types-container';
-    dataTypesContainer.classList.add('container');
-    dataTypeSettingsOverlay.appendChild(dataTypesContainer);
+  const dataTypesContainer = document.createElement('div');
+  dataTypesContainer.id = 'data-types-container';
+  dataTypesContainer.classList.add('container');
+  dataTypeSettingsOverlay.appendChild(dataTypesContainer);
 
-    const closeButtonRow = document.createElement('div');
-    closeButtonRow.classList.add('row', 'justify-content-end');
-    dataTypesContainer.appendChild(closeButtonRow);
+  const closeButtonRow = document.createElement('div');
+  closeButtonRow.classList.add('row', 'justify-content-end');
+  dataTypesContainer.appendChild(closeButtonRow);
 
-    const closeButtonColumn = document.createElement('div');
-    closeButtonColumn.classList.add('col-auto'); // col-auto to make the column fit the content
-    closeButtonColumn.innerHTML = `
+  const closeButtonColumn = document.createElement('div');
+  closeButtonColumn.classList.add('col-auto'); // col-auto to make the column fit the content
+  closeButtonColumn.innerHTML = `
     <a class="close-data-type-settings-overlay-btn" id="close-data-type-settings-overlay-btn" role="button">&times;</a>`;
-    closeButtonRow.appendChild(closeButtonColumn);
+  closeButtonRow.appendChild(closeButtonColumn);
 
-    // Close the overlay when the close button is clicked
-    const dataTypesOverlayCloseButton = document.getElementById('close-data-type-settings-overlay-btn');
-    dataTypesOverlayCloseButton.addEventListener('click', () => {
-      dataTypeSettingsOverlay.style.width = "0%";
-      dataTypeSettingsOverlay.style.display = 'none';
-      document.body.style.overflowY = 'scroll';
-       
-       createAnalysisObject();
-      displayAnalysisOptions();
-    });
+  // Close the overlay when the close button is clicked
+  const dataTypesOverlayCloseButton = document.getElementById('close-data-type-settings-overlay-btn');
+  dataTypesOverlayCloseButton.addEventListener('click', () => {
+    dataTypeSettingsOverlay.style.width = "0%";
+    dataTypeSettingsOverlay.style.display = 'none';
+    document.body.style.overflowY = 'scroll';
 
-    //create the row and columns containing the title
-    const titleRow = document.createElement('div');
-    titleRow.classList.add('row');
-    dataTypesContainer.appendChild(titleRow);
-    const titleColumn = document.createElement('div');
-    titleColumn.classList.add('col-6', 'd-flex', 'align-items-center', 'justify-content-start');
-    titleColumn.innerHTML = '<h1>Data Type Settings</h1>';
-    const SaveColumn = document.createElement('div');
-    SaveColumn.classList.add('col-6', 'd-flex', 'align-items-center', 'justify-content-end');
-    const SaveButton = document.createElement('button');
-    SaveButton.classList.add('btn', 'btn-primary');
-    SaveButton.textContent = 'Save Settings';
-    titleRow.appendChild(titleColumn);
-    titleRow.appendChild(SaveColumn);
-    SaveColumn.appendChild(SaveButton);
+    createAnalysisObject();
+    displayAnalysisOptions();
+  });
 
-    SaveButton.addEventListener('click', function () {
+  //create the row and columns containing the title
+  const titleRow = document.createElement('div');
+  titleRow.classList.add('row');
+  dataTypesContainer.appendChild(titleRow);
+  const titleColumn = document.createElement('div');
+  titleColumn.classList.add('col-6', 'd-flex', 'align-items-center', 'justify-content-start');
+  titleColumn.innerHTML = '<h1>Data Type Settings</h1>';
+  const SaveColumn = document.createElement('div');
+  SaveColumn.classList.add('col-6', 'd-flex', 'align-items-center', 'justify-content-end');
+  const SaveButton = document.createElement('button');
+  SaveButton.classList.add('btn', 'btn-primary');
+  SaveButton.textContent = 'Save Settings';
+  titleRow.appendChild(titleColumn);
+  titleRow.appendChild(SaveColumn);
+  SaveColumn.appendChild(SaveButton);
 
-      //save the review table's configuration into an array
-      saveDataTypestoArray();
-      // run the function that creates the Categorical array, which is needed for the filter panel
-      createCategoricalArrayForFilterPanel();
+  SaveButton.addEventListener('click', function () {
 
-      //create a new analysis object
-      createAnalysisObject();
+    //save the review table's configuration into an array
+    saveDataTypestoArray();
+    // run the function that creates the Categorical array, which is needed for the filter panel
+    createCategoricalArrayForFilterPanel();
 
-      dataTypeSettingsOverlay.style.width = "0%";
-      dataTypeSettingsOverlay.style.display = 'none';
-      document.body.style.overflowY = 'scroll';
-      displayAnalysisOptions();
+    //create a new analysis object
+    createAnalysisObject();
 
-    })
+    dataTypeSettingsOverlay.style.width = "0%";
+    dataTypeSettingsOverlay.style.display = 'none';
+    document.body.style.overflowY = 'scroll';
+    displayAnalysisOptions();
+
+  })
 
 
-    //build up the body
-    const dataTypeSettingsRow = document.createElement('div');
-    dataTypeSettingsRow.classList.add('row');
-    const dataTypeSettingsCol = document.createElement('div');
-    dataTypeSettingsCol.classList.add('col-md-8','offset-md-2');
-    dataTypesContainer.appendChild(dataTypeSettingsRow);
-    dataTypeSettingsRow.appendChild(dataTypeSettingsCol);
+  //build up the body
+  const dataTypeSettingsRow = document.createElement('div');
+  dataTypeSettingsRow.classList.add('row');
+  const dataTypeSettingsCol = document.createElement('div');
+  dataTypeSettingsCol.classList.add('col-md-8', 'offset-md-2');
+  dataTypesContainer.appendChild(dataTypeSettingsRow);
+  dataTypeSettingsRow.appendChild(dataTypeSettingsCol);
 
-    // Create the accordion
-    const accordion = document.createElement('div');
-    accordion.classList.add('accordion', 'w-100', 'mb-3');
-    accordion.id = 'dataTypeAccordion';
+  // Create the accordion
+  const accordion = document.createElement('div');
+  accordion.classList.add('accordion', 'w-100', 'mb-3');
+  accordion.id = 'dataTypeAccordion';
 
-    accordion.innerHTML = `
+  accordion.innerHTML = `
     <div class="accordion-item mt-3">
         <h2 class="accordion-header" id="headingOne">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
@@ -743,15 +748,15 @@ function openDataTypeSettingsOverlay() {
     </div>
 `;
 
-    dataTypeSettingsCol.appendChild(accordion);
-    generateReviewTable(dataTypeSettingsCol);
-  }
+  dataTypeSettingsCol.appendChild(accordion);
+  generateReviewTable(dataTypeSettingsCol);
+}
 
 
 
 // new function to clear and uppdate the stepper body with analysis options
 function displayAnalysisOptions() {
-  
+
   const stepBody = document.getElementById('step-body');
   stepBody.classList.remove('mt-5');
   stepBody.classList.remove('mt-2');
@@ -762,27 +767,27 @@ function displayAnalysisOptions() {
 
   // Create the restart button 
   const buttonRow = document.createElement('div');
-  buttonRow.classList.add('row','mb-2');
+  buttonRow.classList.add('row', 'mb-2');
   const restartColumn = document.createElement('div');
-  restartColumn.classList.add('col-6','d-flex','justify-content-start', 'align-items-center');
+  restartColumn.classList.add('col-6', 'd-flex', 'justify-content-start', 'align-items-center');
   buttonRow.appendChild(restartColumn);
   stepBody.appendChild(buttonRow);
   const restartButton = document.createElement('a');
-  restartButton.classList.add('text-decoration-none','tertiary-button')
-  restartButton.innerHTML=`<i class="fas fa-rotate-left" style="padding-right:0.2rem"></i>Restart`;
+  restartButton.classList.add('text-decoration-none', 'tertiary-button')
+  restartButton.innerHTML = `<i class="fas fa-rotate-left" style="padding-right:0.2rem"></i>Restart`;
   restartButton.addEventListener('click', () => {
     location.reload();
   }); // a confirmation dialog will appear due to a function above
   restartColumn.appendChild(restartButton);
 
-   //create the data type settings button
-   const dataTypeSettingsColumn = document.createElement('div');
-   dataTypeSettingsColumn.classList.add('col-6', 'd-flex', 'justify-content-end', 'align-items-center');
-   const dataTypeButton = document.createElement('a');
-   dataTypeButton.classList.add('text-decoration-none', 'tertiary-button');
-   dataTypeButton.innerHTML = '<i class="fa-solid fa-gear"></i> Data Type Settings';
-   dataTypeSettingsColumn.appendChild(dataTypeButton);
-   buttonRow.appendChild(dataTypeSettingsColumn);
+  //create the data type settings button
+  const dataTypeSettingsColumn = document.createElement('div');
+  dataTypeSettingsColumn.classList.add('col-6', 'd-flex', 'justify-content-end', 'align-items-center');
+  const dataTypeButton = document.createElement('a');
+  dataTypeButton.classList.add('text-decoration-none', 'tertiary-button');
+  dataTypeButton.innerHTML = '<i class="fa-solid fa-gear"></i> Data Type Settings';
+  dataTypeSettingsColumn.appendChild(dataTypeButton);
+  buttonRow.appendChild(dataTypeSettingsColumn);
 
   dataTypeButton.addEventListener('click', function () {
     openDataTypeSettingsOverlay();
@@ -800,8 +805,8 @@ function displayAnalysisOptions() {
   analysisOptionTextColumn.appendChild(analysisOptionText);
   analysisOptionTextRow.appendChild(analysisOptionTextColumn);
 
- 
- 
+
+
 
   // Create the analysis option cards, cols, and row
   const analysisOptionCardsRow1 = document.createElement('div');
@@ -956,7 +961,7 @@ function handleIWantTo(event) {
 
 
   const stepBody = document.getElementById('step-body');
-  
+
   // Clear any existing content
   stepBody.innerHTML = '';
 
@@ -966,7 +971,7 @@ function handleIWantTo(event) {
   const backCol = document.createElement('div');
   backCol.classList.add('col-6');
   const backButton = document.createElement('a');
-  backButton.classList.add('text-decoration-none','tertiary-button');
+  backButton.classList.add('text-decoration-none', 'tertiary-button');
   backButton.innerHTML =
     ' <i class="fas fa-arrow-left" style="padding-right:0.2rem"></i> Back to types';
 
