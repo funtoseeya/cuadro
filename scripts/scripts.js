@@ -13,7 +13,7 @@ function responsiveStepBody() {
   // Function to update classes based on screen size
   const updateClasses = () => {
     if (mediaQuerySm.matches) {
-      stepBodyContainer.className = 'container';
+      stepBodyContainer.className = 'container mt-5';
     } else {
       stepBodyContainer.className = 'container col-md-8 offset-md-2';
     }
@@ -201,42 +201,46 @@ function createUploadStepContent() {
     'container',
     'd-flex',
     'flex-column',
-    'align-items-center',
-    'justify-content-center',
-    'text-center'
+    'align-items-start',
+    'justify-content-center'
+    
   );
-  uploadContainer.style.width = '80%';
-  uploadContainer.style.minHeight = '200px';
-  uploadContainer.style.margin = '0 auto';
-  uploadContainer.style.border = '3px dashed var(--primary)';
-  uploadContainer.style.borderRadius = '5px';
 
-  // Create and add the upload icon
-  const uploadIcon = document.createElement('div');
-  uploadIcon.innerHTML = '<i class="fa-solid fa-upload fa-2x"></i>'; // Increased icon size for better visibility
-  uploadContainer.appendChild(uploadIcon);
+  uploadContainer.style.width='80%';
+
+//create upload header
+const uploadHeader = document.createElement('h1');
+uploadHeader.textContent= `Upload a CSV file`;
+uploadContainer.appendChild(uploadHeader);
 
   // Create and add the upload text with line break
-  const uploadText = document.createElement('div');
-  uploadText.innerHTML = 'Upload the CSV file you wish to create charts with.';
-  uploadText.classList.add('my-3'); // Added margin for spacing
+  const uploadText = document.createElement('h3');
+  uploadText.innerHTML = `We'll make some charts based on the analyses you want to make.`;
   uploadContainer.appendChild(uploadText);
 
 
 
   // Create and add the "Choose file" button
   const chooseFileButton = document.createElement('button');
-  chooseFileButton.className = 'btn btn-secondary';
+  chooseFileButton.className = 'btn btn-primary';
   chooseFileButton.textContent = 'Choose file';
   chooseFileButton.id = 'chooseFileButton';
   uploadContainer.appendChild(chooseFileButton);
 
   const sampleFile = document.createElement('a');
-  sampleFile.classList.add('text-decoration-none', 'small', 'mt-3', 'sample-data-link');
+  sampleFile.classList.add('text-decoration-none', 'sample-data-link');
   sampleFile.href = `../Football player stats.csv`; // Path to the file
   sampleFile.download = 'Football player stats.csv'; // Suggest the filename for download
-  sampleFile.innerHTML = '<i class="fa-solid fa-download"></i> Sample data : Football Player Stats'; // Text for the link
-  uploadContainer.appendChild(sampleFile);
+  sampleFile.textContent = `here's a sample file.`; // Text for the link
+  
+  const sampleText = document.createElement('p');
+  sampleText.className='mt-2 text-muted small';
+  sampleText.innerHTML = `If you just want to play around, `; // Only set the initial text
+  sampleText.appendChild(sampleFile); // Append the anchor element to the paragraph
+  
+  uploadContainer.appendChild(sampleText);
+  
+
 
   // Clear existing content and append the upload container and its content to the step body
   stepBody.innerHTML = '';
@@ -588,12 +592,6 @@ function setupAnalyzeStep() {
   }
  
   
-
-
-
-
-
-
   displayAnalysisOptions();
 
 
