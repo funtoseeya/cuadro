@@ -13,9 +13,9 @@ function responsiveStepBody() {
   // Function to update classes based on screen size
   const updateClasses = () => {
     if (mediaQuerySm.matches) {
-      stepBodyContainer.className = 'container mt-5';
+      stepBodyContainer.className = 'container';
     } else {
-      stepBodyContainer.className = 'container mt-5 col-md-8 offset-md-2';
+      stepBodyContainer.className = 'container col-md-8 offset-md-2';
     }
   };
 
@@ -40,6 +40,113 @@ let colorPaletteWithOpacity = ['rgba(36, 123, 160, 0.4)', 'rgba(242, 95, 92, 0.4
 
 let bookmarks = [];
 
+// GET EMAIL STEP
+
+function handleEmail() {
+  const stepBody = document.getElementById('step-body');
+  const registrationContainer = document.createElement('div');
+  registrationContainer.classList.add('d-flex', 'flex-column', 'justify-content-center', 'align-items-center', 'vh-100');
+
+  // Create welcome row
+  const welcomeRow = document.createElement('div');
+  welcomeRow.classList.add('row', 'text-center');
+
+  const welcomeText = document.createElement('h1');
+  welcomeText.innerHTML = `👋 Welcome to Cuadro!`;
+
+  const welcomeSubText = document.createElement('p');
+  welcomeSubText.innerHTML= `Effortlessly create, filter, compare, and share charts — all with just a few clicks.<a style="text-decoration:none;" href="https://cuadro.io" target="_blank"> Learn more here <i class="fa-solid fa-arrow-up-right-from-square"></i>.</a>`;
+
+  welcomeRow.appendChild(welcomeText);
+  welcomeRow.appendChild(welcomeSubText);
+  
+  // Append welcomeRow to the registrationContainer
+  registrationContainer.appendChild(welcomeRow);
+  
+  // Create a new row for the form
+  const formRow = document.createElement('div');
+  formRow.classList.add('row', 'text-center');
+
+  // Create the form element
+  const earlyAccessForm = document.createElement('form');
+  earlyAccessForm.id = 'earlyAccessForm';
+  earlyAccessForm.method = 'POST';
+  earlyAccessForm.action = 'https://github.us22.list-manage.com/subscribe/post?u=c63a46fb8e27f6d05a1f683c8&id=acffebec23';
+  earlyAccessForm.target = '_blank';
+
+  // Create the form group div
+  const formGroup = document.createElement('div');
+  formGroup.className = 'input-group'; // Use input-group for side-by-side layout
+
+  // Create the email input element
+  const emailInput = document.createElement('input');
+  emailInput.type = 'email';
+  emailInput.name = 'EMAIL';
+  emailInput.id = 'email';
+  emailInput.className = 'form-control';
+  emailInput.placeholder = 'Enter your email';
+  emailInput.required = true;
+
+  // Append the email input to the form group
+  formGroup.appendChild(emailInput);
+
+  // Create the submit button
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.className = 'btn btn-primary';
+  submitButton.textContent = 'Start building';
+
+  // Append the button to the form group
+  formGroup.appendChild(submitButton);
+
+  // Append the form group to the form
+  earlyAccessForm.appendChild(formGroup);
+  
+  // Append the form to the new formRow
+  formRow.appendChild(earlyAccessForm);
+  
+  // Append the formRow to the registrationContainer
+  registrationContainer.appendChild(formRow);
+  
+  // Finally, append the registrationContainer to stepBody
+  stepBody.appendChild(registrationContainer);
+
+  // Handle form submission
+  earlyAccessForm.addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    const email = emailInput.value; // Get the email input value
+
+    // Optional: Validate email format
+    if (!email) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+
+    // Create FormData object
+    const formData = new FormData();
+    formData.append('EMAIL', email);
+
+    // Send the form data to Mailchimp using fetch API
+    fetch(this.action, {
+      method: 'POST',
+      body: formData,
+      mode: 'no-cors' // Use no-cors mode to prevent CORS issues
+    })
+    .then(response => {
+      
+      // Trigger the createUploadStepContent function
+      createUploadStepContent(); // Call your function here
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('There was a problem with your submission. Please try again.');
+    });
+  });
+}
+
+handleEmail();
+
 //UPLOAD STEP
 
 // Call the function to set up the responsive behavior of the step-body div
@@ -60,7 +167,12 @@ function alertUnsavedChanges(event) {
 
 // Function to create and insert the upload step content
 function createUploadStepContent() {
+ 
+  const topNav = document.getElementById('top-nav');
+  topNav.style.display='block';
+ 
   const stepBody = document.getElementById('step-body');
+  stepBody.classList.add('mt-5');
 
   // Create the container for the upload content
   const uploadContainer = document.createElement('div');
@@ -110,8 +222,6 @@ function createUploadStepContent() {
   stepBody.appendChild(uploadContainer);
 }
 
-// Create the upload step as part of onload
-createUploadStepContent();
 
 // Function to initialize the file input and listen for when it is clicked
 function initializeFileInput() {
@@ -621,6 +731,7 @@ function openDataTypeSettingsOverlay() {
 
 // new function to clear and uppdate the stepper body with analysis options
 function displayAnalysisOptions() {
+  
   const stepBody = document.getElementById('step-body');
   stepBody.classList.remove('mt-5');
   stepBody.classList.remove('mt-2');
