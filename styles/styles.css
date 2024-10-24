@@ -25,11 +25,11 @@
 
 }
 
-.data-type-button {
+.tertiary-button {
   color:var(--primary-light);
 }
 
-.data-type-button:hover {
+.tertiary-button:hover {
   color:var(--primary-dark);
   cursor: pointer;
 
@@ -217,10 +217,7 @@ body {
   width: 100px; /* Ensure consistent button width */
 }
 
-#step-body {
-  margin-bottom: 100px; /* Adjust this value to ensure the content doesn't overlap the bottom panel */
 
-}
 
 /* Custom  styles for the review table */
 .custom-table {

@@ -454,27 +454,16 @@ function setupAnalyzeStep() {
     const bookmarksButton = document.getElementById('bookmarks-button');
     bookmarksButton.addEventListener('click', openBookmarksOverlay);
   }
-  //update the step body. will keep as a separate function because this is going to be big
-  //updateStepBody();
+ 
+  
+
+
+
+
+
+
   displayAnalysisOptions();
 
-  //update the bottom panel. will keep as a separate function because this is going to be big
-  const panelButtonContainer1 = document.getElementById(
-    'panel-button-container-1'
-  );
-  const panelButtonContainer2 = document.getElementById(
-    'panel-button-container-2'
-  );
-  panelButtonContainer1.innerHTML = `
-  <button id="restart-button" class="btn btn-secondary"><i class="fas fa-arrow-left" style="padding-right:0.2rem"></i>Restart</button>`;
-
-  panelButtonContainer2.innerHTML = '';
-
-  // Create the restart button and add to bottom panel
-  const restartButton = document.getElementById('restart-button');
-  restartButton.addEventListener('click', () => {
-    location.reload();
-  }); // a confirmation dialog will appear due to a function above
 
   //this triggers a cascade of functions...transform csv into array, guess types, assign to dropdown state...
   parseCSVToArray(selectedFile);
@@ -639,30 +628,49 @@ function displayAnalysisOptions() {
   // Clear any existing content
   stepBody.innerHTML = '';
 
+
+  // Create the restart button 
+  const buttonRow = document.createElement('div');
+  buttonRow.classList.add('row','mb-2');
+  const restartColumn = document.createElement('div');
+  restartColumn.classList.add('col-6','d-flex','justify-content-start', 'align-items-center');
+  buttonRow.appendChild(restartColumn);
+  stepBody.appendChild(buttonRow);
+  const restartButton = document.createElement('a');
+  restartButton.classList.add('text-decoration-none','tertiary-button')
+  restartButton.innerHTML=`<i class="fas fa-rotate-left" style="padding-right:0.2rem"></i>Restart`;
+  restartButton.addEventListener('click', () => {
+    location.reload();
+  }); // a confirmation dialog will appear due to a function above
+  restartColumn.appendChild(restartButton);
+
+   //create the data type settings button
+   const dataTypeSettingsColumn = document.createElement('div');
+   dataTypeSettingsColumn.classList.add('col-6', 'd-flex', 'justify-content-end', 'align-items-center');
+   const dataTypeButton = document.createElement('a');
+   dataTypeButton.classList.add('text-decoration-none', 'tertiary-button');
+   dataTypeButton.innerHTML = '<i class="fa-solid fa-gear"></i> Data Type Settings';
+   dataTypeSettingsColumn.appendChild(dataTypeButton);
+   buttonRow.appendChild(dataTypeSettingsColumn);
+
+  dataTypeButton.addEventListener('click', function () {
+    openDataTypeSettingsOverlay();
+  })
+
+
   // Create the "i want to text", col and row
   const analysisOptionTextRow = document.createElement('div');
   analysisOptionTextRow.classList.add('row');
   analysisOptionTextRow.id = 'analysis-option-text-row';
   const analysisOptionTextColumn = document.createElement('div');
-  analysisOptionTextColumn.classList.add('col-6');
+  analysisOptionTextColumn.classList.add('col-12');
   const analysisOptionText = document.createElement('h5');
   analysisOptionText.textContent = 'What do you want to see?';
   analysisOptionTextColumn.appendChild(analysisOptionText);
   analysisOptionTextRow.appendChild(analysisOptionTextColumn);
 
-  //create the data type settings button
-  const dataTypeSettingsColumn = document.createElement('div');
-  dataTypeSettingsColumn.classList.add('col-6', 'd-flex', 'justify-content-end', 'align-items-center');
-  const dataTypeButton = document.createElement('a');
-  dataTypeButton.classList.add('text-decoration-none', 'data-type-button');
-  dataTypeButton.innerHTML = '<i class="fa-solid fa-gear"></i> Data Type Settings';
-  dataTypeSettingsColumn.appendChild(dataTypeButton);
-  analysisOptionTextRow.appendChild(dataTypeSettingsColumn);
-
-  stepBody.appendChild(analysisOptionTextRow);
-  dataTypeButton.addEventListener('click', function () {
-    openDataTypeSettingsOverlay();
-  })
+ 
+ 
 
   // Create the analysis option cards, cols, and row
   const analysisOptionCardsRow1 = document.createElement('div');
@@ -817,8 +825,7 @@ function handleIWantTo(event) {
 
 
   const stepBody = document.getElementById('step-body');
-  stepBody.classList.remove('mt-3');
-  stepBody.classList.add('mt-2');
+  
   // Clear any existing content
   stepBody.innerHTML = '';
 
@@ -827,8 +834,8 @@ function handleIWantTo(event) {
   backRow.className = 'row';
   const backCol = document.createElement('div');
   backCol.classList.add('col-6');
-  const backButton = document.createElement('button');
-  backButton.classList.add('btn', 'btn-tertiary', 'text-muted');
+  const backButton = document.createElement('a');
+  backButton.classList.add('text-decoration-none','tertiary-button');
   backButton.innerHTML =
     ' <i class="fas fa-arrow-left" style="padding-right:0.2rem"></i> Back to types';
 
@@ -843,7 +850,7 @@ function handleIWantTo(event) {
   const dataTypeSettingsColumn = document.createElement('div');
   dataTypeSettingsColumn.classList.add('col-6', 'd-flex', 'justify-content-end', 'align-items-center');
   const dataTypeButton = document.createElement('a');
-  dataTypeButton.classList.add('text-decoration-none', 'data-type-button');
+  dataTypeButton.classList.add('text-decoration-none', 'tertiary-button');
   dataTypeButton.innerHTML = '<i class="fa-solid fa-gear"></i> Data Type Settings';
   dataTypeSettingsColumn.appendChild(dataTypeButton);
   backRow.appendChild(dataTypeSettingsColumn);
