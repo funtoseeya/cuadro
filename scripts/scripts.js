@@ -25,6 +25,9 @@ function responsiveStepBody() {
   // check again whenever the window size changes
   mediaQuerySm.addEventListener('change', updateClasses);
 }
+// Call the function to set up the responsive behavior of the step-body div
+responsiveStepBody();
+
 
 //GLOBAL VARIABLES
 let selectedFile; // Global variable to store the file. we need this to create an array with its data
@@ -39,6 +42,25 @@ let colorPalette = ['#247ba0', '#f25f5c', '#ffe066', '#50514f', '#70c1b3', '#6a4
 let colorPaletteWithOpacity = ['rgba(36, 123, 160, 0.4)', 'rgba(242, 95, 92, 0.4)', 'rgba(255, 224, 102, 0.4)', 'rgba(80, 81, 79, 0.4)', 'rgba(112, 193, 179, 0.4)', 'rgba(106, 76, 147, 0.4)', 'rgba(14, 173, 105, 0.4)', 'rgba(255, 165, 171, 0.4)', 'rgba(25, 130, 196, 0.4)', 'rgba(243, 114, 44, 0.4)'];
 
 let bookmarks = [];
+
+
+//STEP WHERE I CHECK IF I NEED TO REGISTER THE  USER OR IF THEY ALREADY HAVE
+function checkEmailInLocalStorage() {
+  const userEmail = localStorage.getItem('userEmail');
+
+  if (userEmail) {
+    // If an email exists, skip the form and go directly to the next step
+    createUploadStepContent();
+  } else {
+    // If no email exists, show the email input form
+    handleEmail();
+  }
+}
+
+// Call this function when the page loads
+document.addEventListener('DOMContentLoaded', checkEmailInLocalStorage);
+
+
 
 // GET EMAIL STEP
 
@@ -135,6 +157,9 @@ function handleEmail() {
     })
     .then(response => {
       
+      // Store the email in localStorage
+    localStorage.setItem('userEmail', email);
+
       // Trigger the createUploadStepContent function
       createUploadStepContent(); // Call your function here
     })
@@ -145,12 +170,8 @@ function handleEmail() {
   });
 }
 
-handleEmail();
 
 //UPLOAD STEP
-
-// Call the function to set up the responsive behavior of the step-body div
-responsiveStepBody();
 
 // Function to alert the user about unsaved changes if they refresh or restart, e.g.location.reload()
 
