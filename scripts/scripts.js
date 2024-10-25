@@ -216,8 +216,9 @@ function createUploadStepContent() {
     'container',
     'd-flex',
     'flex-column',
-    'align-items-start',
-    'justify-content-center'
+    'align-items-center',
+    'justify-content-center', 
+    'mt-20'
 
   );
 
@@ -229,7 +230,7 @@ function createUploadStepContent() {
   uploadContainer.appendChild(uploadHeader);
 
   // Create and add the upload text with line break
-  const uploadText = document.createElement('h3');
+  const uploadText = document.createElement('h5');
   uploadText.className = 'mb-3';
   uploadText.innerHTML = `We'll help you create several insightful charts and comparisons in just a few clicks.`;
   uploadContainer.appendChild(uploadText);
