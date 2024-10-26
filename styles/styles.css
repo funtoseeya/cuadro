@@ -41,7 +41,7 @@
 
 body {
   overflow-y: scroll; /* Always show vertical scrollbar */
-  font-family: 'Lato', sans-serif;
+  font-family: 'Poppins', sans-serif;
   background-color: var(--background-color);
   color: var(--text-color);
 }

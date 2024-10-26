@@ -253,7 +253,7 @@ function createUploadStepContent() {
   // Create and add the "Choose file" button
   const chooseFileButton = document.createElement('button');
   chooseFileButton.className = 'btn btn-primary';
-  chooseFileButton.textContent = 'Choose file';
+  chooseFileButton.innerHTML = `<i class="fa-solid fa-upload"></i> Upload file`;
   chooseFileButton.id = 'chooseFileButton';
   uploadContainer.appendChild(chooseFileButton);
 
