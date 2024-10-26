@@ -195,6 +195,7 @@ function handleEmail() {
 function signOut() {
   localStorage.removeItem('parsedCSVData');
   localStorage.removeItem('registered');
+  localStorage.removeItem('selectedFile');
   handleEmail();
 }
 
@@ -299,7 +300,7 @@ function initializeFileInput() {
 async function handleFileSelection(event) {
   const file = event.target.files[0]; // Get the selected file from the input event
   selectedFile = file; // Store the file globally in the selectedFile variable so that we can parse it in other functions
-
+  localStorage.setItem('selectedFile',selectedFile.name);
   if (file) {
     // Validate file type
     if (!file.name.endsWith('.csv')) {
@@ -763,6 +764,12 @@ function openDataTypeSettingsOverlay() {
   dataTypesContainer.appendChild(dataTypeSettingsRow);
   dataTypeSettingsRow.appendChild(dataTypeSettingsCol);
 
+  //display the file name
+  const fileName = document.createElement('p');
+  const selectedFileInStorage = localStorage.getItem('selectedFile');
+  fileName.textContent = 'Uploaded file: '+selectedFileInStorage;
+  dataTypeSettingsCol.appendChild(fileName);
+
   // Create the accordion
   const accordion = document.createElement('div');
   accordion.classList.add('accordion', 'w-100', 'mb-3');
@@ -820,6 +827,7 @@ function displayAnalysisOptions() {
   restartButton.innerHTML = `<i class="fas fa-rotate-left" style="padding-right:0.2rem"></i>New Analysis`;
   restartButton.addEventListener('click', () => {
     localStorage.removeItem('parsedCSVData');
+    localStorage.removeItem('selectedFile');
     location.reload();
   }); // a confirmation dialog will appear due to a function above
   restartColumn.appendChild(restartButton);
