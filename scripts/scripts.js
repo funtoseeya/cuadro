@@ -216,8 +216,8 @@ function createUploadStepContent() {
     'container',
     'd-flex',
     'flex-column',
+    'text-center',
     'align-items-center',
-    'justify-content-center', 
     'mt-20'
 
   );
