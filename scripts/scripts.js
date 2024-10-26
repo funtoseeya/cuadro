@@ -922,16 +922,27 @@ function displayAnalysisOptions() {
     '<i class="fas fa-table"></i>'
   );
 
-  // Create the comparative analysis column and card
+  // Create the sum by category  card
   const analysisOptionCardNumCompareCol = document.createElement('div');
-  analysisOptionCardNumCompareCol.classList.add('col-12', 'col-sm-4', 'offset-sm-2', 'mb-2');
+  analysisOptionCardNumCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2');
   createCardInCol(
-    'number-comparative-analysis-option',
+    'sum-comparative-analysis-option',
     analysisOptionCardNumCompareCol,
     'Sum by Category',
     'Add up numbers and group them into categories within a bar chart.',
     '<i class="fa-solid fa-calculator"></i>'
   );
+
+    // Create the avg by category  card
+    const analysisOptionAvgCol = document.createElement('div');
+    analysisOptionAvgCol.classList.add('col-12', 'col-sm-4', 'mb-2');
+    createCardInCol(
+      'average-comparative-analysis-option',
+      analysisOptionAvgCol,
+      'Average by Category',
+      'Calculate the average value by category within a bar chart.',
+      '<i class="fa-solid fa-calculator"></i>'
+    );
 
   // Create the trend analysis column and card
   const analysisOptionCardTrendCol = document.createElement('div');
@@ -949,6 +960,7 @@ function displayAnalysisOptions() {
   analysisOptionCardsRow1.appendChild(analysisOptionCardNumCol);
   analysisOptionCardsRow1.appendChild(analysisOptionCardCompareCol);
   analysisOptionCardsRow2.appendChild(analysisOptionCardNumCompareCol);
+  analysisOptionCardsRow2.appendChild(analysisOptionAvgCol);
   analysisOptionCardsRow2.appendChild(analysisOptionCardTrendCol);
 
   // Append the row to the step body
@@ -976,8 +988,12 @@ function displayAnalysisOptions() {
     handleIWantTo('comparative');
   });
 
-  const numberComparativeCard = document.getElementById('number-comparative-analysis-option');
-  numberComparativeCard.addEventListener('click', function () { handleIWantTo('number-comparative') });
+  const sumComparativeCard = document.getElementById('sum-comparative-analysis-option');
+  sumComparativeCard.addEventListener('click', function () { handleIWantTo('sum-comparative') });
+
+  const avgComparativeCard = document.getElementById('average-comparative-analysis-option');
+  avgComparativeCard.addEventListener('click', function () { handleIWantTo('average-comparative') });
+
 }
 
 // Handle the select change event
@@ -1120,7 +1136,7 @@ function handleIWantTo(event) {
   numberCompareListAnchor.classList.add('dropdown-item');
   const numberCompareListAnchorText = document.createElement('label');
   numberCompareListAnchorText.textContent = 'sum by category';
-  numberCompareListAnchor.setAttribute('data-value', 'number-comparative');
+  numberCompareListAnchor.setAttribute('data-value', 'sum-comparative');
 
   //append options to menu
   simpleListAnchor.appendChild(simpleListAnchorText);
@@ -1178,13 +1194,16 @@ function handleIWantTo(event) {
     createFilterButton();
   }
 
-  if (event === 'comparative' || event === 'number-comparative') {
+  if (event === 'comparative' || event === 'sum-comparative'|| event === 'average-comparative') {
     // Update select.textContent
     if (event === 'comparative') {
       iWantSelect.textContent = 'sub-category frequencies';
     }
-    if (event === 'number-comparative') {
+    if (event === 'sum-comparative') {
       iWantSelect.textContent = 'sum by category';
+    }
+    if (event === 'average-comparative') {
+      iWantSelect.textContent = 'average by category';
     }
     //show group column
     if (groupColumn) {
@@ -1239,7 +1258,10 @@ function handleIWantTo(event) {
       analysisType = 'comparative';
     }
     if (target.innerText === 'sum by category') {
-      analysisType = 'number-comparative';
+      analysisType = 'sum-comparative';
+    }
+    if (target.innerText === 'average by category') {
+      analysisType = 'average-comparative';
     }
 
     handleIWantTo(analysisType);
@@ -1298,7 +1320,7 @@ function createUsingTheseDropdown(event) {
   dropdownState.forEach(({ header, value }) => {
     if (
       ((event === 'simple' || event === 'comparative') && value === 'Categorical') ||
-      ((event === 'number' || event === 'number-comparative') && value === 'Numerical')
+      ((event === 'number' || (event === 'sum-comparative' || event === 'average-comparative')) && value === 'Numerical')
     ) {
       const columnListItem = document.createElement('li');
       const columnListAnchor = document.createElement('a');
@@ -1654,10 +1676,12 @@ class AnalysisObject {
     if (this.usingThese.length > 0 && this.analysisType === 'comparative' && this.groupedBy != '') {
       this.addComparativeChartObjects();
     }
-    if (this.usingThese.length > 0 && this.analysisType === 'number-comparative' && this.groupedBy != '') {
+    if (this.usingThese.length > 0 && this.analysisType === 'sum-comparative' && this.groupedBy != '') {
       this.addSumChartObjects();
     }
-
+    if (this.usingThese.length > 0 && this.analysisType === 'average-comparative' && this.groupedBy != '') {
+      this.addAverageChartObjects();
+    }
     
   }
 
@@ -1678,7 +1702,7 @@ class AnalysisObject {
       const percentagesCounts = result.PercentagesCounts;
       const chartTitle = `Percentage breakdown of '${value}' categories`;
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
-      const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
+      const chartID = `simple-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
 
       // Create and add the chart
@@ -1717,7 +1741,7 @@ class AnalysisObject {
       const percentagesCounts = '';
       const chartTitle = `Count of '${value}' divided into ranges`;
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
-      const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
+      const chartID = `number-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
       // Create and add the chart
       const newChartObject = new ChartObject(
@@ -1760,7 +1784,7 @@ class AnalysisObject {
       
       
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
-      const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
+      const chartID = `comparative-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
       // Create and add the chart
       const newChartObject = new ChartObject(
@@ -1801,7 +1825,48 @@ class AnalysisObject {
         chartTitle = `Sum of '${value}' by '${this.groupedBy}'`;
       
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
-      const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
+      const chartID = `sum-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
+
+      // Create and add the chart
+      const newChartObject = new ChartObject(
+        this.analysisType,
+        chartTitle,
+        chartID,
+        'bar',
+        data,
+        labels,
+        percentagesCounts,
+        clusterLabels, // Pass cluster labels to ChartObject
+        value,
+        this.groupedBy,
+        this.filteredBy
+      );
+      this.chartObjects.push(newChartObject);
+    });
+    this.prepChartContainerInStepBody(); // render clustered once the code and data is ready
+  }
+
+  addAverageChartObjects() {
+    this.chartObjects = []; // Clear existing charts
+    this.usingThese.forEach(value => {
+      // Generate data, labels, and cluster labels for the clustered chart
+      const result = this.generateAverageChartObjectDataArrayAndLabels(
+        value,
+        this.groupedBy,
+        this.filteredBy
+      );
+
+      const data = result.data;
+      const labels = result.labels;
+      const clusterLabels = result.clusterLabels;
+      const percentagesCounts = result.percentagesCounts;
+      const UsingTheseType = dropdownState.find(obj => obj.header === value);
+      let chartTitle = '';
+    
+        chartTitle = `Average of '${value}' by '${this.groupedBy}'`;
+      
+      const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
+      const chartID = `averages-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
       // Create and add the chart
       const newChartObject = new ChartObject(
@@ -2263,6 +2328,100 @@ class AnalysisObject {
   }
 
 
+  generateAverageChartObjectDataArrayAndLabels(header, groupedBy, filteredBy) {
+    // Updated function to check if an item matches all filters
+    function matchesFilter(item, filters) {
+      // Loop through each filter
+      for (let i = 0; i < filters.length; i++) {
+        let filter = filters[i];
+        let filterHeader = filter.header;
+        let filterValue = filter.value;
+
+        // Check if this item matches the filter
+        if (item[filterHeader] === filterValue) {
+          // If it matches, continue to the next filter
+          continue;
+        } else {
+          // If it doesn't match, check if there is another filter with the same header and a matching value
+          let hasAnotherMatch = false;
+          for (let j = 0; j < filters.length; j++) {
+            if (
+              filters[j].header === filterHeader &&
+              item[filterHeader] === filters[j].value
+            ) {
+              hasAnotherMatch = true;
+              break;
+            }
+          }
+          // If no other match is found for the same header, return false
+          if (!hasAnotherMatch) {
+            return false;
+          }
+        }
+      }
+
+      // If the item passes all filters, return true
+      return true;
+    }
+
+    // Filter the data based on applied filters
+    const filteredData = [];
+    for (let i = 0; i < parsedCSVData.length; i++) {
+      let item = parsedCSVData[i];
+      if (matchesFilter(item, filteredBy)) {
+        filteredData.push(item);
+      }
+    }
+    console.log('Filtered data:', filteredData);
+
+    const headerType = dropdownState.find(item => item.header === header).value;
+    console.log('dropdownState: ', dropdownState);
+
+      // Create a map to sum values for each group
+      const groupSums = {};
+      const groupCounts = {};
+      const groupAverages = {};
+
+      for (let i = 0; i < filteredData.length; i++) {
+        let item = filteredData[i];
+        let group = item[groupedBy];
+        let value = parseFloat(item[header]); // Convert to float to handle numerical values
+
+        // Check if the value is a number
+        if (isNaN(value)) {
+          console.warn(`Non-numeric value found for ${header}:`, item[header]);
+          continue; // Skip this item if the value is not a number
+        }
+
+        // Initialize group key if not present
+        if (!groupSums[group]) {
+          groupSums[group] = 0;
+          groupCounts[group]=0;
+          groupAverages[group]=0;
+        }
+
+        // Increment the sum for the current value in the group
+        groupSums[group] += value; // Sum the numerical values
+        groupCounts[group] += 1; 
+      }
+
+      const groupNames = new Set(filteredData.map(row => row[groupedBy]));
+      groupNames.forEach(group =>{
+        groupAverages[group] = Math.round(groupSums[group] / groupCounts[group] *100)/100;
+      })
+
+      // Prepare labels and data arrays
+      const labels = Object.keys(groupAverages); // Unique groups for cluster labels
+      const data = labels.map(groupKey => groupAverages[groupKey]); // Sums for each group
+      const clusterLabels = data;
+
+      return {
+        data, // Array with sums for each group
+        labels,
+        clusterLabels// Labels for each group
+      };
+  }
+
   // Function to render all chart objects
   prepChartContainerInStepBody() {
     // Find the step-body container where the cards will be appended
@@ -2294,9 +2453,14 @@ class AnalysisObject {
         renderComparativeChartInCard(chart, cardsContainer);
       });
     }
-    if (this.analysisType === 'number-comparative') {
+    if (this.analysisType === 'sum-comparative') {
       this.chartObjects.forEach(chart => {
-        renderSumChartInCard(chart, cardsContainer);
+        renderSumAvgChartInCard(chart, cardsContainer);
+      });
+    }
+    if (this.analysisType === 'average-comparative') {
+      this.chartObjects.forEach(chart => {
+        renderSumAvgChartInCard(chart, cardsContainer);
       });
     }
   }
@@ -2882,8 +3046,7 @@ function renderComparativeChartInCard(chartObject, container) {
   
 }
 
-// Function to create and render a horizontal clustered bar chart in a Bootstrap card component and append to 'step-body'
-function renderSumChartInCard(chartObject, container) {
+function renderSumAvgChartInCard(chartObject, container) {
 
   //some renderings will depend on the usingthese datatype
   const UsingTheseType = dropdownState.find(obj => obj.header === chartObject.usingThese);
@@ -3029,6 +3192,7 @@ function renderSumChartInCard(chartObject, container) {
 
 
 }
+
 
 
 
@@ -3274,8 +3438,11 @@ function openBookmarksOverlay() {
       if (bookmarks[i].analysisType === 'comparative') {
         renderComparativeChartInCard(bookmarks[i], bookmarksBodyColumn);
       }
-      if (bookmarks[i].analysisType === 'number-comparative') {
-        renderComparativeChartInCard(bookmarks[i], bookmarksBodyColumn);
+      if (bookmarks[i].analysisType === 'sum-comparative') {
+        renderSumAvgChartInCard(bookmarks[i], bookmarksBodyColumn);
+      }
+      if (bookmarks[i].analysisType === 'average-comparative') {
+        renderSumAvgChartInCard(bookmarks[i], bookmarksBodyColumn);
       }
 
     }
