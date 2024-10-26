@@ -1651,13 +1651,14 @@ class AnalysisObject {
     if (this.usingThese.length > 0 && this.analysisType === 'number') {
       this.addNumberChartObjects();
     }
-    if (
-      this.usingThese.length > 0 &&
-      (this.analysisType === 'comparative' || this.analysisType === 'number-comparative') &&
-      this.groupedBy != ''
-    ) {
+    if (this.usingThese.length > 0 && this.analysisType === 'comparative' && this.groupedBy != '') {
       this.addComparativeChartObjects();
     }
+    if (this.usingThese.length > 0 && this.analysisType === 'number-comparative' && this.groupedBy != '') {
+      this.addSumChartObjects();
+    }
+
+    
   }
 
   addSimpleChartObjects() {
@@ -1754,12 +1755,10 @@ class AnalysisObject {
       const percentagesCounts = result.percentagesCounts;
       const UsingTheseType = dropdownState.find(obj => obj.header === value);
       let chartTitle = '';
-      if (UsingTheseType.value === "Categorical") {
+      
         chartTitle = `Percentage breakdown of '${value}-${this.groupedBy}' sub-categories`;
-      }
-      if (UsingTheseType.value === "Numerical") {
-        chartTitle = `Sum of '${value}' by '${this.groupedBy}'`;
-      }
+      
+      
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
@@ -1781,6 +1780,48 @@ class AnalysisObject {
     });
     this.prepChartContainerInStepBody(); // render clustered once the code and data is ready
   }
+
+  addSumChartObjects() {
+    this.chartObjects = []; // Clear existing charts
+    this.usingThese.forEach(value => {
+      // Generate data, labels, and cluster labels for the clustered chart
+      const result = this.generateSumChartObjectDataArrayAndLabels(
+        value,
+        this.groupedBy,
+        this.filteredBy
+      );
+
+      const data = result.data;
+      const labels = result.labels;
+      const clusterLabels = result.clusterLabels;
+      const percentagesCounts = result.percentagesCounts;
+      const UsingTheseType = dropdownState.find(obj => obj.header === value);
+      let chartTitle = '';
+    
+        chartTitle = `Sum of '${value}' by '${this.groupedBy}'`;
+      
+      const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
+      const chartID = `advanced-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
+
+      // Create and add the chart
+      const newChartObject = new ChartObject(
+        this.analysisType,
+        chartTitle,
+        chartID,
+        'bar',
+        data,
+        labels,
+        percentagesCounts,
+        clusterLabels, // Pass cluster labels to ChartObject
+        value,
+        this.groupedBy,
+        this.filteredBy
+      );
+      this.chartObjects.push(newChartObject);
+    });
+    this.prepChartContainerInStepBody(); // render clustered once the code and data is ready
+  }
+
 
   generateSimpleChartObjectDataArrayAndLabels(header, filteredBy) {
     // Helper function to check if an object matches all the filter criteria. OR within the the same header, AND between headers
@@ -2136,6 +2177,91 @@ class AnalysisObject {
 
   }
 
+  generateSumChartObjectDataArrayAndLabels(header, groupedBy, filteredBy) {
+    // Updated function to check if an item matches all filters
+    function matchesFilter(item, filters) {
+      // Loop through each filter
+      for (let i = 0; i < filters.length; i++) {
+        let filter = filters[i];
+        let filterHeader = filter.header;
+        let filterValue = filter.value;
+
+        // Check if this item matches the filter
+        if (item[filterHeader] === filterValue) {
+          // If it matches, continue to the next filter
+          continue;
+        } else {
+          // If it doesn't match, check if there is another filter with the same header and a matching value
+          let hasAnotherMatch = false;
+          for (let j = 0; j < filters.length; j++) {
+            if (
+              filters[j].header === filterHeader &&
+              item[filterHeader] === filters[j].value
+            ) {
+              hasAnotherMatch = true;
+              break;
+            }
+          }
+          // If no other match is found for the same header, return false
+          if (!hasAnotherMatch) {
+            return false;
+          }
+        }
+      }
+
+      // If the item passes all filters, return true
+      return true;
+    }
+
+    // Filter the data based on applied filters
+    const filteredData = [];
+    for (let i = 0; i < parsedCSVData.length; i++) {
+      let item = parsedCSVData[i];
+      if (matchesFilter(item, filteredBy)) {
+        filteredData.push(item);
+      }
+    }
+    console.log('Filtered data:', filteredData);
+
+    const headerType = dropdownState.find(item => item.header === header).value;
+    console.log('dropdownState: ', dropdownState);
+
+      // Create a map to sum values for each group
+      const groupSums = {};
+
+      for (let i = 0; i < filteredData.length; i++) {
+        let item = filteredData[i];
+        let group = item[groupedBy];
+        let value = parseFloat(item[header]); // Convert to float to handle numerical values
+
+        // Check if the value is a number
+        if (isNaN(value)) {
+          console.warn(`Non-numeric value found for ${header}:`, item[header]);
+          continue; // Skip this item if the value is not a number
+        }
+
+        // Initialize group key if not present
+        if (!groupSums[group]) {
+          groupSums[group] = 0;
+        }
+
+        // Increment the sum for the current value in the group
+        groupSums[group] += value; // Sum the numerical values
+      }
+
+      // Prepare labels and data arrays
+      const labels = Object.keys(groupSums); // Unique groups for cluster labels
+      const data = labels.map(groupKey => groupSums[groupKey]); // Sums for each group
+      const clusterLabels = data;
+
+      return {
+        data, // Array with sums for each group
+        labels,
+        clusterLabels// Labels for each group
+      };
+    
+  }
+
 
   // Function to render all chart objects
   prepChartContainerInStepBody() {
@@ -2163,9 +2289,14 @@ class AnalysisObject {
         renderNumberChartInCard(chart, cardsContainer);
       });
     }
-    if (this.analysisType === 'comparative' || this.analysisType === 'number-comparative') {
+    if (this.analysisType === 'comparative') {
       this.chartObjects.forEach(chart => {
         renderComparativeChartInCard(chart, cardsContainer);
+      });
+    }
+    if (this.analysisType === 'number-comparative') {
+      this.chartObjects.forEach(chart => {
+        renderSumChartInCard(chart, cardsContainer);
       });
     }
   }
@@ -2740,7 +2871,6 @@ function renderComparativeChartInCard(chartObject, container) {
   });
 
   let chartOptions = '';
-  if (UsingTheseType.value === 'Categorical') {
     new Chart(ctx, { //new chart in canvas
       type: 'bar', // Use 'bar' type for horizontal bar chart
       data: {
@@ -2749,9 +2879,134 @@ function renderComparativeChartInCard(chartObject, container) {
       },
       options: chartObject.clusteredBarChartOptions,
     });
+  
+}
+
+// Function to create and render a horizontal clustered bar chart in a Bootstrap card component and append to 'step-body'
+function renderSumChartInCard(chartObject, container) {
+
+  //some renderings will depend on the usingthese datatype
+  const UsingTheseType = dropdownState.find(obj => obj.header === chartObject.usingThese);
+
+  // Create the card element
+  const card = document.createElement('div');
+  card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
+
+  // Create the card body element
+  const cardBody = document.createElement('div');
+  cardBody.classList.add('card-body');
+
+  //create the options, title and filters rows and columns - append to body
+  const cardOptionsRow = document.createElement('div');
+  cardOptionsRow.className = 'row';
+  const cardTitleRow = document.createElement('div');
+  cardTitleRow.className = 'row';
+  const cardFiltersRow = document.createElement('div');
+  cardFiltersRow.className = 'row';
+  cardBody.appendChild(cardOptionsRow);
+  cardBody.appendChild(cardTitleRow);
+  cardBody.appendChild(cardFiltersRow);
+
+  const cardOptionsColumn = document.createElement('div');
+  cardOptionsColumn.classList.add(
+    'col-12',
+    'd-flex',
+    'justify-content-end'
+  );
+  const cardTitleColumn = document.createElement('div');
+  cardTitleColumn.classList.add('col-12');
+  const cardFiltersColumn = document.createElement('div');
+  cardFiltersColumn.classList.add('col-12');
+  cardOptionsRow.appendChild(cardOptionsColumn);
+  cardTitleRow.appendChild(cardTitleColumn);
+  cardFiltersRow.appendChild(cardFiltersColumn);
+
+  //create the chart type button
+  const chartButton = document.createElement('button');
+  chartButton.classList.add('btn', 'btn-secondary', 'me-2', 'disabled');
+  if (UsingTheseType.value === 'Categorical') {
+    chartButton.textContent = 'Clusters';
   }
   if (UsingTheseType.value === 'Numerical') {
+    chartButton.textContent = 'Bars';
+  }
 
+  cardOptionsColumn.appendChild(chartButton);
+
+
+  //create the bookmark button and set whether it's active or not
+  const bookmarkButton = document.createElement('button');
+  bookmarkButton.classList.add('btn', 'btn-secondary');
+  bookmarkButton.setAttribute('bookmarkButtonIdentifier', chartObject.id);
+  const isChartBookmarked = bookmarks.some(obj => obj.id === chartObject.id);
+  if (isChartBookmarked) {
+    bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+    bookmarkButton.setAttribute('isActive', 'true');
+  } else {
+    bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+    bookmarkButton.setAttribute('isActive', 'false');
+  }
+  cardOptionsColumn.appendChild(bookmarkButton);
+  bookmarkButton.addEventListener('click', function () {
+    addRemoveBookmark(bookmarkButton, chartObject);
+  });
+
+  //create the title
+  const cardTitle = document.createElement('h5');
+  cardTitle.textContent = chartObject.title;
+  cardTitleColumn.appendChild(cardTitle);
+
+  //create filter badges as needed
+  const filters = chartObject.filteredBy;
+
+  for (let i = 0; i < filters.length; i++) {
+    const cardFilter = document.createElement('span');
+    cardFilter.className = 'filter-badge'; // Apply the custom class
+    cardFilter.textContent = filters[i].value;
+    cardFiltersColumn.appendChild(cardFilter);
+  }
+
+  // Create the canvas element
+  const canvas = document.createElement('canvas');
+  canvas.style.width = '100%'; // Full width
+
+  //calculate how many bars there will be and use that to calculate the canvas height
+  let totalArrayValues = 0;
+  chartObject.data.forEach(subArray => {
+    totalArrayValues += subArray.length;
+  });
+  canvas.style.height = `350px`; //will be 100px if filters return no data and 125px if they return 1 bar
+
+  // Append the canvas to the card body
+  cardBody.appendChild(canvas);
+
+  // Append the card body to the card
+  card.appendChild(cardBody);
+
+  // Append the card to the container
+  container.appendChild(card);
+
+  // Render the chart on the canvas
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+  // Create the datasets for each cluster
+  const datasets = chartObject.data.map((clusterData, index) => {
+    // Cycle through colorPalette for background and border colors
+    const colorIndex = index % colorPalette.length;
+    const backgroundColor = colorPaletteWithOpacity[colorIndex];
+    const borderColor = colorPalette[colorIndex];
+
+    return {
+      label: chartObject.clusterLabels[index], // Label for the cluster
+      data: clusterData,
+      backgroundColor: backgroundColor,
+      borderColor: borderColor,
+      borderWidth: 1, // Fixed border width
+      maxBarThickness: 50
+    };
+  });
+
+  let chartOptions = '';
     new Chart(ctx, { //new chart in canvas
       //create a new chart using the properties of the chartObject being called as an argument in the function
       type: chartObject.type,
@@ -2772,11 +3027,10 @@ function renderComparativeChartInCard(chartObject, container) {
       options: chartObject.numberBarChartOptions,
     });
 
-  }
-
-
 
 }
+
+
 
 function addRemoveBookmark(target, chart) {
   const bookmarkButton = target;
