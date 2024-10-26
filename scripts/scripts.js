@@ -46,9 +46,9 @@ let bookmarks = [];
 
 //STEP WHERE I CHECK IF I NEED TO REGISTER THE  USER OR IF THEY ALREADY HAVE
 function checkEmailInLocalStorage() {
-  const userEmail = localStorage.getItem('userEmail');
+  const registered = localStorage.getItem('registered');
 
-  if (userEmail) {
+  if (registered) {
     // If an email exists, skip the form and go directly to the next step
     checkLocalStorageData();
   } else {
@@ -80,7 +80,13 @@ document.addEventListener('DOMContentLoaded', checkEmailInLocalStorage);
 // GET EMAIL STEP
 
 function handleEmail() {
+  const topNav = document.getElementById('top-nav');
+  topNav.style.display = 'none';
+
   const stepBody = document.getElementById('step-body');
+  stepBody.innerHTML='';
+  stepBody.classList.remove('mt-5');
+
   const registrationContainer = document.createElement('div');
   registrationContainer.classList.add('d-flex', 'flex-column', 'justify-content-center', 'align-items-center', 'vh-100');
 
@@ -173,7 +179,7 @@ function handleEmail() {
       .then(response => {
 
         // Store the email in localStorage
-        localStorage.setItem('userEmail', email);
+        localStorage.setItem('registered', 'yes');
 
         // Trigger the createUploadStepContent function
         createUploadStepContent(); // Call your function here
@@ -185,6 +191,12 @@ function handleEmail() {
   });
 }
 
+//sign out 
+function signOut() {
+  localStorage.removeItem('parsedCSVData');
+  localStorage.removeItem('registered');
+  handleEmail();
+}
 
 //UPLOAD STEP
 
