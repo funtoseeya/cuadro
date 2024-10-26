@@ -891,14 +891,14 @@ function displayAnalysisOptions() {
     cardBody.appendChild(iconContainer);
 
     // Add the title
-    const titleDiv = document.createElement('h5');
+    const titleDiv = document.createElement('h6');
     titleDiv.classList.add('card-title');
     titleDiv.textContent = title;
     cardBody.appendChild(titleDiv);
 
     // Add the description
     const descriptionDiv = document.createElement('p');
-    descriptionDiv.classList.add('card-text');
+    descriptionDiv.classList.add('card-text','small');
     descriptionDiv.textContent = description;
     cardBody.appendChild(descriptionDiv);
 
@@ -916,7 +916,7 @@ function displayAnalysisOptions() {
     'simple-analysis-option',
     analysisOptionCardBasicCol,
     'Category Frequencies',
-    `Display categories and their frequency of occurrence in a bar chart.`,
+    `Display a field's categorical distributions.`,
     '<i class="fas fa-chart-bar"></i>'
   );
 
@@ -927,7 +927,7 @@ function displayAnalysisOptions() {
     'number-analysis-option',
     analysisOptionCardNumCol,
     'Number Frequencies',
-    `Group numbers into ranges and display their distribution in an area chart.`,
+    `Calculate the range of distributions within a numerical field.`,
     '<i class="fa-solid fa-chart-area"></i>'
   );
 
@@ -938,7 +938,7 @@ function displayAnalysisOptions() {
     'comparative-analysis-option',
     analysisOptionCardCompareCol,
     'Sub-category Frequencies',
-    `Distribute fields into sub-categories within a clustered chart.`,
+    `Compare distributions between two categorical fields.`,
     '<i class="fas fa-table"></i>'
   );
 
@@ -949,7 +949,7 @@ function displayAnalysisOptions() {
     'sum-comparative-analysis-option',
     analysisOptionCardNumCompareCol,
     'Sum by Category',
-    'Add up numbers and group them into categories within a bar chart.',
+    `Calculate the sum of values by category.`,
     '<i class="fa-solid fa-calculator"></i>'
   );
 
@@ -959,8 +959,8 @@ function displayAnalysisOptions() {
     createCardInCol(
       'average-comparative-analysis-option',
       analysisOptionAvgCol,
-      'Average by Category',
-      'Calculate the average value by category within a bar chart.',
+      'Avg by Category',
+      `Calculate the average of values by category.`,
       '<i class="fa-solid fa-calculator"></i>'
     );
 
@@ -1099,7 +1099,7 @@ function handleIWantTo(event) {
   const iWantText = document.createElement('span');
   iWantText.id = 'i-want-to-text';
   iWantText.style.fontSize = '0.9rem';
-  iWantText.textContent = 'What do you want to see?';
+  iWantText.textContent = 'Analysis type';
 
   // Create the i want menu container
   const iWantdropdownContainer = document.createElement('div');
