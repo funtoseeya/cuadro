@@ -2548,7 +2548,7 @@ class ChartObject {
     this.borderColor = 'rgba(36, 123, 160, 1)'; //
     this.borderWidth = 1;
     this.bookmarked = false;
-
+    this.barPosition ='horizontal';
     this.barChartOptions = {
       plugins: {
         legend: {
@@ -2591,7 +2591,49 @@ class ChartObject {
       responsive: true, // Ensure the chart is  responsive
     };
 
-    this.numberBarChartOptions = {
+    this.horizontalBarChartOptions = {
+      plugins: {
+        legend: {
+          display: false,
+        },
+        // Change options for ALL labels of THIS CHART
+        datalabels: {
+          rotation: 0,        // Rotates the labels vertically
+          color: 'black',
+          anchor: 'start',
+          align: 'end',
+          formatter: (value, context) => {
+            // Use percentagesCounts based on the index of the current data point
+            return this.percentagesCounts[context.dataIndex];
+          },
+        },
+      },
+      indexAxis: 'y', // Make it a horizontal bar chart
+      scales: {
+        x: {
+          // Make the data appear as percentages
+          beginAtZero: true,
+          ticks: {
+            callback: function (value) {
+              // Format the x-axis ticks as percentages
+              return value.toFixed(0) + '%';
+            },
+          },
+        },
+        y: {
+          // You can customize the axis as needed
+        },
+      },
+      elements: {
+        bar: {
+          borderWidth: 1,
+          borderRadius: 3,
+        },
+      },
+      responsive: true, // Ensure the chart is  responsive
+    };
+
+    this.numberChartOptions = {
       plugins: {
         legend: {
           display: false,
@@ -2621,6 +2663,41 @@ class ChartObject {
         bar: {
           borderWidth: 1,
           borderRadius: 5,
+        },
+      },
+      responsive: true, // Ensure the chart is  responsive
+    };
+
+    this.horizontalCalculationBarChartOptions = {
+      plugins: {
+        legend: {
+          display: false,
+        },
+        // Change options for ALL labels of THIS CHART
+        datalabels: {
+          rotation: 0,        // Rotates the labels vertically
+
+          color: 'black',
+          anchor: 'start',
+          align: 'end',
+
+        },
+      },
+      indexAxis: 'y', // Make it a horizontal bar chart
+      scales: {
+        x: {
+          // Make the data appear as percentages
+          beginAtZero: true,
+
+        },
+        y: {
+          // You can customize the y-axis as needed
+        },
+      },
+      elements: {
+        bar: {
+          borderWidth: 1,
+          borderRadius: 3,
         },
       },
       responsive: true, // Ensure the chart is  responsive
@@ -2656,6 +2733,51 @@ class ChartObject {
         // Change options for ALL labels of THIS CHART
         datalabels: {
           rotation: 90,        // Rotates the labels vertically
+          color: 'black',
+          anchor: 'start',
+          align: 'end',
+          formatter: (value, context) => {
+            // Use percentagesCounts array to get the correct label
+            const datasetIndex = context.datasetIndex;
+            const dataIndex = context.dataIndex;
+            return this.percentagesCounts[datasetIndex][dataIndex];
+          },
+        },
+        legend: {
+          position: 'top',
+        },
+      },
+    };
+
+    this.horizontalClusteredBarChartOptions = {
+      responsive: true,
+      indexAxis: 'y', // Set to 'y' for horizontal bars
+      scales: {
+        x: {
+          stacked: false, // Bars should not be stacked
+          ticks: {
+            autoSkip: false, // Ensure all x-axis labels are visible
+            callback: function (value) {
+              // Format the x-axis ticks as percentages
+              return value.toFixed(0) + '%';
+            },
+          },
+        },
+        y: {
+          stacked: false, // Bars should not be stacked
+          beginAtZero: true,
+        },
+      },
+      elements: {
+        bar: {
+          borderWidth: 1,
+          borderRadius: 5,
+        },
+      },
+      plugins: {
+        // Change options for ALL labels of THIS CHART
+        datalabels: {
+          rotation: 0,        // Rotates the labels vertically
           color: 'black',
           anchor: 'start',
           align: 'end',
@@ -2753,9 +2875,15 @@ function // Function to create and render a chart in a Bootstrap card component 
   // Create the canvas element
   const canvas = document.createElement('canvas');
   canvas.style.width = '100%'; // Full width
+  
+  if (chartObject.barPosition === 'horizontal') {
+  canvas.style.height = `${chartObject.data.length * 40+50}px`; // Set the height dynamically
+}
+  else {
+    canvas.style.height = '350px';
+  }
 
   //calculate how many bars there will be and use that to calculate the canvas height
-  canvas.style.height = `350px`; //will be 100px if filters return no data and 125px if they return 1 bar
 
   // Append the canvas to the card body
   cardBody.appendChild(canvas);
@@ -2785,8 +2913,11 @@ function // Function to create and render a chart in a Bootstrap card component 
         },
       ],
     },
-    options: chartObject.barChartOptions,
+    options: chartObject.horizontalBarChartOptions,
   });
+
+  // Calculate the height based on the number of bars
+
 
 }
 
@@ -3017,13 +3148,18 @@ function renderComparativeChartInCard(chartObject, container) {
   // Create the canvas element
   const canvas = document.createElement('canvas');
   canvas.style.width = '100%'; // Full width
+  if (chartObject.barPosition === 'horizontal') {
+    canvas.style.height = `${chartObject.data.length * chartObject.data[0].length * 40 +50}px`; // Set the height dynamically
+  }
+    else {
+      canvas.style.height = '350px';
+    }
 
   //calculate how many bars there will be and use that to calculate the canvas height
   let totalArrayValues = 0;
   chartObject.data.forEach(subArray => {
     totalArrayValues += subArray.length;
   });
-  canvas.style.height = `350px`; //will be 100px if filters return no data and 125px if they return 1 bar
 
   // Append the canvas to the card body
   cardBody.appendChild(canvas);
@@ -3050,7 +3186,7 @@ function renderComparativeChartInCard(chartObject, container) {
       backgroundColor: backgroundColor,
       borderColor: borderColor,
       borderWidth: 1, // Fixed border width
-      maxBarThickness: 50
+      maxBarThickness: 50,
     };
   });
 
@@ -3061,7 +3197,7 @@ function renderComparativeChartInCard(chartObject, container) {
         labels: chartObject.labels,
         datasets: datasets,
       },
-      options: chartObject.clusteredBarChartOptions,
+      options: chartObject.horizontalClusteredBarChartOptions,
     });
   
 }
@@ -3158,8 +3294,12 @@ function renderSumAvgChartInCard(chartObject, container) {
   chartObject.data.forEach(subArray => {
     totalArrayValues += subArray.length;
   });
-  canvas.style.height = `350px`; //will be 100px if filters return no data and 125px if they return 1 bar
-
+  if (chartObject.barPosition === 'horizontal') {
+    canvas.style.height = `${chartObject.data.length * 40+50}px`; // Set the height dynamically
+  }
+    else {
+      canvas.style.height = '350px';
+    }
   // Append the canvas to the card body
   cardBody.appendChild(canvas);
 
@@ -3207,7 +3347,7 @@ function renderSumAvgChartInCard(chartObject, container) {
           },
         ],
       },
-      options: chartObject.numberBarChartOptions,
+      options: chartObject.horizontalCalculationBarChartOptions,
     });
 
 
