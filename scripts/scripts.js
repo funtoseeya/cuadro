@@ -1151,12 +1151,19 @@ function handleIWantTo(event) {
   compareListAnchorText.textContent = 'sub-category frequencies';
   compareListAnchor.setAttribute('data-value', 'comparative');
 
-  const numberCompareListItem = document.createElement('li');
-  const numberCompareListAnchor = document.createElement('a');
-  numberCompareListAnchor.classList.add('dropdown-item');
-  const numberCompareListAnchorText = document.createElement('label');
-  numberCompareListAnchorText.textContent = 'sum by category';
-  numberCompareListAnchor.setAttribute('data-value', 'sum-comparative');
+  const sumListItem = document.createElement('li');
+  const sumListAnchor = document.createElement('a');
+  sumListAnchor.classList.add('dropdown-item');
+  const sumListAnchorText = document.createElement('label');
+  sumListAnchorText.textContent = 'sum by category';
+  sumListAnchor.setAttribute('data-value', 'sum-comparative');
+
+  const avgListItem = document.createElement('li');
+  const avgListAnchor = document.createElement('a');
+  avgListAnchor.classList.add('dropdown-item');
+  const avgListAnchorText = document.createElement('label');
+  avgListAnchorText.textContent = 'average by category';
+  avgListAnchor.setAttribute('data-value', 'avg-comparative');
 
   //append options to menu
   simpleListAnchor.appendChild(simpleListAnchorText);
@@ -1171,9 +1178,13 @@ function handleIWantTo(event) {
   compareListItem.appendChild(compareListAnchor);
   iWantMenu.appendChild(compareListItem);
 
-  numberCompareListAnchor.appendChild(numberCompareListAnchorText);
-  numberCompareListItem.appendChild(numberCompareListAnchor);
-  iWantMenu.appendChild(numberCompareListItem);
+  sumListAnchor.appendChild(sumListAnchorText);
+  sumListItem.appendChild(sumListAnchor);
+  iWantMenu.appendChild(sumListItem);
+
+  avgListAnchor.appendChild(avgListAnchorText);
+  avgListItem.appendChild(avgListAnchor);
+  iWantMenu.appendChild(avgListItem);
 
   // Append elements to the dropdown container
   iWantdropdownContainer.appendChild(iWantSelect);
