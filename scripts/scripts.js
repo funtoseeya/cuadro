@@ -84,7 +84,7 @@ function handleEmail() {
   topNav.style.display = 'none';
 
   const stepBody = document.getElementById('step-body');
-  stepBody.innerHTML='';
+  stepBody.innerHTML = '';
   stepBody.classList.remove('mt-5');
 
   const registrationContainer = document.createElement('div');
@@ -300,7 +300,7 @@ function initializeFileInput() {
 async function handleFileSelection(event) {
   const file = event.target.files[0]; // Get the selected file from the input event
   selectedFile = file; // Store the file globally in the selectedFile variable so that we can parse it in other functions
-  localStorage.setItem('selectedFile',selectedFile.name);
+  localStorage.setItem('selectedFile', selectedFile.name);
   if (file) {
     // Validate file type
     if (!file.name.endsWith('.csv')) {
@@ -695,11 +695,11 @@ function openDataTypeSettingsOverlay() {
   dataTypeSettingsOverlay.appendChild(dataTypesContainer);
 
   const closeButtonRow = document.createElement('div');
-  closeButtonRow.classList.add('row','align-');
+  closeButtonRow.classList.add('row', 'align-');
   dataTypesContainer.appendChild(closeButtonRow);
 
 
-  
+
 
   //create the close button
   const closeButtonColumn = document.createElement('div');
@@ -767,7 +767,7 @@ function openDataTypeSettingsOverlay() {
   //display the file name
   const fileName = document.createElement('p');
   const selectedFileInStorage = localStorage.getItem('selectedFile');
-  fileName.textContent = 'Uploaded file: '+selectedFileInStorage;
+  fileName.textContent = 'Uploaded file: ' + selectedFileInStorage;
   dataTypeSettingsCol.appendChild(fileName);
 
   // Create the accordion
@@ -898,7 +898,7 @@ function displayAnalysisOptions() {
 
     // Add the description
     const descriptionDiv = document.createElement('p');
-    descriptionDiv.classList.add('card-text','small');
+    descriptionDiv.classList.add('card-text', 'small');
     descriptionDiv.textContent = description;
     cardBody.appendChild(descriptionDiv);
 
@@ -953,16 +953,16 @@ function displayAnalysisOptions() {
     '<i class="fa-solid fa-calculator"></i>'
   );
 
-    // Create the avg by category  card
-    const analysisOptionAvgCol = document.createElement('div');
-    analysisOptionAvgCol.classList.add('col-12', 'col-sm-4', 'mb-2');
-    createCardInCol(
-      'average-comparative-analysis-option',
-      analysisOptionAvgCol,
-      'Avg by Category',
-      `Calculate the average of values by category.`,
-      '<i class="fa-solid fa-calculator"></i>'
-    );
+  // Create the avg by category  card
+  const analysisOptionAvgCol = document.createElement('div');
+  analysisOptionAvgCol.classList.add('col-12', 'col-sm-4', 'mb-2');
+  createCardInCol(
+    'average-comparative-analysis-option',
+    analysisOptionAvgCol,
+    'Avg by Category',
+    `Calculate the average of values by category.`,
+    '<i class="fa-solid fa-calculator"></i>'
+  );
 
   // Create the trend analysis column and card
   const analysisOptionCardTrendCol = document.createElement('div');
@@ -1225,7 +1225,7 @@ function handleIWantTo(event) {
     createFilterButton();
   }
 
-  if (event === 'comparative' || event === 'sum-comparative'|| event === 'average-comparative') {
+  if (event === 'comparative' || event === 'sum-comparative' || event === 'average-comparative') {
     // Update select.textContent
     if (event === 'comparative') {
       iWantSelect.textContent = 'sub-category frequencies';
@@ -1713,7 +1713,7 @@ class AnalysisObject {
     if (this.usingThese.length > 0 && this.analysisType === 'average-comparative' && this.groupedBy != '') {
       this.addAverageChartObjects();
     }
-    
+
   }
 
   addSimpleChartObjects() {
@@ -1810,10 +1810,10 @@ class AnalysisObject {
       const percentagesCounts = result.percentagesCounts;
       const UsingTheseType = dropdownState.find(obj => obj.header === value);
       let chartTitle = '';
-      
-        chartTitle = `Percentage breakdown of '${value}-${this.groupedBy}' sub-categories`;
-      
-      
+
+      chartTitle = `Percentage breakdown of '${value}-${this.groupedBy}' sub-categories`;
+
+
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `comparative-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
@@ -1852,9 +1852,9 @@ class AnalysisObject {
       const percentagesCounts = result.percentagesCounts;
       const UsingTheseType = dropdownState.find(obj => obj.header === value);
       let chartTitle = '';
-    
-        chartTitle = `Sum of '${value}' by '${this.groupedBy}'`;
-      
+
+      chartTitle = `Sum of '${value}' by '${this.groupedBy}'`;
+
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `sum-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
@@ -1893,9 +1893,9 @@ class AnalysisObject {
       const percentagesCounts = result.percentagesCounts;
       const UsingTheseType = dropdownState.find(obj => obj.header === value);
       let chartTitle = '';
-    
-        chartTitle = `Average of '${value}' by '${this.groupedBy}'`;
-      
+
+      chartTitle = `Average of '${value}' by '${this.groupedBy}'`;
+
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `averages-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
@@ -2322,40 +2322,40 @@ class AnalysisObject {
     const headerType = dropdownState.find(item => item.header === header).value;
     console.log('dropdownState: ', dropdownState);
 
-      // Create a map to sum values for each group
-      const groupSums = {};
+    // Create a map to sum values for each group
+    const groupSums = {};
 
-      for (let i = 0; i < filteredData.length; i++) {
-        let item = filteredData[i];
-        let group = item[groupedBy];
-        let value = parseFloat(item[header]); // Convert to float to handle numerical values
+    for (let i = 0; i < filteredData.length; i++) {
+      let item = filteredData[i];
+      let group = item[groupedBy];
+      let value = parseFloat(item[header]); // Convert to float to handle numerical values
 
-        // Check if the value is a number
-        if (isNaN(value)) {
-          console.warn(`Non-numeric value found for ${header}:`, item[header]);
-          continue; // Skip this item if the value is not a number
-        }
-
-        // Initialize group key if not present
-        if (!groupSums[group]) {
-          groupSums[group] = 0;
-        }
-
-        // Increment the sum for the current value in the group
-        groupSums[group] += value; // Sum the numerical values
+      // Check if the value is a number
+      if (isNaN(value)) {
+        console.warn(`Non-numeric value found for ${header}:`, item[header]);
+        continue; // Skip this item if the value is not a number
       }
 
-      // Prepare labels and data arrays
-      const labels = Object.keys(groupSums); // Unique groups for cluster labels
-      const data = labels.map(groupKey => groupSums[groupKey]); // Sums for each group
-      const clusterLabels = data;
+      // Initialize group key if not present
+      if (!groupSums[group]) {
+        groupSums[group] = 0;
+      }
 
-      return {
-        data, // Array with sums for each group
-        labels,
-        clusterLabels// Labels for each group
-      };
-    
+      // Increment the sum for the current value in the group
+      groupSums[group] += value; // Sum the numerical values
+    }
+
+    // Prepare labels and data arrays
+    const labels = Object.keys(groupSums); // Unique groups for cluster labels
+    const data = labels.map(groupKey => groupSums[groupKey]); // Sums for each group
+    const clusterLabels = data;
+
+    return {
+      data, // Array with sums for each group
+      labels,
+      clusterLabels// Labels for each group
+    };
+
   }
 
 
@@ -2408,49 +2408,49 @@ class AnalysisObject {
     const headerType = dropdownState.find(item => item.header === header).value;
     console.log('dropdownState: ', dropdownState);
 
-      // Create a map to sum values for each group
-      const groupSums = {};
-      const groupCounts = {};
-      const groupAverages = {};
+    // Create a map to sum values for each group
+    const groupSums = {};
+    const groupCounts = {};
+    const groupAverages = {};
 
-      for (let i = 0; i < filteredData.length; i++) {
-        let item = filteredData[i];
-        let group = item[groupedBy];
-        let value = parseFloat(item[header]); // Convert to float to handle numerical values
+    for (let i = 0; i < filteredData.length; i++) {
+      let item = filteredData[i];
+      let group = item[groupedBy];
+      let value = parseFloat(item[header]); // Convert to float to handle numerical values
 
-        // Check if the value is a number
-        if (isNaN(value)) {
-          console.warn(`Non-numeric value found for ${header}:`, item[header]);
-          continue; // Skip this item if the value is not a number
-        }
-
-        // Initialize group key if not present
-        if (!groupSums[group]) {
-          groupSums[group] = 0;
-          groupCounts[group]=0;
-          groupAverages[group]=0;
-        }
-
-        // Increment the sum for the current value in the group
-        groupSums[group] += value; // Sum the numerical values
-        groupCounts[group] += 1; 
+      // Check if the value is a number
+      if (isNaN(value)) {
+        console.warn(`Non-numeric value found for ${header}:`, item[header]);
+        continue; // Skip this item if the value is not a number
       }
 
-      const groupNames = new Set(filteredData.map(row => row[groupedBy]));
-      groupNames.forEach(group =>{
-        groupAverages[group] = Math.round(groupSums[group] / groupCounts[group] *100)/100;
-      })
+      // Initialize group key if not present
+      if (!groupSums[group]) {
+        groupSums[group] = 0;
+        groupCounts[group] = 0;
+        groupAverages[group] = 0;
+      }
 
-      // Prepare labels and data arrays
-      const labels = Object.keys(groupAverages); // Unique groups for cluster labels
-      const data = labels.map(groupKey => groupAverages[groupKey]); // Sums for each group
-      const clusterLabels = data;
+      // Increment the sum for the current value in the group
+      groupSums[group] += value; // Sum the numerical values
+      groupCounts[group] += 1;
+    }
 
-      return {
-        data, // Array with sums for each group
-        labels,
-        clusterLabels// Labels for each group
-      };
+    const groupNames = new Set(filteredData.map(row => row[groupedBy]));
+    groupNames.forEach(group => {
+      groupAverages[group] = Math.round(groupSums[group] / groupCounts[group] * 100) / 100;
+    })
+
+    // Prepare labels and data arrays
+    const labels = Object.keys(groupAverages); // Unique groups for cluster labels
+    const data = labels.map(groupKey => groupAverages[groupKey]); // Sums for each group
+    const clusterLabels = data;
+
+    return {
+      data, // Array with sums for each group
+      labels,
+      clusterLabels// Labels for each group
+    };
   }
 
   // Function to render all chart objects
@@ -2522,7 +2522,6 @@ function updateAnalysisObjectById(id, updates) {
   } else {
     console.error('AnalysisObject not found');
   }
-  console.log(analysis); // Log the  object to the console
 }
 
 // Function to delete an AnalysisObject by ID
@@ -2559,8 +2558,8 @@ class ChartObject {
     this.borderColor = 'rgba(36, 123, 160, 1)'; //
     this.borderWidth = 1;
     this.bookmarked = false;
-    this.barPosition ='horizontal';
-    this.barChartOptions = {
+    this.chartType = 'horizontal-bars';
+    this.verticalColumnChartOptions = {
       plugins: {
         legend: {
           display: false,
@@ -2829,9 +2828,15 @@ function // Function to create and render a chart in a Bootstrap card component 
   cardBody.appendChild(cardTitleRow);
   cardBody.appendChild(cardFiltersRow);
 
+  // Append the card body to the card
+  card.appendChild(cardBody);
+
+  // Append the card to the container
+  container.appendChild(card);
+
   const cardOptionsColumn = document.createElement('div');
   cardOptionsColumn.classList.add(
-    'col-12',
+    'col-md-12',
     'd-flex',
     'justify-content-end'
   );
@@ -2844,11 +2849,74 @@ function // Function to create and render a chart in a Bootstrap card component 
   cardFiltersRow.appendChild(cardFiltersColumn);
 
   //create the chart type button
-  const chartButton = document.createElement('button');
-  chartButton.classList.add('btn', 'btn-secondary', 'me-2', 'disabled');
-  chartButton.textContent = 'Bars';
-  cardOptionsColumn.appendChild(chartButton);
+  const dropdownWrapper = document.createElement('div');
+  dropdownWrapper.classList.add('dropdown', 'me-2');
 
+  // Create the dropdown button
+  const dropdownButton = document.createElement('button');
+  dropdownButton.id = 'chartTypeDropdown-' + chartObject.id;
+  dropdownButton.classList.add('btn', 'btn-secondary', 'dropdown-toggle');
+  dropdownButton.setAttribute('data-bs-toggle', 'dropdown');
+  if (chartObject.chartType==="horizontal-bars"){
+    dropdownButton.textContent = 'Horizontal Bars';
+  }
+  if (chartObject.chartType==='vertical-columns'){
+    dropdownButton.textContent= 'Vertical Columns';
+  }
+  // Create the dropdown menu with options
+  const dropdownMenu = document.createElement('ul');
+  dropdownMenu.classList.add('dropdown-menu');
+
+  const horizontalBarDropdownLink = document.createElement('li');
+  dropdownMenu.appendChild(horizontalBarDropdownLink);
+  const horizontalBarAnchor = document.createElement('a');
+  horizontalBarAnchor.id = 'horizontalBarAnchor-' + chartObject.id;
+  horizontalBarAnchor.textContent = 'Horizontal Bars';
+  horizontalBarAnchor.className = 'dropdown-item';
+  horizontalBarDropdownLink.appendChild(horizontalBarAnchor);
+
+  const verticalColumnDropdownLink = document.createElement('li');
+  dropdownMenu.appendChild(verticalColumnDropdownLink);
+  const verticalColumnAnchor = document.createElement('a');
+  verticalColumnAnchor.id = 'verticalColumnAnchor-' + chartObject.id;
+  verticalColumnAnchor.textContent = 'Vertical Columns';
+  verticalColumnAnchor.className = 'dropdown-item';
+  verticalColumnDropdownLink.appendChild(verticalColumnAnchor);
+
+  dropdownWrapper.appendChild(dropdownButton);
+  dropdownWrapper.appendChild(dropdownMenu);
+  cardOptionsColumn.appendChild(dropdownWrapper);
+
+  //create listener function that recreates the canvas upon updating the option
+
+  horizontalBarAnchor.addEventListener('click', function () {
+    
+    dropdownButton.textContent = 'Horizontal Bars';
+    chartObject.chartType = 'horizontal-bars';
+    createCanvas();
+   
+    //if applicable, update corresponding bookmark's charttype attribute 
+    const bookmark = bookmarks.find(bookmark => bookmark.id=== chartObject.id);
+    if (bookmark){
+    bookmark.chartType= chartObject.chartType; 
+  }
+    console.log('chartobject',chartObject);
+    console.log('bookmarks', bookmark);
+    })
+  
+
+  verticalColumnAnchor.addEventListener('click', function () {
+    dropdownButton.textContent = 'Vertical Columns';
+    chartObject.chartType = 'vertical-columns';
+    createCanvas();
+      //if applicable, update corresponding bookmark's charttype attribute 
+      const bookmark = bookmarks.find(bookmark => bookmark.id=== chartObject.id);
+      if (bookmark){
+        bookmark.chartType= chartObject.chartType; 
+      }     
+      console.log('chartobject',chartObject);
+      console.log('bookmarks', bookmark);
+  })
 
   //create the bookmark button and set whether it's active or not
   const bookmarkButton = document.createElement('button');
@@ -2883,52 +2951,65 @@ function // Function to create and render a chart in a Bootstrap card component 
     cardFiltersColumn.appendChild(cardFilter);
   }
 
-  // Create the canvas element
-  const canvas = document.createElement('canvas');
-  canvas.style.width = '100%'; // Full width
-  
-  if (chartObject.barPosition === 'horizontal') {
-  canvas.style.height = `${chartObject.data.length * 40+50}px`; // Set the height dynamically
-}
-  else {
-    canvas.style.height = '350px';
+  function createCanvas() {
+
+    const existingCanvas = cardBody.querySelector('canvas'); //check in this cardBody to see if there's already a canvas (in case we are changing type)
+    if (existingCanvas) {
+      cardBody.removeChild(existingCanvas);
+    }
+
+    const canvas = document.createElement('canvas');
+
+    if (container.id === 'step-body-cards-container') {
+      canvas.id = 'canvas-' + chartObject.id;
+    }
+    if (container === 'bookmarksBodyColumn') {
+      canvas.id = 'bookmarked-canvas-' + chartObject.id;
+    }
+    canvas.style.width = '100%'; // Full width
+
+    //canvas height depends on the type of chart we're displaying
+    let barOptions = '';
+    if (chartObject.chartType === 'horizontal-bars') {
+      canvas.style.height = `${chartObject.data.length * 40 + 50}px`; // Set the height dynamically
+      barOptions = chartObject.horizontalBarChartOptions;
+    }
+    else {
+      canvas.style.height = '350px';
+      barOptions = chartObject.verticalColumnChartOptions;
+    }
+
+    //calculate how many bars there will be and use that to calculate the canvas height
+
+    // Append the canvas to the card body
+    cardBody.appendChild(canvas);
+
+
+
+    // Render the chart on the canvas
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+    new Chart(ctx, { //new chart in canvas
+      //create a new chart using the properties of the chartObject being called as an argument in the function
+      type: chartObject.type,
+      data: {
+        labels: chartObject.labels,
+        datasets: [
+          {
+            label: chartObject.title, //the tooltip label is just the series title
+            data: chartObject.data,
+            backgroundColor: chartObject.backgroundColor,
+            borderColor: chartObject.borderColor,
+            borderWidth: chartObject.borderWidth,
+            maxBarThickness: 50
+          },
+        ],
+      },
+      options: barOptions,
+    });
+
   }
-
-  //calculate how many bars there will be and use that to calculate the canvas height
-
-  // Append the canvas to the card body
-  cardBody.appendChild(canvas);
-
-  // Append the card body to the card
-  card.appendChild(cardBody);
-
-  // Append the card to the container
-  container.appendChild(card);
-
-  // Render the chart on the canvas
-  const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
-  new Chart(ctx, { //new chart in canvas
-    //create a new chart using the properties of the chartObject being called as an argument in the function
-    type: chartObject.type,
-    data: {
-      labels: chartObject.labels,
-      datasets: [
-        {
-          label: chartObject.title, //the tooltip label is just the series title
-          data: chartObject.data,
-          backgroundColor: chartObject.backgroundColor,
-          borderColor: chartObject.borderColor,
-          borderWidth: chartObject.borderWidth,
-          maxBarThickness: 50
-        },
-      ],
-    },
-    options: chartObject.horizontalBarChartOptions,
-  });
-
-  // Calculate the height based on the number of bars
-
+  createCanvas();
 
 }
 
@@ -3159,12 +3240,12 @@ function renderComparativeChartInCard(chartObject, container) {
   // Create the canvas element
   const canvas = document.createElement('canvas');
   canvas.style.width = '100%'; // Full width
-  if (chartObject.barPosition === 'horizontal') {
-    canvas.style.height = `${chartObject.data.length * chartObject.data[0].length * 40 +50}px`; // Set the height dynamically
+  if (chartObject.chartType === 'horizontal-bars') {
+    canvas.style.height = `${chartObject.data.length * chartObject.data[0].length * 40 + 50}px`; // Set the height dynamically
   }
-    else {
-      canvas.style.height = '350px';
-    }
+  else {
+    canvas.style.height = '350px';
+  }
 
   //calculate how many bars there will be and use that to calculate the canvas height
   let totalArrayValues = 0;
@@ -3202,15 +3283,15 @@ function renderComparativeChartInCard(chartObject, container) {
   });
 
   let chartOptions = '';
-    new Chart(ctx, { //new chart in canvas
-      type: 'bar', // Use 'bar' type for horizontal bar chart
-      data: {
-        labels: chartObject.labels,
-        datasets: datasets,
-      },
-      options: chartObject.horizontalClusteredBarChartOptions,
-    });
-  
+  new Chart(ctx, { //new chart in canvas
+    type: 'bar', // Use 'bar' type for horizontal bar chart
+    data: {
+      labels: chartObject.labels,
+      datasets: datasets,
+    },
+    options: chartObject.horizontalClusteredBarChartOptions,
+  });
+
 }
 
 function renderSumAvgChartInCard(chartObject, container) {
@@ -3305,12 +3386,12 @@ function renderSumAvgChartInCard(chartObject, container) {
   chartObject.data.forEach(subArray => {
     totalArrayValues += subArray.length;
   });
-  if (chartObject.barPosition === 'horizontal') {
-    canvas.style.height = `${chartObject.data.length * 40+50}px`; // Set the height dynamically
+  if (chartObject.chartType === 'horizontal-bars') {
+    canvas.style.height = `${chartObject.data.length * 40 + 50}px`; // Set the height dynamically
   }
-    else {
-      canvas.style.height = '350px';
-    }
+  else {
+    canvas.style.height = '350px';
+  }
   // Append the canvas to the card body
   cardBody.appendChild(canvas);
 
@@ -3341,25 +3422,25 @@ function renderSumAvgChartInCard(chartObject, container) {
   });
 
   let chartOptions = '';
-    new Chart(ctx, { //new chart in canvas
-      //create a new chart using the properties of the chartObject being called as an argument in the function
-      type: chartObject.type,
-      data: {
-        labels: chartObject.labels,
-        datasets: [
-          {
-            label: chartObject.title, //the tooltip label is just the series title
-            data: chartObject.data,
-            backgroundColor: chartObject.backgroundColor,
-            borderColor: chartObject.borderColor,
-            borderWidth: chartObject.borderWidth,
-            maxBarThickness: 50
+  new Chart(ctx, { //new chart in canvas
+    //create a new chart using the properties of the chartObject being called as an argument in the function
+    type: chartObject.type,
+    data: {
+      labels: chartObject.labels,
+      datasets: [
+        {
+          label: chartObject.title, //the tooltip label is just the series title
+          data: chartObject.data,
+          backgroundColor: chartObject.backgroundColor,
+          borderColor: chartObject.borderColor,
+          borderWidth: chartObject.borderWidth,
+          maxBarThickness: 50
 
-          },
-        ],
-      },
-      options: chartObject.horizontalCalculationBarChartOptions,
-    });
+        },
+      ],
+    },
+    options: chartObject.horizontalCalculationBarChartOptions,
+  });
 
 
 }
