@@ -221,7 +221,6 @@ function createUploadStepContent() {
   topNav.style.display = 'block';
 
   const stepBody = document.getElementById('step-body');
-  stepBody.classList.add('mt-5');
 
   // Create the container for the upload content
   const uploadContainer = document.createElement('div');
@@ -234,8 +233,7 @@ function createUploadStepContent() {
     'justify-content-center'
   );
 
-  uploadContainer.style.width = '80%';
-  uploadContainer.style.height = '50vh';
+  uploadContainer.style.height = '75vh';
 
   //create upload header
   const uploadHeader = document.createElement('h1');
