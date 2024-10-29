@@ -2857,11 +2857,11 @@ function // Function to create and render a chart in a Bootstrap card component 
   dropdownButton.id = 'chartTypeDropdown-' + chartObject.id;
   dropdownButton.classList.add('btn', 'btn-secondary', 'dropdown-toggle');
   dropdownButton.setAttribute('data-bs-toggle', 'dropdown');
-  if (chartObject.chartType==="horizontal-bars"){
+  if (chartObject.chartType === "horizontal-bars") {
     dropdownButton.textContent = 'Horizontal Bars';
   }
-  if (chartObject.chartType==='vertical-columns'){
-    dropdownButton.textContent= 'Vertical Columns';
+  if (chartObject.chartType === 'vertical-columns') {
+    dropdownButton.textContent = 'Vertical Columns';
   }
   // Create the dropdown menu with options
   const dropdownMenu = document.createElement('ul');
@@ -2890,32 +2890,28 @@ function // Function to create and render a chart in a Bootstrap card component 
   //create listener function that recreates the canvas upon updating the option
 
   horizontalBarAnchor.addEventListener('click', function () {
-    
+
     dropdownButton.textContent = 'Horizontal Bars';
     chartObject.chartType = 'horizontal-bars';
     createCanvas();
-   
-    //if applicable, update corresponding bookmark's charttype attribute 
-    const bookmark = bookmarks.find(bookmark => bookmark.id=== chartObject.id);
-    if (bookmark){
-    bookmark.chartType= chartObject.chartType; 
-  }
-    console.log('chartobject',chartObject);
-    console.log('bookmarks', bookmark);
-    })
-  
+
+    //if applicable, update the corresponding bookmark's charttype attribute 
+    const bookmark = bookmarks.find(bookmark => bookmark.id === chartObject.id);
+    if (bookmark) {
+      bookmark.chartType = chartObject.chartType;
+    }
+  })
+
 
   verticalColumnAnchor.addEventListener('click', function () {
     dropdownButton.textContent = 'Vertical Columns';
     chartObject.chartType = 'vertical-columns';
     createCanvas();
-      //if applicable, update corresponding bookmark's charttype attribute 
-      const bookmark = bookmarks.find(bookmark => bookmark.id=== chartObject.id);
-      if (bookmark){
-        bookmark.chartType= chartObject.chartType; 
-      }     
-      console.log('chartobject',chartObject);
-      console.log('bookmarks', bookmark);
+    //if applicable, update the corresponding bookmark's charttype attribute 
+    const bookmark = bookmarks.find(bookmark => bookmark.id === chartObject.id);
+    if (bookmark) {
+      bookmark.chartType = chartObject.chartType;
+    }
   })
 
   //create the bookmark button and set whether it's active or not
