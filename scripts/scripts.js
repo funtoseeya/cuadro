@@ -231,11 +231,11 @@ function createUploadStepContent() {
     'flex-column',
     'text-center',
     'align-items-center',
-    'mt-20'
-
+    'justify-content-center'
   );
 
   uploadContainer.style.width = '80%';
+  uploadContainer.style.height = '50vh';
 
   //create upload header
   const uploadHeader = document.createElement('h1');
@@ -877,7 +877,7 @@ function displayAnalysisOptions() {
       'rounded-3',
       'card-hover'
     );
-    card.style.margin = '5px'; // Add some margin for spacing
+    card.style.width = '100%'; // Add some margin for spacing
     card.id = cardID;
 
     // Card body
@@ -911,7 +911,7 @@ function displayAnalysisOptions() {
 
   // Create the simple analysis column and card
   const analysisOptionCardBasicCol = document.createElement('div');
-  analysisOptionCardBasicCol.classList.add('col-12', 'col-sm-4', 'mb-2');
+  analysisOptionCardBasicCol.classList.add('col-12', 'col-sm-4', 'mb-2','px-2');
   createCardInCol(
     'simple-analysis-option',
     analysisOptionCardBasicCol,
@@ -922,7 +922,7 @@ function displayAnalysisOptions() {
 
   // Create the numerical analysis column and card
   const analysisOptionCardNumCol = document.createElement('div');
-  analysisOptionCardNumCol.classList.add('col-12', 'col-sm-4', 'mb-2');
+  analysisOptionCardNumCol.classList.add('col-12', 'col-sm-4', 'mb-2','px-2');
   createCardInCol(
     'number-analysis-option',
     analysisOptionCardNumCol,
@@ -933,7 +933,7 @@ function displayAnalysisOptions() {
 
   // Create the comparative analysis column and card
   const analysisOptionCardCompareCol = document.createElement('div');
-  analysisOptionCardCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2');
+  analysisOptionCardCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2','px-2');
   createCardInCol(
     'comparative-analysis-option',
     analysisOptionCardCompareCol,
@@ -944,7 +944,7 @@ function displayAnalysisOptions() {
 
   // Create the sum by category  card
   const analysisOptionCardNumCompareCol = document.createElement('div');
-  analysisOptionCardNumCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2');
+  analysisOptionCardNumCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2','px-2');
   createCardInCol(
     'sum-comparative-analysis-option',
     analysisOptionCardNumCompareCol,
@@ -955,7 +955,7 @@ function displayAnalysisOptions() {
 
   // Create the avg by category  card
   const analysisOptionAvgCol = document.createElement('div');
-  analysisOptionAvgCol.classList.add('col-12', 'col-sm-4', 'mb-2');
+  analysisOptionAvgCol.classList.add('col-12', 'col-sm-4', 'mb-2','px-2');
   createCardInCol(
     'average-comparative-analysis-option',
     analysisOptionAvgCol,
@@ -966,7 +966,7 @@ function displayAnalysisOptions() {
 
   // Create the trend analysis column and card
   const analysisOptionCardTrendCol = document.createElement('div');
-  analysisOptionCardTrendCol.classList.add('col-12', 'col-sm-4', 'mb-2');
+  analysisOptionCardTrendCol.classList.add('col-12', 'col-sm-4', 'mb-2','px-2');
   createCardInCol(
     'trend-analysis-option',
     analysisOptionCardTrendCol,
