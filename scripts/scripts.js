@@ -233,7 +233,7 @@ function createUploadStepContent() {
     'justify-content-center'
   );
 
-  uploadContainer.style.height = '75vh';
+  uploadContainer.style.height = '60vh';
 
   //create upload header
   const uploadHeader = document.createElement('h1');
