@@ -913,8 +913,8 @@ function displayAnalysisOptions() {
   createCardInCol(
     'simple-analysis-option',
     analysisOptionCardBasicCol,
-    'Category Frequencies',
-    `Display a field's categorical distributions.`,
+    'Category distribution',
+    `Count the number of times each category appears within a field.`,
     '<i class="fas fa-chart-bar"></i>'
   );
 
@@ -924,8 +924,8 @@ function displayAnalysisOptions() {
   createCardInCol(
     'number-analysis-option',
     analysisOptionCardNumCol,
-    'Number Frequencies',
-    `Calculate the range of distributions within a numerical field.`,
+    'Number distribution',
+    `Count the number of times a range of numbers appears within a field.`,
     '<i class="fa-solid fa-chart-area"></i>'
   );
 
@@ -935,8 +935,8 @@ function displayAnalysisOptions() {
   createCardInCol(
     'comparative-analysis-option',
     analysisOptionCardCompareCol,
-    'Sub-category Frequencies',
-    `Compare distributions between two categorical fields.`,
+    'Grouped category distribution',
+    `Count the number of times a grouping of categories appears across two fields.`,
     '<i class="fas fa-table"></i>'
   );
 
@@ -1132,21 +1132,21 @@ function handleIWantTo(event) {
   const simpleListAnchor = document.createElement('a');
   simpleListAnchor.classList.add('dropdown-item');
   const simpleListAnchorText = document.createElement('label');
-  simpleListAnchorText.textContent = 'category frequencies';
+  simpleListAnchorText.textContent = 'category distribution';
   simpleListAnchor.setAttribute('data-value', 'simple');
 
   const numberListItem = document.createElement('li');
   const numberListAnchor = document.createElement('a');
   numberListAnchor.classList.add('dropdown-item');
   const numberListAnchorText = document.createElement('label');
-  numberListAnchorText.textContent = 'number frequencies';
+  numberListAnchorText.textContent = 'number distribution';
   numberListAnchor.setAttribute('data-value', 'number');
 
   const compareListItem = document.createElement('li');
   const compareListAnchor = document.createElement('a');
   compareListAnchor.classList.add('dropdown-item');
   const compareListAnchorText = document.createElement('label');
-  compareListAnchorText.textContent = 'sub-category frequencies';
+  compareListAnchorText.textContent = 'Grouped category distribution';
   compareListAnchor.setAttribute('data-value', 'comparative');
 
   const sumListItem = document.createElement('li');
@@ -1196,7 +1196,7 @@ function handleIWantTo(event) {
 
   if (event === 'simple') {
     // Update select.textContent
-    iWantSelect.textContent = 'category frequencies';
+    iWantSelect.textContent = 'category distribution';
 
     //hide group column
     if (groupColumn) {
@@ -1211,7 +1211,7 @@ function handleIWantTo(event) {
   // If the value of the select dropdown is "generic"...
   if (event === 'number') {
     // Update select.textContent
-    iWantSelect.textContent = 'number frequencies';
+    iWantSelect.textContent = 'number distribution';
 
     //hide group column
     if (groupColumn) {
@@ -1226,7 +1226,7 @@ function handleIWantTo(event) {
   if (event === 'comparative' || event === 'sum-comparative' || event === 'average-comparative') {
     // Update select.textContent
     if (event === 'comparative') {
-      iWantSelect.textContent = 'sub-category frequencies';
+      iWantSelect.textContent = 'Grouped category distribution';
     }
     if (event === 'sum-comparative') {
       iWantSelect.textContent = 'sum by category';
@@ -1277,13 +1277,13 @@ function handleIWantTo(event) {
   iWantMenu.addEventListener('click', function (event) {
     const target = event.target.closest('a.dropdown-item');
     let analysisType = '';
-    if (target.innerText === 'category frequencies') {
+    if (target.innerText === 'category distribution') {
       analysisType = 'simple';
     }
-    if (target.innerText === 'number frequencies') {
+    if (target.innerText === 'number distribution') {
       analysisType = 'number';
     }
-    if (target.innerText === 'sub-category frequencies') {
+    if (target.innerText === 'Grouped category distribution') {
       analysisType = 'comparative';
     }
     if (target.innerText === 'sum by category') {
