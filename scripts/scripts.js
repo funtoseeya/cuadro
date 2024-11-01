@@ -287,7 +287,7 @@ function createUploadStepContent() {
               <p class="text-start">You can upload any kind of tabular data where the rows represent items and columns represent the items' characterists.</p>  
               <p class="text-start">Here's an example of a supported dataset that contains both categorical and numerical data. </p>
              <div style="width:100%;overflow:hidden;position:relative">
-             <img src="../images/sample-data.png" class="d-block w-100" style="object-fit:contain">
+             <img src="https://app.cuadro.io/images/sample-data.PNG" class="d-block w-100" style="object-fit:contain">
              </div>
               </div>
          </div>
@@ -965,7 +965,7 @@ function displayAnalysisOptions() {
     'Category distribution',
     `Count the number of times each category appears within a field.`,
     '<i class="fas fa-chart-bar"></i>',
-    '../images/category-distribution-preview.png'
+    '../images/category-distribution-preview.PNG'
   );
 
   // Create the numerical analysis column and card
@@ -977,7 +977,7 @@ function displayAnalysisOptions() {
     'Number distribution',
     `Count the number of times a range of numbers appears within a field.`,
     '<i class="fa-solid fa-chart-area"></i>',
-    '../images/number-distribution-preview.png'
+    '../images/number-distribution-preview.PNG'
   );
 
   // Create the comparative analysis column and card
@@ -989,7 +989,7 @@ function displayAnalysisOptions() {
     'Grouped category distribution',
     `Count the number of times a grouping of categories appears across two fields.`,
     '<i class="fas fa-table"></i>',
-    '../images/category-grouping-distribution-preview.png'
+    '../images/category-grouping-distribution-preview.PNG'
   );
 
   // Create the sum by category  card
@@ -1001,7 +1001,7 @@ function displayAnalysisOptions() {
     'Sum by Category',
     `Calculate the sum of values by category.`,
     '<i class="fa-solid fa-calculator"></i>',
-    '../images/sum-preview.png'
+    '../images/sum-preview.PNG'
   );
 
   // Create the avg by category  card
@@ -1013,7 +1013,7 @@ function displayAnalysisOptions() {
     'Avg by Category',
     `Calculate the average of values by category.`,
     '<i class="fa-solid fa-calculator"></i>',
-    '../images/avg-preview.png'
+    '../images/avg-preview.PNG'
   );
 
   // Create the trend analysis column and card
@@ -1025,7 +1025,7 @@ function displayAnalysisOptions() {
     'Trend Analysis',
     'Uncover patterns and changes over time.',
     '<i class="fas fa-chart-line"></i><span class="badge" style="background-color: #f4b400; margin-left:0.2rem; color: white; font-size: 0.875rem;">Coming Soon!</span>',
-    '../images/category-distribution-preview.png'
+    '../images/line_chart_temp.PNG'
   );
 
   // Append analysis columns to the row
