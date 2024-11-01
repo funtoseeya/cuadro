@@ -269,6 +269,27 @@ body {
   font-weight: 900; /* FontAwesome solid icons weight */
   margin-right: 0.25rem; /* Space between icon and text */
 }
+
+
+/* Responsive adjustment */
+@media (max-width: 768px) {
+  .preview-box {
+    width: 80%; /* Wider on smaller screens */
+    height: 70vh; /* Adjust height for smaller screens */
+    padding: 15px; /* Reduced padding for smaller screens */
+  }
+}
+
+/* Media query for mobile devices */
+@media (max-width: 480px) {
+  .preview-box {
+    width: 90%; /* Full width for mobile */
+    height: auto; /* Allow height to adjust based on content */
+    padding: 10px; /* Further reduced padding for mobile */
+  }
+}
+
+
 .bookmarks-overlay {
   height: 100%;
   width: 0;

@@ -233,7 +233,7 @@ function createUploadStepContent() {
     'justify-content-center'
   );
 
-  uploadContainer.style.height = '60vh';
+  uploadContainer.style.marginTop = '50px';
 
   //create upload header
   const uploadHeader = document.createElement('h1');
@@ -268,6 +268,35 @@ function createUploadStepContent() {
 
   uploadContainer.appendChild(sampleText);
 
+
+  // Create the accordion
+  const accordion = document.createElement('div');
+  accordion.classList.add('accordion', 'w-100', 'mb-3');
+  accordion.id = 'what-data-can-i-upload-accordion';
+
+  accordion.innerHTML = `
+     <div class="accordion-item mt-3">
+         <h2 class="accordion-header" id="headingOne">
+             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                <i class="fa-solid fa-circle-question" style="margin-right:1rem" aria-hidden="true" ></i>
+                  What kind of data can I upload?
+             </button>
+         </h2>
+         <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
+             <div class="accordion-body">
+              <p class="text-start">You can upload any kind of tabular data where the rows represent items and columns represent the items' characterists.</p>  
+              <p class="text-start">Here's an example of a supported dataset that contains both categorical and numerical data. </p>
+             <div style="width:100%;overflow:hidden;position:relative">
+             <img src="../images/sample-data.png" class="d-block w-100" style="object-fit:contain">
+             </div>
+              </div>
+         </div>
+     </div>
+ `;
+
+
+
+  uploadContainer.appendChild(accordion);
 
 
   // Clear existing content and append the upload container and its content to the step body
@@ -865,7 +894,7 @@ function displayAnalysisOptions() {
   analysisOptionCardsRow2.classList.add('row');
 
   // Helper function to create a card in a column
-  function createCardInCol(cardID, column, title, description, iconHTML) {
+  function createCardInCol(cardID, column, title, description, iconHTML, imageSRC) {
     const card = document.createElement('button');
     card.classList.add(
       'card',
@@ -875,8 +904,27 @@ function displayAnalysisOptions() {
       'rounded-3',
       'card-hover'
     );
-    card.style.width = '100%'; // Add some margin for spacing
+    card.style.width = '100%';
     card.id = cardID;
+
+    // img
+    const imgDiv = document.createElement('div');
+    imgDiv.style.width = '100%'; // Full width of the parent container
+    imgDiv.style.height = '200px'; // Fixed height for consistency
+    imgDiv.style.overflow = 'hidden'; // Hide overflow to prevent overflow issues with different dimensions
+    imgDiv.style.position = 'relative'; // Position for more control
+
+    const img = document.createElement('img');
+    img.src = imageSRC; // Replace with the actual image path
+    img.classList.add('d-block', 'w-100'); // Keep width consistent
+    img.style.height = '100%'; // Ensure height fits the container
+    img.style.objectFit = 'contain'; // Crop and scale the image to fit the container
+
+
+    imgDiv.appendChild(img);
+    card.appendChild(imgDiv);
+
+
 
     // Card body
     const cardBody = document.createElement('div');
@@ -884,14 +932,14 @@ function displayAnalysisOptions() {
 
     // Add the icon
     const iconContainer = document.createElement('div');
-    iconContainer.classList.add('mb-2');
-    iconContainer.innerHTML = iconHTML;
+    iconContainer.className = 'd-flex justify-content-between align-items-center w-100 mb-2';
+
     cardBody.appendChild(iconContainer);
 
     // Add the title
     const titleDiv = document.createElement('h6');
     titleDiv.classList.add('card-title');
-    titleDiv.textContent = title;
+    titleDiv.innerHTML = `${iconHTML} ${title}`;
     cardBody.appendChild(titleDiv);
 
     // Add the description
@@ -907,70 +955,77 @@ function displayAnalysisOptions() {
     column.appendChild(card);
   }
 
+
   // Create the simple analysis column and card
   const analysisOptionCardBasicCol = document.createElement('div');
-  analysisOptionCardBasicCol.classList.add('col-12', 'col-sm-4', 'mb-2','px-2');
+  analysisOptionCardBasicCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
   createCardInCol(
     'simple-analysis-option',
     analysisOptionCardBasicCol,
     'Category distribution',
     `Count the number of times each category appears within a field.`,
-    '<i class="fas fa-chart-bar"></i>'
+    '<i class="fas fa-chart-bar"></i>',
+    '../images/category-distribution-preview.png'
   );
 
   // Create the numerical analysis column and card
   const analysisOptionCardNumCol = document.createElement('div');
-  analysisOptionCardNumCol.classList.add('col-12', 'col-sm-4', 'mb-2','px-2');
+  analysisOptionCardNumCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
   createCardInCol(
     'number-analysis-option',
     analysisOptionCardNumCol,
     'Number distribution',
     `Count the number of times a range of numbers appears within a field.`,
-    '<i class="fa-solid fa-chart-area"></i>'
+    '<i class="fa-solid fa-chart-area"></i>',
+    '../images/number-distribution-preview.png'
   );
 
   // Create the comparative analysis column and card
   const analysisOptionCardCompareCol = document.createElement('div');
-  analysisOptionCardCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2','px-2');
+  analysisOptionCardCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
   createCardInCol(
     'comparative-analysis-option',
     analysisOptionCardCompareCol,
     'Grouped category distribution',
     `Count the number of times a grouping of categories appears across two fields.`,
-    '<i class="fas fa-table"></i>'
+    '<i class="fas fa-table"></i>',
+    '../images/category-grouping-distribution-preview.png'
   );
 
   // Create the sum by category  card
   const analysisOptionCardNumCompareCol = document.createElement('div');
-  analysisOptionCardNumCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2','px-2');
+  analysisOptionCardNumCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
   createCardInCol(
     'sum-comparative-analysis-option',
     analysisOptionCardNumCompareCol,
     'Sum by Category',
     `Calculate the sum of values by category.`,
-    '<i class="fa-solid fa-calculator"></i>'
+    '<i class="fa-solid fa-calculator"></i>',
+    '../images/sum-preview.png'
   );
 
   // Create the avg by category  card
   const analysisOptionAvgCol = document.createElement('div');
-  analysisOptionAvgCol.classList.add('col-12', 'col-sm-4', 'mb-2','px-2');
+  analysisOptionAvgCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
   createCardInCol(
     'average-comparative-analysis-option',
     analysisOptionAvgCol,
     'Avg by Category',
     `Calculate the average of values by category.`,
-    '<i class="fa-solid fa-calculator"></i>'
+    '<i class="fa-solid fa-calculator"></i>',
+    '../images/avg-preview.png'
   );
 
   // Create the trend analysis column and card
   const analysisOptionCardTrendCol = document.createElement('div');
-  analysisOptionCardTrendCol.classList.add('col-12', 'col-sm-4', 'mb-2','px-2');
+  analysisOptionCardTrendCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
   createCardInCol(
     'trend-analysis-option',
     analysisOptionCardTrendCol,
     'Trend Analysis',
     'Uncover patterns and changes over time.',
-    '<i class="fas fa-chart-line"></i><span class="badge" style="background-color: #f4b400; margin-left:0.2rem; color: white; font-size: 0.875rem;">Coming Soon!</span>'
+    '<i class="fas fa-chart-line"></i><span class="badge" style="background-color: #f4b400; margin-left:0.2rem; color: white; font-size: 0.875rem;">Coming Soon!</span>',
+    '../images/category-distribution-preview.png'
   );
 
   // Append analysis columns to the row
@@ -984,6 +1039,9 @@ function displayAnalysisOptions() {
   // Append the row to the step body
   stepBody.appendChild(analysisOptionCardsRow1);
   stepBody.appendChild(analysisOptionCardsRow2);
+
+
+
 
   const trendCard = document.getElementById('trend-analysis-option');
   trendCard.style.backgroundColor = '#ececec';
@@ -1012,7 +1070,34 @@ function displayAnalysisOptions() {
   const avgComparativeCard = document.getElementById('average-comparative-analysis-option');
   avgComparativeCard.addEventListener('click', function () { handleIWantTo('average-comparative') });
 
+  displayAutoDataTypesToast();
+
 }
+
+function displayAutoDataTypesToast() {
+  const parentDiv = document.getElementById('autoDataTypetoastContainer'); // Replace with your parent div ID
+  parentDiv.innerHTML = ''; // Clear any existing content
+
+  const toastHtml = `
+            <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
+                <div class="toast" style="background-color: #fff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                    <div class="toast-header" style="background-color: #ffce44;">
+                        <strong class="mr-auto">Data Types Assigned</strong>
+                    </div>
+                    <div class="toast-body">
+                    We've reviewed and assigned a type to each uploaded field. To review or adjust, go to Data Type Settings. 
+                    </div>
+                </div>
+            </div>`;
+
+  parentDiv.innerHTML = toastHtml;
+
+  // Initialize the toast using Bootstrap's JS API
+  const toastElement = parentDiv.querySelector('.toast');
+  const toast = new bootstrap.Toast(toastElement);
+  toast.show();
+}
+
 
 // Handle the select change event
 function handleIWantTo(event) {
