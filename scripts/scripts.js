@@ -284,7 +284,7 @@ function createUploadStepContent() {
          </h2>
          <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
              <div class="accordion-body">
-              <p class="text-start">You can upload any kind of tabular data where the rows represent items and columns represent the items' characterists.</p>  
+              <p class="text-start">You can upload any kind of tabular data having rows as items and columns as the items' characteriscs.</p>  
               <p class="text-start">Here's an example of a supported dataset that contains both categorical and numerical data. </p>
              <div style="width:100%;overflow:hidden;position:relative">
              <img src="https://app.cuadro.io/images/sample-data.PNG" class="d-block w-100" style="object-fit:contain">
@@ -654,21 +654,30 @@ function setupAnalyzeStep() {
 
 
   displayAnalysisOptions();
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth' // Optional: 'smooth' for a smooth scroll effect, or 'auto' for instant scroll
+  });
+
 
   const localStorageData = localStorage.getItem('parsedCSVData');
 
   if (!localStorageData) {
     //this triggers a cascade of functions...transform csv into array, guess types, assign to dropdown state...
     parseCSVToArray(selectedFile);
+    displayAutoDataTypesToast();
+
   }
 
   else {
     parsedCSVData = JSON.parse(localStorage.getItem('parsedCSVData'));
     guessDataTypes();
     createCategoricalArrayForFilterPanel();
+
   }
   //create a new analysis object
   createAnalysisObject();
+
 
 }
 
@@ -1070,7 +1079,6 @@ function displayAnalysisOptions() {
   const avgComparativeCard = document.getElementById('average-comparative-analysis-option');
   avgComparativeCard.addEventListener('click', function () { handleIWantTo('average-comparative') });
 
-  displayAutoDataTypesToast();
 
 }
 
