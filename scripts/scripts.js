@@ -884,14 +884,15 @@ function displayAnalysisOptions() {
 
   // Create the "i want to text", col and row
   const analysisOptionTextRow = document.createElement('div');
-  analysisOptionTextRow.classList.add('row');
+  analysisOptionTextRow.classList.add('row','mt-3');
   analysisOptionTextRow.id = 'analysis-option-text-row';
   const analysisOptionTextColumn = document.createElement('div');
   analysisOptionTextColumn.classList.add('col-12');
   const analysisOptionText = document.createElement('h5');
-  analysisOptionText.textContent = 'What do you want to see?';
+  analysisOptionText.textContent = 'What would you like to see?';
   analysisOptionTextColumn.appendChild(analysisOptionText);
   analysisOptionTextRow.appendChild(analysisOptionTextColumn);
+  stepBody.appendChild(analysisOptionTextRow);
 
 
 
