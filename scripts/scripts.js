@@ -918,6 +918,7 @@ function displayAnalysisOptions() {
 
     // img
     const imgDiv = document.createElement('div');
+    imgDiv.className='rounded-3';
     imgDiv.style.width = '100%'; // Full width of the parent container
     imgDiv.style.height = '200px'; // Fixed height for consistency
     imgDiv.style.overflow = 'hidden'; // Hide overflow to prevent overflow issues with different dimensions
@@ -930,9 +931,18 @@ function displayAnalysisOptions() {
     img.style.objectFit = 'cover'; // Crop and scale the image to fit the container
     img.style.objectPosition = 'left bottom'; // Align bottom-left corner
 
+    const imgOverlay = document.createElement('div');
+    imgOverlay.style.position='absolute';
+    imgOverlay.style.width = '100%'; // Full width of the parent container
+    imgOverlay.style.top=0;
+    imgOverlay.style.left=0;
+    imgOverlay.style.height = '200px'; // Fixed height for consistency
+    imgOverlay.style.backgroundColor='rgba(255, 255, 255, 0.5)';
+
 
 
     imgDiv.appendChild(img);
+    imgDiv.appendChild(imgOverlay);
     card.appendChild(imgDiv);
 
 
@@ -973,7 +983,7 @@ function displayAnalysisOptions() {
   createCardInCol(
     'simple-analysis-option',
     analysisOptionCardBasicCol,
-    'Category distribution',
+    'Split by category',
     `Count the number of times each category appears within a field.`,
     '<i class="fas fa-chart-bar"></i>',
     '../images/category-distribution-preview.PNG'
@@ -985,7 +995,7 @@ function displayAnalysisOptions() {
   createCardInCol(
     'number-analysis-option',
     analysisOptionCardNumCol,
-    'Number distribution',
+    'Split by range',
     `Count the number of times a range of numbers appears within a field.`,
     '<i class="fa-solid fa-chart-area"></i>',
     '../images/number-distribution-preview.PNG'
@@ -997,7 +1007,7 @@ function displayAnalysisOptions() {
   createCardInCol(
     'comparative-analysis-option',
     analysisOptionCardCompareCol,
-    'Grouped category distribution',
+    'Split of categories by group',
     `Count the number of times a grouping of categories appears across two fields.`,
     '<i class="fas fa-table"></i>',
     '../images/category-grouping-distribution-preview.PNG'
@@ -1227,21 +1237,21 @@ function handleIWantTo(event) {
   const simpleListAnchor = document.createElement('a');
   simpleListAnchor.classList.add('dropdown-item');
   const simpleListAnchorText = document.createElement('label');
-  simpleListAnchorText.textContent = 'category distribution';
+  simpleListAnchorText.textContent = 'split by category';
   simpleListAnchor.setAttribute('data-value', 'simple');
 
   const numberListItem = document.createElement('li');
   const numberListAnchor = document.createElement('a');
   numberListAnchor.classList.add('dropdown-item');
   const numberListAnchorText = document.createElement('label');
-  numberListAnchorText.textContent = 'number distribution';
+  numberListAnchorText.textContent = 'split by range';
   numberListAnchor.setAttribute('data-value', 'number');
 
   const compareListItem = document.createElement('li');
   const compareListAnchor = document.createElement('a');
   compareListAnchor.classList.add('dropdown-item');
   const compareListAnchorText = document.createElement('label');
-  compareListAnchorText.textContent = 'Grouped category distribution';
+  compareListAnchorText.textContent = 'split of categories by group';
   compareListAnchor.setAttribute('data-value', 'comparative');
 
   const sumListItem = document.createElement('li');
@@ -1291,7 +1301,7 @@ function handleIWantTo(event) {
 
   if (event === 'simple') {
     // Update select.textContent
-    iWantSelect.textContent = 'category distribution';
+    iWantSelect.textContent = 'split by category';
 
     //hide group column
     if (groupColumn) {
@@ -1306,7 +1316,7 @@ function handleIWantTo(event) {
   // If the value of the select dropdown is "generic"...
   if (event === 'number') {
     // Update select.textContent
-    iWantSelect.textContent = 'number distribution';
+    iWantSelect.textContent = 'split by range';
 
     //hide group column
     if (groupColumn) {
@@ -1321,7 +1331,7 @@ function handleIWantTo(event) {
   if (event === 'comparative' || event === 'sum-comparative' || event === 'average-comparative') {
     // Update select.textContent
     if (event === 'comparative') {
-      iWantSelect.textContent = 'Grouped category distribution';
+      iWantSelect.textContent = 'Split of categories by group';
     }
     if (event === 'sum-comparative') {
       iWantSelect.textContent = 'sum by category';
@@ -1372,13 +1382,13 @@ function handleIWantTo(event) {
   iWantMenu.addEventListener('click', function (event) {
     const target = event.target.closest('a.dropdown-item');
     let analysisType = '';
-    if (target.innerText === 'category distribution') {
+    if (target.innerText === 'split by category') {
       analysisType = 'simple';
     }
-    if (target.innerText === 'number distribution') {
+    if (target.innerText === 'split by range') {
       analysisType = 'number';
     }
-    if (target.innerText === 'Grouped category distribution') {
+    if (target.innerText === 'split of categories by group') {
       analysisType = 'comparative';
     }
     if (target.innerText === 'sum by category') {
@@ -1824,7 +1834,7 @@ class AnalysisObject {
       const data = result.data;
       const labels = result.labels;
       const percentagesCounts = result.PercentagesCounts;
-      const chartTitle = `${value}' category distribution`;
+      const chartTitle = `Split of ${value}' categories`;
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `simple-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
@@ -1863,7 +1873,7 @@ class AnalysisObject {
       const data = result.data;
       const labels = result.labels;
       const percentagesCounts = '';
-      const chartTitle = `'${value}' number distribution`;
+      const chartTitle = `Split of '${value}' ranges`;
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `number-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
@@ -1904,7 +1914,7 @@ class AnalysisObject {
       const UsingTheseType = dropdownState.find(obj => obj.header === value);
       let chartTitle = '';
 
-      chartTitle = `'${value}-${this.groupedBy}' grouped category distribution`;
+      chartTitle = `Split of '${value}' categories grouped by '${this.groupedBy}' `;
 
 
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
