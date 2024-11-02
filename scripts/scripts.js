@@ -908,12 +908,12 @@ function displayAnalysisOptions() {
     card.classList.add(
       'card',
       'h-100',
-      'border-0',
       'shadow-sm',
       'rounded-3',
       'card-hover'
     );
     card.style.width = '100%';
+    card.style.border = '1px solid rgba(0, 0, 0,0.15)';
     card.id = cardID;
 
     // img
@@ -927,7 +927,9 @@ function displayAnalysisOptions() {
     img.src = imageSRC; // Replace with the actual image path
     img.classList.add('d-block', 'w-100'); // Keep width consistent
     img.style.height = '100%'; // Ensure height fits the container
-    img.style.objectFit = 'contain'; // Crop and scale the image to fit the container
+    img.style.objectFit = 'cover'; // Crop and scale the image to fit the container
+    img.style.objectPosition = 'left bottom'; // Align bottom-left corner
+
 
 
     imgDiv.appendChild(img);
@@ -1822,7 +1824,7 @@ class AnalysisObject {
       const data = result.data;
       const labels = result.labels;
       const percentagesCounts = result.PercentagesCounts;
-      const chartTitle = `Percentage breakdown of '${value}' categories`;
+      const chartTitle = `${value}' category distribution`;
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `simple-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
@@ -1861,7 +1863,7 @@ class AnalysisObject {
       const data = result.data;
       const labels = result.labels;
       const percentagesCounts = '';
-      const chartTitle = `Count of '${value}' divided into ranges`;
+      const chartTitle = `'${value}' number distribution`;
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `number-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
@@ -1902,7 +1904,7 @@ class AnalysisObject {
       const UsingTheseType = dropdownState.find(obj => obj.header === value);
       let chartTitle = '';
 
-      chartTitle = `Percentage breakdown of '${value}-${this.groupedBy}' sub-categories`;
+      chartTitle = `'${value}-${this.groupedBy}' grouped category distribution`;
 
 
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
