@@ -884,7 +884,7 @@ function displayAnalysisOptions() {
 
   // Create the "i want to text", col and row
   const analysisOptionTextRow = document.createElement('div');
-  analysisOptionTextRow.classList.add('row','mt-3');
+  analysisOptionTextRow.classList.add('row', 'mt-3');
   analysisOptionTextRow.id = 'analysis-option-text-row';
   const analysisOptionTextColumn = document.createElement('div');
   analysisOptionTextColumn.classList.add('col-12');
@@ -919,7 +919,7 @@ function displayAnalysisOptions() {
 
     // img
     const imgDiv = document.createElement('div');
-    imgDiv.className='rounded-3';
+    imgDiv.className = 'rounded-3';
     imgDiv.style.width = '100%'; // Full width of the parent container
     imgDiv.style.height = '200px'; // Fixed height for consistency
     imgDiv.style.overflow = 'hidden'; // Hide overflow to prevent overflow issues with different dimensions
@@ -933,12 +933,12 @@ function displayAnalysisOptions() {
     img.style.objectPosition = 'left bottom'; // Align bottom-left corner
 
     const imgOverlay = document.createElement('div');
-    imgOverlay.style.position='absolute';
+    imgOverlay.style.position = 'absolute';
     imgOverlay.style.width = '100%'; // Full width of the parent container
-    imgOverlay.style.top=0;
-    imgOverlay.style.left=0;
+    imgOverlay.style.top = 0;
+    imgOverlay.style.left = 0;
     imgOverlay.style.height = '200px'; // Fixed height for consistency
-    imgOverlay.style.backgroundColor='rgba(255, 255, 255, 0.5)';
+    imgOverlay.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
 
 
 
@@ -2270,75 +2270,71 @@ class AnalysisObject {
     }
     console.log('Filtered data:', filteredData);
 
-    const headerType = dropdownState.find(item => item.header === header).value;
-    console.log('dropdownState: ', dropdownState);
+    
+    // Create a map to count occurrences for each group
+    const groupCounts = {};
+    const valueCounts = {}; // To store total counts for each value across all groups
 
+    for (let i = 0; i < filteredData.length; i++) {
+      let item = filteredData[i];
+      let group = item[header];
+      let value = item[groupedBy];
 
-
-      // Create a map to count occurrences for each group
-      const groupCounts = {};
-      const valueCounts = {}; // To store total counts for each value across all groups
-
-      for (let i = 0; i < filteredData.length; i++) {
-        let item = filteredData[i];
-        let group = item[groupedBy];
-        let value = item[header];
-
-        // Initialize group key if not present
-        if (!groupCounts[group]) {
-          groupCounts[group] = {};
-        }
-
-        // Initialize value count if not present
-        if (!groupCounts[group][value]) {
-          groupCounts[group][value] = 0;
-        }
-
-        // Increment the count for the current value in the group
-        groupCounts[group][value]++;
-
-        // Increment the total count for the current value across all groups
-        if (!valueCounts[value]) {
-          valueCounts[value] = 0;
-        }
-        valueCounts[value]++;
+      // Initialize group key if not present
+      if (!groupCounts[group]) {
+        groupCounts[group] = {};
       }
 
-      // Prepare labels and data arrays
-      const labels = Object.keys(valueCounts);
-
-      const clusterLabels = Object.keys(groupCounts);
-
-      // Create data and PercentagesCounts arrays
-      const data = [];
-      const percentagesCounts = [];
-      for (let i = 0; i < clusterLabels.length; i++) {
-        let groupKey = clusterLabels[i];
-        let groupData = [];
-        let groupPercentagesCounts = [];
-        for (let j = 0; j < labels.length; j++) {
-          let label = labels[j];
-          let count = groupCounts[groupKey][label] || 0;
-          let total = valueCounts[label];
-          let percentage = total > 0 ? Math.round(count / total * 100) : 0;
-
-          groupData.push(percentage);
-          groupPercentagesCounts.push(`${percentage}% (${count})`); // Concatenate percentage and count
-        }
-        data.push(groupData);
-        percentagesCounts.push(groupPercentagesCounts);
+      // Initialize value count if not present
+      if (!groupCounts[group][value]) {
+        groupCounts[group][value] = 0;
       }
 
+      // Increment the count for the current value in the group
+      groupCounts[group][value]++;
 
-      return {
-        data, // Array of arrays with percentages for each group
-        labels, // Labels for data points
-        clusterLabels, // Labels for each group
-        percentagesCounts, // Array of arrays with percentage and count strings for each group
-      };
-    
+      // Increment the total count for the current value across all groups
+      if (!valueCounts[value]) {
+        valueCounts[value] = 0;
+      }
+      valueCounts[value]++;
+    }
 
-    
+    // Prepare labels and data arrays
+    const labels = Object.keys(valueCounts);
+
+    const clusterLabels = Object.keys(groupCounts);
+
+    // Create data and PercentagesCounts arrays
+    const data = [];
+    const percentagesCounts = [];
+    for (let i = 0; i < clusterLabels.length; i++) {
+      let groupKey = clusterLabels[i];
+      let groupData = [];
+      let groupPercentagesCounts = [];
+      for (let j = 0; j < labels.length; j++) {
+        let label = labels[j];
+        let count = groupCounts[groupKey][label] || 0;
+        let total = valueCounts[label];
+        let percentage = total > 0 ? Math.round(count / total * 100) : 0;
+
+        groupData.push(percentage);
+        groupPercentagesCounts.push(`${percentage}% (${count})`); // Concatenate percentage and count
+      }
+      data.push(groupData);
+      percentagesCounts.push(groupPercentagesCounts);
+    }
+
+
+    return {
+      data, // Array of arrays with percentages for each group
+      labels, // Labels for data points
+      clusterLabels, // Labels for each group
+      percentagesCounts, // Array of arrays with percentage and count strings for each group
+    };
+
+
+
   }
 
   generateSumChartObjectDataArrayAndLabels(header, groupedBy, filteredBy) {
