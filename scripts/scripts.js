@@ -2777,6 +2777,41 @@ class ChartObject {
       responsive: true, // Ensure the chart is  responsive
     };
 
+    this.verticalCalculationBarChartOptions = {
+      plugins: {
+        legend: {
+          display: false,
+        },
+        // Change options for ALL labels of THIS CHART
+        datalabels: {
+          rotation: 0,        // Rotates the labels vertically
+
+          color: 'black',
+          anchor: 'start',
+          align: 'end',
+
+        },
+      },
+      indexAxis: 'x', // Make it a horizontal bar chart
+      scales: {
+        y: {
+          // Make the data appear as percentages
+          beginAtZero: true,
+
+        },
+        x: {
+          // You can customize the y-axis as needed
+        },
+      },
+      elements: {
+        bar: {
+          borderWidth: 1,
+          borderRadius: 3,
+        },
+      },
+      responsive: true, // Ensure the chart is  responsive
+    };
+
 
     this.clusteredBarChartOptions = {
       responsive: true,
@@ -3392,17 +3427,71 @@ function renderSumAvgChartInCard(chartObject, container) {
   cardTitleRow.appendChild(cardTitleColumn);
   cardFiltersRow.appendChild(cardFiltersColumn);
 
-  //create the chart type button
-  const chartButton = document.createElement('button');
-  chartButton.classList.add('btn', 'btn-secondary', 'me-2', 'disabled');
-  if (UsingTheseType.value === 'Categorical') {
-    chartButton.textContent = 'Clusters';
-  }
-  if (UsingTheseType.value === 'Numerical') {
-    chartButton.textContent = 'Bars';
-  }
+//create the chart type button
+const dropdownWrapper = document.createElement('div');
+dropdownWrapper.classList.add('dropdown', 'me-2');
 
-  cardOptionsColumn.appendChild(chartButton);
+// Create the dropdown button
+const dropdownButton = document.createElement('button');
+dropdownButton.id = 'chartTypeDropdown-' + chartObject.id;
+dropdownButton.classList.add('btn', 'btn-secondary', 'dropdown-toggle');
+dropdownButton.setAttribute('data-bs-toggle', 'dropdown');
+if (chartObject.chartType === "horizontal-bars") {
+  dropdownButton.textContent = 'Horizontal Bars';
+}
+if (chartObject.chartType === 'vertical-columns') {
+  dropdownButton.textContent = 'Vertical Columns';
+}
+// Create the dropdown menu with options
+const dropdownMenu = document.createElement('ul');
+dropdownMenu.classList.add('dropdown-menu');
+
+const horizontalBarDropdownLink = document.createElement('li');
+dropdownMenu.appendChild(horizontalBarDropdownLink);
+const horizontalBarAnchor = document.createElement('a');
+horizontalBarAnchor.id = 'horizontalBarAnchor-' + chartObject.id;
+horizontalBarAnchor.textContent = 'Horizontal Bars';
+horizontalBarAnchor.className = 'dropdown-item';
+horizontalBarDropdownLink.appendChild(horizontalBarAnchor);
+
+const verticalColumnDropdownLink = document.createElement('li');
+dropdownMenu.appendChild(verticalColumnDropdownLink);
+const verticalColumnAnchor = document.createElement('a');
+verticalColumnAnchor.id = 'verticalColumnAnchor-' + chartObject.id;
+verticalColumnAnchor.textContent = 'Vertical Columns';
+verticalColumnAnchor.className = 'dropdown-item';
+verticalColumnDropdownLink.appendChild(verticalColumnAnchor);
+
+dropdownWrapper.appendChild(dropdownButton);
+dropdownWrapper.appendChild(dropdownMenu);
+cardOptionsColumn.appendChild(dropdownWrapper);
+
+//create listener function that recreates the canvas upon updating the option
+
+horizontalBarAnchor.addEventListener('click', function () {
+
+  dropdownButton.textContent = 'Horizontal Bars';
+  chartObject.chartType = 'horizontal-bars';
+  createCanvas();
+
+  //if applicable, update the corresponding bookmark's charttype attribute 
+  const bookmark = bookmarks.find(bookmark => bookmark.id === chartObject.id);
+  if (bookmark) {
+    bookmark.chartType = chartObject.chartType;
+  }
+})
+
+
+verticalColumnAnchor.addEventListener('click', function () {
+  dropdownButton.textContent = 'Vertical Columns';
+  chartObject.chartType = 'vertical-columns';
+  createCanvas();
+  //if applicable, update the corresponding bookmark's charttype attribute 
+  const bookmark = bookmarks.find(bookmark => bookmark.id === chartObject.id);
+  if (bookmark) {
+    bookmark.chartType = chartObject.chartType;
+  }
+})
 
 
   //create the bookmark button and set whether it's active or not
@@ -3437,6 +3526,13 @@ function renderSumAvgChartInCard(chartObject, container) {
     cardFiltersColumn.appendChild(cardFilter);
   }
 
+  function createCanvas() {
+
+    const existingCanvas = cardBody.querySelector('canvas'); //check in this cardBody to see if there's already a canvas (in case we are changing type)
+    if (existingCanvas) {
+      cardBody.removeChild(existingCanvas);
+    }
+
   // Create the canvas element
   const canvas = document.createElement('canvas');
   canvas.style.width = '100%'; // Full width
@@ -3446,12 +3542,16 @@ function renderSumAvgChartInCard(chartObject, container) {
   chartObject.data.forEach(subArray => {
     totalArrayValues += subArray.length;
   });
-  if (chartObject.chartType === 'horizontal-bars') {
-    canvas.style.height = `${chartObject.data.length * 40 + 50}px`; // Set the height dynamically
-  }
-  else {
-    canvas.style.height = '350px';
-  }
+     //canvas height depends on the type of chart we're displaying
+     let barOptions = '';
+     if (chartObject.chartType === 'horizontal-bars') {
+       canvas.style.height = `${chartObject.data.length * 40 + 50}px`; // Set the height dynamically
+       barOptions = chartObject.horizontalCalculationBarChartOptions;
+     }
+     else {
+       canvas.style.height = '350px';
+       barOptions = chartObject.verticalCalculationBarChartOptions;
+     }
   // Append the canvas to the card body
   cardBody.appendChild(canvas);
 
@@ -3499,10 +3599,11 @@ function renderSumAvgChartInCard(chartObject, container) {
         },
       ],
     },
-    options: chartObject.horizontalCalculationBarChartOptions,
+    options: barOptions,
   });
 
-
+  }
+  createCanvas()
 }
 
 
