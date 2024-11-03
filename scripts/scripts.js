@@ -2274,7 +2274,6 @@ class AnalysisObject {
     console.log('dropdownState: ', dropdownState);
 
 
-    if (headerType === 'Categorical') {
 
       // Create a map to count occurrences for each group
       const groupCounts = {};
@@ -2337,44 +2336,9 @@ class AnalysisObject {
         clusterLabels, // Labels for each group
         percentagesCounts, // Array of arrays with percentage and count strings for each group
       };
-    }
+    
 
-    if (headerType === 'Numerical') {
-      // Create a map to sum values for each group
-      const groupSums = {};
-
-      for (let i = 0; i < filteredData.length; i++) {
-        let item = filteredData[i];
-        let group = item[groupedBy];
-        let value = parseFloat(item[header]); // Convert to float to handle numerical values
-
-        // Check if the value is a number
-        if (isNaN(value)) {
-          console.warn(`Non-numeric value found for ${header}:`, item[header]);
-          continue; // Skip this item if the value is not a number
-        }
-
-        // Initialize group key if not present
-        if (!groupSums[group]) {
-          groupSums[group] = 0;
-        }
-
-        // Increment the sum for the current value in the group
-        groupSums[group] += value; // Sum the numerical values
-      }
-
-      // Prepare labels and data arrays
-      const labels = Object.keys(groupSums); // Unique groups for cluster labels
-      const data = labels.map(groupKey => groupSums[groupKey]); // Sums for each group
-      const clusterLabels = data;
-
-      return {
-        data, // Array with sums for each group
-        labels,
-        clusterLabels// Labels for each group
-      };
-    }
-
+    
   }
 
   generateSumChartObjectDataArrayAndLabels(header, groupedBy, filteredBy) {
