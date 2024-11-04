@@ -929,21 +929,10 @@ function displayAnalysisOptions() {
     img.src = imageSRC; // Replace with the actual image path
     img.classList.add('d-block', 'w-100'); // Keep width consistent
     img.style.height = '100%'; // Ensure height fits the container
-    img.style.objectFit = 'cover'; // Crop and scale the image to fit the container
-    img.style.objectPosition = 'left bottom'; // Align bottom-left corner
-
-    const imgOverlay = document.createElement('div');
-    imgOverlay.style.position = 'absolute';
-    imgOverlay.style.width = '100%'; // Full width of the parent container
-    imgOverlay.style.top = 0;
-    imgOverlay.style.left = 0;
-    imgOverlay.style.height = '200px'; // Fixed height for consistency
-    imgOverlay.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
 
 
 
     imgDiv.appendChild(img);
-    imgDiv.appendChild(imgOverlay);
     card.appendChild(imgDiv);
 
 
