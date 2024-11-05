@@ -38,8 +38,7 @@ const guessedCSVheaderClassification = {}; // To store the guessed classificatio
 let analysisObjects = []; // Array to store analysis object instances
 let nextAnalysisId = 1; // Unique ID counter
 let currentAnalysisId = 1; //what analysis object the user is currently analyzing. set to 1 as the default, will update later.
-let colorPalette = ['#247ba0', '#f25f5c', '#ffe066', '#50514f', '#70c1b3', '#6a4c93', '#0ead69', '#ffa5ab', '#1982c4', '#f3722c'];
-let colorPaletteWithOpacity = ['rgba(36, 123, 160, 0.4)', 'rgba(242, 95, 92, 0.4)', 'rgba(255, 224, 102, 0.4)', 'rgba(80, 81, 79, 0.4)', 'rgba(112, 193, 179, 0.4)', 'rgba(106, 76, 147, 0.4)', 'rgba(14, 173, 105, 0.4)', 'rgba(255, 165, 171, 0.4)', 'rgba(25, 130, 196, 0.4)', 'rgba(243, 114, 44, 0.4)'];
+let colorPalette = ['#176BA0', '#19AADE', '#1AC9E6', '#caf0f8','#52b69a','#1DE3BD', '#CDFDD2', '#C7F9EE','#b66ee8','#d689ff','#f2a8ff','#ffc4ff','#ebd9fc' ];
 
 let bookmarks = [];
 
@@ -3485,7 +3484,7 @@ function renderComparativeChartInCard(chartObject, container) {
     const datasets = chartObject.data.map((clusterData, index) => {
       // Cycle through colorPalette for background and border colors
       const colorIndex = index % colorPalette.length;
-      const backgroundColor = colorPaletteWithOpacity[colorIndex];
+      const backgroundColor = colorPalette[colorIndex];
       const borderColor = colorPalette[colorIndex];
 
       return {
@@ -3694,7 +3693,7 @@ function renderSumAvgChartInCard(chartObject, container) {
     const datasets = chartObject.data.map((clusterData, index) => {
       // Cycle through colorPalette for background and border colors
       const colorIndex = index % colorPalette.length;
-      const backgroundColor = colorPaletteWithOpacity[colorIndex];
+      const backgroundColor = colorPalette[colorIndex];
       const borderColor = colorPalette[colorIndex];
 
       return {
