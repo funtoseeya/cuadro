@@ -929,6 +929,7 @@ function displayAnalysisOptions() {
     img.src = imageSRC; // Replace with the actual image path
     img.classList.add('d-block', 'w-100'); // Keep width consistent
     img.style.height = '100%'; // Ensure height fits the container
+    img.style.objectFit='contain';
 
 
 
