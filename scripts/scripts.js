@@ -1092,7 +1092,7 @@ function displayAutoDataTypesToast() {
   const toastHtml = `
             <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
                 <div class="toast" style="background-color: #fff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-                    <div class="toast-header" style="background-color: #0dcaf0;">
+                    <div class="toast-header" style="background-color: #247ba0;">
                         <strong class="mr-auto">Data Types Assigned</strong>
                     </div>
                     <div class="toast-body">
