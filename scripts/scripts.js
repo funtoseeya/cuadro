@@ -929,7 +929,7 @@ function displayAnalysisOptions() {
     img.src = imageSRC; // Replace with the actual image path
     img.classList.add('d-block', 'w-100'); // Keep width consistent
     img.style.height = '100%'; // Ensure height fits the container
-    img.style.objectFit='contain';
+    img.style.objectFit = 'contain';
 
 
 
@@ -2260,7 +2260,7 @@ class AnalysisObject {
     }
     console.log('Filtered data:', filteredData);
 
-    
+
     // Create a map to count occurrences for each group
     const groupCounts = {};
     const valueCounts = {}; // To store total counts for each value across all groups
@@ -2892,6 +2892,51 @@ class ChartObject {
         },
       },
     };
+
+    this.verticalClusteredColumnChartOptions = {
+      responsive: true,
+      indexAxis: 'x', // Set to 'y' for horizontal bars
+      scales: {
+        y: {
+          stacked: false, // Bars should not be stacked
+          ticks: {
+            autoSkip: false, // Ensure all x-axis labels are visible
+            callback: function (value) {
+              // Format the x-axis ticks as percentages
+              return value.toFixed(0) + '%';
+            },
+          },
+        },
+        x: {
+          stacked: false, // Bars should not be stacked
+          beginAtZero: true,
+        },
+      },
+      elements: {
+        bar: {
+          borderWidth: 1,
+          borderRadius: 5,
+        },
+      },
+      plugins: {
+        // Change options for ALL labels of THIS CHART
+        datalabels: {
+          rotation: 90,        // Rotates the labels vertically
+          color: 'black',
+          anchor: 'start',
+          align: 'end',
+          formatter: (value, context) => {
+            // Use percentagesCounts array to get the correct label
+            const datasetIndex = context.datasetIndex;
+            const dataIndex = context.dataIndex;
+            return this.percentagesCounts[datasetIndex][dataIndex];
+          },
+        },
+        legend: {
+          position: 'top',
+        },
+      },
+    };
   }
 }
 
@@ -3042,7 +3087,6 @@ function // Function to create and render a chart in a Bootstrap card component 
     if (existingCanvas) {
       cardBody.removeChild(existingCanvas);
     }
-
     const canvas = document.createElement('canvas');
 
     if (container.id === 'step-body-cards-container') {
@@ -3277,17 +3321,76 @@ function renderComparativeChartInCard(chartObject, container) {
   cardTitleRow.appendChild(cardTitleColumn);
   cardFiltersRow.appendChild(cardFiltersColumn);
 
-  //create the chart type button
-  const chartButton = document.createElement('button');
-  chartButton.classList.add('btn', 'btn-secondary', 'me-2', 'disabled');
-  if (UsingTheseType.value === 'Categorical') {
-    chartButton.textContent = 'Clusters';
-  }
-  if (UsingTheseType.value === 'Numerical') {
-    chartButton.textContent = 'Bars';
-  }
+  //set chartType to horizontal clusters
+  chartObject.chartType = 'horizontal-clusters';
 
-  cardOptionsColumn.appendChild(chartButton);
+
+  //create the chart type button
+  const dropdownWrapper = document.createElement('div');
+  dropdownWrapper.classList.add('dropdown', 'me-2');
+
+  // Create the dropdown button
+  const dropdownButton = document.createElement('button');
+  dropdownButton.id = 'chartTypeDropdown-' + chartObject.id;
+  dropdownButton.classList.add('btn', 'btn-secondary', 'dropdown-toggle');
+  dropdownButton.setAttribute('data-bs-toggle', 'dropdown');
+  if (chartObject.chartType === "horizontal-clusters") {
+    dropdownButton.textContent = 'Horizontal Clusters';
+  }
+  if (chartObject.chartType === 'vertical-clusters') {
+    dropdownButton.textContent = 'Vertical Clusters';
+  }
+  // Create the dropdown menu with options
+  const dropdownMenu = document.createElement('ul');
+  dropdownMenu.classList.add('dropdown-menu');
+
+  const horizontalBarDropdownLink = document.createElement('li');
+  dropdownMenu.appendChild(horizontalBarDropdownLink);
+  const horizontalBarAnchor = document.createElement('a');
+  horizontalBarAnchor.id = 'horizontalBarAnchor-' + chartObject.id;
+  horizontalBarAnchor.textContent = 'Horizontal Clusters';
+  horizontalBarAnchor.className = 'dropdown-item';
+  horizontalBarDropdownLink.appendChild(horizontalBarAnchor);
+
+  const verticalColumnDropdownLink = document.createElement('li');
+  dropdownMenu.appendChild(verticalColumnDropdownLink);
+  const verticalColumnAnchor = document.createElement('a');
+  verticalColumnAnchor.id = 'verticalColumnAnchor-' + chartObject.id;
+  verticalColumnAnchor.textContent = 'Vertical Clusters';
+  verticalColumnAnchor.className = 'dropdown-item';
+  verticalColumnDropdownLink.appendChild(verticalColumnAnchor);
+
+  dropdownWrapper.appendChild(dropdownButton);
+  dropdownWrapper.appendChild(dropdownMenu);
+  cardOptionsColumn.appendChild(dropdownWrapper);
+
+  //create listener function that recreates the canvas upon updating the option
+
+  horizontalBarAnchor.addEventListener('click', function () {
+
+    dropdownButton.textContent = 'Horizontal Clusters';
+    chartObject.chartType = 'horizontal-clusters';
+    createCanvas();
+
+    //if applicable, update the corresponding bookmark's charttype attribute 
+    const bookmark = bookmarks.find(bookmark => bookmark.id === chartObject.id);
+    if (bookmark) {
+      bookmark.chartType = chartObject.chartType;
+    }
+  })
+
+
+  verticalColumnAnchor.addEventListener('click', function () {
+    dropdownButton.textContent = 'Vertical Clusters';
+    chartObject.chartType = 'vertical-clusters';
+    createCanvas();
+    //if applicable, update the corresponding bookmark's charttype attribute 
+    const bookmark = bookmarks.find(bookmark => bookmark.id === chartObject.id);
+    if (bookmark) {
+      bookmark.chartType = chartObject.chartType;
+    }
+  })
+
 
 
   //create the bookmark button and set whether it's active or not
@@ -3322,63 +3425,79 @@ function renderComparativeChartInCard(chartObject, container) {
     cardFiltersColumn.appendChild(cardFilter);
   }
 
-  // Create the canvas element
-  const canvas = document.createElement('canvas');
-  canvas.style.width = '100%'; // Full width
-  if (chartObject.chartType === 'horizontal-bars') {
-    canvas.style.height = `${chartObject.data.length * chartObject.data[0].length * 40 + 50}px`; // Set the height dynamically
+  function createCanvas(){
+
+    const existingCanvas = cardBody.querySelector('canvas'); //check in this cardBody to see if there's already a canvas (in case we are changing type)
+    if (existingCanvas) {
+      cardBody.removeChild(existingCanvas);
+    }
+    // Create the canvas element
+    const canvas = document.createElement('canvas');
+    canvas.style.width = '100%'; // Full width
+    let barOptions = '';
+
+    if (chartObject.chartType === 'horizontal-clusters') {
+      canvas.style.height = `${chartObject.data.length * chartObject.data[0].length * 40 + 50}px`; // Set the height dynamically
+      barOptions = chartObject.horizontalClusteredBarChartOptions;
+
+    }
+    else {
+      canvas.style.height = '350px';
+      barOptions = chartObject.verticalClusteredColumnChartOptions;
+
+    }
+   
+
+    //calculate how many bars there will be and use that to calculate the canvas height
+    let totalArrayValues = 0;
+    chartObject.data.forEach(subArray => {
+      totalArrayValues += subArray.length;
+    });
+
+    // Append the canvas to the card body
+    cardBody.appendChild(canvas);
+
+    // Append the card body to the card
+    card.appendChild(cardBody);
+
+    // Append the card to the container
+    container.appendChild(card);
+
+    // Render the chart on the canvas
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+    // Create the datasets for each cluster
+    const datasets = chartObject.data.map((clusterData, index) => {
+      // Cycle through colorPalette for background and border colors
+      const colorIndex = index % colorPalette.length;
+      const backgroundColor = colorPaletteWithOpacity[colorIndex];
+      const borderColor = colorPalette[colorIndex];
+
+      return {
+        label: chartObject.clusterLabels[index], // Label for the cluster
+        data: clusterData,
+        backgroundColor: backgroundColor,
+        borderColor: borderColor,
+        borderWidth: 1, // Fixed border width
+        maxBarThickness: 50,
+      };
+    });
+
+    let chartOptions = '';
+
+
+    new Chart(ctx, { //new chart in canvas
+      type: 'bar', // Use 'bar' type for horizontal bar chart
+      data: {
+        labels: chartObject.labels,
+        datasets: datasets,
+      },
+      options: barOptions,
+    });
   }
-  else {
-    canvas.style.height = '350px';
-  }
-
-  //calculate how many bars there will be and use that to calculate the canvas height
-  let totalArrayValues = 0;
-  chartObject.data.forEach(subArray => {
-    totalArrayValues += subArray.length;
-  });
-
-  // Append the canvas to the card body
-  cardBody.appendChild(canvas);
-
-  // Append the card body to the card
-  card.appendChild(cardBody);
-
-  // Append the card to the container
-  container.appendChild(card);
-
-  // Render the chart on the canvas
-  const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
-  // Create the datasets for each cluster
-  const datasets = chartObject.data.map((clusterData, index) => {
-    // Cycle through colorPalette for background and border colors
-    const colorIndex = index % colorPalette.length;
-    const backgroundColor = colorPaletteWithOpacity[colorIndex];
-    const borderColor = colorPalette[colorIndex];
-
-    return {
-      label: chartObject.clusterLabels[index], // Label for the cluster
-      data: clusterData,
-      backgroundColor: backgroundColor,
-      borderColor: borderColor,
-      borderWidth: 1, // Fixed border width
-      maxBarThickness: 50,
-    };
-  });
-
-  let chartOptions = '';
-  new Chart(ctx, { //new chart in canvas
-    type: 'bar', // Use 'bar' type for horizontal bar chart
-    data: {
-      labels: chartObject.labels,
-      datasets: datasets,
-    },
-    options: chartObject.horizontalClusteredBarChartOptions,
-  });
+  createCanvas();
 
 }
-
 function renderSumAvgChartInCard(chartObject, container) {
 
   //some renderings will depend on the usingthese datatype
@@ -3417,71 +3536,71 @@ function renderSumAvgChartInCard(chartObject, container) {
   cardTitleRow.appendChild(cardTitleColumn);
   cardFiltersRow.appendChild(cardFiltersColumn);
 
-//create the chart type button
-const dropdownWrapper = document.createElement('div');
-dropdownWrapper.classList.add('dropdown', 'me-2');
+  //create the chart type button
+  const dropdownWrapper = document.createElement('div');
+  dropdownWrapper.classList.add('dropdown', 'me-2');
 
-// Create the dropdown button
-const dropdownButton = document.createElement('button');
-dropdownButton.id = 'chartTypeDropdown-' + chartObject.id;
-dropdownButton.classList.add('btn', 'btn-secondary', 'dropdown-toggle');
-dropdownButton.setAttribute('data-bs-toggle', 'dropdown');
-if (chartObject.chartType === "horizontal-bars") {
-  dropdownButton.textContent = 'Horizontal Bars';
-}
-if (chartObject.chartType === 'vertical-columns') {
-  dropdownButton.textContent = 'Vertical Columns';
-}
-// Create the dropdown menu with options
-const dropdownMenu = document.createElement('ul');
-dropdownMenu.classList.add('dropdown-menu');
-
-const horizontalBarDropdownLink = document.createElement('li');
-dropdownMenu.appendChild(horizontalBarDropdownLink);
-const horizontalBarAnchor = document.createElement('a');
-horizontalBarAnchor.id = 'horizontalBarAnchor-' + chartObject.id;
-horizontalBarAnchor.textContent = 'Horizontal Bars';
-horizontalBarAnchor.className = 'dropdown-item';
-horizontalBarDropdownLink.appendChild(horizontalBarAnchor);
-
-const verticalColumnDropdownLink = document.createElement('li');
-dropdownMenu.appendChild(verticalColumnDropdownLink);
-const verticalColumnAnchor = document.createElement('a');
-verticalColumnAnchor.id = 'verticalColumnAnchor-' + chartObject.id;
-verticalColumnAnchor.textContent = 'Vertical Columns';
-verticalColumnAnchor.className = 'dropdown-item';
-verticalColumnDropdownLink.appendChild(verticalColumnAnchor);
-
-dropdownWrapper.appendChild(dropdownButton);
-dropdownWrapper.appendChild(dropdownMenu);
-cardOptionsColumn.appendChild(dropdownWrapper);
-
-//create listener function that recreates the canvas upon updating the option
-
-horizontalBarAnchor.addEventListener('click', function () {
-
-  dropdownButton.textContent = 'Horizontal Bars';
-  chartObject.chartType = 'horizontal-bars';
-  createCanvas();
-
-  //if applicable, update the corresponding bookmark's charttype attribute 
-  const bookmark = bookmarks.find(bookmark => bookmark.id === chartObject.id);
-  if (bookmark) {
-    bookmark.chartType = chartObject.chartType;
+  // Create the dropdown button
+  const dropdownButton = document.createElement('button');
+  dropdownButton.id = 'chartTypeDropdown-' + chartObject.id;
+  dropdownButton.classList.add('btn', 'btn-secondary', 'dropdown-toggle');
+  dropdownButton.setAttribute('data-bs-toggle', 'dropdown');
+  if (chartObject.chartType === "horizontal-bars") {
+    dropdownButton.textContent = 'Horizontal Bars';
   }
-})
-
-
-verticalColumnAnchor.addEventListener('click', function () {
-  dropdownButton.textContent = 'Vertical Columns';
-  chartObject.chartType = 'vertical-columns';
-  createCanvas();
-  //if applicable, update the corresponding bookmark's charttype attribute 
-  const bookmark = bookmarks.find(bookmark => bookmark.id === chartObject.id);
-  if (bookmark) {
-    bookmark.chartType = chartObject.chartType;
+  if (chartObject.chartType === 'vertical-columns') {
+    dropdownButton.textContent = 'Vertical Columns';
   }
-})
+  // Create the dropdown menu with options
+  const dropdownMenu = document.createElement('ul');
+  dropdownMenu.classList.add('dropdown-menu');
+
+  const horizontalBarDropdownLink = document.createElement('li');
+  dropdownMenu.appendChild(horizontalBarDropdownLink);
+  const horizontalBarAnchor = document.createElement('a');
+  horizontalBarAnchor.id = 'horizontalBarAnchor-' + chartObject.id;
+  horizontalBarAnchor.textContent = 'Horizontal Bars';
+  horizontalBarAnchor.className = 'dropdown-item';
+  horizontalBarDropdownLink.appendChild(horizontalBarAnchor);
+
+  const verticalColumnDropdownLink = document.createElement('li');
+  dropdownMenu.appendChild(verticalColumnDropdownLink);
+  const verticalColumnAnchor = document.createElement('a');
+  verticalColumnAnchor.id = 'verticalColumnAnchor-' + chartObject.id;
+  verticalColumnAnchor.textContent = 'Vertical Columns';
+  verticalColumnAnchor.className = 'dropdown-item';
+  verticalColumnDropdownLink.appendChild(verticalColumnAnchor);
+
+  dropdownWrapper.appendChild(dropdownButton);
+  dropdownWrapper.appendChild(dropdownMenu);
+  cardOptionsColumn.appendChild(dropdownWrapper);
+
+  //create listener function that recreates the canvas upon updating the option
+
+  horizontalBarAnchor.addEventListener('click', function () {
+
+    dropdownButton.textContent = 'Horizontal Bars';
+    chartObject.chartType = 'horizontal-bars';
+    createCanvas();
+
+    //if applicable, update the corresponding bookmark's charttype attribute 
+    const bookmark = bookmarks.find(bookmark => bookmark.id === chartObject.id);
+    if (bookmark) {
+      bookmark.chartType = chartObject.chartType;
+    }
+  })
+
+
+  verticalColumnAnchor.addEventListener('click', function () {
+    dropdownButton.textContent = 'Vertical Columns';
+    chartObject.chartType = 'vertical-columns';
+    createCanvas();
+    //if applicable, update the corresponding bookmark's charttype attribute 
+    const bookmark = bookmarks.find(bookmark => bookmark.id === chartObject.id);
+    if (bookmark) {
+      bookmark.chartType = chartObject.chartType;
+    }
+  })
 
 
   //create the bookmark button and set whether it's active or not
@@ -3523,74 +3642,74 @@ verticalColumnAnchor.addEventListener('click', function () {
       cardBody.removeChild(existingCanvas);
     }
 
-  // Create the canvas element
-  const canvas = document.createElement('canvas');
-  canvas.style.width = '100%'; // Full width
+    // Create the canvas element
+    const canvas = document.createElement('canvas');
+    canvas.style.width = '100%'; // Full width
 
-  //calculate how many bars there will be and use that to calculate the canvas height
-  let totalArrayValues = 0;
-  chartObject.data.forEach(subArray => {
-    totalArrayValues += subArray.length;
-  });
-     //canvas height depends on the type of chart we're displaying
-     let barOptions = '';
-     if (chartObject.chartType === 'horizontal-bars') {
-       canvas.style.height = `${chartObject.data.length * 40 + 50}px`; // Set the height dynamically
-       barOptions = chartObject.horizontalCalculationBarChartOptions;
-     }
-     else {
-       canvas.style.height = '350px';
-       barOptions = chartObject.verticalCalculationBarChartOptions;
-     }
-  // Append the canvas to the card body
-  cardBody.appendChild(canvas);
+    //calculate how many bars there will be and use that to calculate the canvas height
+    let totalArrayValues = 0;
+    chartObject.data.forEach(subArray => {
+      totalArrayValues += subArray.length;
+    });
+    //canvas height depends on the type of chart we're displaying
+    let barOptions = '';
+    if (chartObject.chartType === 'horizontal-bars') {
+      canvas.style.height = `${chartObject.data.length * 40 + 50}px`; // Set the height dynamically
+      barOptions = chartObject.horizontalCalculationBarChartOptions;
+    }
+    else {
+      canvas.style.height = '350px';
+      barOptions = chartObject.verticalCalculationBarChartOptions;
+    }
+    // Append the canvas to the card body
+    cardBody.appendChild(canvas);
 
-  // Append the card body to the card
-  card.appendChild(cardBody);
+    // Append the card body to the card
+    card.appendChild(cardBody);
 
-  // Append the card to the container
-  container.appendChild(card);
+    // Append the card to the container
+    container.appendChild(card);
 
-  // Render the chart on the canvas
-  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    // Render the chart on the canvas
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-  // Create the datasets for each cluster
-  const datasets = chartObject.data.map((clusterData, index) => {
-    // Cycle through colorPalette for background and border colors
-    const colorIndex = index % colorPalette.length;
-    const backgroundColor = colorPaletteWithOpacity[colorIndex];
-    const borderColor = colorPalette[colorIndex];
+    // Create the datasets for each cluster
+    const datasets = chartObject.data.map((clusterData, index) => {
+      // Cycle through colorPalette for background and border colors
+      const colorIndex = index % colorPalette.length;
+      const backgroundColor = colorPaletteWithOpacity[colorIndex];
+      const borderColor = colorPalette[colorIndex];
 
-    return {
-      label: chartObject.clusterLabels[index], // Label for the cluster
-      data: clusterData,
-      backgroundColor: backgroundColor,
-      borderColor: borderColor,
-      borderWidth: 1, // Fixed border width
-      maxBarThickness: 50
-    };
-  });
+      return {
+        label: chartObject.clusterLabels[index], // Label for the cluster
+        data: clusterData,
+        backgroundColor: backgroundColor,
+        borderColor: borderColor,
+        borderWidth: 1, // Fixed border width
+        maxBarThickness: 50
+      };
+    });
 
-  let chartOptions = '';
-  new Chart(ctx, { //new chart in canvas
-    //create a new chart using the properties of the chartObject being called as an argument in the function
-    type: chartObject.type,
-    data: {
-      labels: chartObject.labels,
-      datasets: [
-        {
-          label: chartObject.title, //the tooltip label is just the series title
-          data: chartObject.data,
-          backgroundColor: chartObject.backgroundColor,
-          borderColor: chartObject.borderColor,
-          borderWidth: chartObject.borderWidth,
-          maxBarThickness: 50
+    let chartOptions = '';
+    new Chart(ctx, { //new chart in canvas
+      //create a new chart using the properties of the chartObject being called as an argument in the function
+      type: chartObject.type,
+      data: {
+        labels: chartObject.labels,
+        datasets: [
+          {
+            label: chartObject.title, //the tooltip label is just the series title
+            data: chartObject.data,
+            backgroundColor: chartObject.backgroundColor,
+            borderColor: chartObject.borderColor,
+            borderWidth: chartObject.borderWidth,
+            maxBarThickness: 50
 
-        },
-      ],
-    },
-    options: barOptions,
-  });
+          },
+        ],
+      },
+      options: barOptions,
+    });
 
   }
   createCanvas()
