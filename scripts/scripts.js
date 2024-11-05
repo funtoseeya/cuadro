@@ -1092,7 +1092,7 @@ function displayAutoDataTypesToast() {
   const toastHtml = `
             <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
                 <div class="toast" style="background-color: #fff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-                    <div class="toast-header" style="background-color: #247ba0;">
+                    <div class="toast-header" style="background-color: #247ba0;color:white;">
                         <strong class="mr-auto">Data Types Assigned</strong>
                     </div>
                     <div class="toast-body">
@@ -1825,7 +1825,7 @@ class AnalysisObject {
       const data = result.data;
       const labels = result.labels;
       const percentagesCounts = result.PercentagesCounts;
-      const chartTitle = `Split of ${value}' categories`;
+      const chartTitle = `Split of '${value}' categories`;
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `simple-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
@@ -2397,7 +2397,16 @@ class AnalysisObject {
 
       // Increment the sum for the current value in the group
       groupSums[group] += value; // Sum the numerical values
+      
     }
+
+    //round as needed to the nearest decimal if applicable
+
+    const groupNames = new Set(filteredData.map(row => row[groupedBy]));
+    groupNames.forEach(group => {
+      groupSums[group]= Math.round(groupSums[group] * 100) / 100;
+    })
+
 
     // Prepare labels and data arrays
     const labels = Object.keys(groupSums); // Unique groups for cluster labels
