@@ -3319,6 +3319,13 @@ function renderComparativeChartInCard(chartObject, container) {
   cardBody.appendChild(cardTitleRow);
   cardBody.appendChild(cardFiltersRow);
 
+      // Append the card body to the card
+      card.appendChild(cardBody);
+
+      // Append the card to the container
+      container.appendChild(card);
+  
+
   const cardOptionsColumn = document.createElement('div');
   cardOptionsColumn.classList.add(
     'col-12',
@@ -3471,11 +3478,6 @@ function renderComparativeChartInCard(chartObject, container) {
     // Append the canvas to the card body
     cardBody.appendChild(canvas);
 
-    // Append the card body to the card
-    card.appendChild(cardBody);
-
-    // Append the card to the container
-    container.appendChild(card);
 
     // Render the chart on the canvas
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
@@ -3535,6 +3537,13 @@ function renderSumAvgChartInCard(chartObject, container) {
   cardBody.appendChild(cardOptionsRow);
   cardBody.appendChild(cardTitleRow);
   cardBody.appendChild(cardFiltersRow);
+
+    // Append the card body to the card
+    card.appendChild(cardBody);
+
+    // Append the card to the container
+    container.appendChild(card);
+
 
   const cardOptionsColumn = document.createElement('div');
   cardOptionsColumn.classList.add(
@@ -3680,12 +3689,7 @@ function renderSumAvgChartInCard(chartObject, container) {
     // Append the canvas to the card body
     cardBody.appendChild(canvas);
 
-    // Append the card body to the card
-    card.appendChild(cardBody);
-
-    // Append the card to the container
-    container.appendChild(card);
-
+    
     // Render the chart on the canvas
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
