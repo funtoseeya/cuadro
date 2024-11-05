@@ -1402,7 +1402,7 @@ function createUsingTheseDropdown(event) {
   const span = document.createElement('span');
   span.id = 'using-these-values-text';
   span.style.fontSize = '0.9rem';
-  span.textContent = 'Using these fields';
+  span.textContent = 'using these fields';
 
   // Create the menu container
   const dropdownContainer = document.createElement('div');
@@ -3056,6 +3056,8 @@ function // Function to create and render a chart in a Bootstrap card component 
   if (isChartBookmarked) {
     bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
     bookmarkButton.setAttribute('isActive', 'true');
+    bookmarkButton.classList.remove('btn-secondary');
+    bookmarkButton.classList.add('btn-primary');
   } else {
     bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
     bookmarkButton.setAttribute('isActive', 'false');
@@ -3191,6 +3193,8 @@ function renderNumberChartInCard(chartObject, container) {
   if (isChartBookmarked) {
     bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
     bookmarkButton.setAttribute('isActive', 'true');
+    bookmarkButton.classList.remove('btn-secondary');
+    bookmarkButton.classList.add('btn-primary');
   } else {
     bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
     bookmarkButton.setAttribute('isActive', 'false');
@@ -3401,6 +3405,8 @@ function renderComparativeChartInCard(chartObject, container) {
   if (isChartBookmarked) {
     bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
     bookmarkButton.setAttribute('isActive', 'true');
+    bookmarkButton.classList.remove('btn-secondary');
+    bookmarkButton.classList.add('btn-primary');
   } else {
     bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
     bookmarkButton.setAttribute('isActive', 'false');
@@ -3611,6 +3617,8 @@ function renderSumAvgChartInCard(chartObject, container) {
   if (isChartBookmarked) {
     bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
     bookmarkButton.setAttribute('isActive', 'true');
+    bookmarkButton.classList.remove('btn-secondary');
+    bookmarkButton.classList.add('btn-primary');
   } else {
     bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
     bookmarkButton.setAttribute('isActive', 'false');
@@ -3725,16 +3733,29 @@ function addRemoveBookmark(target, chart) {
   //if bookmark is activated
   if (isActive === 'false') {
 
-    //update the button
-    bookmarkButton.setAttribute('isActive', 'true');
-    bookmarkButton.innerHTML =
-      '<i class="fa-solid fa-bookmark"></i>'; //change the icon
-    bookmarkButton.classList.remove('btn-secondary');
-    bookmarkButton.classList.add('btn-primary');
+//update all instances of button (could be 2 instances if its in bookmark overlay.
+const bookmarkButtons = document.querySelectorAll(`[bookmarkButtonIdentifier="${chart.id}"]`);
+
+for (let i = 0; i < bookmarkButtons.length; i++) {
+  bookmarkButtons[i].setAttribute('isActive', 'true');
+  bookmarkButtons[i].innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+  bookmarkButtons[i].classList.remove('btn-secondary');
+  bookmarkButtons[i].classList.add('btn-primary');
+}
 
     //update chartobject and push to bookmarks array
     chart.bookmarked = true;
     bookmarks.push(chart);
+
+     //if you're ractivating from bookmarks overlay, we should reactivate any chart object
+     const currentAnalysisObject = analysisObjects.find(obj => obj.id === currentAnalysisId); //find the current analysis object
+     for (let i = 0; i < currentAnalysisObject.chartObjects.length; i++) {//for each displayed chart object
+       if (currentAnalysisObject.chartObjects[i].id === chart.id) { //if the chart matches the id of the object just unbookmarked
+         currentAnalysisObject.chartObjects[i].bookmarked = true; //unbookmark the chart object (if hasn't been done already)
+         break; // Exit the loop as we found the matching chart object
+       }
+     }
+
 
     console.log('bookmarks: ', bookmarks);
   }
@@ -3757,7 +3778,7 @@ function addRemoveBookmark(target, chart) {
 
     function removeFromArray(arr, id) {
       const index = arr.findIndex(obj => obj.id === id);  // Find the index of the object
-      if (index !== -1) {
+      if (index !== -1) { //if it exists
         arr.splice(index, 1);  // Remove the object at that index
       }
     }
