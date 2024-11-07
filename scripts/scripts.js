@@ -664,7 +664,6 @@ function setupAnalyzeStep() {
   if (!localStorageData) {
     //this triggers a cascade of functions...transform csv into array, guess types, assign to dropdown state...
     parseCSVToArray(selectedFile);
-    displayAutoDataTypesToast();
 
   }
 
@@ -1086,29 +1085,7 @@ createCardInCol(
 
 }
 
-function displayAutoDataTypesToast() {
-  const parentDiv = document.getElementById('autoDataTypetoastContainer'); // Replace with your parent div ID
-  parentDiv.innerHTML = ''; // Clear any existing content
 
-  const toastHtml = `
-            <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
-                <div class="toast" style="background-color: #fff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-                    <div class="toast-header" style="background-color: #247ba0;color:white;">
-                        <strong class="mr-auto">Data Types Assigned</strong>
-                    </div>
-                    <div class="toast-body">
-                    We've reviewed and assigned a type to each uploaded field. To review or adjust, go to Data Type Settings. 
-                    </div>
-                </div>
-            </div>`;
-
-  parentDiv.innerHTML = toastHtml;
-
-  // Initialize the toast using Bootstrap's JS API
-  const toastElement = parentDiv.querySelector('.toast');
-  const toast = new bootstrap.Toast(toastElement);
-  toast.show();
-}
 
 
 // Handle the select change event
