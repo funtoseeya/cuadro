@@ -979,29 +979,6 @@ function displayAnalysisOptions() {
     '../images/category-distribution-preview.png'
   );
 
-  // Create the numerical analysis column and card
-  const analysisOptionCardNumCol = document.createElement('div');
-  analysisOptionCardNumCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
-  createCardInCol(
-    'number-analysis-option',
-    analysisOptionCardNumCol,
-    'Split by range',
-    `Count the number of times a range of numbers appears within a field.`,
-    '<i class="fa-solid fa-chart-area"></i>',
-    '../images/number-distribution-preview.png'
-  );
-
-  // Create the comparative analysis column and card
-  const analysisOptionCardCompareCol = document.createElement('div');
-  analysisOptionCardCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
-  createCardInCol(
-    'comparative-analysis-option',
-    analysisOptionCardCompareCol,
-    'Split of categories by group',
-    `Count the number of times a grouping of categories appears across two fields.`,
-    '<i class="fas fa-table"></i>',
-    '../images/category-grouping-distribution-preview.png'
-  );
 
   // Create the sum by category  card
   const analysisOptionCardNumCompareCol = document.createElement('div');
@@ -1027,6 +1004,31 @@ function displayAnalysisOptions() {
     '../images/avg-preview.png'
   );
 
+// Create the comparative analysis column and card
+const analysisOptionCardCompareCol = document.createElement('div');
+analysisOptionCardCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
+createCardInCol(
+  'comparative-analysis-option',
+  analysisOptionCardCompareCol,
+  'Split by grouped categories',
+  `Count the number of times a grouping of categories appears across two fields.`,
+  '<i class="fas fa-table"></i>',
+  '../images/category-grouping-distribution-preview.png'
+);
+
+   // Create the numerical analysis column and card
+   const analysisOptionCardNumCol = document.createElement('div');
+   analysisOptionCardNumCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
+   createCardInCol(
+     'number-analysis-option',
+     analysisOptionCardNumCol,
+     'Split by range',
+     `Count the number of times a range of numbers appears within a field.`,
+     '<i class="fa-solid fa-chart-area"></i>',
+     '../images/number-distribution-preview.png'
+   );
+ 
+
   // Create the trend analysis column and card
   const analysisOptionCardTrendCol = document.createElement('div');
   analysisOptionCardTrendCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
@@ -1041,10 +1043,10 @@ function displayAnalysisOptions() {
 
   // Append analysis columns to the row
   analysisOptionCardsRow1.appendChild(analysisOptionCardBasicCol);
-  analysisOptionCardsRow1.appendChild(analysisOptionCardNumCol);
-  analysisOptionCardsRow1.appendChild(analysisOptionCardCompareCol);
-  analysisOptionCardsRow2.appendChild(analysisOptionCardNumCompareCol);
-  analysisOptionCardsRow2.appendChild(analysisOptionAvgCol);
+  analysisOptionCardsRow1.appendChild(analysisOptionCardNumCompareCol);
+  analysisOptionCardsRow1.appendChild(analysisOptionAvgCol);
+  analysisOptionCardsRow2.appendChild(analysisOptionCardCompareCol);
+  analysisOptionCardsRow2.appendChild(analysisOptionCardNumCol);
   analysisOptionCardsRow2.appendChild(analysisOptionCardTrendCol);
 
   // Append the row to the step body
@@ -1241,7 +1243,7 @@ function handleIWantTo(event) {
   const compareListAnchor = document.createElement('a');
   compareListAnchor.classList.add('dropdown-item');
   const compareListAnchorText = document.createElement('label');
-  compareListAnchorText.textContent = 'split of categories by group';
+  compareListAnchorText.textContent = 'split by grouped categories';
   compareListAnchor.setAttribute('data-value', 'comparative');
 
   const sumListItem = document.createElement('li');
@@ -1263,14 +1265,6 @@ function handleIWantTo(event) {
   simpleListItem.appendChild(simpleListAnchor);
   iWantMenu.appendChild(simpleListItem);
 
-  numberListAnchor.appendChild(numberListAnchorText);
-  numberListItem.appendChild(numberListAnchor);
-  iWantMenu.appendChild(numberListItem);
-
-  compareListAnchor.appendChild(compareListAnchorText);
-  compareListItem.appendChild(compareListAnchor);
-  iWantMenu.appendChild(compareListItem);
-
   sumListAnchor.appendChild(sumListAnchorText);
   sumListItem.appendChild(sumListAnchor);
   iWantMenu.appendChild(sumListItem);
@@ -1278,6 +1272,15 @@ function handleIWantTo(event) {
   avgListAnchor.appendChild(avgListAnchorText);
   avgListItem.appendChild(avgListAnchor);
   iWantMenu.appendChild(avgListItem);
+
+  
+  compareListAnchor.appendChild(compareListAnchorText);
+  compareListItem.appendChild(compareListAnchor);
+  iWantMenu.appendChild(compareListItem);
+
+  numberListAnchor.appendChild(numberListAnchorText);
+  numberListItem.appendChild(numberListAnchor);
+  iWantMenu.appendChild(numberListItem);
 
   // Append elements to the dropdown container
   iWantdropdownContainer.appendChild(iWantSelect);
@@ -1321,7 +1324,7 @@ function handleIWantTo(event) {
   if (event === 'comparative' || event === 'sum-comparative' || event === 'average-comparative') {
     // Update select.textContent
     if (event === 'comparative') {
-      iWantSelect.textContent = 'Split of categories by group';
+      iWantSelect.textContent = 'split by grouped categories';
     }
     if (event === 'sum-comparative') {
       iWantSelect.textContent = 'sum by category';
@@ -1378,7 +1381,7 @@ function handleIWantTo(event) {
     if (target.innerText === 'split by range') {
       analysisType = 'number';
     }
-    if (target.innerText === 'split of categories by group') {
+    if (target.innerText === 'split by grouped categories') {
       analysisType = 'comparative';
     }
     if (target.innerText === 'sum by category') {
