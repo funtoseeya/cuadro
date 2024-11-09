@@ -49,7 +49,7 @@ function checkEmailInLocalStorage() {
 
   if (registered) {
     // If an email exists, skip the form and go directly to the next step
-checkEmailInLocalStorage();
+    checkLocalStorageData();
   } else {
     // If no email exists, show the email input form
     handleEmail();
