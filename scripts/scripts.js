@@ -38,7 +38,7 @@ const guessedCSVheaderClassification = {}; // To store the guessed classificatio
 let analysisObjects = []; // Array to store analysis object instances
 let nextAnalysisId = 1; // Unique ID counter
 let currentAnalysisId = 1; //what analysis object the user is currently analyzing. set to 1 as the default, will update later.
-let colorPalette = ['#176BA0', '#19AADE', '#1AC9E6', '#caf0f8','#52b69a','#1DE3BD', '#CDFDD2', '#C7F9EE','#b66ee8','#d689ff','#f2a8ff','#ffc4ff','#ebd9fc' ];
+let colorPalette = ['#176BA0', '#19AADE', '#1AC9E6', '#caf0f8', '#52b69a', '#1DE3BD', '#CDFDD2', '#C7F9EE', '#b66ee8', '#d689ff', '#f2a8ff', '#ffc4ff', '#ebd9fc'];
 
 let bookmarks = [];
 
@@ -49,7 +49,7 @@ function checkEmailInLocalStorage() {
 
   if (registered) {
     // If an email exists, skip the form and go directly to the next step
-    checkLocalStorageData();
+checkEmailInLocalStorage();
   } else {
     // If no email exists, show the email input form
     handleEmail();
@@ -57,8 +57,8 @@ function checkEmailInLocalStorage() {
 }
 
 function checkLocalStorageData() {
-  const localStorageData = localStorage.getItem('parsedCSVData');
-  if (localStorageData) {
+  const dropdownStateInStorage = localStorage.getItem('dropdownState');
+  if (dropdownStateInStorage) {
     const topNav = document.getElementById('top-nav');
     topNav.style.display = 'block';
 
@@ -192,9 +192,10 @@ function handleEmail() {
 
 //sign out 
 function signOut() {
-  localStorage.removeItem('parsedCSVData');
   localStorage.removeItem('registered');
+  localStorage.removeItem('parsedCSVData');
   localStorage.removeItem('selectedFile');
+  localStorage.removeItem('dropdownState');
   handleEmail();
 }
 
@@ -229,18 +230,18 @@ function createUploadStepContent() {
     'flex-column',
     'text-center',
     'align-items-center',
-    'justify-content-center'
+    'justify-content-center',
+    'mt-5'
   );
 
-  uploadContainer.style.marginTop = '50px';
 
   //create upload header
-  const uploadHeader = document.createElement('h1');
+  const uploadHeader = document.createElement('h2');
   uploadHeader.textContent = `Upload your CSV file`;
   uploadContainer.appendChild(uploadHeader);
 
   // Create and add the upload text with line break
-  const uploadText = document.createElement('h5');
+  const uploadText = document.createElement('h6');
   uploadText.className = 'mb-3';
   uploadText.innerHTML = `We'll help you create several insightful charts and comparisons in just a few clicks.`;
   uploadContainer.appendChild(uploadText);
@@ -384,7 +385,7 @@ async function handleFileSelection(event) {
         alert('Please ensure that the titles of each column header are unique.');
         return; // exit function early
       }
-      setupAnalyzeStep();
+      reviewData();
     };
     reader.readAsText(file); // Reads the content of the file as a text string
   };
@@ -429,6 +430,7 @@ function generateReviewTable(body) {
   const tbody = document.createElement('tbody');
   table.appendChild(tbody);
 
+  
   // Use saved dropdown state
   dropdownState.forEach(({ header, value }) => {
     //for each item in the dropdown state array...
@@ -491,52 +493,59 @@ function generateReviewTable(body) {
 
 // Function to read a CSV file and convert it to an array
 function parseCSVToArray(file) {
-  // Function to convert CSV string to an array of objects
-  function csvToArray(csv) {
+  return new Promise((resolve, reject) => {
+    // Function to convert CSV string to an array of objects
+    function csvToArray(csv) {
+      // Split the CSV into lines and filter out any empty lines
+      const lines = csv.match(/(?:[^\n"]|"[^"]*")+/g).filter(line => line.trim() !== '');
 
-    // Split the CSV into lines and filter out any empty lines
-    const lines = csv.match(/(?:[^\n"]|"[^"]*")+/g).filter(line => line.trim() !== '');
+      // Split the first line into headers
+      const headers = lines[0].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
 
-    // Split the first line into headers
-    const headers = lines[0].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+      // Map the remaining lines to objects with keys from headers
+      const data = lines.slice(1).map(line => {
+        const values = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/); // Split each line into values
+        let obj = {}; // Initialize an empty object
 
-    // Map the remaining lines to objects with keys from headers
-    const data = lines.slice(1).map(line => {
-      const values = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/); // Split each line into values
-      let obj = {}; // Initialize an empty object
+        // Assign each value to the corresponding header in the object
+        headers.forEach((header, index) => {
+          obj[header] = values[index];
+        });
 
-      // Assign each value to the corresponding header in the object
-      headers.forEach((header, index) => {
-        obj[header] = values[index];
+        return obj; // Return the constructed object
       });
 
-      return obj; // Return the constructed object
-    });
+      return data; // Return the array of objects
+    }
 
-    return data; // Return the array of objects
-  }
+    const reader = new FileReader(); // Create a new FileReader instance
 
-  const reader = new FileReader(); // Create a new FileReader instance
+    // Define what to do when the file is successfully read
+    reader.onload = function (e) {
+      const csv = e.target.result; // Get the content of the file
+      parsedCSVData = csvToArray(csv); // Convert CSV to array and store it globally
+      localStorage.setItem('parsedCSVData', JSON.stringify(parsedCSVData));
 
-  // Define what to do when the file is successfully read
-  reader.onload = function (e) {
-    const csv = e.target.result; // Get the content of the file
-    parsedCSVData = csvToArray(csv); // Convert CSV to array and store it globally
-    localStorage.setItem('parsedCSVData', JSON.stringify(parsedCSVData));
+      // Log the parsed data for testing
+      console.log('Parsed CSV Data:', parsedCSVData);
 
-    // Log the parsed data for testing
-    console.log('Parsed CSV Data:', parsedCSVData);
+      // This guesses what each field's types are
+      guessDataTypes();
 
-    //this guesses what each fields types are
-    guessDataTypes();
+      // This creates the filter options
+      createCategoricalArrayForFilterPanel();
 
-    // this creates the filter options
-    createCategoricalArrayForFilterPanel();
+      resolve(); // Resolve the promise when done
+    };
 
-  };
+    // Define what to do if there's an error reading the file
+    reader.onerror = function () {
+      reject(new Error('Error reading file')); // Reject the promise with an error
+    };
 
-  // Read the file as a text string
-  reader.readAsText(file);
+    // Read the file as a text string
+    reader.readAsText(file);
+  });
 }
 
 
@@ -552,11 +561,15 @@ function saveDataTypestoArray() {
     // Add an object with the header and the selected dropdown value to the dropdownState array
     dropdownState.push({ header: header, value: dropdown.value });
   });
+
+  localStorage.setItem('dropdownState', JSON.stringify(dropdownState));
+
 }
 
 function guessDataTypes() {
 
   const headers = Object.keys(parsedCSVData[0]);//get an array listing each header. 
+  dropdownState=[];
 
   headers.forEach(header => {
     const values = parsedCSVData.map(row => row[header]); //an array of all the values relating to that header in the big array
@@ -587,7 +600,7 @@ function guessDataTypes() {
     dropdownState.push({ header: header, value: guessedCSVheaderClassification[header] });
 
   })
-
+  console.log('guessed data types: ', dropdownState);
 }
 
 function NumberFormattingWarning(event) {
@@ -633,10 +646,6 @@ function setupAnalyzeStep() {
 
   window.addEventListener('beforeunload', alertUnsavedChanges);
 
-
-
-
-
   //create the bookmarks button
   const TopNavButtonContainer = document.getElementById('top-nav-button-container');
   const bookmarkButtonContainer = document.getElementById('bookmark-button-container');
@@ -653,29 +662,24 @@ function setupAnalyzeStep() {
 
 
   displayAnalysisOptions();
+
   window.scrollTo({
     top: 0,
     behavior: 'smooth' // Optional: 'smooth' for a smooth scroll effect, or 'auto' for instant scroll
   });
 
 
-  const localStorageData = localStorage.getItem('parsedCSVData');
+  const dropdownStateInStorage = localStorage.getItem('dropdownState');
 
-  if (!localStorageData) {
-    //this triggers a cascade of functions...transform csv into array, guess types, assign to dropdown state...
-    parseCSVToArray(selectedFile);
-
-  }
-
-  else {
+  if (dropdownStateInStorage) {
+    
     parsedCSVData = JSON.parse(localStorage.getItem('parsedCSVData'));
-    guessDataTypes();
+    dropdownState = JSON.parse(localStorage.getItem('dropdownState'));
     createCategoricalArrayForFilterPanel();
 
   }
   //create a new analysis object
   createAnalysisObject();
-
 
 }
 
@@ -705,6 +709,162 @@ function createCategoricalArrayForFilterPanel() {
   CategoricalArray = result;
 
   return result;
+}
+
+
+//REVIEW STEP
+
+async function reviewData() {
+  window.addEventListener('beforeunload', alertUnsavedChanges);
+
+  await parseCSVToArray(selectedFile);
+  console.log('dropdownstate', dropdownState);
+
+
+  const stepBody = document.getElementById('step-body');
+  stepBody.innerHTML = '';
+  stepBody.style.marginBottom = '100px';
+
+
+  const reviewContainer = document.createElement('div');
+  reviewContainer.classList.add('row','mt-3');
+
+
+  stepBody.appendChild(reviewContainer);
+
+  //create review title, text row
+  const reviewHeaderRow = document.createElement('div');
+  reviewHeaderRow.classList.add('row');
+  reviewContainer.appendChild(reviewHeaderRow);
+
+  //create review header col and contents
+  const reviewHeaderCol = document.createElement('div');
+  reviewHeaderCol.classList.add('col-12');
+  reviewHeaderRow.appendChild(reviewHeaderCol);
+
+
+  const reviewHeader = document.createElement('h5');
+  reviewHeader.textContent = `Does this look right?`;
+  const reviewText = document.createElement('p');
+  reviewText.innerHTML = `Please take a moment to review how we categorized your data.`;
+  reviewHeaderCol.appendChild(reviewHeader);
+  reviewHeaderCol.appendChild(reviewText);
+
+
+  //build up the body
+  const dataTypeSettingsRow = document.createElement('div');
+  dataTypeSettingsRow.classList.add('row');
+  const dataTypeSettingsCol = document.createElement('div');
+  dataTypeSettingsCol.classList.add('col-12');
+  reviewContainer.appendChild(dataTypeSettingsRow);
+  dataTypeSettingsRow.appendChild(dataTypeSettingsCol);
+
+  // Create the accordion
+  const accordion = document.createElement('div');
+  accordion.classList.add('accordion', 'w-100', 'mb-3');
+  accordion.id = 'dataTypeAccordion';
+
+  accordion.innerHTML = `
+  <div class="accordion-item">
+      <p class="accordion-header" id="headingOne">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+<i class="fa-solid fa-circle-question" style="margin-right:1rem" aria-hidden="true" ></i>
+              What am I supposed to do here?
+          </button>
+      </p>
+      <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
+          <div class="accordion-body">
+The table below shows the fields we found in your data. We've made educated guesses on how to categorize them, but please review and adjust as needed. You can also re-upload a new file or change these later in the Data Settings panel.
+
+              <ul>
+                  <li><strong>Categorical:</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. A field with unique values doesn't fall into Categorical - it should be set to Ignore.</li>
+                  <li><strong>Numerical:</strong> This is for any field containing numerical values. We will compute these by summing or averaging them, rather than counting them.</li>
+                                      <li><strong>Date / Time:</strong> This is for any field containing timestamps. This is especially useful for generating trend analyses.</li>
+                  <li><strong>Ignore:</strong> Assign this to any field that doesn't fall into the above categories. e.g. comments, names, unique identifiers, etc.</li>
+
+              </ul>
+          </div>
+      </div>
+  </div>
+`;
+
+  dataTypeSettingsCol.appendChild(accordion);
+
+  //display the file name
+  const fileName = document.createElement('p');
+  const selectedFileInStorage = localStorage.getItem('selectedFile');
+  fileName.textContent = 'Uploaded file: ' + selectedFileInStorage;
+  dataTypeSettingsCol.appendChild(fileName);
+
+  generateReviewTable(dataTypeSettingsCol);
+
+  //button panel
+
+  const buttonPanel = document.getElementById('button-panel');
+  buttonPanel.style.position = 'fixed';
+  buttonPanel.style.backgroundColor = 'white';
+  buttonPanel.style.bottom = '0px';
+  buttonPanel.style.width = '100%';
+  buttonPanel.style.padding = '1rem';
+  buttonPanel.style.boxShadow = '0px -4px 10px rgba(0, 0, 0, 0.1)';
+
+
+  const buttonRow = document.createElement('div');
+  buttonRow.className = 'row';
+  buttonPanel.appendChild(buttonRow);
+
+  //redo button
+  const leftCol = document.createElement('div');
+  leftCol.id = 'button-panel-left-column';
+  leftCol.className = 'col-6';
+  const redoButton = document.createElement('button');
+  redoButton.className = 'btn btn-secondary';
+  redoButton.innerHTML = `<i class="fa-solid fa-rotate-left"></i> Restart`;
+  buttonRow.appendChild(leftCol);
+  leftCol.append(redoButton);
+
+  redoButton.addEventListener('click', function () {
+    localStorage.removeItem('parsedCSVData');
+    localStorage.removeItem('selectedFile');
+    localStorage.removeItem('dropdownState');
+    location.reload();
+  })
+
+  // save button
+  const rightCol = document.createElement('div');
+  rightCol.id = 'button-panel-right-column';
+  rightCol.classList.add('col-6', 'd-flex', 'justify-content-end');
+  const SaveButton = document.createElement('button');
+  SaveButton.classList.add('btn', 'btn-primary');
+  SaveButton.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Looks good to me`;
+  rightCol.appendChild(SaveButton);
+  buttonRow.appendChild(rightCol);
+
+  SaveButton.addEventListener('click', function () {
+
+    //replace save button with data settings button
+    SaveButton.remove();
+    const buttonPanelRightColumn = document.getElementById('button-panel-right-column');
+    const dataTypeButton = document.createElement('a');
+    dataTypeButton.classList.add('btn', 'btn-secondary');
+    dataTypeButton.innerHTML = '<i class="fa-solid fa-gear"></i> Data Settings';
+    buttonPanelRightColumn.appendChild(dataTypeButton);
+
+    dataTypeButton.addEventListener('click', function () {
+      openDataTypeSettingsOverlay();
+    })
+
+    //save the review table's configuration into an array
+    saveDataTypestoArray();
+    // run the function that creates the Categorical array, which is needed for the filter panel
+    createCategoricalArrayForFilterPanel();
+    //create a new analysis object
+    createAnalysisObject();
+    setupAnalyzeStep();
+
+  })
+
+
 }
 
 function openDataTypeSettingsOverlay() {
@@ -810,26 +970,27 @@ function openDataTypeSettingsOverlay() {
   accordion.id = 'dataTypeAccordion';
 
   accordion.innerHTML = `
-    <div class="accordion-item mt-3">
-        <h2 class="accordion-header" id="headingOne">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                <i class="fa fa-info-circle me-2" aria-hidden="true"></i>
-                Review your fields' assigned data types
-            </button>
-        </h2>
-        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
-            <div class="accordion-body">
-                 We've made some calculated but imperfect guesses at assigning data types to your fields. Please take a minute to review them.
-                <ul>
-                    <li><strong>Categorical:</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. A field with unique values doesn't fall into Categorical - it should be set to Ignore.</li>
-                    <li><strong>Numerical:</strong> This is for any field containing numerical values. We will compute these by summing them, rather than counting them.</li>
-                                        <li><strong>Date / Time:</strong> This is for any field containing timestamps. This is especially useful for generating time-based comparisons, such as line charts and so on.</li>
-                    <li><strong>Ignore:</strong> Assign this to any field that doesn't fall into the above categories. e.g. comments, names, unique identifiers, etc.</li>
+  <div class="accordion-item mt-3">
+      <h2 class="accordion-header" id="headingOne">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+<i class="fa-solid fa-circle-question" style="margin-right:1rem" aria-hidden="true" ></i>
+              What is this?
+          </button>
+      </h2>
+      <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
+          <div class="accordion-body">
+The table below displays your data's structure and how it has been categorized. You may update the categories if need be.
 
-                </ul>
-            </div>
-        </div>
-    </div>
+              <ul>
+                  <li><strong>Categorical:</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. A field with unique values doesn't fall into Categorical - it should be set to Ignore.</li>
+                  <li><strong>Numerical:</strong> This is for any field containing numerical values. We will compute these by summing or averaging them, rather than counting them.</li>
+                                      <li><strong>Date / Time:</strong> This is for any field containing timestamps. This is especially useful for generating trend analyses.</li>
+                  <li><strong>Ignore:</strong> Assign this to any field that doesn't fall into the above categories. e.g. comments, names, unique identifiers, etc.</li>
+
+              </ul>
+          </div>
+      </div>
+  </div>
 `;
 
   dataTypeSettingsCol.appendChild(accordion);
@@ -849,35 +1010,8 @@ function displayAnalysisOptions() {
   stepBody.innerHTML = '';
 
 
-  // Create the restart button 
-  const buttonRow = document.createElement('div');
-  buttonRow.classList.add('row', 'mb-2');
-  const restartColumn = document.createElement('div');
-  restartColumn.classList.add('col-6', 'd-flex', 'justify-content-start', 'align-items-center');
-  buttonRow.appendChild(restartColumn);
-  stepBody.appendChild(buttonRow);
-  const restartButton = document.createElement('a');
-  restartButton.classList.add('text-decoration-none', 'tertiary-button')
-  restartButton.innerHTML = `<i class="fas fa-rotate-left" style="padding-right:0.2rem"></i>New Analysis`;
-  restartButton.addEventListener('click', () => {
-    localStorage.removeItem('parsedCSVData');
-    localStorage.removeItem('selectedFile');
-    location.reload();
-  }); // a confirmation dialog will appear due to a function above
-  restartColumn.appendChild(restartButton);
 
-  //create the data type settings button
-  const dataTypeSettingsColumn = document.createElement('div');
-  dataTypeSettingsColumn.classList.add('col-6', 'd-flex', 'justify-content-end', 'align-items-center');
-  const dataTypeButton = document.createElement('a');
-  dataTypeButton.classList.add('text-decoration-none', 'tertiary-button');
-  dataTypeButton.innerHTML = '<i class="fa-solid fa-gear"></i> Data Settings';
-  dataTypeSettingsColumn.appendChild(dataTypeButton);
-  buttonRow.appendChild(dataTypeSettingsColumn);
 
-  dataTypeButton.addEventListener('click', function () {
-    openDataTypeSettingsOverlay();
-  })
 
 
   // Create the "i want to text", col and row
@@ -888,10 +1022,16 @@ function displayAnalysisOptions() {
   analysisOptionTextColumn.classList.add('col-12');
   const analysisOptionText = document.createElement('h5');
   analysisOptionText.textContent = 'What would you like to see?';
+
+  const fileNameLabel = document.createElement('p');
+
+  const selectedFileInStorage = localStorage.getItem('selectedFile');
+  fileNameLabel.textContent = 'Uploaded file: ' + selectedFileInStorage;
+
   analysisOptionTextColumn.appendChild(analysisOptionText);
+  analysisOptionTextColumn.appendChild(fileNameLabel);
   analysisOptionTextRow.appendChild(analysisOptionTextColumn);
   stepBody.appendChild(analysisOptionTextRow);
-
 
 
 
@@ -1003,30 +1143,30 @@ function displayAnalysisOptions() {
     '../images/avg-preview.png'
   );
 
-// Create the comparative analysis column and card
-const analysisOptionCardCompareCol = document.createElement('div');
-analysisOptionCardCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
-createCardInCol(
-  'comparative-analysis-option',
-  analysisOptionCardCompareCol,
-  'Split by grouped categories',
-  `Count the number of times a grouping of categories appears across two fields.`,
-  '<i class="fas fa-table"></i>',
-  '../images/category-grouping-distribution-preview.png'
-);
+  // Create the comparative analysis column and card
+  const analysisOptionCardCompareCol = document.createElement('div');
+  analysisOptionCardCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
+  createCardInCol(
+    'comparative-analysis-option',
+    analysisOptionCardCompareCol,
+    'Split by grouped categories',
+    `Count the number of times a grouping of categories appears across two fields.`,
+    '<i class="fas fa-table"></i>',
+    '../images/category-grouping-distribution-preview.png'
+  );
 
-   // Create the numerical analysis column and card
-   const analysisOptionCardNumCol = document.createElement('div');
-   analysisOptionCardNumCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
-   createCardInCol(
-     'number-analysis-option',
-     analysisOptionCardNumCol,
-     'Split by range',
-     `Count the number of times a range of numbers appears within a field.`,
-     '<i class="fa-solid fa-chart-area"></i>',
-     '../images/number-distribution-preview.png'
-   );
- 
+  // Create the numerical analysis column and card
+  const analysisOptionCardNumCol = document.createElement('div');
+  analysisOptionCardNumCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
+  createCardInCol(
+    'number-analysis-option',
+    analysisOptionCardNumCol,
+    'Split by range',
+    `Count the number of times a range of numbers appears within a field.`,
+    '<i class="fa-solid fa-chart-area"></i>',
+    '../images/number-distribution-preview.png'
+  );
+
 
   // Create the trend analysis column and card
   const analysisOptionCardTrendCol = document.createElement('div');
@@ -1121,19 +1261,6 @@ function handleIWantTo(event) {
 
   backButton.addEventListener('click', displayAnalysisOptions);
 
-
-  //create the data type settings button
-  const dataTypeSettingsColumn = document.createElement('div');
-  dataTypeSettingsColumn.classList.add('col-6', 'd-flex', 'justify-content-end', 'align-items-center');
-  const dataTypeButton = document.createElement('a');
-  dataTypeButton.classList.add('text-decoration-none', 'tertiary-button');
-  dataTypeButton.innerHTML = '<i class="fa-solid fa-gear"></i> Data Settings';
-  dataTypeSettingsColumn.appendChild(dataTypeButton);
-  backRow.appendChild(dataTypeSettingsColumn);
-
-  dataTypeButton.addEventListener('click', function () {
-    openDataTypeSettingsOverlay();
-  })
 
   // Create the container div and set its class
   const promptRow = document.createElement('div');
@@ -1250,7 +1377,7 @@ function handleIWantTo(event) {
   avgListItem.appendChild(avgListAnchor);
   iWantMenu.appendChild(avgListItem);
 
-  
+
   compareListAnchor.appendChild(compareListAnchorText);
   compareListItem.appendChild(compareListAnchor);
   iWantMenu.appendChild(compareListItem);
@@ -2376,14 +2503,14 @@ class AnalysisObject {
 
       // Increment the sum for the current value in the group
       groupSums[group] += value; // Sum the numerical values
-      
+
     }
 
     //round as needed to the nearest decimal if applicable
 
     const groupNames = new Set(filteredData.map(row => row[groupedBy]));
     groupNames.forEach(group => {
-      groupSums[group]= Math.round(groupSums[group] * 100) / 100;
+      groupSums[group] = Math.round(groupSums[group] * 100) / 100;
     })
 
 
@@ -3299,12 +3426,12 @@ function renderComparativeChartInCard(chartObject, container) {
   cardBody.appendChild(cardTitleRow);
   cardBody.appendChild(cardFiltersRow);
 
-      // Append the card body to the card
-      card.appendChild(cardBody);
+  // Append the card body to the card
+  card.appendChild(cardBody);
 
-      // Append the card to the container
-      container.appendChild(card);
-  
+  // Append the card to the container
+  container.appendChild(card);
+
 
   const cardOptionsColumn = document.createElement('div');
   cardOptionsColumn.classList.add(
@@ -3426,7 +3553,7 @@ function renderComparativeChartInCard(chartObject, container) {
     cardFiltersColumn.appendChild(cardFilter);
   }
 
-  function createCanvas(){
+  function createCanvas() {
 
     const existingCanvas = cardBody.querySelector('canvas'); //check in this cardBody to see if there's already a canvas (in case we are changing type)
     if (existingCanvas) {
@@ -3447,7 +3574,7 @@ function renderComparativeChartInCard(chartObject, container) {
       barOptions = chartObject.verticalClusteredColumnChartOptions;
 
     }
-   
+
 
     //calculate how many bars there will be and use that to calculate the canvas height
     let totalArrayValues = 0;
@@ -3518,11 +3645,11 @@ function renderSumAvgChartInCard(chartObject, container) {
   cardBody.appendChild(cardTitleRow);
   cardBody.appendChild(cardFiltersRow);
 
-    // Append the card body to the card
-    card.appendChild(cardBody);
+  // Append the card body to the card
+  card.appendChild(cardBody);
 
-    // Append the card to the container
-    container.appendChild(card);
+  // Append the card to the container
+  container.appendChild(card);
 
 
   const cardOptionsColumn = document.createElement('div');
@@ -3669,7 +3796,7 @@ function renderSumAvgChartInCard(chartObject, container) {
     // Append the canvas to the card body
     cardBody.appendChild(canvas);
 
-    
+
     // Render the chart on the canvas
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
@@ -3725,28 +3852,28 @@ function addRemoveBookmark(target, chart) {
   //if bookmark is activated
   if (isActive === 'false') {
 
-//update all instances of button (could be 2 instances if its in bookmark overlay.
-const bookmarkButtons = document.querySelectorAll(`[bookmarkButtonIdentifier="${chart.id}"]`);
+    //update all instances of button (could be 2 instances if its in bookmark overlay.
+    const bookmarkButtons = document.querySelectorAll(`[bookmarkButtonIdentifier="${chart.id}"]`);
 
-for (let i = 0; i < bookmarkButtons.length; i++) {
-  bookmarkButtons[i].setAttribute('isActive', 'true');
-  bookmarkButtons[i].innerHTML = '<i class="fa-solid fa-bookmark"></i>';
-  bookmarkButtons[i].classList.remove('btn-secondary');
-  bookmarkButtons[i].classList.add('btn-primary');
-}
+    for (let i = 0; i < bookmarkButtons.length; i++) {
+      bookmarkButtons[i].setAttribute('isActive', 'true');
+      bookmarkButtons[i].innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+      bookmarkButtons[i].classList.remove('btn-secondary');
+      bookmarkButtons[i].classList.add('btn-primary');
+    }
 
     //update chartobject and push to bookmarks array
     chart.bookmarked = true;
     bookmarks.push(chart);
 
-     //if you're ractivating from bookmarks overlay, we should reactivate any chart object
-     const currentAnalysisObject = analysisObjects.find(obj => obj.id === currentAnalysisId); //find the current analysis object
-     for (let i = 0; i < currentAnalysisObject.chartObjects.length; i++) {//for each displayed chart object
-       if (currentAnalysisObject.chartObjects[i].id === chart.id) { //if the chart matches the id of the object just unbookmarked
-         currentAnalysisObject.chartObjects[i].bookmarked = true; //unbookmark the chart object (if hasn't been done already)
-         break; // Exit the loop as we found the matching chart object
-       }
-     }
+    //if you're ractivating from bookmarks overlay, we should reactivate any chart object
+    const currentAnalysisObject = analysisObjects.find(obj => obj.id === currentAnalysisId); //find the current analysis object
+    for (let i = 0; i < currentAnalysisObject.chartObjects.length; i++) {//for each displayed chart object
+      if (currentAnalysisObject.chartObjects[i].id === chart.id) { //if the chart matches the id of the object just unbookmarked
+        currentAnalysisObject.chartObjects[i].bookmarked = true; //unbookmark the chart object (if hasn't been done already)
+        break; // Exit the loop as we found the matching chart object
+      }
+    }
 
 
     console.log('bookmarks: ', bookmarks);
