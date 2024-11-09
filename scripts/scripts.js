@@ -430,7 +430,7 @@ function generateReviewTable(body) {
   const tbody = document.createElement('tbody');
   table.appendChild(tbody);
 
-  
+
   // Use saved dropdown state
   dropdownState.forEach(({ header, value }) => {
     //for each item in the dropdown state array...
@@ -569,7 +569,7 @@ function saveDataTypestoArray() {
 function guessDataTypes() {
 
   const headers = Object.keys(parsedCSVData[0]);//get an array listing each header. 
-  dropdownState=[];
+  dropdownState = [];
 
   headers.forEach(header => {
     const values = parsedCSVData.map(row => row[header]); //an array of all the values relating to that header in the big array
@@ -646,6 +646,8 @@ function setupAnalyzeStep() {
 
   window.addEventListener('beforeunload', alertUnsavedChanges);
 
+
+
   //create the bookmarks button
   const TopNavButtonContainer = document.getElementById('top-nav-button-container');
   const bookmarkButtonContainer = document.getElementById('bookmark-button-container');
@@ -662,6 +664,7 @@ function setupAnalyzeStep() {
 
 
   displayAnalysisOptions();
+  loadButtonPanel();
 
   window.scrollTo({
     top: 0,
@@ -672,7 +675,7 @@ function setupAnalyzeStep() {
   const dropdownStateInStorage = localStorage.getItem('dropdownState');
 
   if (dropdownStateInStorage) {
-    
+
     parsedCSVData = JSON.parse(localStorage.getItem('parsedCSVData'));
     dropdownState = JSON.parse(localStorage.getItem('dropdownState'));
     createCategoricalArrayForFilterPanel();
@@ -727,7 +730,7 @@ async function reviewData() {
 
 
   const reviewContainer = document.createElement('div');
-  reviewContainer.classList.add('row','mt-3');
+  reviewContainer.classList.add('row', 'mt-3');
 
 
   stepBody.appendChild(reviewContainer);
@@ -799,13 +802,26 @@ The table below shows the fields we found in your data. We've made educated gues
   generateReviewTable(dataTypeSettingsCol);
 
   //button panel
+  loadButtonPanel();
+
+
+
+}
+
+function loadButtonPanel() {
 
   const buttonPanel = document.getElementById('button-panel');
+
+  //empty it if it's got anything in it
+  if (buttonPanel) {
+    buttonPanel.innerHTML = '';
+  }
+
   buttonPanel.style.position = 'fixed';
   buttonPanel.style.backgroundColor = 'white';
   buttonPanel.style.bottom = '0px';
   buttonPanel.style.width = '100%';
-  buttonPanel.style.padding = '1rem';
+  buttonPanel.style.padding = '0.75rem';
   buttonPanel.style.boxShadow = '0px -4px 10px rgba(0, 0, 0, 0.1)';
 
 
@@ -830,20 +846,39 @@ The table below shows the fields we found in your data. We've made educated gues
     location.reload();
   })
 
-  // save button
-  const rightCol = document.createElement('div');
-  rightCol.id = 'button-panel-right-column';
-  rightCol.classList.add('col-6', 'd-flex', 'justify-content-end');
-  const SaveButton = document.createElement('button');
-  SaveButton.classList.add('btn', 'btn-primary');
-  SaveButton.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Looks good to me`;
-  rightCol.appendChild(SaveButton);
-  buttonRow.appendChild(rightCol);
+  //if we're in the review step, we show save button.
+  const dropdownStateInStorage = localStorage.getItem('dropdownState');
+  if (!dropdownStateInStorage) {
 
-  SaveButton.addEventListener('click', function () {
+    // save button
+    const rightCol = document.createElement('div');
+    rightCol.id = 'button-panel-right-column';
+    rightCol.classList.add('col-6', 'd-flex', 'justify-content-end');
+    const SaveButton = document.createElement('button');
+    SaveButton.classList.add('btn', 'btn-primary');
+    SaveButton.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Looks good to me`;
+    rightCol.appendChild(SaveButton);
+    buttonRow.appendChild(rightCol);
 
-    //replace save button with data settings button
-    SaveButton.remove();
+    SaveButton.addEventListener('click', function () {
+
+      //replace save button with data settings button
+      SaveButton.remove();
+
+
+      //save the review table's configuration into an array
+      saveDataTypestoArray();
+      // run the function that creates the Categorical array, which is needed for the filter panel
+      createCategoricalArrayForFilterPanel();
+      //create a new analysis object
+      createAnalysisObject();
+      setupAnalyzeStep();
+
+    })
+
+  }
+  //otherwise we show the data type button
+  else {
     const buttonPanelRightColumn = document.getElementById('button-panel-right-column');
     const dataTypeButton = document.createElement('a');
     dataTypeButton.classList.add('btn', 'btn-secondary');
@@ -854,18 +889,10 @@ The table below shows the fields we found in your data. We've made educated gues
       openDataTypeSettingsOverlay();
     })
 
-    //save the review table's configuration into an array
-    saveDataTypestoArray();
-    // run the function that creates the Categorical array, which is needed for the filter panel
-    createCategoricalArrayForFilterPanel();
-    //create a new analysis object
-    createAnalysisObject();
-    setupAnalyzeStep();
-
-  })
-
-
+  }
 }
+
+
 
 function openDataTypeSettingsOverlay() {
 
