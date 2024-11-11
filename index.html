@@ -23,7 +23,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0/dist/chart.min.js"></script><!--include chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script> <!--include charts.js labels-->
@@ -49,63 +51,72 @@
     <div id="bookmarks-overlay" class="bookmarks-overlay"></div>
     <div id="autoDataTypetoastContainer"></div>
 
-    <div id="data-type-settings-overlay" class="data-type-settings-overlay">     
+    <div id="data-type-settings-overlay" class="data-type-settings-overlay">
         <!--notification for when user selects date-time -->
         <div id="toastContainer"></div>
     </div>
 
 
     <!--The top navigation bar-->
-    <div id='top-nav' style="border-bottom: 1px solid #e5e5e5;display:none">
-        <div class="container">
-            <div class="row mt-2 mb-2">
-                <div class="col-12 col-md-8 offset-md-2">
-                    <div class="row">
-                        <div class="col-6 d-flex align-items-center justify-content-start">
-                            <a id="cuadro-header-logo" href="#" onclick="location.reload(); return false;"
-                                style="text-decoration: none;">
-                                <h1 style="margin-bottom: 0px; color: var(--primary);">
-                                    <i class="fa-solid fa-signal" style="padding-right: 0.2rem;"></i>Cuadro
-                                </h1>
-                            </a>
-                        </div>
-                        <div class="col-5 d-flex align-items-center justify-content-end" id="top-nav-button-container">
-                        </div>
-                        <div class="col-1 d-flex align-items-center justify-content-end" id="top-nav-button-container">
-
-                            <div class="dropdown">
-                                <button class="btn" type="button" id="grapesMenuButton" data-bs-toggle="dropdown"
-                                    aria-expanded="false">
-                                    <i class="fas fa-ellipsis-v"></i>
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="grapesMenuButton">
-                                    <li><a class="dropdown-item" target="_blank"
-                                            href="https://cuadro.io/index.html">About</a></li>
-                                    <li><a class="dropdown-item" target="_blank"
-                                            href="https://cuadro.io/index.html#contact">Help</a></li>
-                                    <li><a class="dropdown-item" target="_blank"
-                                            href="https://cuadro.io/index.html#contact">Give Feedback</a></li>
-                                    <li><a class="dropdown-item" target="_blank"
-                                            href="https://cuadro.io/privacy-policy.html">Privacy</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="signOut(); return false;">Sign
-                                            out</a></li>
-
-
-                                </ul>
+    <div id="fixed-top-bar" style="position:fixed;width:100%;background-color: white;top:0px;z-index: 1000;box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+;">
+        <div id='top-nav' style="border-bottom: 1px solid #e5e5e5;">
+                <div class="row p-2">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center justify-content-start">
+                                <a id="cuadro-header-logo" href="#" onclick="location.reload(); return false;"
+                                    style="text-decoration: none;">
+                                    <h1 style="margin-bottom: 0px; color: var(--primary);">
+                                        <i class="fa-solid fa-signal" style="padding-right: 0.2rem;"></i>Cuadro
+                                    </h1>
+                                </a>
                             </div>
-                        </div>
+                            <div class="col-5 d-flex align-items-center justify-content-end"
+                                id="top-nav-button-container">
+                            </div>
+                            <div class="col-1 d-flex align-items-center justify-content-end"
+                                id="top-nav-button-container">
+
+                                <div class="dropdown">
+                                    <button class="btn" type="button" id="grapesMenuButton" data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="grapesMenuButton">
+                                        <li><a class="dropdown-item" target="_blank"
+                                                href="https://cuadro.io/index.html">About</a></li>
+                                        <li><a class="dropdown-item" target="_blank"
+                                                href="https://cuadro.io/index.html#contact">Help</a></li>
+                                        <li><a class="dropdown-item" target="_blank"
+                                                href="https://cuadro.io/index.html#contact">Give Feedback</a></li>
+                                        <li><a class="dropdown-item" target="_blank"
+                                                href="https://cuadro.io/privacy-policy.html">Privacy</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="signOut(); return false;">Sign
+                                                out</a></li>
+
+
+                                    </ul>
+                                </div>
+                            </div>
                     </div>
+            </div>
+        </div>
+
+        <div id="navigation-panel">
+            <div id="navigation-row" class="row p-2 align-items-center">
+                <div id="navigation-back-column" class="col-4"></div>
+                <div class="col-4 text-center mt-2 mb-2">
+                    <p id="breadcrumbs" class="mb-0"><span id="upload-breadcrumb">Upload</span> > <span
+                            id="review-breadcrumb">Review</span> > <span id="analyze-breadcrumb">Analyze</span></p>
                 </div>
+                <div id="navigation-next-column" class="col-4 d-flex justify-content-end"></div>
             </div>
         </div>
     </div>
 
-    </div>
-
-
     <!--the main body of the app, where the user will upload, review, analyze and export their data-->
-    <div id="step-body"></div>
-    
+        <div id="step-body" style="margin-top:150px"></div>
+
     <div id="button-panel"></div>
     <!-- Bootstrap JS and dependencies -->
     <script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script>

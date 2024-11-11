@@ -9,13 +9,17 @@ function responsiveStepBody() {
   // Define the media query for small screens
   const mediaQuerySm = window.matchMedia('(max-width: 576px)');
   const stepBodyContainer = document.getElementById('step-body');
+  const breadcrumbs = document.getElementById('breadcrumbs');
+
 
   // Function to update classes based on screen size
   const updateClasses = () => {
     if (mediaQuerySm.matches) {
       stepBodyContainer.className = 'container mt-5';
+      breadcrumbs.style.display = 'none';
     } else {
       stepBodyContainer.className = 'container col-md-8 offset-md-2';
+      breadcrumbs.style.display = 'block';
     }
   };
 
@@ -39,9 +43,11 @@ let analysisObjects = []; // Array to store analysis object instances
 let nextAnalysisId = 1; // Unique ID counter
 let currentAnalysisId = 1; //what analysis object the user is currently analyzing. set to 1 as the default, will update later.
 let colorPalette = ['#176BA0', '#19AADE', '#1AC9E6', '#caf0f8', '#52b69a', '#1DE3BD', '#CDFDD2', '#C7F9EE', '#b66ee8', '#d689ff', '#f2a8ff', '#ffc4ff', '#ebd9fc'];
-
 let bookmarks = [];
 
+
+// Call this function when the page loads
+document.addEventListener('DOMContentLoaded', checkEmailInLocalStorage);
 
 //STEP WHERE I CHECK IF I NEED TO REGISTER THE  USER OR IF THEY ALREADY HAVE
 function checkEmailInLocalStorage() {
@@ -58,33 +64,98 @@ function checkEmailInLocalStorage() {
 
 function checkLocalStorageData() {
   const dropdownStateInStorage = localStorage.getItem('dropdownState');
-  if (dropdownStateInStorage) {
-    const topNav = document.getElementById('top-nav');
+  if (dropdownStateInStorage) { //if we've got everything to load analyze step
+    const topNav = document.getElementById('fixed-top-bar');
     topNav.style.display = 'block';
 
+    const navigationPanel = document.getElementById('navigation-panel');
+    navigationPanel.style.display = 'block';
+    const analyzeBreadcrumb = document.getElementById('analyze-breadcrumb');
+    analyzeBreadcrumb.style.fontWeight = 'bold';
+
     const stepBody = document.getElementById('step-body');
-    stepBody.classList.add('mt-5');
     setupAnalyzeStep();
+    showContinueOverlay();
+
   }
   else {
     createUploadStepContent();
   }
 }
 
-// Call this function when the page loads
-document.addEventListener('DOMContentLoaded', checkEmailInLocalStorage);
+
+function showContinueOverlay() {
+  // Create the overlay element
+  const overlay = document.createElement("div");
+  overlay.style.position = "fixed";
+  overlay.style.top = 0;
+  overlay.style.left = 0;
+  overlay.style.width = "100%";
+  overlay.style.height = "100%";
+  overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+  overlay.style.display = "flex";
+  overlay.style.justifyContent = "center";
+  overlay.style.alignItems = "center";
+  overlay.style.zIndex = 9999;
+
+  // Create the message container
+  const messageContainer = document.createElement("div");
+  messageContainer.className = "p-4 bg-white rounded text-center";
+  messageContainer.style.maxWidth = "400px";
+  messageContainer.style.boxShadow = "0 4px 15px rgba(0, 0, 0, 0.2)";
+
+  // Create the header elements
+  const header1 = document.createElement("h5");
+  header1.className = "mb-2";
+  header1.innerText = "Continue from where you left off?";
+
+  const header2 = document.createElement("h6");
+  header2.className = "mb-4 text-muted";
+  header2.innerText = "We've saved your uploaded file. You can continue or start fresh with a new upload.";
+
+  // Create the buttons
+  const continueButton = document.createElement("button");
+  continueButton.className = "btn btn-primary me-2";
+  continueButton.innerText = "Continue";
+  continueButton.onclick = () => overlay.remove();
+
+  const restartButton = document.createElement("button");
+  restartButton.className = "btn btn-secondary";
+  restartButton.innerText = "Restart";
+
+restartButton.addEventListener('click',function(){
+
+  localStorage.removeItem('parsedCSVData');
+  localStorage.removeItem('selectedFile');
+  localStorage.removeItem('dropdownState');
+  location.reload();
+})
+
+  // Append elements to the message container
+  messageContainer.appendChild(header1);
+  messageContainer.appendChild(header2);
+  messageContainer.appendChild(continueButton);
+  messageContainer.appendChild(restartButton);
+
+  // Append the message container to the overlay
+  overlay.appendChild(messageContainer);
+
+  // Append the overlay to the body
+  document.body.appendChild(overlay);
+}
+
 
 
 
 // GET EMAIL STEP
 
 function handleEmail() {
-  const topNav = document.getElementById('top-nav');
-  topNav.style.display = 'none';
+
+  const fixedTopBar = document.getElementById('fixed-top-bar');
+  fixedTopBar.style.display = 'none';
 
   const stepBody = document.getElementById('step-body');
   stepBody.innerHTML = '';
-  stepBody.classList.remove('mt-5');
 
   const registrationContainer = document.createElement('div');
   registrationContainer.classList.add('d-flex', 'flex-column', 'justify-content-center', 'align-items-center', 'vh-100');
@@ -217,9 +288,13 @@ function alertUnsavedChanges(event) {
 // Function to create and insert the upload step content
 function createUploadStepContent() {
 
-  const topNav = document.getElementById('top-nav');
+  //display the top nav bar
+  const topNav = document.getElementById('fixed-top-bar');
   topNav.style.display = 'block';
+  const navigationPanel = document.getElementById('navigation-panel');
+  navigationPanel.style.display = 'none';
 
+  
   const stepBody = document.getElementById('step-body');
 
   // Create the container for the upload content
@@ -230,9 +305,7 @@ function createUploadStepContent() {
     'flex-column',
     'text-center',
     'align-items-center',
-    'justify-content-center',
-    'mt-5'
-  );
+    'justify-content-center');
 
 
   //create upload header
@@ -646,7 +719,16 @@ function setupAnalyzeStep() {
 
   window.addEventListener('beforeunload', alertUnsavedChanges);
 
+  //update nav panel 
+  const navigationPanel = document.getElementById('navigation-panel');
+  navigationPanel.style.display = 'block';
+  const reviewBreadcrumb = document.getElementById('review-breadcrumb');
+  reviewBreadcrumb.style.fontWeight = 'normal';
+  const analyzeBreadcrumb = document.getElementById('analyze-breadcrumb');
+  analyzeBreadcrumb.style.fontWeight = 'bold';
 
+  //update nav panel to contain review button
+  loadAnalyzeButtonPanel();
 
   //create the bookmarks button
   const TopNavButtonContainer = document.getElementById('top-nav-button-container');
@@ -664,7 +746,6 @@ function setupAnalyzeStep() {
 
 
   displayAnalysisOptions();
-  loadButtonPanel();
 
   window.scrollTo({
     top: 0,
@@ -720,13 +801,28 @@ function createCategoricalArrayForFilterPanel() {
 async function reviewData() {
   window.addEventListener('beforeunload', alertUnsavedChanges);
 
-  await parseCSVToArray(selectedFile);
-  console.log('dropdownstate', dropdownState);
+  //display navigation bar  and update to review step
+  const navigationPanel = document.getElementById('navigation-panel');
+  navigationPanel.style.display = 'block';
+  const reviewBreadcrumb = document.getElementById('review-breadcrumb');
+  reviewBreadcrumb.style.fontWeight = 'bold';
+  const analyzeBreadcrumb = document.getElementById('analyze-breadcrumb');
+  analyzeBreadcrumb.style.fontWeight = 'normal';
 
 
+  //check if we already have a dropdown state stored. in which case we dont need to reprocess it
+  const dropdownStateInStorage = localStorage.getItem('dropdownState');
+  if (!dropdownStateInStorage) {
+    await parseCSVToArray(selectedFile);
+    console.log('dropdownstate', dropdownState);
+  }
+
+  //delete any existing analysis object
+  deleteAllAnalysisObjects();
+
+  //clear the step body
   const stepBody = document.getElementById('step-body');
   stepBody.innerHTML = '';
-  stepBody.style.marginBottom = '100px';
 
 
   const reviewContainer = document.createElement('div');
@@ -747,11 +843,8 @@ async function reviewData() {
 
 
   const reviewHeader = document.createElement('h5');
-  reviewHeader.textContent = `Does this look right?`;
-  const reviewText = document.createElement('p');
-  reviewText.innerHTML = `Please take a moment to review how we categorized your data.`;
+  reviewHeader.textContent = `Does this look right?`;  
   reviewHeaderCol.appendChild(reviewHeader);
-  reviewHeaderCol.appendChild(reviewText);
 
 
   //build up the body
@@ -771,13 +864,14 @@ async function reviewData() {
   <div class="accordion-item">
       <p class="accordion-header" id="headingOne">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-<i class="fa-solid fa-circle-question" style="margin-right:1rem" aria-hidden="true" ></i>
-              What am I supposed to do here?
+<i class="fa-solid fa-circle-question" style="margin-right:0.5rem" aria-hidden="true" ></i>
+What am I looking at?
+
           </button>
       </p>
       <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
           <div class="accordion-body">
-The table below shows the fields we found in your data. We've made educated guesses on how to categorize them, but please review and adjust as needed. You can also re-upload a new file or change these later in the Data Settings panel.
+The table below displays your data's structure and how it has been categorized. You may update the categories if need be. You can always come back to this as well.
 
               <ul>
                   <li><strong>Categorical:</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. A field with unique values doesn't fall into Categorical - it should be set to Ignore.</li>
@@ -786,6 +880,7 @@ The table below shows the fields we found in your data. We've made educated gues
                   <li><strong>Ignore:</strong> Assign this to any field that doesn't fall into the above categories. e.g. comments, names, unique identifiers, etc.</li>
 
               </ul>
+
           </div>
       </div>
   </div>
@@ -802,41 +897,20 @@ The table below shows the fields we found in your data. We've made educated gues
   generateReviewTable(dataTypeSettingsCol);
 
   //button panel
-  loadButtonPanel();
+  loadReviewButtonPanel();
 
 
 
 }
 
-function loadButtonPanel() {
-
-  const buttonPanel = document.getElementById('button-panel');
-
-  //empty it if it's got anything in it
-  if (buttonPanel) {
-    buttonPanel.innerHTML = '';
-  }
-
-  buttonPanel.style.position = 'fixed';
-  buttonPanel.style.backgroundColor = 'white';
-  buttonPanel.style.bottom = '0px';
-  buttonPanel.style.width = '100%';
-  buttonPanel.style.padding = '0.75rem';
-  buttonPanel.style.boxShadow = '0px -4px 10px rgba(0, 0, 0, 0.1)';
-
-
-  const buttonRow = document.createElement('div');
-  buttonRow.className = 'row';
-  buttonPanel.appendChild(buttonRow);
+function loadReviewButtonPanel() {
 
   //redo button
-  const leftCol = document.createElement('div');
-  leftCol.id = 'button-panel-left-column';
-  leftCol.className = 'col-6';
+  const leftCol = document.getElementById('navigation-back-column');
+  leftCol.innerHTML = '';
   const redoButton = document.createElement('button');
   redoButton.className = 'btn btn-secondary';
-  redoButton.innerHTML = `<i class="fa-solid fa-rotate-left"></i> Restart`;
-  buttonRow.appendChild(leftCol);
+  redoButton.innerHTML = `<i class="fa-solid fa-left-long"></i> Restart`;
   leftCol.append(redoButton);
 
   redoButton.addEventListener('click', function () {
@@ -846,55 +920,55 @@ function loadButtonPanel() {
     location.reload();
   })
 
-  //if we're in the review step, we show save button.
-  const dropdownStateInStorage = localStorage.getItem('dropdownState');
-  if (!dropdownStateInStorage) {
 
-    // save button
-    const rightCol = document.createElement('div');
-    rightCol.id = 'button-panel-right-column';
-    rightCol.classList.add('col-6', 'd-flex', 'justify-content-end');
-    const SaveButton = document.createElement('button');
-    SaveButton.classList.add('btn', 'btn-primary');
-    SaveButton.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Looks good to me`;
-    rightCol.appendChild(SaveButton);
-    buttonRow.appendChild(rightCol);
+  // save button
+  const rightCol = document.getElementById('navigation-next-column');
+  rightCol.innerHTML = '';
+  const SaveButton = document.createElement('button');
+  SaveButton.classList.add('btn', 'btn-primary');
+  SaveButton.innerHTML = `Analyze <i class="fa-solid fa-right-long"></i>`;
+  rightCol.appendChild(SaveButton);
 
-    SaveButton.addEventListener('click', function () {
+  SaveButton.addEventListener('click', function () {
 
-      //replace save button with data settings button
-      SaveButton.remove();
+    //replace save button with data settings button
+    SaveButton.remove();
 
 
-      //save the review table's configuration into an array
-      saveDataTypestoArray();
-      // run the function that creates the Categorical array, which is needed for the filter panel
-      createCategoricalArrayForFilterPanel();
-      //create a new analysis object
-      createAnalysisObject();
-      setupAnalyzeStep();
+    //save the review table's configuration into an array
+    saveDataTypestoArray();
+    // run the function that creates the Categorical array, which is needed for the filter panel
+    createCategoricalArrayForFilterPanel();
+    //create a new analysis object
+    createAnalysisObject();
+    setupAnalyzeStep();
 
-    })
+  })
 
-  }
-  //otherwise we show the data type button
-  else {
-    const buttonPanelRightColumn = document.getElementById('button-panel-right-column');
-    const dataTypeButton = document.createElement('a');
-    dataTypeButton.classList.add('btn', 'btn-secondary');
-    dataTypeButton.innerHTML = '<i class="fa-solid fa-gear"></i> Data Settings';
-    buttonPanelRightColumn.appendChild(dataTypeButton);
-
-    dataTypeButton.addEventListener('click', function () {
-      openDataTypeSettingsOverlay();
-    })
-
-  }
 }
 
+function loadAnalyzeButtonPanel() {
 
 
-function openDataTypeSettingsOverlay() {
+  //review button
+  const leftCol = document.getElementById('navigation-back-column');
+  leftCol.innerHTML = '';
+  const reviewButton = document.createElement('button');
+  reviewButton.classList.add('btn', 'btn-secondary');
+  reviewButton.innerHTML = `<i class="fa-solid fa-left-long"></i> Review`;
+  leftCol.appendChild(reviewButton);
+
+  reviewButton.addEventListener('click', function () {
+
+    reviewData();
+  })
+
+  const rightCol = document.getElementById('navigation-next-column');
+  rightCol.innerHTML = '';
+
+}
+
+function openDataTypeSettingsOverlay() { //not using this function right now
 
   //call fctn to delete any existing analysis objects in case you're coming back from Analyze
   deleteAllAnalysisObjects();
@@ -1030,9 +1104,7 @@ The table below displays your data's structure and how it has been categorized. 
 function displayAnalysisOptions() {
 
   const stepBody = document.getElementById('step-body');
-  stepBody.classList.remove('mt-5');
-  stepBody.classList.remove('mt-2');
-  stepBody.classList.add('mt-3');
+
   // Clear any existing content
   stepBody.innerHTML = '';
 
