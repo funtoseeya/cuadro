@@ -1142,7 +1142,7 @@ function displayAnalysisOptions() {
     'Split by category',
     `Count the number of times each category appears within a field.`,
     '<i class="fas fa-chart-bar"></i>',
-    '../images/category-distribution-preview.png'
+    '../images/category-distribution-preview.svg'
   );
 
 
@@ -1155,7 +1155,7 @@ function displayAnalysisOptions() {
     'Sum by Category',
     `Calculate the sum of values by category.`,
     '<i class="fa-solid fa-calculator"></i>',
-    '../images/sum-preview.png'
+    '../images/sum-preview.svg'
   );
 
   // Create the avg by category  card
@@ -1167,7 +1167,7 @@ function displayAnalysisOptions() {
     'Avg by Category',
     `Calculate the average of values by category.`,
     '<i class="fa-solid fa-calculator"></i>',
-    '../images/avg-preview.png'
+    '../images/avg-preview.svg'
   );
 
   // Create the comparative analysis column and card
@@ -1179,7 +1179,7 @@ function displayAnalysisOptions() {
     'Split by grouped categories',
     `Count the number of times a grouping of categories appears across two fields.`,
     '<i class="fas fa-table"></i>',
-    '../images/category-grouping-distribution-preview.png'
+    '../images/category-grouping-distribution-preview.svg'
   );
 
   // Create the numerical analysis column and card
@@ -1191,7 +1191,7 @@ function displayAnalysisOptions() {
     'Split by range',
     `Count the number of times a range of numbers appears within a field.`,
     '<i class="fa-solid fa-chart-area"></i>',
-    '../images/number-distribution-preview.png'
+    '../images/number-distribution-preview.svg'
   );
 
 
@@ -1204,7 +1204,7 @@ function displayAnalysisOptions() {
     'Trend Analysis',
     'Uncover patterns and changes over time.',
     '<i class="fas fa-chart-line"></i><span class="badge" style="background-color: #f4b400; margin-left:0.2rem; color: white; font-size: 0.875rem;">Coming Soon!</span>',
-    '../images/line_chart_temp.png'
+    '../images/line_chart_temp.svg'
   );
 
   // Append analysis columns to the row
