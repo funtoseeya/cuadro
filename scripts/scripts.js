@@ -9,17 +9,16 @@ function responsiveStepBody() {
   // Define the media query for small screens
   const mediaQuerySm = window.matchMedia('(max-width: 576px)');
   const stepBodyContainer = document.getElementById('step-body');
+  stepBodyContainer.style.marginTop='150px';
   const breadcrumbs = document.getElementById('breadcrumbs');
 
 
   // Function to update classes based on screen size
   const updateClasses = () => {
     if (mediaQuerySm.matches) {
-      stepBodyContainer.style.marginTop='200px';
       breadcrumbs.style.display = 'none';
     } else {
       stepBodyContainer.className = 'col-md-8 offset-md-2';
-      stepBodyContainer.style.marginTop='150px';
       breadcrumbs.style.display = 'block';
     }
   };
