@@ -15,10 +15,11 @@ function responsiveStepBody() {
   // Function to update classes based on screen size
   const updateClasses = () => {
     if (mediaQuerySm.matches) {
-      stepBodyContainer.className = 'container mt-5';
+      stepBodyContainer.style.marginTop='200px';
       breadcrumbs.style.display = 'none';
     } else {
-      stepBodyContainer.className = 'container col-md-8 offset-md-2';
+      stepBodyContainer.className = 'col-md-8 offset-md-2';
+      stepBodyContainer.style.marginTop='150px';
       breadcrumbs.style.display = 'block';
     }
   };
@@ -151,11 +152,15 @@ restartButton.addEventListener('click',function(){
 
 function handleEmail() {
 
+  const stepBody = document.getElementById('step-body');
+  stepBody.style.display='none';
+
+
   const fixedTopBar = document.getElementById('fixed-top-bar');
   fixedTopBar.style.display = 'none';
 
-  const stepBody = document.getElementById('step-body');
-  stepBody.innerHTML = '';
+  const registrationBody = document.getElementById('registration-body');
+  registrationBody.innerHTML = '';
 
   const registrationContainer = document.createElement('div');
   registrationContainer.classList.add('d-flex', 'flex-column', 'justify-content-center', 'align-items-center', 'vh-100');
@@ -222,7 +227,7 @@ function handleEmail() {
   registrationContainer.appendChild(formRow);
 
   // Finally, append the registrationContainer to stepBody
-  stepBody.appendChild(registrationContainer);
+  registrationBody.appendChild(registrationContainer);
 
   // Handle form submission
   earlyAccessForm.addEventListener('submit', function (event) {
@@ -250,6 +255,10 @@ function handleEmail() {
 
         // Store the email in localStorage
         localStorage.setItem('registered', 'yes');
+
+        //hide the registration body
+        registrationBody.style.display='none';
+        stepBody.style.display='block';
 
         // Trigger the createUploadStepContent function
         createUploadStepContent(); // Call your function here
