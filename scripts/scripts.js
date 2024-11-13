@@ -4299,7 +4299,6 @@ function exportAllBookmarkedCardsToPDF() {
   processNextCard();
 }
 
-//function to export all bookmarks to pptx
 function exportAllBookmarkedCardsToPPTX() {
   const pptx = new PptxGenJS(); // Create a new PPTX presentation
   const cards = document.querySelectorAll('[bookmarked="true"]');
@@ -4314,53 +4313,57 @@ function exportAllBookmarkedCardsToPPTX() {
       html2canvas(card, { scale: 2 }).then(function (canvas) {
         const imgData = canvas.toDataURL('image/png');
 
-        const pageWidth = pptx.width; // Width of the PPTX slide
-        const pageHeight = pptx.height; // Height of the PPTX slide
+        // Maximum dimensions for the image in inches
+        const maxWidth = 7;  // Maximum width in inches
+        const maxHeight = 5;  // Maximum height in inches
 
-        const maxWidth = 7;  // Maximum width in inches (adjust based on your needs)
-        const maxHeight = 5;  // Maximum height in inches (adjust based on your needs)
-
-        let imgWidth = canvas.width / 96; // Convert to inches (96 DPI)
-        let imgHeight = canvas.height / 96; // Convert to inches (96 DPI)
+        // Convert canvas dimensions from pixels to inches (96 DPI)
+        let imgWidth = canvas.width / 96;
+        let imgHeight = canvas.height / 96;
 
         // Calculate aspect ratio
         const aspectRatio = imgWidth / imgHeight;
 
-        // Adjust the width and height to fit within the max bounds
+        // Adjust dimensions while maintaining aspect ratio
         if (imgWidth > maxWidth) {
           imgWidth = maxWidth;
           imgHeight = maxWidth / aspectRatio;
         }
-
         if (imgHeight > maxHeight) {
           imgHeight = maxHeight;
           imgWidth = maxHeight * aspectRatio;
         }
 
-        // Calculate the x and y position to center the image
-        const xOffset = (pageWidth - imgWidth) / 2; // Center horizontally
-        const yOffset = (pageHeight - imgHeight) / 2; // Center vertically
-
-        // Create a new slide and add the adjusted image to it
+        // Create a new slide
         const slide = pptx.addSlide();
+        let slideWidth = 10;
+        let slideHeight = 5.63;
+
+        // Calculate X and Y positions to center the image
+        let xPos = (slideWidth - imgWidth) / 2;
+        let yPos = (slideHeight - imgHeight) / 2;
+
+        // Add the centered image using percentage for positioning
         slide.addImage({
           data: imgData,
-          x: xOffset,
-          y: yOffset,
+          x: xPos,
+          y: yPos,
           w: imgWidth,
           h: imgHeight,
+          sizing: {
+            type: 'contain', // 'contain', 'cover', or 'crop'
+            w: imgWidth, // Width in inches
+            h: imgHeight // Height in inches
+          }
         });
 
-
-        // If there are more cards, add a new slide and process the next one
-        if (cardIndex < cards.length - 1) {
-          cardIndex++;
-          processNextCard(); // Process the next card
-        } else {
-          // Once all cards are processed, save the PPTX
-          pptx.writeFile({ fileName: 'charts.pptx' });
-        }
+        // Move to the next card
+        cardIndex++;
+        processNextCard();
       });
+    } else {
+      // Once all cards are processed, save the PPTX
+      pptx.writeFile({ fileName: 'charts.pptx' });
     }
   }
 
