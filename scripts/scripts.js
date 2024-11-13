@@ -4,34 +4,7 @@
 //turn on the charts data label plugin
 Chart.register(ChartDataLabels);
 
-//function to make the step-body section's available width responsize
-function responsiveStepBody() {
-  // Define the media query for small screens
-  const mediaQuerySm = window.matchMedia('(max-width: 576px)');
-  const stepBodyContainer = document.getElementById('step-body');
-  stepBodyContainer.style.marginTop='100px';
-  stepBodyContainer.style.marginBottom='100px';
-  const breadcrumbs = document.getElementById('breadcrumbs');
 
-
-  // Function to update classes based on screen size
-  const updateClasses = () => {
-    if (mediaQuerySm.matches) {
-      breadcrumbs.style.display = 'none';
-    } else {
-      stepBodyContainer.className = 'col-md-8 offset-md-2';
-      breadcrumbs.style.display = 'block';
-    }
-  };
-
-  // Initial check upon load
-  updateClasses();
-
-  // check again whenever the window size changes
-  mediaQuerySm.addEventListener('change', updateClasses);
-}
-// Call the function to set up the responsive behavior of the step-body div
-responsiveStepBody();
 
 
 //GLOBAL VARIABLES
@@ -124,13 +97,13 @@ function showContinueOverlay() {
   restartButton.className = "btn btn-secondary";
   restartButton.innerText = "Restart";
 
-restartButton.addEventListener('click',function(){
+  restartButton.addEventListener('click', function () {
 
-  localStorage.removeItem('parsedCSVData');
-  localStorage.removeItem('selectedFile');
-  localStorage.removeItem('dropdownState');
-  location.reload();
-})
+    localStorage.removeItem('parsedCSVData');
+    localStorage.removeItem('selectedFile');
+    localStorage.removeItem('dropdownState');
+    location.reload();
+  })
 
   // Append elements to the message container
   messageContainer.appendChild(header1);
@@ -153,7 +126,7 @@ restartButton.addEventListener('click',function(){
 function handleEmail() {
 
   const stepBody = document.getElementById('step-body');
-  stepBody.style.display='none';
+  stepBody.style.display = 'none';
 
 
   const fixedTopBar = document.getElementById('fixed-top-bar');
@@ -257,8 +230,8 @@ function handleEmail() {
         localStorage.setItem('registered', 'yes');
 
         //hide the registration body
-        registrationBody.style.display='none';
-        stepBody.style.display='block';
+        registrationBody.style.display = 'none';
+        stepBody.style.display = 'block';
 
         // Trigger the createUploadStepContent function
         createUploadStepContent(); // Call your function here
@@ -302,17 +275,19 @@ function createUploadStepContent() {
   topNav.style.display = 'block';
 
 
-  
-  //display nav panel 
+
+  //hide nav panel 
   const navigationPanel = document.getElementById('navigation-panel');
-  navigationPanel.style.display = 'block';
+  navigationPanel.style.display = 'none';
+
+  //update  breadcrumbs
   const uploadBreadcrumb = document.getElementById('upload-breadcrumb');
   uploadBreadcrumb.style.fontWeight = 'bold';
   const reviewBreadcrumb = document.getElementById('review-breadcrumb');
   reviewBreadcrumb.style.fontWeight = 'normal';
   const analyzeBreadcrumb = document.getElementById('analyze-breadcrumb');
   analyzeBreadcrumb.style.fontWeight = 'normal';
-  
+
   const stepBody = document.getElementById('step-body');
 
   // Create the container for the upload content
@@ -751,7 +726,7 @@ function setupAnalyzeStep() {
   loadAnalyzeButtonPanel();
 
   //create the bookmarks button
-  const TopNavButtonContainer = document.getElementById('top-nav-button-container');
+  const TopNavButtonContainer = document.getElementById('top-nav-bookmark-container');
   const bookmarkButtonContainer = document.getElementById('bookmark-button-container');
   if (!bookmarkButtonContainer) {
     const bookmarkButtonContainer = document.createElement('div');
@@ -824,7 +799,7 @@ async function reviewData() {
   //display navigation bar  and update to review step
   const navigationPanel = document.getElementById('navigation-panel');
   navigationPanel.style.display = 'block';
-  const uploadBreadcrumb= document.getElementById('upload-breadcrumb');
+  const uploadBreadcrumb = document.getElementById('upload-breadcrumb');
   uploadBreadcrumb.style.fontWeight = 'normal';
   const reviewBreadcrumb = document.getElementById('review-breadcrumb');
   reviewBreadcrumb.style.fontWeight = 'bold';
@@ -865,7 +840,7 @@ async function reviewData() {
 
 
   const reviewHeader = document.createElement('h5');
-  reviewHeader.textContent = `Does this look right?`;  
+  reviewHeader.textContent = `Does this look right?`;
   reviewHeaderCol.appendChild(reviewHeader);
 
 
@@ -1130,11 +1105,6 @@ function displayAnalysisOptions() {
   // Clear any existing content
   stepBody.innerHTML = '';
 
-
-
-
-
-
   // Create the "i want to text", col and row
   const analysisOptionTextRow = document.createElement('div');
   analysisOptionTextRow.classList.add('row', 'mt-3');
@@ -1153,8 +1123,6 @@ function displayAnalysisOptions() {
   analysisOptionTextColumn.appendChild(fileNameLabel);
   analysisOptionTextRow.appendChild(analysisOptionTextColumn);
   stepBody.appendChild(analysisOptionTextRow);
-
-
 
   // Create the analysis option cards, cols, and row
   const analysisOptionCardsRow1 = document.createElement('div');
@@ -1625,11 +1593,25 @@ function createUsingTheseDropdown(event) {
 
   const usingColumn = document.getElementById('using-column');
 
+
+
   // Create the span element for text
   const span = document.createElement('span');
   span.id = 'using-these-values-text';
   span.style.fontSize = '0.9rem';
-  span.textContent = 'using these fields';
+
+  if (event === 'simple' || event ==='number' || event==='comparative') {
+    span.textContent = 'Split of';
+  }
+  if (event === 'sum-comparative') {
+    span.textContent = 'Sum of';
+  }
+  if (event === 'average-comparative') {
+    span.textContent = 'Average of';
+  }
+
+ 
+  
 
   // Create the menu container
   const dropdownContainer = document.createElement('div');
@@ -1754,7 +1736,7 @@ function createGroupByDropdown() {
   const span = document.createElement('span');
   span.id = 'group-by-text';
   span.style.fontSize = '0.9rem';
-  span.textContent = 'grouped by';
+  span.textContent = 'Grouped by';
 
   // Create the menu container
   const dropdownContainer = document.createElement('div');

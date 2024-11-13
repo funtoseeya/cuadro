@@ -45,6 +45,12 @@ body {
   background-color: var(--background-color);
   color: var(--text-color);
 }
+
+#step-body{
+  margin-top: 100px;
+  margin-bottom: 100px;
+}
+
 .btn:focus {
   color: #fff;
 }
