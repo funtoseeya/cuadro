@@ -9,7 +9,8 @@ function responsiveStepBody() {
   // Define the media query for small screens
   const mediaQuerySm = window.matchMedia('(max-width: 576px)');
   const stepBodyContainer = document.getElementById('step-body');
-  stepBodyContainer.style.marginTop='150px';
+  stepBodyContainer.style.marginTop='100px';
+  stepBodyContainer.style.marginBottom='100px';
   const breadcrumbs = document.getElementById('breadcrumbs');
 
 
@@ -299,9 +300,18 @@ function createUploadStepContent() {
   //display the top nav bar
   const topNav = document.getElementById('fixed-top-bar');
   topNav.style.display = 'block';
-  const navigationPanel = document.getElementById('navigation-panel');
-  navigationPanel.style.display = 'none';
 
+
+  
+  //display nav panel 
+  const navigationPanel = document.getElementById('navigation-panel');
+  navigationPanel.style.display = 'block';
+  const uploadBreadcrumb = document.getElementById('upload-breadcrumb');
+  uploadBreadcrumb.style.fontWeight = 'bold';
+  const reviewBreadcrumb = document.getElementById('review-breadcrumb');
+  reviewBreadcrumb.style.fontWeight = 'normal';
+  const analyzeBreadcrumb = document.getElementById('analyze-breadcrumb');
+  analyzeBreadcrumb.style.fontWeight = 'normal';
   
   const stepBody = document.getElementById('step-body');
 
@@ -730,6 +740,8 @@ function setupAnalyzeStep() {
   //update nav panel 
   const navigationPanel = document.getElementById('navigation-panel');
   navigationPanel.style.display = 'block';
+  const uploadBreadcrumb = document.getElementById('upload-breadcrumb');
+  uploadBreadcrumb.style.fontWeight = 'normal';
   const reviewBreadcrumb = document.getElementById('review-breadcrumb');
   reviewBreadcrumb.style.fontWeight = 'normal';
   const analyzeBreadcrumb = document.getElementById('analyze-breadcrumb');
@@ -812,6 +824,8 @@ async function reviewData() {
   //display navigation bar  and update to review step
   const navigationPanel = document.getElementById('navigation-panel');
   navigationPanel.style.display = 'block';
+  const uploadBreadcrumb= document.getElementById('upload-breadcrumb');
+  uploadBreadcrumb.style.fontWeight = 'normal';
   const reviewBreadcrumb = document.getElementById('review-breadcrumb');
   reviewBreadcrumb.style.fontWeight = 'bold';
   const analyzeBreadcrumb = document.getElementById('analyze-breadcrumb');
@@ -4173,7 +4187,7 @@ function openBookmarksOverlay() {
       emptyBookmarksContainer.style.minHeight = '300px';
       emptyBookmarksContainer.style.margin = '0 auto';
       emptyBookmarksContainer.style.border = '3px solid var(--primary)';
-      emptyBookmarksContainer.style.backgroundColor = 'var(--tertiary-color)';
+      emptyBookmarksContainer.style.backgroundColor = 'rgba(36, 123, 160, 0.2)';
       emptyBookmarksContainer.style.borderRadius = '5px';
       emptyBookmarksContainer.innerHTML = emptyBookmarksContainer.innerHTML = `
   <div class="warning-icon">
