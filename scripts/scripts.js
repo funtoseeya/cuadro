@@ -128,9 +128,11 @@ function handleEmail() {
   const stepBody = document.getElementById('step-body');
   stepBody.style.display = 'none';
 
-
+  //hide panels 
   const fixedTopBar = document.getElementById('fixed-top-bar');
   fixedTopBar.style.display = 'none';
+  const navigationPanel = document.getElementById('navigation-panel');
+  navigationPanel.style.display = 'none';
 
   const registrationBody = document.getElementById('registration-body');
   registrationBody.innerHTML = '';
@@ -1600,7 +1602,7 @@ function createUsingTheseDropdown(event) {
   span.id = 'using-these-values-text';
   span.style.fontSize = '0.9rem';
 
-  if (event === 'simple' || event ==='number' || event==='comparative') {
+  if (event === 'simple' || event === 'number' || event === 'comparative') {
     span.textContent = 'Split of';
   }
   if (event === 'sum-comparative') {
@@ -1610,8 +1612,8 @@ function createUsingTheseDropdown(event) {
     span.textContent = 'Average of';
   }
 
- 
-  
+
+
 
   // Create the menu container
   const dropdownContainer = document.createElement('div');
