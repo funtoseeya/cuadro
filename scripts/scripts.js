@@ -376,23 +376,24 @@ function createUploadStepContent() {
   accordion.id = 'what-data-can-i-upload-accordion';
 
   accordion.innerHTML = `
-     <div class="accordion-item mt-3">
-         <h2 class="accordion-header" id="headingOne">
-             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                <i class="fa-solid fa-circle-question" style="margin-right:1rem" aria-hidden="true" ></i>
-                  What kind of data can I upload?
-             </button>
-         </h2>
-         <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
-             <div class="accordion-body">
-              <p class="text-start">You can upload any kind of tabular data having rows as items and columns as the items' characteriscs.</p>  
-              <p class="text-start">Here's an example of a supported dataset that contains both categorical and numerical data. </p>
-             <div style="width:100%;overflow:hidden;position:relative">
-             <img src="https://app.cuadro.io/images/sample-data.PNG" class="d-block w-100" style="object-fit:contain">
-             </div>
-              </div>
-         </div>
-     </div>
+    <div class="accordion-item mt-3" style="margin-top: 0.5rem;">
+  <h2 class="accordion-header" id="headingOne">
+    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+      <i class="fa-solid fa-circle-question" style="margin-right: 0.5rem; font-size: 1rem;" aria-hidden="true"></i>
+      What kind of data can I upload?
+    </button>
+  </h2>
+  <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
+    <div class="accordion-body" style="font-size: 0.85rem; padding: 0.75rem 1rem;">
+      <p class="text-start">You can upload any kind of tabular data having rows as items and columns as the items' characteristics.</p>
+      <p class="text-start">Here's an example of a supported dataset that contains both categorical and numerical data.</p>
+      <div style="width: 100%; overflow: hidden; position: relative;">
+        <img src="https://app.cuadro.io/images/sample-data.PNG" class="d-block w-100" style="object-fit: contain;">
+      </div>
+    </div>
+  </div>
+</div>
+
  `;
 
 
@@ -900,11 +901,13 @@ async function reviewData() {
   reviewHeaderCol.classList.add('col-12');
   reviewHeaderRow.appendChild(reviewHeaderCol);
 
-
   const reviewHeader = document.createElement('h5');
   reviewHeader.textContent = `Does this look right?`;
   reviewHeaderCol.appendChild(reviewHeader);
 
+  const instructionLabel = document.createElement('p');
+  instructionLabel.textContent='Please take a moment to review and adjust how the data has been categorized.';
+  reviewHeaderCol.appendChild(instructionLabel);
 
   //build up the body
   const dataTypeSettingsRow = document.createElement('div');
@@ -914,51 +917,55 @@ async function reviewData() {
   reviewContainer.appendChild(dataTypeSettingsRow);
   dataTypeSettingsRow.appendChild(dataTypeSettingsCol);
 
+  //create the yes no buttons
+  const yesNoRow = document.createElement('div');
+  dataTypeSettingsCol.appendChild(yesNoRow);
+  const noButton = document.createElement('a');
+  noButton.className='tertiary-button';
+  noButton.textContent=`❌ Nope, let's restart with a new file`;
+  yesNoRow.appendChild(noButton);
+  const yesButton = document.createElement('a');
+  yesButton.className = 'tertiary-button';
+  yesButton.textContent=`✅ Yes, let's analyze it!`;
+  yesNoRow.appendChild(yesButton);
+
+  yesButton.addEventListener('click',navToAnalyze);
+  noButton.addEventListener('click',navToUpload);
+
   // Create the accordion
   const accordion = document.createElement('div');
   accordion.classList.add('accordion', 'w-100', 'mb-3');
   accordion.id = 'dataTypeAccordion';
 
   accordion.innerHTML = `
-  <div class="accordion-item">
-      <p class="accordion-header" id="headingOne">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-<i class="fa-solid fa-circle-question" style="margin-right:0.5rem" aria-hidden="true" ></i>
-What am I looking at?
-
-          </button>
-      </p>
-      <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
-          <div class="accordion-body">
-The table below displays your data's structure and how it has been categorized. You may update the categories if need be. You can always come back to this as well.
-
-              <ul>
-                  <li><strong>Categorical:</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. A field with unique values doesn't fall into Categorical - it should be set to Ignore.</li>
-                  <li><strong>Numerical:</strong> This is for any field containing numerical values. We will compute these by summing or averaging them, rather than counting them.</li>
-                                      <li><strong>Date / Time:</strong> This is for any field containing timestamps. This is especially useful for generating trend analyses.</li>
-                  <li><strong>Ignore:</strong> Assign this to any field that doesn't fall into the above categories. e.g. comments, names, unique identifiers, etc.</li>
-
-              </ul>
-
-          </div>
-      </div>
+  <div class="accordion-item" style="margin: 0.5rem 0;">
+  <p class="accordion-header" id="headingOne">
+    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+      <i class="fa-solid fa-circle-question" style="margin-right: 0.3rem; font-size: 1rem;" aria-hidden="true"></i>
+      What is in this table?
+    </button>
+  </p>
+  <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
+    <div class="accordion-body" style="font-size: 0.85rem; padding: 0.75rem 1rem;">
+      The table below displays your data's structure and how it has been categorized. You may update the categories if need be. You can always come back to this as well.
+      <ul>
+        <li><strong>Categorical:</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. A field with unique values doesn't fall into Categorical - it should be set to Ignore.</li>
+        <li><strong>Numerical:</strong> This is for any field containing numerical values. We will compute these by summing or averaging them, rather than counting them.</li>
+        <li><strong>Date / Time:</strong> This is for any field containing timestamps. This is especially useful for generating trend analyses.</li>
+        <li><strong>Ignore:</strong> Assign this to any field that doesn't fall into the above categories. e.g. comments, names, unique identifiers, etc.</li>
+      </ul>
+    </div>
   </div>
+</div>
+
 `;
 
   dataTypeSettingsCol.appendChild(accordion);
-
-  //display the file name
-  const fileName = document.createElement('p');
-  const selectedFileInStorage = localStorage.getItem('selectedFile');
-  fileName.textContent = 'Uploaded file: ' + selectedFileInStorage;
-  dataTypeSettingsCol.appendChild(fileName);
 
   generateReviewTable(dataTypeSettingsCol);
 
   //button panel
   loadReviewButtonPanel();
-
-
 
 }
 
@@ -1155,8 +1162,16 @@ function displayAnalysisOptions() {
   const analysisOptionTextRow = document.createElement('div');
   analysisOptionTextRow.classList.add('row', 'mt-3');
   analysisOptionTextRow.id = 'analysis-option-text-row';
+  
+  const reviewRow = document.createElement('div');
+  analysisOptionTextRow.appendChild(reviewRow);
+  const reviewNavButton = document.createElement('a');
+  reviewNavButton.className='tertiary-button';
+  reviewNavButton.innerHTML=`<i class="fa-solid fa-left-long"></i> Back to Review`;
+  reviewRow.appendChild(reviewNavButton);  
+  reviewNavButton.addEventListener('click',navToReview);
+
   const analysisOptionTextColumn = document.createElement('div');
-  analysisOptionTextColumn.classList.add('col-12');
   const analysisOptionText = document.createElement('h5');
   analysisOptionText.textContent = 'What would you like to see?';
 

@@ -26,7 +26,11 @@
 }
 
 .tertiary-button {
+  display:inline-block;
   color:var(--primary-light);
+  cursor:pointer;
+  text-decoration: none;
+  margin:0 10px 10px 0;
 }
 
 .tertiary-button:hover {
@@ -385,3 +389,4 @@ body {
 	outline: none; /* Remove default outline */
 	box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Custom shadow on focus */
 }
+
