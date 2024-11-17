@@ -97,13 +97,7 @@ function showContinueOverlay() {
   restartButton.className = "btn btn-secondary";
   restartButton.innerText = "Restart";
 
-  restartButton.addEventListener('click', function () {
-
-    localStorage.removeItem('parsedCSVData');
-    localStorage.removeItem('selectedFile');
-    localStorage.removeItem('dropdownState');
-    location.reload();
-  })
+  restartButton.addEventListener('click', navToUpload);
 
   // Append elements to the message container
   messageContainer.appendChild(header1);
@@ -118,8 +112,21 @@ function showContinueOverlay() {
   document.body.appendChild(overlay);
 }
 
+function navToUpload() {
+  location.reload();
+  localStorage.removeItem('parsedCSVData');
+  localStorage.removeItem('selectedFile');
+  localStorage.removeItem('dropdownState');
+}
 
+function navToReview(){
+    reviewData();
+}
 
+function navToAnalyze(){
+  saveDataTypestoArray();
+  setupAnalyzeStep();
+}
 
 // GET EMAIL STEP
 
@@ -311,6 +318,9 @@ function createUploadStepContent() {
   analyzeBreadcrumb.style.fontWeight = 'normal';
   analyzeBreadcrumb.classList.remove('clickable-breadcrumb-item');
 
+  uploadBreadcrumb.removeEventListener('click', navToUpload);
+  reviewBreadcrumb.removeEventListener('click',navToReview);
+  analyzeBreadcrumb.removeEventListener('click', navToAnalyze);
 
 
   const stepBody = document.getElementById('step-body');
@@ -761,17 +771,10 @@ function setupAnalyzeStep() {
   analyzeBreadcrumb.style.fontWeight = 'bold';
   analyzeBreadcrumb.classList.remove('clickable-breadcrumb-item');
 
-  uploadBreadcrumb.addEventListener('click', function () {
-    location.reload();
-    localStorage.removeItem('parsedCSVData');
-    localStorage.removeItem('selectedFile');
-    localStorage.removeItem('dropdownState');
-  
-  })
+  uploadBreadcrumb.addEventListener('click', navToUpload);
+  reviewBreadcrumb.addEventListener('click', navToReview);
+  analyzeBreadcrumb.removeEventListener('click', navToAnalyze);
 
-  reviewBreadcrumb.addEventListener('click', function () {
-    reviewData();
-  });
 
 
 
@@ -861,19 +864,9 @@ async function reviewData() {
   analyzeBreadcrumb.style.fontWeight = 'normal';
   analyzeBreadcrumb.classList.add('clickable-breadcrumb-item');
 
-  uploadBreadcrumb.addEventListener('click', function () {
-    localStorage.removeItem('parsedCSVData');
-    localStorage.removeItem('selectedFile');
-    localStorage.removeItem('dropdownState');
-    location.reload();
-    })
-
-  analyzeBreadcrumb.addEventListener('click', function () {
-      
-  saveDataTypestoArray();
-    setupAnalyzeStep();
-
-  })
+  uploadBreadcrumb.addEventListener('click', navToUpload);
+  reviewBreadcrumb.removeEventListener('click', navToReview);
+  analyzeBreadcrumb.addEventListener('click', navToAnalyze);
 
 
   //check if we already have a dropdown state stored. in which case we dont need to reprocess it
@@ -996,11 +989,7 @@ function loadReviewButtonPanel() {
   analyzeButton.innerHTML = `Analyze <i class="fa-solid fa-right-long"></i>`;
   rightCol.appendChild(analyzeButton);
 
-  analyzeButton.addEventListener('click', function () {
-    saveDataTypestoArray();
-    setupAnalyzeStep();
-
-  })
+  analyzeButton.addEventListener('click', navToAnalyze);
 
 }
 
@@ -1015,10 +1004,7 @@ function loadAnalyzeButtonPanel() {
   reviewButton.innerHTML = `<i class="fa-solid fa-left-long"></i> Review`;
   leftCol.appendChild(reviewButton);
 
-  reviewButton.addEventListener('click', function () {
-
-    reviewData();
-  })
+  reviewButton.addEventListener('click', navToReview);
 
   const rightCol = document.getElementById('navigation-next-column');
   rightCol.innerHTML = '';
