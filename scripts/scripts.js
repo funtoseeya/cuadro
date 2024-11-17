@@ -156,6 +156,7 @@ function handleEmail() {
   // Append welcomeRow to the registrationContainer
   registrationContainer.appendChild(welcomeRow);
 
+
   // Create a new row for the form
   const formRow = document.createElement('div');
   formRow.classList.add('row', 'text-center');
@@ -200,6 +201,23 @@ function handleEmail() {
 
   // Append the formRow to the registrationContainer
   registrationContainer.appendChild(formRow);
+
+  //temp workaround register
+  const closeRegisterButton = document.createElement('button');
+  closeRegisterButton.classList.add('btn', 'tertiary-button');
+  closeRegisterButton.style.color='white';
+  closeRegisterButton.textContent = 'skip';
+  registrationContainer.appendChild(closeRegisterButton);
+
+  closeRegisterButton.addEventListener('click', function () {
+    localStorage.setItem('registered', 'yes');
+    registrationBody.style.display = 'none';
+    stepBody.style.display = 'block';
+    alert('Lucky you - you found the back door!');
+
+    // Trigger the createUploadStepContent function
+    createUploadStepContent(); // Call your function here
+  })
 
   // Finally, append the registrationContainer to stepBody
   registrationBody.appendChild(registrationContainer);
@@ -285,10 +303,15 @@ function createUploadStepContent() {
   //update  breadcrumbs
   const uploadBreadcrumb = document.getElementById('upload-breadcrumb');
   uploadBreadcrumb.style.fontWeight = 'bold';
+  uploadBreadcrumb.classList.remove('clickable-breadcrumb-item');
   const reviewBreadcrumb = document.getElementById('review-breadcrumb');
   reviewBreadcrumb.style.fontWeight = 'normal';
+  reviewBreadcrumb.classList.remove('clickable-breadcrumb-item');
   const analyzeBreadcrumb = document.getElementById('analyze-breadcrumb');
   analyzeBreadcrumb.style.fontWeight = 'normal';
+  analyzeBreadcrumb.classList.remove('clickable-breadcrumb-item');
+
+
 
   const stepBody = document.getElementById('step-body');
 
@@ -712,6 +735,17 @@ function unsupportedDataTypesToast() {
 // Function to setup the analaysis step
 function setupAnalyzeStep() {
 
+  //replace save button with data settings button
+  const analyzeButton = document.getElementById('analyze-button');
+  if (analyzeButton) {
+    analyzeButton.remove();
+  }
+
+  // run the function that creates the Categorical array, which is needed for the filter panel
+  createCategoricalArrayForFilterPanel();
+  //create a new analysis object
+  createAnalysisObject();
+
   window.addEventListener('beforeunload', alertUnsavedChanges);
 
   //update nav panel 
@@ -719,10 +753,27 @@ function setupAnalyzeStep() {
   navigationPanel.style.display = 'block';
   const uploadBreadcrumb = document.getElementById('upload-breadcrumb');
   uploadBreadcrumb.style.fontWeight = 'normal';
+  uploadBreadcrumb.classList.add('clickable-breadcrumb-item');
   const reviewBreadcrumb = document.getElementById('review-breadcrumb');
   reviewBreadcrumb.style.fontWeight = 'normal';
+  reviewBreadcrumb.classList.add('clickable-breadcrumb-item');
   const analyzeBreadcrumb = document.getElementById('analyze-breadcrumb');
   analyzeBreadcrumb.style.fontWeight = 'bold';
+  analyzeBreadcrumb.classList.remove('clickable-breadcrumb-item');
+
+  uploadBreadcrumb.addEventListener('click', function () {
+    location.reload();
+    localStorage.removeItem('parsedCSVData');
+    localStorage.removeItem('selectedFile');
+    localStorage.removeItem('dropdownState');
+  
+  })
+
+  reviewBreadcrumb.addEventListener('click', function () {
+    reviewData();
+  });
+
+
 
   //update nav panel to contain review button
   loadAnalyzeButtonPanel();
@@ -796,17 +847,33 @@ function createCategoricalArrayForFilterPanel() {
 //REVIEW STEP
 
 async function reviewData() {
-  window.addEventListener('beforeunload', alertUnsavedChanges);
 
   //display navigation bar  and update to review step
   const navigationPanel = document.getElementById('navigation-panel');
   navigationPanel.style.display = 'block';
   const uploadBreadcrumb = document.getElementById('upload-breadcrumb');
+  uploadBreadcrumb.classList.add('clickable-breadcrumb-item');
   uploadBreadcrumb.style.fontWeight = 'normal';
   const reviewBreadcrumb = document.getElementById('review-breadcrumb');
   reviewBreadcrumb.style.fontWeight = 'bold';
+  reviewBreadcrumb.classList.remove('clickable-breadcrumb-item');
   const analyzeBreadcrumb = document.getElementById('analyze-breadcrumb');
   analyzeBreadcrumb.style.fontWeight = 'normal';
+  analyzeBreadcrumb.classList.add('clickable-breadcrumb-item');
+
+  uploadBreadcrumb.addEventListener('click', function () {
+    localStorage.removeItem('parsedCSVData');
+    localStorage.removeItem('selectedFile');
+    localStorage.removeItem('dropdownState');
+    location.reload();
+    })
+
+  analyzeBreadcrumb.addEventListener('click', function () {
+      
+  saveDataTypestoArray();
+    setupAnalyzeStep();
+
+  })
 
 
   //check if we already have a dropdown state stored. in which case we dont need to reprocess it
@@ -920,26 +987,17 @@ function loadReviewButtonPanel() {
   })
 
 
-  // save button
+  // analyze button
   const rightCol = document.getElementById('navigation-next-column');
   rightCol.innerHTML = '';
-  const SaveButton = document.createElement('button');
-  SaveButton.classList.add('btn', 'btn-primary');
-  SaveButton.innerHTML = `Analyze <i class="fa-solid fa-right-long"></i>`;
-  rightCol.appendChild(SaveButton);
+  const analyzeButton = document.createElement('button');
+  analyzeButton.id = 'analyze-button'
+  analyzeButton.classList.add('btn', 'btn-primary');
+  analyzeButton.innerHTML = `Analyze <i class="fa-solid fa-right-long"></i>`;
+  rightCol.appendChild(analyzeButton);
 
-  SaveButton.addEventListener('click', function () {
-
-    //replace save button with data settings button
-    SaveButton.remove();
-
-
-    //save the review table's configuration into an array
+  analyzeButton.addEventListener('click', function () {
     saveDataTypestoArray();
-    // run the function that creates the Categorical array, which is needed for the filter panel
-    createCategoricalArrayForFilterPanel();
-    //create a new analysis object
-    createAnalysisObject();
     setupAnalyzeStep();
 
   })

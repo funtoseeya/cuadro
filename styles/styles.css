@@ -51,6 +51,17 @@ body {
   margin-bottom: 100px;
 }
 
+
+.clickable-breadcrumb-item {
+  color:#247ba0;
+}
+
+.clickable-breadcrumb-item:hover {
+  color:#1c607d;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .btn:focus {
   color: #fff;
 }
