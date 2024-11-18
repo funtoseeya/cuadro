@@ -119,11 +119,11 @@ function navToUpload() {
   localStorage.removeItem('dropdownState');
 }
 
-function navToReview(){
-    reviewData();
+function navToReview() {
+  reviewData();
 }
 
-function navToAnalyze(){
+function navToAnalyze() {
   saveDataTypestoArray();
   setupAnalyzeStep();
 }
@@ -212,7 +212,7 @@ function handleEmail() {
   //temp workaround register
   const closeRegisterButton = document.createElement('button');
   closeRegisterButton.classList.add('btn', 'tertiary-button');
-  closeRegisterButton.style.color='white';
+  closeRegisterButton.style.color = 'white';
   closeRegisterButton.textContent = 'skip';
   registrationContainer.appendChild(closeRegisterButton);
 
@@ -319,7 +319,7 @@ function createUploadStepContent() {
   analyzeBreadcrumb.classList.remove('clickable-breadcrumb-item');
 
   uploadBreadcrumb.removeEventListener('click', navToUpload);
-  reviewBreadcrumb.removeEventListener('click',navToReview);
+  reviewBreadcrumb.removeEventListener('click', navToReview);
   analyzeBreadcrumb.removeEventListener('click', navToAnalyze);
 
 
@@ -776,12 +776,6 @@ function setupAnalyzeStep() {
   reviewBreadcrumb.addEventListener('click', navToReview);
   analyzeBreadcrumb.removeEventListener('click', navToAnalyze);
 
-
-
-
-  //update nav panel to contain review button
-  loadAnalyzeButtonPanel();
-
   //create the bookmarks button
   const TopNavButtonContainer = document.getElementById('top-nav-bookmark-container');
   const bookmarkButtonContainer = document.getElementById('bookmark-button-container');
@@ -796,7 +790,89 @@ function setupAnalyzeStep() {
     bookmarksButton.addEventListener('click', openBookmarksOverlay);
   }
 
+  //update nav panel to contain review button
+  loadAnalyzeButtonPanel();
 
+  // clear the step body and create the back to review button
+  const stepBody = document.getElementById('step-body');
+  stepBody.innerHTML = ''; // Clear any existing content
+  const reviewRow = document.createElement('div');
+  stepBody.appendChild(reviewRow);
+  const reviewNavButton = document.createElement('a');
+  reviewNavButton.className = 'tertiary-button';
+  reviewNavButton.innerHTML = `<i class="fas fa-arrow-left" style="padding-right:0.2rem"></i> Back to Review`;
+  reviewRow.appendChild(reviewNavButton);
+  reviewNavButton.addEventListener('click', navToReview);
+
+// Create the tab panel
+const tabPanelRow = document.createElement('div');
+tabPanelRow.className = 'row';
+stepBody.appendChild(tabPanelRow);
+
+const tabPanel = document.createElement('ul');
+tabPanel.className = 'nav nav-tabs';
+tabPanel.id = 'tab-panel';
+tabPanel.role = 'tablist';
+tabPanelRow.appendChild(tabPanel);
+
+// Summary tab
+const summaryTab = document.createElement('li');
+summaryTab.className = 'nav-item';
+summaryTab.id = 'summary-tab';
+summaryTab.role = 'presentation';
+tabPanel.appendChild(summaryTab);
+
+const summaryTabLink = document.createElement('a');
+summaryTabLink.className = 'nav-link active';
+summaryTabLink.id = 'summary-tab-link';
+summaryTabLink.href = '#summary-tab-content';
+summaryTabLink.role = 'tab';
+summaryTabLink.setAttribute('data-bs-toggle', 'tab');
+summaryTabLink.setAttribute('aria-controls', 'summary');
+summaryTabLink.setAttribute('aria-selected', 'true');
+summaryTabLink.textContent = 'Summary';
+summaryTab.appendChild(summaryTabLink);
+
+// Advanced tab
+const advancedTab = document.createElement('li');
+advancedTab.className = 'nav-item';
+advancedTab.id = 'advanced-tab';
+advancedTab.role = 'presentation';
+tabPanel.appendChild(advancedTab);
+
+const advancedTabLink = document.createElement('a');
+advancedTabLink.className = 'nav-link';
+advancedTabLink.id = 'advanced-tab-link';
+advancedTabLink.href = '#advanced-tab-content';
+advancedTabLink.role = 'tab';
+advancedTabLink.setAttribute('data-bs-toggle', 'tab');
+advancedTabLink.setAttribute('aria-controls', 'advanced');
+advancedTabLink.setAttribute('aria-selected', 'false');
+advancedTabLink.textContent = 'Advanced';
+advancedTab.appendChild(advancedTabLink);
+
+// Create the tab content
+const tabContent = document.createElement('div');
+tabContent.className = 'tab-content';
+tabPanelRow.appendChild(tabContent);
+
+// Summary tab content
+const summaryTabContent = document.createElement('div');
+summaryTabContent.className = 'tab-pane fade show active';
+summaryTabContent.id = 'summary-tab-content';
+summaryTabContent.role = 'tabpanel';
+summaryTabContent.innerHTML = '<p>Coming soon - a tab that automatically creates charts for categorical and numerical data.</p>';
+tabContent.appendChild(summaryTabContent);
+
+// Advanced tab content
+const advancedTabContent = document.createElement('div');
+advancedTabContent.className = 'tab-pane fade';
+advancedTabContent.id = 'advanced-tab-content';
+advancedTabContent.role = 'tabpanel';
+tabContent.appendChild(advancedTabContent);
+
+
+  //displays the analysis options section
   displayAnalysisOptions();
 
   window.scrollTo({
@@ -906,7 +982,7 @@ async function reviewData() {
   reviewHeaderCol.appendChild(reviewHeader);
 
   const instructionLabel = document.createElement('p');
-  instructionLabel.textContent='Please take a moment to review and adjust how the data has been categorized.';
+  instructionLabel.textContent = 'Please take a moment to review and adjust how the data has been categorized.';
   reviewHeaderCol.appendChild(instructionLabel);
 
   //build up the body
@@ -921,16 +997,16 @@ async function reviewData() {
   const yesNoRow = document.createElement('div');
   dataTypeSettingsCol.appendChild(yesNoRow);
   const noButton = document.createElement('a');
-  noButton.className='tertiary-button';
-  noButton.textContent=`❌ Nope, let's restart with a new file`;
+  noButton.className = 'tertiary-button';
+  noButton.textContent = `❌ Nope, let's restart with a new file`;
   yesNoRow.appendChild(noButton);
   const yesButton = document.createElement('a');
   yesButton.className = 'tertiary-button';
-  yesButton.textContent=`✅ Yes, let's analyze it!`;
+  yesButton.textContent = `✅ Yes, let's analyze it!`;
   yesNoRow.appendChild(yesButton);
 
-  yesButton.addEventListener('click',navToAnalyze);
-  noButton.addEventListener('click',navToUpload);
+  yesButton.addEventListener('click', navToAnalyze);
+  noButton.addEventListener('click', navToUpload);
 
   // Create the accordion
   const accordion = document.createElement('div');
@@ -1153,23 +1229,14 @@ The table below displays your data's structure and how it has been categorized. 
 // new function to clear and uppdate the stepper body with analysis options
 function displayAnalysisOptions() {
 
-  const stepBody = document.getElementById('step-body');
+  const advancedTabContent = document.getElementById('advanced-tab-content');
+advancedTabContent.innerHTML = ``;
 
-  // Clear any existing content
-  stepBody.innerHTML = '';
 
   // Create the "i want to text", col and row
   const analysisOptionTextRow = document.createElement('div');
   analysisOptionTextRow.classList.add('row', 'mt-3');
   analysisOptionTextRow.id = 'analysis-option-text-row';
-  
-  const reviewRow = document.createElement('div');
-  analysisOptionTextRow.appendChild(reviewRow);
-  const reviewNavButton = document.createElement('a');
-  reviewNavButton.className='tertiary-button';
-  reviewNavButton.innerHTML=`<i class="fa-solid fa-left-long"></i> Back to Review`;
-  reviewRow.appendChild(reviewNavButton);  
-  reviewNavButton.addEventListener('click',navToReview);
 
   const analysisOptionTextColumn = document.createElement('div');
   const analysisOptionText = document.createElement('h5');
@@ -1183,7 +1250,7 @@ function displayAnalysisOptions() {
   analysisOptionTextColumn.appendChild(analysisOptionText);
   analysisOptionTextColumn.appendChild(fileNameLabel);
   analysisOptionTextRow.appendChild(analysisOptionTextColumn);
-  stepBody.appendChild(analysisOptionTextRow);
+  advancedTabContent.appendChild(analysisOptionTextRow);
 
   // Create the analysis option cards, cols, and row
   const analysisOptionCardsRow1 = document.createElement('div');
@@ -1339,8 +1406,8 @@ function displayAnalysisOptions() {
   analysisOptionCardsRow2.appendChild(analysisOptionCardTrendCol);
 
   // Append the row to the step body
-  stepBody.appendChild(analysisOptionCardsRow1);
-  stepBody.appendChild(analysisOptionCardsRow2);
+  advancedTabContent.appendChild(analysisOptionCardsRow1);
+  advancedTabContent.appendChild(analysisOptionCardsRow2);
 
 
 
@@ -1390,10 +1457,10 @@ function handleIWantTo(event) {
   });
 
 
-  const stepBody = document.getElementById('step-body');
+  const advancedTabContent = document.getElementById('advanced-tab-content');
 
   // Clear any existing content
-  stepBody.innerHTML = '';
+  advancedTabContent.innerHTML = '';
 
   //create the back to start button, row and col
   const backRow = document.createElement('div');
@@ -1401,13 +1468,13 @@ function handleIWantTo(event) {
   const backCol = document.createElement('div');
   backCol.classList.add('col-6');
   const backButton = document.createElement('a');
-  backButton.classList.add('text-decoration-none', 'tertiary-button');
+  backButton.classList.add('text-decoration-none', 'tertiary-button', 'mt-3');
   backButton.innerHTML =
-    ' <i class="fas fa-arrow-left" style="padding-right:0.2rem"></i> Back to types';
+    '<i class="fas fa-arrow-left" style="padding-right:0.2rem"></i> Back to types';
 
   backCol.appendChild(backButton);
   backRow.appendChild(backCol);
-  stepBody.appendChild(backRow);
+  advancedTabContent.appendChild(backRow);
 
   backButton.addEventListener('click', displayAnalysisOptions);
 
@@ -1442,7 +1509,7 @@ function handleIWantTo(event) {
   promptRow.appendChild(filterColumn);
 
   // Append the row div to the stepBody
-  stepBody.appendChild(promptRow);
+  advancedTabContent.appendChild(promptRow);
 
   // Create the i want text
   const iWantText = document.createElement('span');
@@ -1623,7 +1690,7 @@ function handleIWantTo(event) {
   } else {
     cardsContainer = document.createElement('div');
     cardsContainer.id = 'step-body-cards-container';
-    stepBody.appendChild(cardsContainer);
+    advancedTabContent.appendChild(cardsContainer);
   }
 
   iWantMenu.addEventListener('click', function (event) {
