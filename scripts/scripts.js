@@ -14,8 +14,6 @@ let CategoricalArray = []; //global array that saves all unique values of column
 let parsedCSVData = []; // global array that stores the uploaded csv's data
 const guessedCSVheaderClassification = {}; // To store the guessed classification of each header
 let analysisObjects = []; // Array to store analysis object instances
-let nextAnalysisId = 1; // Unique ID counter
-let currentAnalysisId = 1; //what analysis object the user is currently analyzing. set to 1 as the default, will update later.
 let colorPalette = ['#176BA0', '#19AADE', '#1AC9E6', '#caf0f8', '#52b69a', '#1DE3BD', '#CDFDD2', '#C7F9EE', '#b66ee8', '#d689ff', '#f2a8ff', '#ffc4ff', '#ebd9fc'];
 let bookmarks = [];
 
@@ -755,7 +753,7 @@ function setupAnalyzeStep() {
   // run the function that creates the Categorical array, which is needed for the filter panel
   createCategoricalArrayForFilterPanel();
   //create a new analysis object
-  createAnalysisObject();
+  createAnalysisObject('advanced');
 
   window.addEventListener('beforeunload', alertUnsavedChanges);
 
@@ -891,7 +889,7 @@ tabContent.appendChild(advancedTabContent);
 
   }
   //create a new analysis object
-  createAnalysisObject();
+  createAnalysisObject('advanced');
 
 }
 
@@ -1136,7 +1134,7 @@ function openDataTypeSettingsOverlay() { //not using this function right now
     dataTypeSettingsOverlay.style.display = 'none';
     document.body.style.overflowY = 'scroll';
 
-    createAnalysisObject();
+    createAnalysisObject('advanced');
     displayAnalysisOptions();
   });
 
@@ -1167,7 +1165,7 @@ function openDataTypeSettingsOverlay() { //not using this function right now
     createCategoricalArrayForFilterPanel();
 
     //create a new analysis object
-    createAnalysisObject();
+    createAnalysisObject('advanced');
 
     dataTypeSettingsOverlay.style.width = "0%";
     dataTypeSettingsOverlay.style.display = 'none';
@@ -1449,7 +1447,7 @@ advancedTabContent.innerHTML = ``;
 function handleIWantTo(event) {
 
   //update the current analysis object. scrap any previously existing info and give it a type
-  updateAnalysisObjectById(currentAnalysisId, {
+  updateAnalysisObjectById('advanced', {
     analysisType: event,
     usingThese: [],
     groupedBy: '',
@@ -1775,7 +1773,7 @@ function createUsingTheseDropdown(event) {
   columnMenu.style.overflowX = 'hidden';
 
   //the type of analysis dictates what the users options should be
-  const currentAnalysisObject = analysisObjects.find(obj => obj.id === currentAnalysisId);
+  const currentAnalysisObject = analysisObjects.find(obj => obj.id === 'advanced');
   const analysisType = currentAnalysisObject.analysisType;
 
   // Populate the new dropdown with options from the saved dropdown state
@@ -1846,7 +1844,7 @@ function updateUsingTheseArray() {
   ).map(checkbox => checkbox.value);
 
   // Find the current AnalysisObject and update its usingThese array
-  const analysis = analysisObjects.find(obj => obj.id === currentAnalysisId);
+  const analysis = analysisObjects.find(obj => obj.id === 'advanced');
   if (analysis) {
     analysis.usingThese = selectedValues;
     analysis.beginChartGenerationProcess();
@@ -1948,7 +1946,7 @@ function updateGroupByValue() {
     .textContent;
 
   // Find the current AnalysisObject and update its groupBy property
-  const analysis = analysisObjects.find(obj => obj.id === currentAnalysisId);
+  const analysis = analysisObjects.find(obj => obj.id === 'advanced');
   if (analysis) {
     analysis.groupedBy = selectedValue;
     analysis.beginChartGenerationProcess();
@@ -2062,7 +2060,7 @@ function createFilterButton() {
 
     // Find the current AnalysisObject and update its filteredBy array
     const analysis = analysisObjects.find(
-      obj => obj.id === currentAnalysisId
+      obj => obj.id === 'advanced'
     );
     if (analysis) {
       analysis.filteredBy = selectedValues;
@@ -2101,9 +2099,9 @@ function updateFilteredCount() {
 
 // a boilerplate for analysis objects. users will be able to create many of them
 class AnalysisObject {
-  constructor() {
+  constructor(id) {
     //create a new empty object
-    this.id = nextAnalysisId++; // Assign a unique ID that increments by 1 each time a new one is created
+    this.id = id; // Assign a unique ID that increments by 1 each time a new one is created
     this.analysisType = ''; // simple, comparative, temporal...
     this.usingThese = []; // the main column being processed
     this.groupedBy = ''; // sometimes the data will be sliced by this column and displayed in the chart
@@ -2899,8 +2897,8 @@ class AnalysisObject {
 }
 
 // Function to create and add a new Analysis object
-function createAnalysisObject() {
-  const newAnalysis = new AnalysisObject();
+function createAnalysisObject(id) {
+  const newAnalysis = new AnalysisObject(id);
   analysisObjects.push(newAnalysis);
   console.log(newAnalysis); // Log the new object to the console
   return newAnalysis; // Optionally return the new object
@@ -2937,7 +2935,6 @@ function deleteAnalysisObjectById(id) {
 // Function to delete all AnalysisObject instances
 function deleteAllAnalysisObjects() {
   analysisObjects = []; // Reassign to a new empty array
-  nextAnalysisId = 1;
 }
 
 // boilerplate for charts we create via the generic dropdown option.
@@ -4098,7 +4095,7 @@ function addRemoveBookmark(target, chart) {
     bookmarks.push(chart);
 
     //if you're ractivating from bookmarks overlay, we should reactivate any chart object
-    const currentAnalysisObject = analysisObjects.find(obj => obj.id === currentAnalysisId); //find the current analysis object
+    const currentAnalysisObject = analysisObjects.find(obj => obj.id === 'advanced'); //find the current analysis object
     for (let i = 0; i < currentAnalysisObject.chartObjects.length; i++) {//for each displayed chart object
       if (currentAnalysisObject.chartObjects[i].id === chart.id) { //if the chart matches the id of the object just unbookmarked
         currentAnalysisObject.chartObjects[i].bookmarked = true; //unbookmark the chart object (if hasn't been done already)
@@ -4136,7 +4133,7 @@ function addRemoveBookmark(target, chart) {
     console.log('bookmarks: ', bookmarks);
 
     //if you're deactivating from bookmarks overlay, we need to deactivate any chart object displayed in the analysis step
-    const currentAnalysisObject = analysisObjects.find(obj => obj.id === currentAnalysisId); //find the current analysis object
+    const currentAnalysisObject = analysisObjects.find(obj => obj.id === 'advanced'); //find the current analysis object
     for (let i = 0; i < currentAnalysisObject.chartObjects.length; i++) {//for each displayed chart object
       if (currentAnalysisObject.chartObjects[i].id === chart.id) { //if the chart matches the id of the object just unbookmarked
         currentAnalysisObject.chartObjects[i].bookmarked = false; //unbookmark the chart object (if hasn't been done already)
