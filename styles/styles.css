@@ -15,11 +15,13 @@
 
 }
 
-.sample-data-link {
+
+
+.sample-data-link, .nav-link {
   color:#247ba0;
 }
 
-.sample-data-link:hover {
+.sample-data-link:hover, .nav-link:hover{
   color:#1c607d;
   cursor: pointer;
 
