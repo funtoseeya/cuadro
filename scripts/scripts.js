@@ -1,11 +1,4 @@
-/*
 
-//display the file name
-  const fileName = document.createElement('p');
-  const selectedFileInStorage = localStorage.getItem('selectedFile');
-  fileName.textContent = 'Uploaded file: ' + selectedFileInStorage;
-  dataTypeSettingsCol.appendChild(fileName);
-*/
 
 
 //GENERAL SCRIPTS
@@ -800,18 +793,22 @@ function setupAnalyzeStep() {
   //update nav panel to contain review button
   loadAnalyzeButtonPanel();
 
-  // clear the step body and create the back to review button
+  // clear the step body 
   const stepBody = document.getElementById('step-body');
   stepBody.innerHTML = ''; // Clear any existing content
-  const reviewRow = document.createElement('div');
-  stepBody.appendChild(reviewRow);
+
+
+
+
   const reviewNavButton = document.createElement('a');
-  reviewNavButton.className = 'tertiary-button';
-  reviewNavButton.innerHTML = `<i class="fas fa-arrow-left" style="padding-right:0.2rem"></i> Back to Review`;
-  reviewRow.appendChild(reviewNavButton);
+  reviewNavButton.className = 'btn btn-secondary d-none d-md-block'; // Adds Bootstrap's responsive display utility
+  reviewNavButton.style.position = 'fixed';
+  reviewNavButton.style.top = '100px';
+  reviewNavButton.style.left = '10px';
+  reviewNavButton.innerHTML = `<i class="fa-solid fa-left-long" style="padding-right:0.2rem"></i> Review`;
+  stepBody.appendChild(reviewNavButton);
   reviewNavButton.addEventListener('click', navToReview);
-
-
+  
 
   // Create the tab panel
   const tabPanelRow = document.createElement('div');
@@ -857,7 +854,7 @@ function setupAnalyzeStep() {
   advancedTabLink.setAttribute('data-bs-toggle', 'tab');
   advancedTabLink.setAttribute('aria-controls', 'advanced');
   advancedTabLink.setAttribute('aria-selected', 'false');
-  advancedTabLink.textContent = 'Advanced';
+  advancedTabLink.textContent = 'Filter & Compare';
   advancedTab.appendChild(advancedTabLink);
 
   // Create the tab content
@@ -870,7 +867,7 @@ function setupAnalyzeStep() {
   summaryTabContent.className = 'tab-pane fade show active mt-3';
   summaryTabContent.id = 'summary-tab-content';
   summaryTabContent.role = 'tabpanel';
-  summaryTabContent.innerHTML = '<h5>Summarized Data</h5>';
+  summaryTabContent.innerHTML = '<h5>Summarized Results</h5><p>Explore how your data is distributed with custom views.</p>';
   tabContent.appendChild(summaryTabContent);
 
   // Advanced tab content
@@ -1045,7 +1042,7 @@ async function reviewData() {
   <p class="accordion-header" id="headingOne">
     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
       <i class="fa-solid fa-circle-question" style="margin-right: 0.3rem; font-size: 1rem;" aria-hidden="true"></i>
-      What is in this table?
+      What is this table?
     </button>
   </p>
   <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
@@ -1064,6 +1061,18 @@ async function reviewData() {
 `;
 
   dataTypeSettingsCol.appendChild(accordion);
+
+ 
+  
+    const fileRow = document.createElement('div');
+  stepBody.appendChild(fileRow);
+  const fileName = document.createElement('p');
+  fileName.className = 'text-muted small';
+  const selectedFileInStorage = localStorage.getItem('selectedFile');
+  fileName.innerHTML = `<strong>Uploaded file:</strong> ${selectedFileInStorage}`;
+  dataTypeSettingsCol.appendChild(fileName);
+  
+ 
 
   generateReviewTable(dataTypeSettingsCol);
 
@@ -1264,16 +1273,14 @@ function displayAnalysisOptions() {
   analysisOptionTextRow.id = 'analysis-option-text-row';
 
   const analysisOptionTextColumn = document.createElement('div');
-  const analysisOptionText = document.createElement('h5');
-  analysisOptionText.textContent = 'What would you like to see?';
+  const analysisOptionText = document.createElement('div');
+  analysisOptionText.innerHTML = `<h5>What would you like to see?</h5><p>Filter and compare your data using one of the options below.</p>`;
 
-  const fileNameLabel = document.createElement('p');
 
-  const selectedFileInStorage = localStorage.getItem('selectedFile');
-  fileNameLabel.textContent = 'Uploaded file: ' + selectedFileInStorage;
+
+
 
   analysisOptionTextColumn.appendChild(analysisOptionText);
-  analysisOptionTextColumn.appendChild(fileNameLabel);
   analysisOptionTextRow.appendChild(analysisOptionTextColumn);
   advancedTabContent.appendChild(analysisOptionTextRow);
 
@@ -1495,7 +1502,7 @@ function handleIWantTo(event) {
   const backButton = document.createElement('a');
   backButton.classList.add('text-decoration-none', 'tertiary-button', 'mt-3');
   backButton.innerHTML =
-    '<i class="fas fa-arrow-left" style="padding-right:0.2rem"></i> Back to types';
+    '<i class="fas fa-chevron-left" style="padding-right:0.2rem"></i> Back to types';
 
   backCol.appendChild(backButton);
   backRow.appendChild(backCol);
