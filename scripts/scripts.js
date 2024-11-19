@@ -753,6 +753,7 @@ function setupAnalyzeStep() {
   // run the function that creates the Categorical array, which is needed for the filter panel
   createCategoricalArrayForFilterPanel();
   //create a new analysis object
+  createAnalysisObject('summary');
   createAnalysisObject('advanced');
 
   window.addEventListener('beforeunload', alertUnsavedChanges);
@@ -802,72 +803,72 @@ function setupAnalyzeStep() {
   reviewRow.appendChild(reviewNavButton);
   reviewNavButton.addEventListener('click', navToReview);
 
-// Create the tab panel
-const tabPanelRow = document.createElement('div');
-tabPanelRow.className = 'row';
-stepBody.appendChild(tabPanelRow);
+  // Create the tab panel
+  const tabPanelRow = document.createElement('div');
+  tabPanelRow.className = 'row';
+  stepBody.appendChild(tabPanelRow);
 
-const tabPanel = document.createElement('ul');
-tabPanel.className = 'nav nav-tabs';
-tabPanel.id = 'tab-panel';
-tabPanel.role = 'tablist';
-tabPanelRow.appendChild(tabPanel);
+  const tabPanel = document.createElement('ul');
+  tabPanel.className = 'nav nav-tabs';
+  tabPanel.id = 'tab-panel';
+  tabPanel.role = 'tablist';
+  tabPanelRow.appendChild(tabPanel);
 
-// Summary tab
-const summaryTab = document.createElement('li');
-summaryTab.className = 'nav-item';
-summaryTab.id = 'summary-tab';
-summaryTab.role = 'presentation';
-tabPanel.appendChild(summaryTab);
+  // Summary tab
+  const summaryTab = document.createElement('li');
+  summaryTab.className = 'nav-item';
+  summaryTab.id = 'summary-tab';
+  summaryTab.role = 'presentation';
+  tabPanel.appendChild(summaryTab);
 
-const summaryTabLink = document.createElement('a');
-summaryTabLink.className = 'nav-link active';
-summaryTabLink.id = 'summary-tab-link';
-summaryTabLink.href = '#summary-tab-content';
-summaryTabLink.role = 'tab';
-summaryTabLink.setAttribute('data-bs-toggle', 'tab');
-summaryTabLink.setAttribute('aria-controls', 'summary');
-summaryTabLink.setAttribute('aria-selected', 'true');
-summaryTabLink.textContent = 'Summary';
-summaryTab.appendChild(summaryTabLink);
+  const summaryTabLink = document.createElement('a');
+  summaryTabLink.className = 'nav-link active';
+  summaryTabLink.id = 'summary-tab-link';
+  summaryTabLink.href = '#summary-tab-content';
+  summaryTabLink.role = 'tab';
+  summaryTabLink.setAttribute('data-bs-toggle', 'tab');
+  summaryTabLink.setAttribute('aria-controls', 'summary');
+  summaryTabLink.setAttribute('aria-selected', 'true');
+  summaryTabLink.textContent = 'Summary';
+  summaryTab.appendChild(summaryTabLink);
 
-// Advanced tab
-const advancedTab = document.createElement('li');
-advancedTab.className = 'nav-item';
-advancedTab.id = 'advanced-tab';
-advancedTab.role = 'presentation';
-tabPanel.appendChild(advancedTab);
+  // Advanced tab
+  const advancedTab = document.createElement('li');
+  advancedTab.className = 'nav-item';
+  advancedTab.id = 'advanced-tab';
+  advancedTab.role = 'presentation';
+  tabPanel.appendChild(advancedTab);
 
-const advancedTabLink = document.createElement('a');
-advancedTabLink.className = 'nav-link';
-advancedTabLink.id = 'advanced-tab-link';
-advancedTabLink.href = '#advanced-tab-content';
-advancedTabLink.role = 'tab';
-advancedTabLink.setAttribute('data-bs-toggle', 'tab');
-advancedTabLink.setAttribute('aria-controls', 'advanced');
-advancedTabLink.setAttribute('aria-selected', 'false');
-advancedTabLink.textContent = 'Advanced';
-advancedTab.appendChild(advancedTabLink);
+  const advancedTabLink = document.createElement('a');
+  advancedTabLink.className = 'nav-link';
+  advancedTabLink.id = 'advanced-tab-link';
+  advancedTabLink.href = '#advanced-tab-content';
+  advancedTabLink.role = 'tab';
+  advancedTabLink.setAttribute('data-bs-toggle', 'tab');
+  advancedTabLink.setAttribute('aria-controls', 'advanced');
+  advancedTabLink.setAttribute('aria-selected', 'false');
+  advancedTabLink.textContent = 'Advanced';
+  advancedTab.appendChild(advancedTabLink);
 
-// Create the tab content
-const tabContent = document.createElement('div');
-tabContent.className = 'tab-content';
-tabPanelRow.appendChild(tabContent);
+  // Create the tab content
+  const tabContent = document.createElement('div');
+  tabContent.className = 'tab-content';
+  tabPanelRow.appendChild(tabContent);
 
-// Summary tab content
-const summaryTabContent = document.createElement('div');
-summaryTabContent.className = 'tab-pane fade show active';
-summaryTabContent.id = 'summary-tab-content';
-summaryTabContent.role = 'tabpanel';
-summaryTabContent.innerHTML = '<p>Coming soon - a tab that automatically creates charts for categorical and numerical data.</p>';
-tabContent.appendChild(summaryTabContent);
+  // Summary tab content
+  const summaryTabContent = document.createElement('div');
+  summaryTabContent.className = 'tab-pane fade show active';
+  summaryTabContent.id = 'summary-tab-content';
+  summaryTabContent.role = 'tabpanel';
+  summaryTabContent.innerHTML = '<p>Coming soon - a tab that automatically creates charts for categorical and numerical data.</p>';
+  tabContent.appendChild(summaryTabContent);
 
-// Advanced tab content
-const advancedTabContent = document.createElement('div');
-advancedTabContent.className = 'tab-pane fade';
-advancedTabContent.id = 'advanced-tab-content';
-advancedTabContent.role = 'tabpanel';
-tabContent.appendChild(advancedTabContent);
+  // Advanced tab content
+  const advancedTabContent = document.createElement('div');
+  advancedTabContent.className = 'tab-pane fade';
+  advancedTabContent.id = 'advanced-tab-content';
+  advancedTabContent.role = 'tabpanel';
+  tabContent.appendChild(advancedTabContent);
 
 
   //displays the analysis options section
@@ -889,10 +890,26 @@ tabContent.appendChild(advancedTabContent);
 
   }
   //create a new analysis object
+  loadSummaryTab();
   createAnalysisObject('advanced');
 
 }
 
+
+function loadSummaryTab() {
+  createAnalysisObject('summary');
+  const usingTheseSummary = dropdownState.filter(field => field.value === 'Categorical' || field.value === 'Numerical').map(field => field.header);
+  updateAnalysisObjectById('summary', {
+    analysisType: 'summary',
+    usingThese: usingTheseSummary,
+    groupedBy: '',
+    filteredBy: []
+  });
+  console.log('summary analysis object: ', analysisObjects.find(obj => obj.id === 'summary'));
+
+
+
+}
 
 // Function to create a new array to generate the filters dropdown
 function createCategoricalArrayForFilterPanel() {
@@ -1134,6 +1151,7 @@ function openDataTypeSettingsOverlay() { //not using this function right now
     dataTypeSettingsOverlay.style.display = 'none';
     document.body.style.overflowY = 'scroll';
 
+    createAnalysisObject('summary');
     createAnalysisObject('advanced');
     displayAnalysisOptions();
   });
@@ -1165,6 +1183,7 @@ function openDataTypeSettingsOverlay() { //not using this function right now
     createCategoricalArrayForFilterPanel();
 
     //create a new analysis object
+    createAnalysisObject('summary');
     createAnalysisObject('advanced');
 
     dataTypeSettingsOverlay.style.width = "0%";
@@ -1228,7 +1247,7 @@ The table below displays your data's structure and how it has been categorized. 
 function displayAnalysisOptions() {
 
   const advancedTabContent = document.getElementById('advanced-tab-content');
-advancedTabContent.innerHTML = ``;
+  advancedTabContent.innerHTML = ``;
 
 
   // Create the "i want to text", col and row
@@ -1681,13 +1700,13 @@ function handleIWantTo(event) {
 
 
   //remove any previously existing chart cards from the body
-  let cardsContainer = document.getElementById('step-body-cards-container');
+  let cardsContainer = document.getElementById('advanced-tab-cards-container');
 
   if (cardsContainer) {
     cardsContainer.innerHTML = '';
   } else {
     cardsContainer = document.createElement('div');
-    cardsContainer.id = 'step-body-cards-container';
+    cardsContainer.id = 'advanced-tab-cards-container';
     advancedTabContent.appendChild(cardsContainer);
   }
 
@@ -2124,6 +2143,18 @@ class AnalysisObject {
     this.filteredBy = filteredBy; //update the parameter to what's passed as an argument
     this.label = label; //update the parameter to what's passed as an argument
   }
+
+  beginSummaryChartGenerationProcess(){
+    this.usingThese.forEach(field =>{
+      const type = dropdownState.find(item => item.header === field).value;
+
+      if (type === 'Categorical') {
+
+      }
+
+    })
+  }
+
   beginChartGenerationProcess() {
     //meant as a router that chooses what charts to produce depending on the inputs
     // Check if usingThese is not empty and analysisobject's type is 'generic'
@@ -2854,8 +2885,8 @@ class AnalysisObject {
   // Function to render all chart objects
   prepChartContainerInStepBody() {
     // Find the step-body container where the cards will be appended
-    const stepBody = document.getElementById('step-body');
-    let cardsContainer = document.getElementById('step-body-cards-container');
+    const advancedTabContent = document.getElementById('advanced-tab-content');
+    let cardsContainer = document.getElementById('advanced-tab-cards-container');
 
     if (cardsContainer) {
       //if the cards container was created in a previous call, empty it.
@@ -2863,8 +2894,8 @@ class AnalysisObject {
     } else {
       //if the cards container doesn't exist, create it within the stepbody div
       cardsContainer = document.createElement('div');
-      cardsContainer.id = 'step-body-cards-container';
-      stepBody.appendChild(cardsContainer);
+      cardsContainer.id = 'advanced-tab-cards-container';
+      advancedTabContent.appendChild(cardsContainer);
     }
 
     if (this.analysisType === 'simple') {
@@ -3434,7 +3465,7 @@ function // Function to create and render a chart in a Bootstrap card component 
     }
     const canvas = document.createElement('canvas');
 
-    if (container.id === 'step-body-cards-container') {
+    if (container.id === 'advanced-tab-cards-container') {
       canvas.id = 'canvas-' + chartObject.id;
     }
     if (container === 'bookmarksBodyColumn') {
