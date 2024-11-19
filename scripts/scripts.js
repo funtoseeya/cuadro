@@ -1,3 +1,12 @@
+/*
+
+//display the file name
+  const fileName = document.createElement('p');
+  const selectedFileInStorage = localStorage.getItem('selectedFile');
+  fileName.textContent = 'Uploaded file: ' + selectedFileInStorage;
+  dataTypeSettingsCol.appendChild(fileName);
+*/
+
 
 //GENERAL SCRIPTS
 
@@ -753,7 +762,6 @@ function setupAnalyzeStep() {
   // run the function that creates the Categorical array, which is needed for the filter panel
   createCategoricalArrayForFilterPanel();
   //create a new analysis object
-  createAnalysisObject('summary');
   createAnalysisObject('advanced');
 
   window.addEventListener('beforeunload', alertUnsavedChanges);
@@ -803,11 +811,6 @@ function setupAnalyzeStep() {
   reviewRow.appendChild(reviewNavButton);
   reviewNavButton.addEventListener('click', navToReview);
 
-//display the file name
-const fileName = document.createElement('p');
-const selectedFileInStorage = localStorage.getItem('selectedFile');
-fileName.textContent = 'Uploaded file: ' + selectedFileInStorage;
-reviewRow.appendChild(fileName);
 
 
   // Create the tab panel
@@ -1160,7 +1163,7 @@ function openDataTypeSettingsOverlay() { //not using this function right now
     dataTypeSettingsOverlay.style.display = 'none';
     document.body.style.overflowY = 'scroll';
 
-    createAnalysisObject('summary');
+    loadSummaryTab();
     createAnalysisObject('advanced');
     displayAnalysisOptions();
   });
@@ -1192,7 +1195,7 @@ function openDataTypeSettingsOverlay() { //not using this function right now
     createCategoricalArrayForFilterPanel();
 
     //create a new analysis object
-    createAnalysisObject('summary');
+    loadSummaryTab();
     createAnalysisObject('advanced');
 
     dataTypeSettingsOverlay.style.width = "0%";
