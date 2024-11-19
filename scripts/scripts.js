@@ -803,6 +803,13 @@ function setupAnalyzeStep() {
   reviewRow.appendChild(reviewNavButton);
   reviewNavButton.addEventListener('click', navToReview);
 
+//display the file name
+const fileName = document.createElement('p');
+const selectedFileInStorage = localStorage.getItem('selectedFile');
+fileName.textContent = 'Uploaded file: ' + selectedFileInStorage;
+reviewRow.appendChild(fileName);
+
+
   // Create the tab panel
   const tabPanelRow = document.createElement('div');
   tabPanelRow.className = 'row';
@@ -857,10 +864,10 @@ function setupAnalyzeStep() {
 
   // Summary tab content
   const summaryTabContent = document.createElement('div');
-  summaryTabContent.className = 'tab-pane fade show active';
+  summaryTabContent.className = 'tab-pane fade show active mt-3';
   summaryTabContent.id = 'summary-tab-content';
   summaryTabContent.role = 'tabpanel';
-  summaryTabContent.innerHTML = '<p>Coming soon - a tab that automatically creates charts for categorical and numerical data.</p>';
+  summaryTabContent.innerHTML = '<h5>Summarized Data</h5>';
   tabContent.appendChild(summaryTabContent);
 
   // Advanced tab content
@@ -905,8 +912,10 @@ function loadSummaryTab() {
     groupedBy: '',
     filteredBy: []
   });
-  console.log('summary analysis object: ', analysisObjects.find(obj => obj.id === 'summary'));
 
+  const summaryAnalysisObject = analysisObjects.find(obj => obj.id === 'summary');
+  summaryAnalysisObject.beginSummaryChartGenerationProcess();
+  console.log('summary analysis object: ', analysisObjects.find(obj => obj.id === 'summary'));
 
 
 }
@@ -1202,11 +1211,7 @@ function openDataTypeSettingsOverlay() { //not using this function right now
   dataTypesContainer.appendChild(dataTypeSettingsRow);
   dataTypeSettingsRow.appendChild(dataTypeSettingsCol);
 
-  //display the file name
-  const fileName = document.createElement('p');
-  const selectedFileInStorage = localStorage.getItem('selectedFile');
-  fileName.textContent = 'Uploaded file: ' + selectedFileInStorage;
-  dataTypeSettingsCol.appendChild(fileName);
+  
 
   // Create the accordion
   const accordion = document.createElement('div');
@@ -2144,16 +2149,91 @@ class AnalysisObject {
     this.label = label; //update the parameter to what's passed as an argument
   }
 
-  beginSummaryChartGenerationProcess(){
-    this.usingThese.forEach(field =>{
+  beginSummaryChartGenerationProcess() {
+    this.chartObjects = []; // Clear any pre-existing charts before creating new ones
+    this.usingThese.forEach(field => {
       const type = dropdownState.find(item => item.header === field).value;
 
+      let result = [];
+      let percentagesCounts = [];
+      let chartTitle = '';
+      let chartID = '';
+      const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
+      let visType = '';
+      let analysisType = '';
       if (type === 'Categorical') {
+        result = this.generateSimpleChartObjectDataArrayAndLabels(field, this.filteredBy);
+        percentagesCounts = result.PercentagesCounts;
+        chartTitle = `Split of '${field}' categories`;
+        chartID = `summary-simple-${field}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
+        visType = 'bar';
+        analysisType = 'simple';
+      }
+      if (type === 'Numerical') {
+        result = this.generateNumberChartObjectDataArrayAndLabels(field, this.filteredBy);
+        percentagesCounts = '';
+        chartTitle = `Split of '${field}' ranges`;
+        chartID = `summary-number-${field}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
+        visType = 'line';
+        analysisType = 'number';
 
       }
+      const data = result.data;
+      const labels = result.labels;
+
+
+      // Create and add the chart
+      const newChartObject = new ChartObject(
+        analysisType,
+        chartTitle,
+        chartID,
+        visType,
+        data,
+        labels,
+        percentagesCounts,
+        [],
+        field,
+        this.groupedBy,
+        this.filteredBy
+      ); //value= the current item in the usingthese foreach loop
+      this.chartObjects.push(newChartObject); // add the new chart object at the end of the analysis object's charts array
 
     })
+    this.prepSummaryChartContainer();
   }
+
+
+  // Function to render all chart objects
+  prepSummaryChartContainer() {
+    // Find the step-body container where the cards will be appended
+    const advancedTabContent = document.getElementById('summary-tab-content');
+    let cardsContainer = document.getElementById('summary-tab-cards-container');
+
+    if (cardsContainer) {
+      //if the cards container was created in a previous call, empty it.
+      cardsContainer.innerHTML = '';
+    } else {
+      //if the cards container doesn't exist, create it within the stepbody div
+      cardsContainer = document.createElement('div');
+      cardsContainer.id = 'summary-tab-cards-container';
+      advancedTabContent.appendChild(cardsContainer);
+    }
+
+    this.chartObjects.forEach(chart => {
+
+      if (chart.analysisType === 'simple') {
+        renderSimpleChartInCard(chart, cardsContainer);
+      }
+      if (chart.analysisType === 'number') {
+        renderNumberChartInCard(chart, cardsContainer);
+      }
+    });
+  }
+
+
+
+
+
 
   beginChartGenerationProcess() {
     //meant as a router that chooses what charts to produce depending on the inputs
@@ -2175,6 +2255,8 @@ class AnalysisObject {
     }
 
   }
+
+
 
   addSimpleChartObjects() {
     //produces the data, labels and charts
@@ -2212,7 +2294,7 @@ class AnalysisObject {
       ); //value= the current item in the usingthese foreach loop
       this.chartObjects.push(newChartObject); // add the new chart object at the end of the analysis object's charts array
     });
-    this.prepChartContainerInStepBody(); // render all charts once their code and data is ready
+    this.prepAdvancedChartContainer(); // render all charts once their code and data is ready
   }
 
   addNumberChartObjects() {
@@ -2250,7 +2332,7 @@ class AnalysisObject {
       ); //value= the current item in the usingthese foreach loop
       this.chartObjects.push(newChartObject); // add the new chart object at the end of the analysis object's charts array
     });
-    this.prepChartContainerInStepBody(); // render all charts once their code and data is ready
+    this.prepAdvancedChartContainer(); // render all charts once their code and data is ready
 
   }
 
@@ -2293,7 +2375,7 @@ class AnalysisObject {
       );
       this.chartObjects.push(newChartObject);
     });
-    this.prepChartContainerInStepBody(); // render clustered once the code and data is ready
+    this.prepAdvancedChartContainer(); // render clustered once the code and data is ready
   }
 
   addSumChartObjects() {
@@ -2334,7 +2416,7 @@ class AnalysisObject {
       );
       this.chartObjects.push(newChartObject);
     });
-    this.prepChartContainerInStepBody(); // render clustered once the code and data is ready
+    this.prepAdvancedChartContainer(); // render clustered once the code and data is ready
   }
 
   addAverageChartObjects() {
@@ -2375,7 +2457,7 @@ class AnalysisObject {
       );
       this.chartObjects.push(newChartObject);
     });
-    this.prepChartContainerInStepBody(); // render clustered once the code and data is ready
+    this.prepAdvancedChartContainer(); // render clustered once the code and data is ready
   }
 
 
@@ -2534,7 +2616,7 @@ class AnalysisObject {
     console.log('filtered csv array', filteredCSVArray);
 
     const numbers = filteredCSVArray.map(obj => Number(obj[header].trim()));
-    console.log('numbers: ', numbers);
+
     // Step 1: Calculate the range of the data
     const minValue = Math.min(...numbers);
     const maxValue = Math.max(...numbers);
@@ -2571,8 +2653,6 @@ class AnalysisObject {
       }
       return `${Math.floor(bin)}-${Math.floor(bins[index + 1] - 1)}`;
     });
-    console.log('data: ', frequencies);
-    console.log('labels: ', binRanges);
 
     return {
       data: frequencies,
@@ -2883,7 +2963,7 @@ class AnalysisObject {
   }
 
   // Function to render all chart objects
-  prepChartContainerInStepBody() {
+  prepAdvancedChartContainer() {
     // Find the step-body container where the cards will be appended
     const advancedTabContent = document.getElementById('advanced-tab-content');
     let cardsContainer = document.getElementById('advanced-tab-cards-container');
@@ -3468,8 +3548,11 @@ function // Function to create and render a chart in a Bootstrap card component 
     if (container.id === 'advanced-tab-cards-container') {
       canvas.id = 'canvas-' + chartObject.id;
     }
-    if (container === 'bookmarksBodyColumn') {
+    if (container.id === 'bookmarksBodyColumn') {
       canvas.id = 'bookmarked-canvas-' + chartObject.id;
+    }
+    if (container.id === 'summary-tab-cards-container') {
+      canvas.id = 'summary-canvas-' + chartObject.id;
     }
     canvas.style.width = '100%'; // Full width
 
@@ -3484,12 +3567,8 @@ function // Function to create and render a chart in a Bootstrap card component 
       barOptions = chartObject.verticalColumnChartOptions;
     }
 
-    //calculate how many bars there will be and use that to calculate the canvas height
-
     // Append the canvas to the card body
     cardBody.appendChild(canvas);
-
-
 
     // Render the chart on the canvas
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
@@ -3598,6 +3677,15 @@ function renderNumberChartInCard(chartObject, container) {
   const canvas = document.createElement('canvas');
   canvas.style.width = '100%'; // Full width
 
+  if (container.id === 'advanced-tab-cards-container') {
+    canvas.id = 'canvas-' + chartObject.id;
+  }
+  if (container.id === 'bookmarksBodyColumn') {
+    canvas.id = 'bookmarked-canvas-' + chartObject.id;
+  }
+  if (container.id === 'summary-tab-cards-container') {
+    canvas.id = 'summary-canvas-' + chartObject.id;
+  }
   //calculate how many bars there will be and use that to calculate the canvas height
   canvas.style.height = `350px`; //will be 100px if filters return no data and 125px if they return 1 bar
 
@@ -4125,14 +4213,20 @@ function addRemoveBookmark(target, chart) {
     chart.bookmarked = true;
     bookmarks.push(chart);
 
-    //if you're ractivating from bookmarks overlay, we should reactivate any chart object
-    const currentAnalysisObject = analysisObjects.find(obj => obj.id === 'advanced'); //find the current analysis object
-    for (let i = 0; i < currentAnalysisObject.chartObjects.length; i++) {//for each displayed chart object
-      if (currentAnalysisObject.chartObjects[i].id === chart.id) { //if the chart matches the id of the object just unbookmarked
-        currentAnalysisObject.chartObjects[i].bookmarked = true; //unbookmark the chart object (if hasn't been done already)
-        break; // Exit the loop as we found the matching chart object
+    //if you're ractivating from bookmarks overlay, we should reactivate any simple or advanced chart object
+    const analysisIds = ['advanced', 'summary']; // List of analysis object ids
+
+    // Loop through each id and apply the logic
+    analysisIds.forEach((id) => {
+      const analysisObject = analysisObjects.find(obj => obj.id === id); // Find the analysis object for the current id
+    
+      for (let i = 0; i < analysisObject.chartObjects.length; i++) { // Loop through the chart objects
+        if (analysisObject.chartObjects[i].id === chart.id) { // Check if the chart id matches
+          analysisObject.chartObjects[i].bookmarked = true; // Unbookmark the chart object
+          break; // Exit the loop as the chart object is found
+        }
       }
-    }
+    });
 
 
     console.log('bookmarks: ', bookmarks);
@@ -4163,16 +4257,20 @@ function addRemoveBookmark(target, chart) {
     removeFromArray(bookmarks, chart.id);
     console.log('bookmarks: ', bookmarks);
 
-    //if you're deactivating from bookmarks overlay, we need to deactivate any chart object displayed in the analysis step
-    const currentAnalysisObject = analysisObjects.find(obj => obj.id === 'advanced'); //find the current analysis object
-    for (let i = 0; i < currentAnalysisObject.chartObjects.length; i++) {//for each displayed chart object
-      if (currentAnalysisObject.chartObjects[i].id === chart.id) { //if the chart matches the id of the object just unbookmarked
-        currentAnalysisObject.chartObjects[i].bookmarked = false; //unbookmark the chart object (if hasn't been done already)
-        break; // Exit the loop as we found the matching chart object
+    const analysisIds = ['advanced', 'summary']; // List of analysis object ids
+
+    // Loop through each id and apply the logic
+    analysisIds.forEach((id) => {
+      const analysisObject = analysisObjects.find(obj => obj.id === id); // Find the analysis object for the current id
+    
+      for (let i = 0; i < analysisObject.chartObjects.length; i++) { // Loop through the chart objects
+        if (analysisObject.chartObjects[i].id === chart.id) { // Check if the chart id matches
+          analysisObject.chartObjects[i].bookmarked = false; // Deactivate the bookmark
+          break; // Exit the loop as the chart object is found
+        }
       }
-    }
-    console.log(currentAnalysisObject); //make sure that the charts bookmark setting is now set to off 
-    //update the bookmark icon
+    });
+    
   }
 }
 
