@@ -117,6 +117,8 @@ function navToUpload() {
   localStorage.removeItem('parsedCSVData');
   localStorage.removeItem('selectedFile');
   localStorage.removeItem('dropdownState');
+  localStorage.removeItem('bookmarks');
+
 }
 
 function navToReview() {
@@ -276,6 +278,7 @@ function signOut() {
   localStorage.removeItem('parsedCSVData');
   localStorage.removeItem('selectedFile');
   localStorage.removeItem('dropdownState');
+  localStorage.removeItem('bookmarks');
   handleEmail();
 }
 
@@ -1096,6 +1099,8 @@ function loadReviewButtonPanel() {
     localStorage.removeItem('parsedCSVData');
     localStorage.removeItem('selectedFile');
     localStorage.removeItem('dropdownState');
+    localStorage.removeItem('bookmarks');
+
   })
 
 
@@ -4222,6 +4227,8 @@ function addRemoveBookmark(target, chart) {
     //update chartobject and push to bookmarks array
     chart.bookmarked = true;
     bookmarks.push(chart);
+    localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+
 
     //if you're ractivating from bookmarks overlay, we should reactivate any simple or advanced chart object
     const analysisIds = ['advanced', 'summary']; // List of analysis object ids
@@ -4265,6 +4272,7 @@ function addRemoveBookmark(target, chart) {
       }
     }
     removeFromArray(bookmarks, chart.id);
+    localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
     console.log('bookmarks: ', bookmarks);
 
     const analysisIds = ['advanced', 'summary']; // List of analysis object ids
@@ -4409,8 +4417,9 @@ function openBookmarksOverlay() {
     const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
     bookmarksBodyColumn.innerHTML = '';
   }
+  const bookmarksLocalStorage = JSON.parse(localStorage.getItem('bookmarks'));
 
-  if (bookmarks.length === 0) {
+  if (!bookmarksLocalStorage || bookmarksLocalStorage.length===0) {
     const exportButton = document.getElementById('export-button');
     exportButton.classList.add('disabled'); //ensure the export button is  disabled
 
@@ -4451,27 +4460,28 @@ function openBookmarksOverlay() {
   else {
     const exportButton = document.getElementById('export-button');
     exportButton.classList.remove('disabled'); //ensure the export button isn't disabled
+    
 
     const emptyBookmarksContainer = document.getElementById('empty-bookmarks-container');
     if (emptyBookmarksContainer) {
       emptyBookmarksContainer.remove();
     }
-    for (let i = 0; i < bookmarks.length; i++) {
+    for (let i = 0; i < bookmarksLocalStorage.length; i++) {
       const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
-      if (bookmarks[i].analysisType === 'simple') {
-        renderSimpleChartInCard(bookmarks[i], bookmarksBodyColumn);
+      if (bookmarksLocalStorage[i].analysisType === 'simple') {
+        renderSimpleChartInCard(bookmarksLocalStorage[i], bookmarksBodyColumn);
       }
-      if (bookmarks[i].analysisType === 'number') {
-        renderNumberChartInCard(bookmarks[i], bookmarksBodyColumn);
+      if (bookmarksLocalStorage[i].analysisType === 'number') {
+        renderNumberChartInCard(bookmarksLocalStorage[i], bookmarksBodyColumn);
       }
-      if (bookmarks[i].analysisType === 'comparative') {
-        renderComparativeChartInCard(bookmarks[i], bookmarksBodyColumn);
+      if (bookmarksLocalStorage[i].analysisType === 'comparative') {
+        renderComparativeChartInCard(bookmarksLocalStorage[i], bookmarksBodyColumn);
       }
-      if (bookmarks[i].analysisType === 'sum-comparative') {
-        renderSumAvgChartInCard(bookmarks[i], bookmarksBodyColumn);
+      if (bookmarksLocalStorage[i].analysisType === 'sum-comparative') {
+        renderSumAvgChartInCard(bookmarksLocalStorage[i], bookmarksBodyColumn);
       }
-      if (bookmarks[i].analysisType === 'average-comparative') {
-        renderSumAvgChartInCard(bookmarks[i], bookmarksBodyColumn);
+      if (bookmarksLocalStorage[i].analysisType === 'average-comparative') {
+        renderSumAvgChartInCard(bookmarksLocalStorage[i], bookmarksBodyColumn);
       }
 
     }
