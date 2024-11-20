@@ -1092,10 +1092,10 @@ function loadReviewButtonPanel() {
   leftCol.append(redoButton);
 
   redoButton.addEventListener('click', function () {
+    location.reload();
     localStorage.removeItem('parsedCSVData');
     localStorage.removeItem('selectedFile');
     localStorage.removeItem('dropdownState');
-    location.reload();
   })
 
 
