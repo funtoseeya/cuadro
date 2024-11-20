@@ -17,11 +17,17 @@ let parsedCSVData = []; // global array that stores the uploaded csv's data
 const guessedCSVheaderClassification = {}; // To store the guessed classification of each header
 let analysisObjects = []; // Array to store analysis object instances
 let colorPalette = ['#176BA0', '#19AADE', '#1AC9E6', '#caf0f8', '#52b69a', '#1DE3BD', '#CDFDD2', '#C7F9EE', '#b66ee8', '#d689ff', '#f2a8ff', '#ffc4ff', '#ebd9fc'];
-let bookmarks = [];
+let bookmarks = []; 
+
 
 
 // Call this function when the page loads
-document.addEventListener('DOMContentLoaded', checkEmailInLocalStorage);
+document.addEventListener('DOMContentLoaded', function(){
+
+  checkEmailInLocalStorage();
+  pushLocalBookmarkstoMainBookmarks();
+});
+
 
 //STEP WHERE I CHECK IF I NEED TO REGISTER THE  USER OR IF THEY ALREADY HAVE
 function checkEmailInLocalStorage() {
@@ -34,6 +40,21 @@ function checkEmailInLocalStorage() {
     // If no email exists, show the email input form
     handleEmail();
   }
+}
+
+function pushLocalBookmarkstoMainBookmarks() {
+  const bookmarksLocalStorage = JSON.parse(localStorage.getItem('bookmarks'));
+
+  if (!bookmarksLocalStorage || bookmarksLocalStorage.length===0) { 
+  
+    bookmarks = []; 
+    console.log('bookmarks empty / not saved from local storage: ', bookmarks);
+}
+else{
+  bookmarks = bookmarksLocalStorage;
+  console.log('bookmarks saved based on local storage: ',bookmarks);
+
+}
 }
 
 function checkLocalStorageData() {
@@ -55,6 +76,7 @@ function checkLocalStorageData() {
   else {
     createUploadStepContent();
   }
+
 }
 
 
@@ -4395,10 +4417,7 @@ function openBookmarksOverlay() {
     // Append elements to the dropdown container
     exportdropdownContainer.appendChild(exportSelect);
     exportdropdownContainer.appendChild(exportMenu);
-
-
     exportColumn.appendChild(exportdropdownContainer);
-
 
     //build up the bookmarks body
     const bookmarksBodyContainer = document.createElement('div');
@@ -4417,9 +4436,8 @@ function openBookmarksOverlay() {
     const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
     bookmarksBodyColumn.innerHTML = '';
   }
-  const bookmarksLocalStorage = JSON.parse(localStorage.getItem('bookmarks'));
 
-  if (!bookmarksLocalStorage || bookmarksLocalStorage.length===0) {
+  if (bookmarks.length===0) {
     const exportButton = document.getElementById('export-button');
     exportButton.classList.add('disabled'); //ensure the export button is  disabled
 
@@ -4461,27 +4479,26 @@ function openBookmarksOverlay() {
     const exportButton = document.getElementById('export-button');
     exportButton.classList.remove('disabled'); //ensure the export button isn't disabled
     
-
     const emptyBookmarksContainer = document.getElementById('empty-bookmarks-container');
     if (emptyBookmarksContainer) {
       emptyBookmarksContainer.remove();
     }
-    for (let i = 0; i < bookmarksLocalStorage.length; i++) {
+    for (let i = 0; i < bookmarks.length; i++) {
       const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
-      if (bookmarksLocalStorage[i].analysisType === 'simple') {
-        renderSimpleChartInCard(bookmarksLocalStorage[i], bookmarksBodyColumn);
+      if (bookmarks[i].analysisType === 'simple') {
+        renderSimpleChartInCard(bookmarks[i], bookmarksBodyColumn);
       }
-      if (bookmarksLocalStorage[i].analysisType === 'number') {
-        renderNumberChartInCard(bookmarksLocalStorage[i], bookmarksBodyColumn);
+      if (bookmarks[i].analysisType === 'number') {
+        renderNumberChartInCard(bookmarks[i], bookmarksBodyColumn);
       }
-      if (bookmarksLocalStorage[i].analysisType === 'comparative') {
-        renderComparativeChartInCard(bookmarksLocalStorage[i], bookmarksBodyColumn);
+      if (bookmarks[i].analysisType === 'comparative') {
+        renderComparativeChartInCard(bookmarks[i], bookmarksBodyColumn);
       }
-      if (bookmarksLocalStorage[i].analysisType === 'sum-comparative') {
-        renderSumAvgChartInCard(bookmarksLocalStorage[i], bookmarksBodyColumn);
+      if (bookmarks[i].analysisType === 'sum-comparative') {
+        renderSumAvgChartInCard(bookmarks[i], bookmarksBodyColumn);
       }
-      if (bookmarksLocalStorage[i].analysisType === 'average-comparative') {
-        renderSumAvgChartInCard(bookmarksLocalStorage[i], bookmarksBodyColumn);
+      if (bookmarks[i].analysisType === 'average-comparative') {
+        renderSumAvgChartInCard(bookmarks[i], bookmarksBodyColumn);
       }
 
     }
