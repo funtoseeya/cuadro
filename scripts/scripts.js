@@ -879,7 +879,7 @@ function setupAnalyzeStep() {
   advancedTabLink.setAttribute('data-bs-toggle', 'tab');
   advancedTabLink.setAttribute('aria-controls', 'advanced');
   advancedTabLink.setAttribute('aria-selected', 'false');
-  advancedTabLink.textContent = 'Filter & Compare';
+  advancedTabLink.textContent = 'Compare & Filter';
   advancedTab.appendChild(advancedTabLink);
 
   // Create the tab content
@@ -1303,19 +1303,14 @@ function displayAnalysisOptions() {
   const analysisOptionText = document.createElement('div');
   analysisOptionText.innerHTML = `<h5>What would you like to see?</h5><p>Filter and compare your data using one of the options below.</p>`;
 
-
-
-
-
   analysisOptionTextColumn.appendChild(analysisOptionText);
   analysisOptionTextRow.appendChild(analysisOptionTextColumn);
   advancedTabContent.appendChild(analysisOptionTextRow);
 
   // Create the analysis option cards, cols, and row
-  const analysisOptionCardsRow1 = document.createElement('div');
-  analysisOptionCardsRow1.classList.add('row');
-  const analysisOptionCardsRow2 = document.createElement('div');
-  analysisOptionCardsRow2.classList.add('row');
+  const analysisOptionCardsRow = document.createElement('div');
+  analysisOptionCardsRow.classList.add('row');
+
 
   // Helper function to create a card in a column
   function createCardInCol(cardID, column, title, description, iconHTML, imageSRC) {
@@ -1388,7 +1383,7 @@ function displayAnalysisOptions() {
   createCardInCol(
     'simple-analysis-option',
     analysisOptionCardBasicCol,
-    'Split by category',
+    'Count of Rows by Category',
     `Count the number of times each category appears within a field.`,
     '<i class="fas fa-chart-bar"></i>',
     '../images/category-distribution-preview.svg'
@@ -1425,7 +1420,7 @@ function displayAnalysisOptions() {
   createCardInCol(
     'comparative-analysis-option',
     analysisOptionCardCompareCol,
-    'Split by grouped categories',
+    'Count of Rows by Group of Categories',
     `Count the number of times a grouping of categories appears across two fields.`,
     '<i class="fas fa-table"></i>',
     '../images/category-grouping-distribution-preview.svg'
@@ -1437,7 +1432,7 @@ function displayAnalysisOptions() {
   createCardInCol(
     'number-analysis-option',
     analysisOptionCardNumCol,
-    'Split by range',
+    'Count of Rows by Numerical Range',
     `Count the number of times a range of numbers appears within a field.`,
     '<i class="fa-solid fa-chart-area"></i>',
     '../images/number-distribution-preview.svg'
@@ -1457,16 +1452,15 @@ function displayAnalysisOptions() {
   );
 
   // Append analysis columns to the row
-  analysisOptionCardsRow1.appendChild(analysisOptionCardBasicCol);
-  analysisOptionCardsRow1.appendChild(analysisOptionCardNumCompareCol);
-  analysisOptionCardsRow1.appendChild(analysisOptionAvgCol);
-  analysisOptionCardsRow2.appendChild(analysisOptionCardCompareCol);
-  analysisOptionCardsRow2.appendChild(analysisOptionCardNumCol);
-  analysisOptionCardsRow2.appendChild(analysisOptionCardTrendCol);
+  analysisOptionCardsRow.appendChild(analysisOptionCardBasicCol);
+  analysisOptionCardsRow.appendChild(analysisOptionCardNumCompareCol);
+  analysisOptionCardsRow.appendChild(analysisOptionAvgCol);
+  analysisOptionCardsRow.appendChild(analysisOptionCardCompareCol);
+  analysisOptionCardsRow.appendChild(analysisOptionCardNumCol);
+  analysisOptionCardsRow.appendChild(analysisOptionCardTrendCol);
 
   // Append the row to the step body
-  advancedTabContent.appendChild(analysisOptionCardsRow1);
-  advancedTabContent.appendChild(analysisOptionCardsRow2);
+  advancedTabContent.appendChild(analysisOptionCardsRow);
 
 
 
@@ -1609,21 +1603,21 @@ function handleIWantTo(event) {
   const simpleListAnchor = document.createElement('a');
   simpleListAnchor.classList.add('dropdown-item');
   const simpleListAnchorText = document.createElement('label');
-  simpleListAnchorText.textContent = 'split by category';
+  simpleListAnchorText.textContent = 'count of rows by category';
   simpleListAnchor.setAttribute('data-value', 'simple');
 
   const numberListItem = document.createElement('li');
   const numberListAnchor = document.createElement('a');
   numberListAnchor.classList.add('dropdown-item');
   const numberListAnchorText = document.createElement('label');
-  numberListAnchorText.textContent = 'split by range';
+  numberListAnchorText.textContent = 'count of rows by numerical range';
   numberListAnchor.setAttribute('data-value', 'number');
 
   const compareListItem = document.createElement('li');
   const compareListAnchor = document.createElement('a');
   compareListAnchor.classList.add('dropdown-item');
   const compareListAnchorText = document.createElement('label');
-  compareListAnchorText.textContent = 'split by grouped categories';
+  compareListAnchorText.textContent = 'count of rows by group of categories';
   compareListAnchor.setAttribute('data-value', 'comparative');
 
   const sumListItem = document.createElement('li');
@@ -1674,7 +1668,7 @@ function handleIWantTo(event) {
 
   if (event === 'simple') {
     // Update select.textContent
-    iWantSelect.textContent = 'split by category';
+    iWantSelect.textContent = 'count of rows by category';
 
     //hide group column
     if (groupColumn) {
@@ -1689,7 +1683,7 @@ function handleIWantTo(event) {
   // If the value of the select dropdown is "generic"...
   if (event === 'number') {
     // Update select.textContent
-    iWantSelect.textContent = 'split by range';
+    iWantSelect.textContent = 'count of rows by numerical range';
 
     //hide group column
     if (groupColumn) {
@@ -1704,7 +1698,7 @@ function handleIWantTo(event) {
   if (event === 'comparative' || event === 'sum-comparative' || event === 'average-comparative') {
     // Update select.textContent
     if (event === 'comparative') {
-      iWantSelect.textContent = 'split by grouped categories';
+      iWantSelect.textContent = 'count of rows by group of categories';
     }
     if (event === 'sum-comparative') {
       iWantSelect.textContent = 'sum by category';
@@ -1755,13 +1749,13 @@ function handleIWantTo(event) {
   iWantMenu.addEventListener('click', function (event) {
     const target = event.target.closest('a.dropdown-item');
     let analysisType = '';
-    if (target.innerText === 'split by category') {
+    if (target.innerText === 'count of rows by category') {
       analysisType = 'simple';
     }
-    if (target.innerText === 'split by range') {
+    if (target.innerText === 'count of rows by numerical range') {
       analysisType = 'number';
     }
-    if (target.innerText === 'split by grouped categories') {
+    if (target.innerText === 'count of rows by group of categories') {
       analysisType = 'comparative';
     }
     if (target.innerText === 'sum by category') {
@@ -1787,14 +1781,17 @@ function createUsingTheseDropdown(event) {
   span.id = 'using-these-values-text';
   span.style.fontSize = '0.9rem';
 
-  if (event === 'simple' || event === 'number' || event === 'comparative') {
-    span.textContent = 'Split of';
+  if (event === 'simple' || event === 'comparative') {
+    span.textContent = 'Count of rows by...';
+  }
+  if (event === 'number') {
+    span.textContent = 'Count of rows by range of...';
   }
   if (event === 'sum-comparative') {
-    span.textContent = 'Sum of';
+    span.textContent = 'Sum of...';
   }
   if (event === 'average-comparative') {
-    span.textContent = 'Average of';
+    span.textContent = 'Average...';
   }
 
 
@@ -2201,7 +2198,7 @@ class AnalysisObject {
       if (type === 'Categorical') {
         result = this.generateSimpleChartObjectDataArrayAndLabels(field, this.filteredBy);
         percentagesCounts = result.PercentagesCounts;
-        chartTitle = `Split of '${field}' categories`;
+        chartTitle = `Count and Percentage of rows by '${field}'`;
         chartID = `summary-simple-${field}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
         visType = 'bar';
         analysisType = 'simple';
@@ -2209,7 +2206,7 @@ class AnalysisObject {
       if (type === 'Numerical') {
         result = this.generateNumberChartObjectDataArrayAndLabels(field, this.filteredBy);
         percentagesCounts = '';
-        chartTitle = `Split of '${field}' ranges`;
+        chartTitle = `Count of rows by range of '${field}'`;
         chartID = `summary-number-${field}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
         visType = 'line';
         analysisType = 'number';
@@ -2310,7 +2307,7 @@ class AnalysisObject {
       const data = result.data;
       const labels = result.labels;
       const percentagesCounts = result.PercentagesCounts;
-      const chartTitle = `Split of '${value}' categories`;
+      const chartTitle = `Count and Percentage of rows by '${value}'`;
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `simple-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
@@ -2349,7 +2346,7 @@ class AnalysisObject {
       const data = result.data;
       const labels = result.labels;
       const percentagesCounts = '';
-      const chartTitle = `Split of '${value}' ranges`;
+      const chartTitle = `Count of rows by range of '${value}'`;
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `number-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
@@ -2390,7 +2387,7 @@ class AnalysisObject {
       const UsingTheseType = dropdownState.find(obj => obj.header === value);
       let chartTitle = '';
 
-      chartTitle = `Split of '${value}' categories grouped by '${this.groupedBy}' `;
+      chartTitle = `Count of rows by '${value}' grouped by '${this.groupedBy}' `;
 
 
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
