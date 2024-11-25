@@ -14,15 +14,16 @@ let selectedFile; // Global variable to store the file. we need this to create a
 let dropdownState = []; //global variable to save dropdowns in the review table. we need this to save the user's con
 let CategoricalArray = []; //global array that saves all unique values of columns tagged as Categorical - useful for filters
 let parsedCSVData = []; // global array that stores the uploaded csv's data
+let filteredData = [];
 const guessedCSVheaderClassification = {}; // To store the guessed classification of each header
 let analysisObjects = []; // Array to store analysis object instances
 let colorPalette = ['#176BA0', '#19AADE', '#1AC9E6', '#caf0f8', '#52b69a', '#1DE3BD', '#CDFDD2', '#C7F9EE', '#b66ee8', '#d689ff', '#f2a8ff', '#ffc4ff', '#ebd9fc'];
-let bookmarks = []; 
+let bookmarks = [];
 
 
 
 // Call this function when the page loads
-document.addEventListener('DOMContentLoaded', function(){
+document.addEventListener('DOMContentLoaded', function () {
 
   checkEmailInLocalStorage();
   pushLocalBookmarkstoMainBookmarks();
@@ -45,16 +46,16 @@ function checkEmailInLocalStorage() {
 function pushLocalBookmarkstoMainBookmarks() {
   const bookmarksLocalStorage = JSON.parse(localStorage.getItem('bookmarks'));
 
-  if (!bookmarksLocalStorage || bookmarksLocalStorage.length===0) { 
-  
-    bookmarks = []; 
-    console.log('bookmarks empty / not saved from local storage: ', bookmarks);
-}
-else{
-  bookmarks = bookmarksLocalStorage;
-  console.log('bookmarks saved based on local storage: ',bookmarks);
+  if (!bookmarksLocalStorage || bookmarksLocalStorage.length === 0) {
 
-}
+    bookmarks = [];
+    console.log('bookmarks empty / not saved from local storage: ', bookmarks);
+  }
+  else {
+    bookmarks = bookmarksLocalStorage;
+    console.log('bookmarks saved based on local storage: ', bookmarks);
+
+  }
 }
 
 function checkLocalStorageData() {
@@ -779,8 +780,6 @@ function setupAnalyzeStep() {
 
   // run the function that creates the Categorical array, which is needed for the filter panel
   createCategoricalArrayForFilterPanel();
-  //create a new analysis object
-  createAnalysisObject('advanced');
 
   window.addEventListener('beforeunload', alertUnsavedChanges);
 
@@ -822,18 +821,27 @@ function setupAnalyzeStep() {
   const stepBody = document.getElementById('step-body');
   stepBody.innerHTML = ''; // Clear any existing content
 
+  //create the back and filter row
+  const backFilterRow = document.createElement('div');
+  backFilterRow.className = 'row mb-2';
+  stepBody.appendChild(backFilterRow);
 
-
-
+  //create the back button
+  const reviewColumn = document.createElement('div');
+  reviewColumn.className = 'col-6 p-0 d-flex align-items-center justify-content-start';
+  backFilterRow.appendChild(reviewColumn);
   const reviewNavButton = document.createElement('a');
   reviewNavButton.className = 'btn btn-secondary d-none d-md-block'; // Adds Bootstrap's responsive display utility
-  reviewNavButton.style.position = 'fixed';
-  reviewNavButton.style.top = '100px';
-  reviewNavButton.style.left = '10px';
   reviewNavButton.innerHTML = `<i class="fa-solid fa-left-long" style="padding-right:0.2rem"></i> Review`;
-  stepBody.appendChild(reviewNavButton);
+  reviewColumn.appendChild(reviewNavButton);
   reviewNavButton.addEventListener('click', navToReview);
-  
+
+
+  const filterColumn = document.createElement('div');
+  filterColumn.className = 'col-6 p-0 d-flex align-items-center justify-content-end';
+  filterColumn.id = 'filter-column';
+  backFilterRow.appendChild(filterColumn);
+  createFilterButton();
 
   // Create the tab panel
   const tabPanelRow = document.createElement('div');
@@ -921,7 +929,7 @@ function setupAnalyzeStep() {
     createCategoricalArrayForFilterPanel();
 
   }
-  //create a new analysis object
+  filteredData = parsedCSVData;
   loadSummaryTab();
   createAnalysisObject('advanced');
 
@@ -1087,17 +1095,17 @@ async function reviewData() {
 
   dataTypeSettingsCol.appendChild(accordion);
 
- 
-  
-    const fileRow = document.createElement('div');
+
+
+  const fileRow = document.createElement('div');
   stepBody.appendChild(fileRow);
   const fileName = document.createElement('p');
   fileName.className = 'text-muted small';
   const selectedFileInStorage = localStorage.getItem('selectedFile');
   fileName.innerHTML = `<strong>Uploaded file:</strong> ${selectedFileInStorage}`;
   dataTypeSettingsCol.appendChild(fileName);
-  
- 
+
+
 
   generateReviewTable(dataTypeSettingsCol);
 
@@ -1250,7 +1258,7 @@ function openDataTypeSettingsOverlay() { //not using this function right now
   dataTypesContainer.appendChild(dataTypeSettingsRow);
   dataTypeSettingsRow.appendChild(dataTypeSettingsCol);
 
-  
+
 
   // Create the accordion
   const accordion = document.createElement('div');
@@ -1506,7 +1514,7 @@ function handleIWantTo(event) {
     analysisType: event,
     usingThese: [],
     groupedBy: '',
-    filteredBy: [],
+    filteredBy: undefined,
   });
 
 
@@ -1552,7 +1560,6 @@ function handleIWantTo(event) {
   //no class for now. just keep empty
 
   const filterColumn = document.createElement('div');
-  filterColumn.id = 'filter-column';
   filterColumn.classList.add('col-12', 'col-sm-6', 'col-md-4');
 
   // Append the col divs to the rowdiv
@@ -1677,7 +1684,6 @@ function handleIWantTo(event) {
 
     // Create and append the required dropdowns
     createUsingTheseDropdown(event);
-    createFilterButton();
   }
 
   // If the value of the select dropdown is "generic"...
@@ -1692,7 +1698,6 @@ function handleIWantTo(event) {
 
     // Create and append the required dropdowns
     createUsingTheseDropdown(event);
-    createFilterButton();
   }
 
   if (event === 'comparative' || event === 'sum-comparative' || event === 'average-comparative') {
@@ -1731,7 +1736,6 @@ function handleIWantTo(event) {
     // Create and append the required dropdowns
     createUsingTheseDropdown(event);
     createGroupByDropdown();
-    createFilterButton();
   }
 
 
@@ -2018,30 +2022,15 @@ function updateGroupByValue() {
 function createFilterButton() {
   const filterColumn = document.getElementById('filter-column');
 
-  // Create the span element for text
-  const span = document.createElement('span');
-  span.id = 'filtered-by-text';
-  span.style.fontSize = '0.9rem';
-  span.textContent = 'Filtered by';
-
   // Create the menu container
   const dropdownContainer = document.createElement('div');
   dropdownContainer.classList.add('dropdown');
 
   // Create the button
   const filterSelect = document.createElement('button');
-  filterSelect.classList.add(
-    'btn',
-    'truncate-btn',
-    'btn-secondary',
-    'form-select',
-    'data-type-dropdown'
-  );
+  filterSelect.innerHTML = `<i class="fa-solid fa-filter"></i> Filter`;
+  filterSelect.className = 'btn btn-grey';
   filterSelect.type = 'button';
-  filterSelect.style.width = '100%';
-  filterSelect.style.fontSize = '0.9rem';
-  filterSelect.textContent = '0 selected'; // Start with 0 selected
-  filterSelect.style.textAlign = 'left'; // Align text to the left
   filterSelect.id = 'filter-select';
   filterSelect.setAttribute('data-bs-toggle', 'dropdown');
   filterSelect.setAttribute('aria-expanded', 'false');
@@ -2097,15 +2086,15 @@ function createFilterButton() {
 
         // Add event listener to update button text when checkbox is changed
         item.addEventListener('change', () => {
-          updateFilteredCount();
-          updateFilteredArray();
+          filterData();
         });
       });
     }
   });
 
   // Function to update the Filtered by array based on selected checkboxes
-  function updateFilteredArray() {
+  function filterData() {
+    filteredData = [];
     const selectedValues = Array.from(
       document.querySelectorAll(
         '#filter-select ~ .dropdown-menu input[type="checkbox"]:checked'
@@ -2116,24 +2105,69 @@ function createFilterButton() {
       return { header, value };
     });
 
-    // Find the current AnalysisObject and update its filteredBy array
-    const analysis = analysisObjects.find(
-      obj => obj.id === 'advanced'
-    );
-    if (analysis) {
-      analysis.filteredBy = selectedValues;
-      analysis.beginChartGenerationProcess();
-      console.log(analysis);
-    } else {
-      console.error('AnalysisObject not found');
+    function matchesFilter(item, filters) {
+      // Loop through each filter
+      for (let i = 0; i < filters.length; i++) {
+        let filter = filters[i];
+        let header = filter.header;
+        let value = filter.value;
+
+        // Check if this item matches the filter
+        if (item[header] === value) {
+          // If it matches, continue to the next filter
+          continue;
+        } else {
+          // If it doesn't match, check if there is another filter with the same header and a matching value
+          let hasAnotherMatch = false;
+          for (let j = 0; j < filters.length; j++) {
+            if (
+              filters[j].header === header &&
+              item[header] === filters[j].value
+            ) {
+              hasAnotherMatch = true;
+              break;
+            }
+          }
+          // If no other match is found for the same header, return false
+          if (!hasAnotherMatch) {
+            return false;
+          }
+        }
+      }
+
+      // If the item passes all filters, return true
+      return true;
     }
+
+    // Filter the array based on applied filters
+    for (let i = 0; i < parsedCSVData.length; i++) {
+      let item = parsedCSVData[i]; // Get the current item from parsedCSVData
+      if (matchesFilter(item, selectedValues)) {
+        // Check if the item matches the filters
+        filteredData.push(item); // If it matches, add it to the filtered array
+      }
+    }
+
+        // Find each AnalysisObject and update its filteredBy array
+        analysisObjects.forEach(obj => {
+
+          obj.filteredBy = selectedValues;
+          if (obj.id === 'advanced') {
+            obj.beginChartGenerationProcess();
+          }
+          if (obj.id === 'summary') {
+            obj.beginSummaryChartGenerationProcess();
+          }
+        })
+        console.log('analysis objectS:',analysisObjects);
+
+
   }
 
   // Append elements to the dropdown container
   dropdownContainer.appendChild(filterSelect);
   dropdownContainer.appendChild(filterMenu);
 
-  filterColumn.appendChild(span);
   filterColumn.appendChild(dropdownContainer);
 
   // Prevent dropdown menu from closing when clicking inside
@@ -2142,17 +2176,7 @@ function createFilterButton() {
   });
 }
 
-// Update the text of the filterSelect button based on selected checkboxes
-function updateFilteredCount() {
-  const filterSelect = document.getElementById('filter-select');
-  const checkboxes = document.querySelectorAll(
-    '#filter-select ~ .dropdown-menu input[type="checkbox"]'
-  );
-  const filteredCount = Array.from(checkboxes).filter(
-    checkbox => checkbox.checked
-  ).length;
-  filterSelect.textContent = `${filteredCount} selected`;
-}
+
 
 
 // a boilerplate for analysis objects. users will be able to create many of them
@@ -2496,55 +2520,11 @@ class AnalysisObject {
 
 
   generateSimpleChartObjectDataArrayAndLabels(header, filteredBy) {
-    // Helper function to check if an object matches all the filter criteria. OR within the the same header, AND between headers
-    function matchesFilter(item, filters) {
-      // Loop through each filter
-      for (let i = 0; i < filters.length; i++) {
-        let filter = filters[i];
-        let header = filter.header;
-        let value = filter.value;
-
-        // Check if this item matches the filter
-        if (item[header] === value) {
-          // If it matches, continue to the next filter
-          continue;
-        } else {
-          // If it doesn't match, check if there is another filter with the same header and a matching value
-          let hasAnotherMatch = false;
-          for (let j = 0; j < filters.length; j++) {
-            if (
-              filters[j].header === header &&
-              item[header] === filters[j].value
-            ) {
-              hasAnotherMatch = true;
-              break;
-            }
-          }
-          // If no other match is found for the same header, return false
-          if (!hasAnotherMatch) {
-            return false;
-          }
-        }
-      }
-
-      // If the item passes all filters, return true
-      return true;
-    }
-
-    // Filter the array based on applied filters
-    let filteredCSVArray = []; // Initialize an empty array for filtered items
-    for (let i = 0; i < parsedCSVData.length; i++) {
-      let item = parsedCSVData[i]; // Get the current item from parsedCSVData
-      if (matchesFilter(item, filteredBy)) {
-        // Check if the item matches the filters
-        filteredCSVArray.push(item); // If it matches, add it to the filtered array
-      }
-    }
 
     // Count the occurrences of each unique value for the specified header
     let countMap = {}; // Initialize an empty object for counting
-    for (let i = 0; i < filteredCSVArray.length; i++) {
-      let item = filteredCSVArray[i]; // Get the current item from the filtered array
+    for (let i = 0; i < filteredData.length; i++) {
+      let item = filteredData[i]; // Get the current item from the filtered array
       let value = item[header]; // Get the value from the curent item's usingthese header
       if (countMap[value]) {
         // If the value is already in countMap, increment its count
@@ -2556,7 +2536,7 @@ class AnalysisObject {
     }
 
     // Calculate the percentage for each unique value
-    let totalCount = filteredCSVArray.length; // Get the total count of filtered items
+    let totalCount = filteredData.length; // Get the total count of filtered items
     let data = []; // Initialize an array for the data
     let labels = []; // Initialize an array for the labels
     let PercentagesCounts = [];
@@ -2647,7 +2627,6 @@ class AnalysisObject {
         filteredCSVArray.push(item); // If it matches, add it to the filtered array
       }
     }
-    console.log('filtered csv array', filteredCSVArray);
 
     const numbers = filteredCSVArray.map(obj => Number(obj[header].trim()));
 
@@ -2695,51 +2674,6 @@ class AnalysisObject {
   }
 
   generateComparativeChartObjectDataArrayAndLabels(header, groupedBy, filteredBy) {
-    // Updated function to check if an item matches all filters
-    function matchesFilter(item, filters) {
-      // Loop through each filter
-      for (let i = 0; i < filters.length; i++) {
-        let filter = filters[i];
-        let filterHeader = filter.header;
-        let filterValue = filter.value;
-
-        // Check if this item matches the filter
-        if (item[filterHeader] === filterValue) {
-          // If it matches, continue to the next filter
-          continue;
-        } else {
-          // If it doesn't match, check if there is another filter with the same header and a matching value
-          let hasAnotherMatch = false;
-          for (let j = 0; j < filters.length; j++) {
-            if (
-              filters[j].header === filterHeader &&
-              item[filterHeader] === filters[j].value
-            ) {
-              hasAnotherMatch = true;
-              break;
-            }
-          }
-          // If no other match is found for the same header, return false
-          if (!hasAnotherMatch) {
-            return false;
-          }
-        }
-      }
-
-      // If the item passes all filters, return true
-      return true;
-    }
-
-    // Filter the data based on applied filters
-    const filteredData = [];
-    for (let i = 0; i < parsedCSVData.length; i++) {
-      let item = parsedCSVData[i];
-      if (matchesFilter(item, filteredBy)) {
-        filteredData.push(item);
-      }
-    }
-    console.log('Filtered data:', filteredData);
-
 
     // Create a map to count occurrences for each group
     const groupCounts = {};
@@ -2808,53 +2742,8 @@ class AnalysisObject {
   }
 
   generateSumChartObjectDataArrayAndLabels(header, groupedBy, filteredBy) {
-    // Updated function to check if an item matches all filters
-    function matchesFilter(item, filters) {
-      // Loop through each filter
-      for (let i = 0; i < filters.length; i++) {
-        let filter = filters[i];
-        let filterHeader = filter.header;
-        let filterValue = filter.value;
-
-        // Check if this item matches the filter
-        if (item[filterHeader] === filterValue) {
-          // If it matches, continue to the next filter
-          continue;
-        } else {
-          // If it doesn't match, check if there is another filter with the same header and a matching value
-          let hasAnotherMatch = false;
-          for (let j = 0; j < filters.length; j++) {
-            if (
-              filters[j].header === filterHeader &&
-              item[filterHeader] === filters[j].value
-            ) {
-              hasAnotherMatch = true;
-              break;
-            }
-          }
-          // If no other match is found for the same header, return false
-          if (!hasAnotherMatch) {
-            return false;
-          }
-        }
-      }
-
-      // If the item passes all filters, return true
-      return true;
-    }
-
-    // Filter the data based on applied filters
-    const filteredData = [];
-    for (let i = 0; i < parsedCSVData.length; i++) {
-      let item = parsedCSVData[i];
-      if (matchesFilter(item, filteredBy)) {
-        filteredData.push(item);
-      }
-    }
-    console.log('Filtered data:', filteredData);
-
+    
     const headerType = dropdownState.find(item => item.header === header).value;
-    console.log('dropdownState: ', dropdownState);
 
     // Create a map to sum values for each group
     const groupSums = {};
@@ -2903,53 +2792,8 @@ class AnalysisObject {
 
 
   generateAverageChartObjectDataArrayAndLabels(header, groupedBy, filteredBy) {
-    // Updated function to check if an item matches all filters
-    function matchesFilter(item, filters) {
-      // Loop through each filter
-      for (let i = 0; i < filters.length; i++) {
-        let filter = filters[i];
-        let filterHeader = filter.header;
-        let filterValue = filter.value;
-
-        // Check if this item matches the filter
-        if (item[filterHeader] === filterValue) {
-          // If it matches, continue to the next filter
-          continue;
-        } else {
-          // If it doesn't match, check if there is another filter with the same header and a matching value
-          let hasAnotherMatch = false;
-          for (let j = 0; j < filters.length; j++) {
-            if (
-              filters[j].header === filterHeader &&
-              item[filterHeader] === filters[j].value
-            ) {
-              hasAnotherMatch = true;
-              break;
-            }
-          }
-          // If no other match is found for the same header, return false
-          if (!hasAnotherMatch) {
-            return false;
-          }
-        }
-      }
-
-      // If the item passes all filters, return true
-      return true;
-    }
-
-    // Filter the data based on applied filters
-    const filteredData = [];
-    for (let i = 0; i < parsedCSVData.length; i++) {
-      let item = parsedCSVData[i];
-      if (matchesFilter(item, filteredBy)) {
-        filteredData.push(item);
-      }
-    }
-    console.log('Filtered data:', filteredData);
-
+    
     const headerType = dropdownState.find(item => item.header === header).value;
-    console.log('dropdownState: ', dropdownState);
 
     // Create a map to sum values for each group
     const groupSums = {};
@@ -4255,7 +4099,7 @@ function addRemoveBookmark(target, chart) {
     // Loop through each id and apply the logic
     analysisIds.forEach((id) => {
       const analysisObject = analysisObjects.find(obj => obj.id === id); // Find the analysis object for the current id
-    
+
       for (let i = 0; i < analysisObject.chartObjects.length; i++) { // Loop through the chart objects
         if (analysisObject.chartObjects[i].id === chart.id) { // Check if the chart id matches
           analysisObject.chartObjects[i].bookmarked = true; // Unbookmark the chart object
@@ -4299,7 +4143,7 @@ function addRemoveBookmark(target, chart) {
     // Loop through each id and apply the logic
     analysisIds.forEach((id) => {
       const analysisObject = analysisObjects.find(obj => obj.id === id); // Find the analysis object for the current id
-    
+
       for (let i = 0; i < analysisObject.chartObjects.length; i++) { // Loop through the chart objects
         if (analysisObject.chartObjects[i].id === chart.id) { // Check if the chart id matches
           analysisObject.chartObjects[i].bookmarked = false; // Deactivate the bookmark
@@ -4307,7 +4151,7 @@ function addRemoveBookmark(target, chart) {
         }
       }
     });
-    
+
   }
 }
 
@@ -4434,7 +4278,7 @@ function openBookmarksOverlay() {
     bookmarksBodyColumn.innerHTML = '';
   }
 
-  if (bookmarks.length===0) {
+  if (bookmarks.length === 0) {
     const exportButton = document.getElementById('export-button');
     exportButton.classList.add('disabled'); //ensure the export button is  disabled
 
@@ -4475,7 +4319,7 @@ function openBookmarksOverlay() {
   else {
     const exportButton = document.getElementById('export-button');
     exportButton.classList.remove('disabled'); //ensure the export button isn't disabled
-    
+
     const emptyBookmarksContainer = document.getElementById('empty-bookmarks-container');
     if (emptyBookmarksContainer) {
       emptyBookmarksContainer.remove();

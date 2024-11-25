@@ -144,6 +144,30 @@ body {
   --bs-btn-disabled-border-color: #6c757d;
 }
 
+.btn-grey {
+
+  /*mod*/
+  background-color: rgb(224, 224, 224)  ;
+  border-color: rgb(224, 224, 224)  ;
+  color: var(--primary);
+}
+
+.btn-grey.disabled, .btn-grey:disabled {
+  /*mod*/
+  cursor: not-allowed;
+
+}
+
+.btn-grey:hover {
+
+  background-color: rgb(200, 200, 200)  ;
+  border-color: rgb(200, 200, 200)  ;
+  color: var(--primary);}
+
+.btn-grey:focus{
+  color:var(--primary);
+}
+
 .truncate-btn {
   white-space: nowrap;
   overflow: hidden;
