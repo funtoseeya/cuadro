@@ -955,9 +955,9 @@ function loadSummaryTab() {
 // Function to create a new array to generate the filters dropdown
 function createCategoricalArrayForFilterPanel() {
 
-  // Extract headers marked as "Categorical" or 'Numerical'
+  // Extract headers marked as "Categorical" 
   const CategoricalHeaders = dropdownState
-    .filter(item => item.value !== 'Ignore')
+    .filter(item => item.value === 'Categorical')
     .map(item => item.header);
 
   // Create a new array with unique values for each header marked as "Categorical"
