@@ -1084,9 +1084,9 @@ async function reviewData() {
     <div class="accordion-body" style="font-size: 0.85rem; padding: 0.75rem 1rem;">
       The table below displays your data's structure and how it has been categorized. You may update the categories if need be. You can always come back to this as well.
       <ul>
-        <li><strong>Categorical:</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. A field with unique values doesn't fall into Categorical - it should be set to Ignore.</li>
-        <li><strong>Numerical:</strong> This is for any field containing numerical values. We will compute these by summing or averaging them, rather than counting them.</li>
-        <li><strong>Date / Time:</strong> This is for any field containing timestamps. This is especially useful for generating trend analyses.</li>
+        <li><strong><i class="fa-solid fa-shapes"></i> Categorical:</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. A field with unique values doesn't fall into Categorical - it should be set to Ignore.</li>
+        <li><strong><i class="fa-solid fa-hashtag"></i> Numerical:</strong> This is for any field containing numerical values. We will compute these by summing or averaging them, rather than counting them.</li>
+        <li><strong><i class="fa-regular fa-calendar"></i> Date / Time:</strong> This is for any field containing timestamps. This is especially useful for generating trend analyses.</li>
         <li><strong>Ignore:</strong> Assign this to any field that doesn't fall into the above categories. e.g. comments, names, unique identifiers, etc.</li>
       </ul>
     </div>
