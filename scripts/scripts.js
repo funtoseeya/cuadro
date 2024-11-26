@@ -778,8 +778,6 @@ function setupAnalyzeStep() {
     analyzeButton.remove();
   }
 
-  // run the function that creates the Categorical array, which is needed for the filter panel
-  createCategoricalArrayForFilterPanel();
 
   window.addEventListener('beforeunload', alertUnsavedChanges);
 
@@ -926,10 +924,11 @@ function setupAnalyzeStep() {
 
     parsedCSVData = JSON.parse(localStorage.getItem('parsedCSVData'));
     dropdownState = JSON.parse(localStorage.getItem('dropdownState'));
-    createCategoricalArrayForFilterPanel();
 
   }
   filteredData = parsedCSVData;
+  createCategoricalArrayForFilterPanel();
+
   loadSummaryTab();
   createAnalysisObject('advanced');
 
@@ -2583,70 +2582,33 @@ class AnalysisObject {
   }
 
   generateNumberChartObjectDataArrayAndLabels(header, filteredBy) {
-    // Helper function to check if an object matches all the filter criteria. OR within the the same header, AND between headers
-    function matchesFilter(item, filters) {
-      // Loop through each filter
-      for (let i = 0; i < filters.length; i++) {
-        let filter = filters[i];
-        let header = filter.header;
-        let value = filter.value;
-
-        // Check if this item matches the filter
-        if (item[header] === value) {
-          // If it matches, continue to the next filter
-          continue;
-        } else {
-          // If it doesn't match, check if there is another filter with the same header and a matching value
-          let hasAnotherMatch = false;
-          for (let j = 0; j < filters.length; j++) {
-            if (
-              filters[j].header === header &&
-              item[header] === filters[j].value
-            ) {
-              hasAnotherMatch = true;
-              break;
-            }
-          }
-          // If no other match is found for the same header, return false
-          if (!hasAnotherMatch) {
-            return false;
-          }
-        }
-      }
-
-      // If the item passes all filters, return true
-      return true;
-    }
-
-    // Filter the array based on applied filters
-    let filteredCSVArray = []; // Initialize an empty array for filtered items
-    for (let i = 0; i < parsedCSVData.length; i++) {
-      let item = parsedCSVData[i]; // Get the current item from parsedCSVData
-      if (matchesFilter(item, filteredBy)) {
-        // Check if the item matches the filters
-        filteredCSVArray.push(item); // If it matches, add it to the filtered array
-      }
-    }
-
-    const numbers = filteredCSVArray.map(obj => Number(obj[header].trim()));
-
+    const numbers = filteredData.map(obj => Number(obj[header].trim()));
+  
     // Step 1: Calculate the range of the data
     const minValue = Math.min(...numbers);
     const maxValue = Math.max(...numbers);
     const dataRange = maxValue - minValue;
-
+  
+    // Handle edge case where all numbers are the same
+    if (dataRange === 0) {
+      return {
+        data: [numbers.length], // All values fall into one bin
+        labels: [`${minValue}`], // Single bin with the value itself
+      };
+    }
+  
     // Step 2: Calculate the number of bins dynamically
     let numBins = Math.min(Math.ceil(1 + Math.log2(numbers.length)), 20); // Sturges' Rule with a cap at 20
-
+  
     // Step 3: Calculate the bin width without rounding
     const binSize = dataRange / numBins;
-
+  
     // Step 4: Create the bins dynamically
     const bins = [];
     for (let i = minValue; i <= maxValue; i += binSize) {
       bins.push(i);
     }
-
+  
     // Step 5: Count how many values fall into each bin
     const frequencies = new Array(bins.length - 1).fill(0);
     numbers.forEach(value => {
@@ -2658,7 +2620,7 @@ class AnalysisObject {
       }
       if (value === maxValue) frequencies[frequencies.length - 1] += 1; // Edge case for max value
     });
-
+  
     // Step 6: Prepare the labels as ranges for x-axis, adjusting the final bin to include maxValue
     const binRanges = bins.slice(0, -1).map((bin, index) => {
       if (index === bins.length - 2) { // Last bin
@@ -2666,7 +2628,7 @@ class AnalysisObject {
       }
       return `${Math.floor(bin)}-${Math.floor(bins[index + 1] - 1)}`;
     });
-
+  
     return {
       data: frequencies,
       labels: binRanges,
