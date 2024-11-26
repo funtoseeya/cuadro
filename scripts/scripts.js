@@ -1006,20 +1006,27 @@ function createComparisonDropdown() {
 
   // Create dropdown toggle button
   const dropdownToggle = document.createElement("button");
-  dropdownToggle.className = "btn btn-secondary text-start text-truncate"; // Left-aligned text
+  dropdownToggle.className = "btn btn-secondary d-flex justify-content-between w-100 text-start text-truncate"; // Left-aligned text
   dropdownToggle.style.maxWidth = "100%"; // Ensure the button doesn't exceed available space
   dropdownToggle.setAttribute("type", "button");
-  dropdownToggle.innerText = "Select an option";
 
+  const textSpan = document.createElement("span");
+  textSpan.className = "text-truncate"; // For truncation
+  textSpan.style.flex = "1"; // Ensure it takes up all available space
+  textSpan.innerText = "Select an option";
+  
   // Add the dropdown arrow
   const arrowIcon = document.createElement("span");
-  arrowIcon.classList.add("ms-2"); // Add margin to the left of the arrow
-  arrowIcon.innerHTML = "&#9662;"; // Downward-facing arrow (HTML entity)
+  arrowIcon.classList.add("ms-2", "flex-shrink-0"); // Prevent shrinking of the icon
+  arrowIcon.innerHTML = "&#9662;"; // Downward-facing arrow
+  
+  // Append text and icon to the button
+  dropdownToggle.appendChild(textSpan);
   dropdownToggle.appendChild(arrowIcon);
-
+  
   // Create dropdown menu container
   const dropdownMenu = document.createElement("div");
-  dropdownMenu.className = "dropdown-menu p-0";
+  dropdownMenu.className = "dropdown-menu p-0 w-100";
 
   // Create main menu
   const mainMenu = document.createElement("div");
@@ -1043,8 +1050,8 @@ function createComparisonDropdown() {
   // Define main options
   const options = [
     { text: "Count of occurrences", hasSubmenu: false },
-    { text: "Sum of...", hasSubmenu: true },
-    { text: "Average of...", hasSubmenu: true },
+    { text: "Sum of", hasSubmenu: true },
+    { text: "Average of", hasSubmenu: true },
   ];
 
   // Populate main menu
@@ -1096,8 +1103,7 @@ function createComparisonDropdown() {
 
       submenuItem.addEventListener("click", (e) => {
         e.preventDefault();
-        dropdownToggle.innerText = `${optionText} ${header}`;
-        dropdownToggle.appendChild(arrowIcon); // Ensure the arrow stays visible
+        textSpan.innerText = `${optionText} ${header}`;
         console.log(`Selected: ${optionText} -> ${header}`);
         closeDropdown();
       });
