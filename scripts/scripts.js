@@ -772,6 +772,18 @@ function unsupportedDataTypesToast() {
 // Function to setup the analaysis step
 function setupAnalyzeStep() {
 
+  const dropdownStateInStorage = localStorage.getItem('dropdownState');
+
+  if (dropdownStateInStorage) {
+
+    parsedCSVData = JSON.parse(localStorage.getItem('parsedCSVData'));
+    dropdownState = JSON.parse(localStorage.getItem('dropdownState'));
+  }
+  filteredData = parsedCSVData;
+  createCategoricalArrayForFilterPanel();
+
+
+
   //replace save button with data settings button
   const analyzeButton = document.getElementById('analyze-button');
   if (analyzeButton) {
@@ -829,14 +841,15 @@ function setupAnalyzeStep() {
   reviewColumn.className = 'col-6 p-0 d-flex align-items-center justify-content-start';
   backFilterRow.appendChild(reviewColumn);
   const reviewNavButton = document.createElement('a');
-  reviewNavButton.className = 'btn btn-secondary d-none d-md-block'; // Adds Bootstrap's responsive display utility
-  reviewNavButton.innerHTML = `<i class="fa-solid fa-left-long" style="padding-right:0.2rem"></i> Review`;
+  reviewNavButton.className = 'btn tertiary-button d-none d-md-block'; // Adds Bootstrap's responsive display utility
+  reviewNavButton.innerHTML = `<i class="fa-solid fa-left-long" style="padding-right:0.5rem"></i>Back to Review`;
   reviewColumn.appendChild(reviewNavButton);
   reviewNavButton.addEventListener('click', navToReview);
 
 
   const filterColumn = document.createElement('div');
-  filterColumn.className = 'col-6 p-0 d-flex align-items-center justify-content-end';
+  filterColumn.className = 'col-6 d-flex align-items-center justify-content-end';
+  filterColumn.style.padding = '0 0.5rem';
   filterColumn.id = 'filter-column';
   backFilterRow.appendChild(filterColumn);
   createFilterButton();
@@ -867,7 +880,7 @@ function setupAnalyzeStep() {
   summaryTabLink.setAttribute('data-bs-toggle', 'tab');
   summaryTabLink.setAttribute('aria-controls', 'summary');
   summaryTabLink.setAttribute('aria-selected', 'true');
-  summaryTabLink.textContent = 'Summary';
+  summaryTabLink.textContent = 'Distributions';
   summaryTab.appendChild(summaryTabLink);
 
   // Advanced tab
@@ -885,7 +898,7 @@ function setupAnalyzeStep() {
   advancedTabLink.setAttribute('data-bs-toggle', 'tab');
   advancedTabLink.setAttribute('aria-controls', 'advanced');
   advancedTabLink.setAttribute('aria-selected', 'false');
-  advancedTabLink.textContent = 'Compare & Filter';
+  advancedTabLink.textContent = 'Comparisons';
   advancedTab.appendChild(advancedTabLink);
 
   // Create the tab content
@@ -898,7 +911,7 @@ function setupAnalyzeStep() {
   summaryTabContent.className = 'tab-pane fade show active mt-3';
   summaryTabContent.id = 'summary-tab-content';
   summaryTabContent.role = 'tabpanel';
-  summaryTabContent.innerHTML = '<h5>Summarized Results</h5><p>Explore how your data is distributed with custom views.</p>';
+  summaryTabContent.innerHTML = '<h5>Data Distributions</h5><p>Explore how frequently categories and numbers occur in the dataset.</p>';
   tabContent.appendChild(summaryTabContent);
 
   // Advanced tab content
@@ -918,16 +931,6 @@ function setupAnalyzeStep() {
   });
 
 
-  const dropdownStateInStorage = localStorage.getItem('dropdownState');
-
-  if (dropdownStateInStorage) {
-
-    parsedCSVData = JSON.parse(localStorage.getItem('parsedCSVData'));
-    dropdownState = JSON.parse(localStorage.getItem('dropdownState'));
-
-  }
-  filteredData = parsedCSVData;
-  createCategoricalArrayForFilterPanel();
 
   loadSummaryTab();
   createAnalysisObject('advanced');
@@ -1181,7 +1184,7 @@ function displayAnalysisOptions() {
 
   const analysisOptionTextColumn = document.createElement('div');
   const analysisOptionText = document.createElement('div');
-  analysisOptionText.innerHTML = `<h5>What would you like to see?</h5><p>Filter and compare your data using one of the options below.</p>`;
+  analysisOptionText.innerHTML = `<h5>What would you like to compare?</h5><p>Compare counts, sums, and averages across any combination of fields.</p>`;
 
   analysisOptionTextColumn.appendChild(analysisOptionText);
   analysisOptionTextRow.appendChild(analysisOptionTextColumn);
