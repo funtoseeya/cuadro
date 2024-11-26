@@ -1076,8 +1076,7 @@ function createComparisonDropdown() {
     } else {
       menuItem.addEventListener("click", (e) => {
         e.preventDefault();
-        dropdownToggle.innerText = "Count of occurrences";
-        dropdownToggle.appendChild(arrowIcon); // Ensure the arrow stays visible
+        textSpan.innerText = "Count of occurrences";
         console.log(`Selected: ${option.text}`);
         closeDropdown();
       });
