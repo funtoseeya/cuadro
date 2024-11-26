@@ -12,7 +12,8 @@ Chart.register(ChartDataLabels);
 //GLOBAL VARIABLES
 let selectedFile; // Global variable to store the file. we need this to create an array with its data
 let dropdownState = []; //global variable to save dropdowns in the review table. we need this to save the user's con
-let CategoricalArray = []; //global array that saves all unique values of columns tagged as Categorical - useful for filters
+let CategoricalArray = [];  //global array that saves all unique values of columns tagged as Categorical - useful for filters
+let numericalHeaderArray = []; //using this for compare by dropdown
 let parsedCSVData = []; // global array that stores the uploaded csv's data
 let filteredData = [];
 const guessedCSVheaderClassification = {}; // To store the guessed classification of each header
@@ -781,7 +782,7 @@ function setupAnalyzeStep() {
   }
   filteredData = parsedCSVData;
   createCategoricalArrayForFilterPanel();
-
+  createNumericalArray();
 
 
   //replace save button with data settings button
@@ -921,19 +922,16 @@ function setupAnalyzeStep() {
   advancedTabContent.role = 'tabpanel';
   tabContent.appendChild(advancedTabContent);
 
-
-  //displays the analysis options section
-  displayAnalysisOptions();
+  loadSummaryTab();
+  loadCompareTab();
+  //displayAnalysisOptions(); DISABLING WHILE BUILDING NEW COMPARE
+  createAnalysisObject('advanced');
 
   window.scrollTo({
     top: 0,
     behavior: 'smooth' // Optional: 'smooth' for a smooth scroll effect, or 'auto' for instant scroll
   });
 
-
-
-  loadSummaryTab();
-  createAnalysisObject('advanced');
 
 }
 
@@ -952,7 +950,197 @@ function loadSummaryTab() {
   summaryAnalysisObject.beginSummaryChartGenerationProcess();
   console.log('summary analysis object: ', analysisObjects.find(obj => obj.id === 'summary'));
 
+}
 
+function loadCompareTab() {
+
+  const advancedTabContent = document.getElementById('advanced-tab-content');
+  advancedTabContent.innerHTML = ``;
+
+    // Create the header row
+    const analysisOptionTextRow = document.createElement('div');
+    analysisOptionTextRow.classList.add('row', 'mt-3');
+  
+    const analysisOptionTextColumn = document.createElement('div');
+    const analysisOptionText = document.createElement('div');
+    analysisOptionText.innerHTML = `<h5>What would you like to compare?</h5><p>Compare counts, sums, and averages across any combination of fields.</p>`;
+  
+    analysisOptionTextColumn.appendChild(analysisOptionText);
+    analysisOptionTextRow.appendChild(analysisOptionTextColumn);
+    advancedTabContent.appendChild(analysisOptionTextRow);
+  
+
+
+  //create prompt row and columns
+  const promptRow = document.createElement('div');
+  promptRow.className= 'row';
+  advancedTabContent.appendChild(promptRow);
+
+  const comparisonCol = document.createElement('div');
+  comparisonCol.className = 'col-12 col-md-4';
+  comparisonCol.id = 'prompt-row-comparison-col';
+  promptRow.appendChild(comparisonCol);
+
+  const fieldXCol = document.createElement('div');
+  fieldXCol.className = 'col-12 col-md-4';
+  fieldXCol.id = 'prompt-row-field-x-col';
+  promptRow.appendChild(fieldXCol);
+
+  const fieldYCol = document.createElement('div');
+  fieldXCol.className = 'col-12 col-md-4';
+  fieldXCol.id = 'prompt-row-field-y-col';
+  promptRow.appendChild(fieldYCol);
+
+// Create comparison dropdown
+function createComparisonDropdown() {
+  const parentElement = document.getElementById("prompt-row-comparison-col");
+
+  // Create dropdown container
+  const dropdownContainer = document.createElement("div");
+  dropdownContainer.classList.add("dropdown"); 
+
+  // Title above dropdown
+  const dropdownTitle = document.createElement("h6");
+  dropdownTitle.innerText = "Compare";
+  parentElement.appendChild(dropdownTitle);
+
+  // Create dropdown toggle button
+  const dropdownToggle = document.createElement("button");
+  dropdownToggle.className = "btn btn-secondary text-start text-truncate"; // Left-aligned text
+  dropdownToggle.style.maxWidth = "100%"; // Ensure the button doesn't exceed available space
+  dropdownToggle.setAttribute("type", "button");
+  dropdownToggle.innerText = "Select an option";
+
+  // Add the dropdown arrow
+  const arrowIcon = document.createElement("span");
+  arrowIcon.classList.add("ms-2"); // Add margin to the left of the arrow
+  arrowIcon.innerHTML = "&#9662;"; // Downward-facing arrow (HTML entity)
+  dropdownToggle.appendChild(arrowIcon);
+
+  // Create dropdown menu container
+  const dropdownMenu = document.createElement("div");
+  dropdownMenu.className = "dropdown-menu p-0";
+
+  // Create main menu
+  const mainMenu = document.createElement("div");
+  mainMenu.className = "menu";
+
+  // Create secondary menu
+  const secondaryMenu = document.createElement("div");
+  secondaryMenu.className = "menu d-none";
+
+  // Back button for secondary menu
+  const backButton = document.createElement("a");
+  backButton.href = "#";
+  backButton.className = "dropdown-item bg-light border-bottom";
+  backButton.innerText = "Back";
+  backButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    showMenu(mainMenu, secondaryMenu);
+  });
+  secondaryMenu.appendChild(backButton);
+
+  // Define main options
+  const options = [
+    { text: "Count of occurrences", hasSubmenu: false },
+    { text: "Sum of...", hasSubmenu: true },
+    { text: "Average of...", hasSubmenu: true },
+  ];
+
+  // Populate main menu
+  options.forEach((option) => {
+    const menuItem = document.createElement("a");
+    menuItem.href = "#";
+    menuItem.className = "dropdown-item d-flex justify-content-between align-items-center text-start text-truncate"; // Left-align text
+    menuItem.innerText = option.text;
+
+    if (option.hasSubmenu) {
+      const chevron = document.createElement("span");
+      chevron.innerHTML = "&#9656;"; // Solid chevron
+      chevron.style.fontSize = "18px"; // Larger chevron
+      chevron.style.color = "#6c757d";
+      menuItem.appendChild(chevron);
+
+      menuItem.addEventListener("click", (e) => {
+        e.preventDefault();
+        populateSubmenu(option.text);
+        showMenu(secondaryMenu, mainMenu);
+      });
+    } else {
+      menuItem.addEventListener("click", (e) => {
+        e.preventDefault();
+        dropdownToggle.innerText = "Count of occurrences";
+        dropdownToggle.appendChild(arrowIcon); // Ensure the arrow stays visible
+        console.log(`Selected: ${option.text}`);
+        closeDropdown();
+      });
+    }
+
+    mainMenu.appendChild(menuItem);
+  });
+
+  // Populate submenu with numerical headers
+  function populateSubmenu(optionText) {
+    // Clear submenu (except the back button)
+    Array.from(secondaryMenu.children)
+      .slice(1) // Skip the back button
+      .forEach((child) => child.remove());
+
+    numericalHeaderArray.forEach((header) => {
+      const submenuItem = document.createElement("a");
+      submenuItem.href = "#";
+      submenuItem.className = "dropdown-item text-start text-truncate";
+      submenuItem.style.maxWidth = "100%"; // Ensure the button doesn't exceed available space
+
+      submenuItem.innerText = header;
+
+      submenuItem.addEventListener("click", (e) => {
+        e.preventDefault();
+        dropdownToggle.innerText = `${optionText} ${header}`;
+        dropdownToggle.appendChild(arrowIcon); // Ensure the arrow stays visible
+        console.log(`Selected: ${optionText} -> ${header}`);
+        closeDropdown();
+      });
+
+      secondaryMenu.appendChild(submenuItem);
+    });
+  }
+
+  // Show the appropriate menu
+  function showMenu(menuToShow, menuToHide) {
+    menuToHide.classList.add("d-none");
+    menuToShow.classList.remove("d-none");
+  }
+
+  // Close the dropdown
+  function closeDropdown() {
+    dropdownMenu.classList.remove("show");
+  }
+
+  // Append menus to dropdown
+  dropdownMenu.appendChild(mainMenu);
+  dropdownMenu.appendChild(secondaryMenu);
+  dropdownContainer.appendChild(dropdownToggle);
+  dropdownContainer.appendChild(dropdownMenu);
+  parentElement.appendChild(dropdownContainer);
+
+  // Toggle dropdown visibility
+  dropdownToggle.addEventListener("click", (e) => {
+    e.preventDefault();
+    dropdownMenu.classList.toggle("show");
+    // Always reset to main menu
+    showMenu(mainMenu, secondaryMenu);
+  });
+
+  // Close dropdown on outside click
+  document.addEventListener("click", (e) => {
+    if (!dropdownContainer.contains(e.target)) {
+      closeDropdown();
+    }
+  });
+}
+  
+  createComparisonDropdown();
 }
 
 // Function to create a new array to generate the filters dropdown
@@ -982,6 +1170,13 @@ function createCategoricalArrayForFilterPanel() {
   return result;
 }
 
+function createNumericalArray() {
+
+numericalHeaderArray = dropdownState
+    .filter(item => item.value === 'Numerical')
+    .map(item => item.header);
+
+}
 
 //REVIEW STEP
 
