@@ -15,9 +15,13 @@ let dropdownState = []; //global variable to save dropdowns in the review table.
 let CategoricalArray = [];  //global array that saves all unique values of columns tagged as Categorical - useful for filters
 let numericalHeaderArray = []; //using this for compare by dropdown
 let categoricalHeaderArray = []; //using this for compare by dropdown
+const guessedCSVheaderClassification = {}; // To store the guessed classification of each header
 let parsedCSVData = []; // global array that stores the uploaded csv's data
 let filteredData = [];
-const guessedCSVheaderClassification = {}; // To store the guessed classification of each header
+let comparisonType = null; //comparison values
+let comparisonValue = null; //comparison values
+let fieldXValue = null;//comparison values
+let fieldYValue = null;//comparison values
 let analysisObjects = []; // Array to store analysis object instances
 let colorPalette = ['#176BA0', '#19AADE', '#1AC9E6', '#caf0f8', '#52b69a', '#1DE3BD', '#CDFDD2', '#C7F9EE', '#b66ee8', '#d689ff', '#f2a8ff', '#ffc4ff', '#ebd9fc'];
 let bookmarks = [];
@@ -994,6 +998,9 @@ function loadCompareTab() {
 
   // Create comparison dropdown
   function createComparisonDropdown() {
+   
+  
+
     const parentElement = document.getElementById("prompt-row-comparison-col");
 
     // Create dropdown container
@@ -1077,8 +1084,9 @@ function loadCompareTab() {
       } else {
         menuItem.addEventListener("click", (e) => {
           e.preventDefault();
-          textSpan.innerText = "Count of occurrences";
-          console.log(`Selected: ${option.text}`);
+          comparisonType = "Count of occurrences";
+          textSpan.innerText = comparisonType;
+          console.log(`Comparison type: ${comparisonType}`);
           closeDropdown();
         });
       }
@@ -1103,8 +1111,10 @@ function loadCompareTab() {
 
         submenuItem.addEventListener("click", (e) => {
           e.preventDefault();
-          textSpan.innerText = `${optionText} ${header}`;
-          console.log(`Selected: ${optionText} -> ${header}`);
+          comparisonType = optionText;
+          comparisonValue = header;
+          textSpan.innerText = `${comparisonType} ${comparisonValue}`;
+          console.log(`Comparison: ${comparisonType} ${comparisonValue}`);
           closeDropdown();
         });
 
@@ -1151,10 +1161,6 @@ function loadCompareTab() {
     // Parent elements
     const fieldXParent = document.getElementById("prompt-row-field-x-col");
     const fieldYParent = document.getElementById("prompt-row-field-y-col");
-
-    // Selected values
-    let fieldXValue = null;
-    let fieldYValue = null;
 
     // Create dropdown container
     function createDropdown(parentElement, title, placeholder, onSelect) {
@@ -1206,6 +1212,8 @@ function loadCompareTab() {
           textSpan.innerText = placeholder;
           onSelect(null);
           emptyOption.style.display='none';
+          console.log(`field A value: '${fieldXValue}', field B value: '${fieldYValue}'`);
+
         });
       
         categoricalHeaderArray.forEach((option) => {
@@ -1220,7 +1228,8 @@ function loadCompareTab() {
               textSpan.innerText = option;
               onSelect(option); //this does two things. it sets fieldXYvalue to the selected value AND it makes sure the other dropdown menu doesn't offer it as an option 
               emptyOption.style.display='block';
-
+              
+              console.log(`field A value: '${fieldXValue}', field B value: '${fieldYValue}'`);
             });
 
             dropdownMenu.appendChild(item);
