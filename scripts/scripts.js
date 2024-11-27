@@ -14,6 +14,7 @@ let selectedFile; // Global variable to store the file. we need this to create a
 let dropdownState = []; //global variable to save dropdowns in the review table. we need this to save the user's con
 let CategoricalArray = [];  //global array that saves all unique values of columns tagged as Categorical - useful for filters
 let numericalHeaderArray = []; //using this for compare by dropdown
+let categoricalHeaderArray = []; //using this for compare by dropdown
 let parsedCSVData = []; // global array that stores the uploaded csv's data
 let filteredData = [];
 const guessedCSVheaderClassification = {}; // To store the guessed classification of each header
@@ -783,7 +784,7 @@ function setupAnalyzeStep() {
   filteredData = parsedCSVData;
   createCategoricalArrayForFilterPanel();
   createNumericalArray();
-
+  createCategoricalHeaderArray();
 
   //replace save button with data settings button
   const analyzeButton = document.getElementById('analyze-button');
@@ -957,195 +958,317 @@ function loadCompareTab() {
   const advancedTabContent = document.getElementById('advanced-tab-content');
   advancedTabContent.innerHTML = ``;
 
-    // Create the header row
-    const analysisOptionTextRow = document.createElement('div');
-    analysisOptionTextRow.classList.add('row', 'mt-3');
-  
-    const analysisOptionTextColumn = document.createElement('div');
-    const analysisOptionText = document.createElement('div');
-    analysisOptionText.innerHTML = `<h5>What would you like to compare?</h5><p>Compare counts, sums, and averages across any combination of fields.</p>`;
-  
-    analysisOptionTextColumn.appendChild(analysisOptionText);
-    analysisOptionTextRow.appendChild(analysisOptionTextColumn);
-    advancedTabContent.appendChild(analysisOptionTextRow);
-  
+  // Create the header row
+  const analysisOptionTextRow = document.createElement('div');
+  analysisOptionTextRow.classList.add('row', 'mt-3');
+
+  const analysisOptionTextColumn = document.createElement('div');
+  const analysisOptionText = document.createElement('div');
+  analysisOptionText.innerHTML = `<h5>What would you like to compare?</h5><p>Compare counts, sums, and averages across any combination of fields.</p>`;
+
+  analysisOptionTextColumn.appendChild(analysisOptionText);
+  analysisOptionTextRow.appendChild(analysisOptionTextColumn);
+  advancedTabContent.appendChild(analysisOptionTextRow);
+
 
 
   //create prompt row and columns
   const promptRow = document.createElement('div');
-  promptRow.className= 'row';
+  promptRow.className = 'row';
   advancedTabContent.appendChild(promptRow);
 
   const comparisonCol = document.createElement('div');
-  comparisonCol.className = 'col-12 col-md-4';
+  comparisonCol.className = 'col-12 col-md-4 pt-2';
   comparisonCol.id = 'prompt-row-comparison-col';
   promptRow.appendChild(comparisonCol);
 
   const fieldXCol = document.createElement('div');
-  fieldXCol.className = 'col-12 col-md-4';
+  fieldXCol.className = 'col-12 col-md-4 pt-2';
   fieldXCol.id = 'prompt-row-field-x-col';
   promptRow.appendChild(fieldXCol);
 
   const fieldYCol = document.createElement('div');
-  fieldXCol.className = 'col-12 col-md-4';
-  fieldXCol.id = 'prompt-row-field-y-col';
+  fieldYCol.className = 'col-12 col-md-4 pt-2';
+  fieldYCol.id = 'prompt-row-field-y-col';
   promptRow.appendChild(fieldYCol);
 
-// Create comparison dropdown
-function createComparisonDropdown() {
-  const parentElement = document.getElementById("prompt-row-comparison-col");
+  // Create comparison dropdown
+  function createComparisonDropdown() {
+    const parentElement = document.getElementById("prompt-row-comparison-col");
 
-  // Create dropdown container
-  const dropdownContainer = document.createElement("div");
-  dropdownContainer.classList.add("dropdown"); 
+    // Create dropdown container
+    const dropdownContainer = document.createElement("div");
+    dropdownContainer.classList.add("dropdown");
 
-  // Title above dropdown
-  const dropdownTitle = document.createElement("h6");
-  dropdownTitle.innerText = "Compare";
-  parentElement.appendChild(dropdownTitle);
+    // Title above dropdown
+    const dropdownTitle = document.createElement("h6");
+    dropdownTitle.innerText = "Compare";
+    parentElement.appendChild(dropdownTitle);
 
-  // Create dropdown toggle button
-  const dropdownToggle = document.createElement("button");
-  dropdownToggle.className = "btn btn-secondary d-flex justify-content-between w-100 text-start text-truncate"; // Left-aligned text
-  dropdownToggle.style.maxWidth = "100%"; // Ensure the button doesn't exceed available space
-  dropdownToggle.setAttribute("type", "button");
+    // Create dropdown toggle button
+    const dropdownToggle = document.createElement("button");
+    dropdownToggle.className = "btn btn-secondary d-flex justify-content-between w-100 text-start text-truncate"; // Left-aligned text
+    dropdownToggle.style.maxWidth = "100%"; // Ensure the button doesn't exceed available space
+    dropdownToggle.setAttribute("type", "button");
 
-  const textSpan = document.createElement("span");
-  textSpan.className = "text-truncate"; // For truncation
-  textSpan.style.flex = "1"; // Ensure it takes up all available space
-  textSpan.innerText = "Select an option";
-  
-  // Add the dropdown arrow
-  const arrowIcon = document.createElement("span");
-  arrowIcon.classList.add("ms-2", "flex-shrink-0"); // Prevent shrinking of the icon
-  arrowIcon.innerHTML = "&#9662;"; // Downward-facing arrow
-  
-  // Append text and icon to the button
-  dropdownToggle.appendChild(textSpan);
-  dropdownToggle.appendChild(arrowIcon);
-  
-  // Create dropdown menu container
-  const dropdownMenu = document.createElement("div");
-  dropdownMenu.className = "dropdown-menu p-0 w-100";
+    const textSpan = document.createElement("span");
+    textSpan.className = "text-truncate"; // For truncation
+    textSpan.style.flex = "1"; // Ensure it takes up all available space
+    textSpan.innerText = "Select an option";
 
-  // Create main menu
-  const mainMenu = document.createElement("div");
-  mainMenu.className = "menu";
+    // Add the dropdown arrow
+    const arrowIcon = document.createElement("span");
+    arrowIcon.classList.add("ms-2", "flex-shrink-0"); // Prevent shrinking of the icon
+    arrowIcon.innerHTML = "&#9662;"; // Downward-facing arrow
 
-  // Create secondary menu
-  const secondaryMenu = document.createElement("div");
-  secondaryMenu.className = "menu d-none";
+    // Append text and icon to the button
+    dropdownToggle.appendChild(textSpan);
+    dropdownToggle.appendChild(arrowIcon);
 
-  // Back button for secondary menu
-  const backButton = document.createElement("a");
-  backButton.href = "#";
-  backButton.className = "dropdown-item bg-light border-bottom";
-  backButton.innerText = "Back";
-  backButton.addEventListener("click", (e) => {
-    e.preventDefault();
-    showMenu(mainMenu, secondaryMenu);
-  });
-  secondaryMenu.appendChild(backButton);
+    // Create dropdown menu container
+    const dropdownMenu = document.createElement("div");
+    dropdownMenu.className = "dropdown-menu w-100";
 
-  // Define main options
-  const options = [
-    { text: "Count of occurrences", hasSubmenu: false },
-    { text: "Sum of", hasSubmenu: true },
-    { text: "Average of", hasSubmenu: true },
-  ];
+    // Create main menu
+    const mainMenu = document.createElement("div");
+    mainMenu.className = "menu";
 
-  // Populate main menu
-  options.forEach((option) => {
-    const menuItem = document.createElement("a");
-    menuItem.href = "#";
-    menuItem.className = "dropdown-item d-flex justify-content-between align-items-center text-start text-truncate"; // Left-align text
-    menuItem.innerText = option.text;
+    // Create secondary menu
+    const secondaryMenu = document.createElement("div");
+    secondaryMenu.className = "menu d-none";
 
-    if (option.hasSubmenu) {
-      const chevron = document.createElement("span");
-      chevron.innerHTML = "&#9656;"; // Solid chevron
-      chevron.style.fontSize = "18px"; // Larger chevron
-      chevron.style.color = "#6c757d";
-      menuItem.appendChild(chevron);
+    // Back button for secondary menu
+    const backButton = document.createElement("a");
+    backButton.href = "#";
+    backButton.className = "dropdown-item bg-light border-bottom";
+    backButton.innerText = "Back";
+    backButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      showMenu(mainMenu, secondaryMenu);
+    });
+    secondaryMenu.appendChild(backButton);
 
-      menuItem.addEventListener("click", (e) => {
-        e.preventDefault();
-        populateSubmenu(option.text);
-        showMenu(secondaryMenu, mainMenu);
-      });
-    } else {
-      menuItem.addEventListener("click", (e) => {
-        e.preventDefault();
-        textSpan.innerText = "Count of occurrences";
-        console.log(`Selected: ${option.text}`);
-        closeDropdown();
+    // Define main options
+    const options = [
+      { text: "Count of occurrences", hasSubmenu: false },
+      { text: "Sum of", hasSubmenu: true },
+      { text: "Average of", hasSubmenu: true },
+    ];
+
+    // Populate main menu
+    options.forEach((option) => {
+      const menuItem = document.createElement("a");
+      menuItem.href = "#";
+      menuItem.className = "dropdown-item d-flex justify-content-between align-items-center text-start text-truncate"; // Left-align text
+      menuItem.innerText = option.text;
+
+      if (option.hasSubmenu) {
+        const chevron = document.createElement("span");
+        chevron.innerHTML = "&#9656;"; // Solid chevron
+        chevron.style.fontSize = "18px"; // Larger chevron
+        chevron.style.color = "#6c757d";
+        menuItem.appendChild(chevron);
+
+        menuItem.addEventListener("click", (e) => {
+          e.preventDefault();
+          populateSubmenu(option.text);
+          showMenu(secondaryMenu, mainMenu);
+        });
+      } else {
+        menuItem.addEventListener("click", (e) => {
+          e.preventDefault();
+          textSpan.innerText = "Count of occurrences";
+          console.log(`Selected: ${option.text}`);
+          closeDropdown();
+        });
+      }
+
+      mainMenu.appendChild(menuItem);
+    });
+
+    // Populate submenu with numerical headers
+    function populateSubmenu(optionText) {
+      // Clear submenu (except the back button)
+      Array.from(secondaryMenu.children)
+        .slice(1) // Skip the back button
+        .forEach((child) => child.remove());
+
+      numericalHeaderArray.forEach((header) => {
+        const submenuItem = document.createElement("a");
+        submenuItem.href = "#";
+        submenuItem.className = "dropdown-item text-start text-truncate";
+        submenuItem.style.maxWidth = "100%"; // Ensure the button doesn't exceed available space
+
+        submenuItem.innerText = header;
+
+        submenuItem.addEventListener("click", (e) => {
+          e.preventDefault();
+          textSpan.innerText = `${optionText} ${header}`;
+          console.log(`Selected: ${optionText} -> ${header}`);
+          closeDropdown();
+        });
+
+        secondaryMenu.appendChild(submenuItem);
       });
     }
 
-    mainMenu.appendChild(menuItem);
-  });
+    // Show the appropriate menu
+    function showMenu(menuToShow, menuToHide) {
+      menuToHide.classList.add("d-none");
+      menuToShow.classList.remove("d-none");
+    }
 
-  // Populate submenu with numerical headers
-  function populateSubmenu(optionText) {
-    // Clear submenu (except the back button)
-    Array.from(secondaryMenu.children)
-      .slice(1) // Skip the back button
-      .forEach((child) => child.remove());
+    // Close the dropdown
+    function closeDropdown() {
+      dropdownMenu.classList.remove("show");
+    }
 
-    numericalHeaderArray.forEach((header) => {
-      const submenuItem = document.createElement("a");
-      submenuItem.href = "#";
-      submenuItem.className = "dropdown-item text-start text-truncate";
-      submenuItem.style.maxWidth = "100%"; // Ensure the button doesn't exceed available space
+    // Append menus to dropdown
+    dropdownMenu.appendChild(mainMenu);
+    dropdownMenu.appendChild(secondaryMenu);
+    dropdownContainer.appendChild(dropdownToggle);
+    dropdownContainer.appendChild(dropdownMenu);
+    parentElement.appendChild(dropdownContainer);
 
-      submenuItem.innerText = header;
+    // Toggle dropdown visibility
+    dropdownToggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      dropdownMenu.classList.toggle("show");
+      // Always reset to main menu
+      showMenu(mainMenu, secondaryMenu);
+    });
 
-      submenuItem.addEventListener("click", (e) => {
-        e.preventDefault();
-        textSpan.innerText = `${optionText} ${header}`;
-        console.log(`Selected: ${optionText} -> ${header}`);
+    // Close dropdown on outside click
+    document.addEventListener("click", (e) => {
+      if (!dropdownContainer.contains(e.target)) {
         closeDropdown();
-      });
-
-      secondaryMenu.appendChild(submenuItem);
+      }
     });
   }
 
-  // Show the appropriate menu
-  function showMenu(menuToShow, menuToHide) {
-    menuToHide.classList.add("d-none");
-    menuToShow.classList.remove("d-none");
-  }
+  // Create the dropdowns
+  function createFieldDropdowns() {
+    // Parent elements
+    const fieldXParent = document.getElementById("prompt-row-field-x-col");
+    const fieldYParent = document.getElementById("prompt-row-field-y-col");
 
-  // Close the dropdown
-  function closeDropdown() {
-    dropdownMenu.classList.remove("show");
-  }
+    // Selected values
+    let fieldXValue = null;
+    let fieldYValue = null;
 
-  // Append menus to dropdown
-  dropdownMenu.appendChild(mainMenu);
-  dropdownMenu.appendChild(secondaryMenu);
-  dropdownContainer.appendChild(dropdownToggle);
-  dropdownContainer.appendChild(dropdownMenu);
-  parentElement.appendChild(dropdownContainer);
+    // Create dropdown container
+    function createDropdown(parentElement, title, placeholder, onSelect) {
+      const container = document.createElement("div");
+      container.className = "dropdown w-100";
 
-  // Toggle dropdown visibility
-  dropdownToggle.addEventListener("click", (e) => {
-    e.preventDefault();
-    dropdownMenu.classList.toggle("show");
-    // Always reset to main menu
-    showMenu(mainMenu, secondaryMenu);
-  });
+      // Dropdown title
+      const dropdownTitle = document.createElement("h6");
+      dropdownTitle.innerText = title;
 
-  // Close dropdown on outside click
-  document.addEventListener("click", (e) => {
-    if (!dropdownContainer.contains(e.target)) {
-      closeDropdown();
+      // Dropdown button
+      const dropdownToggle = document.createElement("button");
+      dropdownToggle.className = "btn btn-secondary d-flex justify-content-between w-100 text-start text-truncate"; // Left-aligned text
+      dropdownToggle.setAttribute("type", "button");
+      dropdownToggle.setAttribute("data-bs-toggle", "dropdown");
+
+      const textSpan = document.createElement("span");
+      textSpan.className = "text-truncate"; // For truncation
+      textSpan.style.flex = "1"; // Ensure it takes up all available space
+      textSpan.innerText = placeholder;
+
+      // Add the dropdown arrow
+      const arrowIcon = document.createElement("span");
+      arrowIcon.classList.add("ms-2", "flex-shrink-0"); // Prevent shrinking of the icon
+      arrowIcon.innerHTML = "&#9662;"; // Downward-facing arrow
+
+      // Append text and icon to the button
+      dropdownToggle.appendChild(textSpan);
+      dropdownToggle.appendChild(arrowIcon);
+
+      // Dropdown menu
+      const dropdownMenu = document.createElement("div");
+      dropdownMenu.className = "dropdown-menu w-100";
+
+      // Populate the menu with options
+      function populateMenu(excludeValue) {
+        dropdownMenu.innerHTML = ""; // Clear existing options
+        
+        //create empty option
+        const emptyOption = document.createElement('a')
+        emptyOption.href = "#";
+        emptyOption.className = "dropdown-item text-truncate";
+        emptyOption.innerText = 'None';
+        dropdownMenu.appendChild(emptyOption);
+
+        emptyOption.addEventListener("click", (e) => {
+          e.preventDefault();
+          textSpan.innerText = placeholder;
+          populateMenu(null); 
+        });
+
+        categoricalHeaderArray.forEach((option) => {
+          if (option !== excludeValue) {
+            const item = document.createElement("a");
+            item.href = "#";
+            item.className = "dropdown-item text-truncate";
+            item.innerText = option;
+
+            item.addEventListener("click", (e) => {
+              e.preventDefault();
+              textSpan.innerText = option;
+              onSelect(option);
+            });
+
+            dropdownMenu.appendChild(item);
+          }
+        });
+      }
+
+      populateMenu(null); // Initial population
+
+      // Assemble and attach
+      container.appendChild(dropdownTitle);
+      container.appendChild(dropdownToggle);
+      container.appendChild(dropdownMenu);
+      parentElement.appendChild(container);
+
+      return populateMenu;
     }
-  });
-}
-  
+
+    
+
+    // Create dropdowns
+    const dropdownX = document.createElement("div");
+    const dropdownY = document.createElement("div");
+
+    const fieldXPopulateMenu = createDropdown(
+      fieldXParent,
+      "By Field A",
+      "Select a field",
+      (value) => {
+        fieldXValue = value;
+        fieldYPopulateMenu(fieldXValue);
+      }
+    );
+
+    const fieldYPopulateMenu = createDropdown(
+      fieldYParent,
+      "And Field B",
+      "Select a field",
+      (value) => {
+        fieldYValue = value;
+        fieldXPopulateMenu(fieldYValue);
+      }
+    );
+
+   
+  }
+
+
+
   createComparisonDropdown();
+  createFieldDropdowns();
+
 }
 
 // Function to create a new array to generate the filters dropdown
@@ -1177,10 +1300,15 @@ function createCategoricalArrayForFilterPanel() {
 
 function createNumericalArray() {
 
-numericalHeaderArray = dropdownState
+  numericalHeaderArray = dropdownState
     .filter(item => item.value === 'Numerical')
     .map(item => item.header);
+}
 
+function createCategoricalHeaderArray() {
+  categoricalHeaderArray = dropdownState
+    .filter(obj => obj.value === 'Categorical')
+    .map(obj => obj.header);
 }
 
 //REVIEW STEP
@@ -2223,18 +2351,18 @@ function createFilterButton() {
       }
     }
 
-        // Find each AnalysisObject and update its filteredBy array
-        analysisObjects.forEach(obj => {
+    // Find each AnalysisObject and update its filteredBy array
+    analysisObjects.forEach(obj => {
 
-          obj.filteredBy = selectedValues;
-          if (obj.id === 'advanced') {
-            obj.beginChartGenerationProcess();
-          }
-          if (obj.id === 'summary') {
-            obj.beginSummaryChartGenerationProcess();
-          }
-        })
-        console.log('analysis objectS:',analysisObjects);
+      obj.filteredBy = selectedValues;
+      if (obj.id === 'advanced') {
+        obj.beginChartGenerationProcess();
+      }
+      if (obj.id === 'summary') {
+        obj.beginSummaryChartGenerationProcess();
+      }
+    })
+    console.log('analysis objectS:', analysisObjects);
 
 
   }
@@ -2659,12 +2787,12 @@ class AnalysisObject {
 
   generateNumberChartObjectDataArrayAndLabels(header, filteredBy) {
     const numbers = filteredData.map(obj => Number(obj[header].trim()));
-  
+
     // Step 1: Calculate the range of the data
     const minValue = Math.min(...numbers);
     const maxValue = Math.max(...numbers);
     const dataRange = maxValue - minValue;
-  
+
     // Handle edge case where all numbers are the same
     if (dataRange === 0) {
       return {
@@ -2672,19 +2800,19 @@ class AnalysisObject {
         labels: [`${minValue}`], // Single bin with the value itself
       };
     }
-  
+
     // Step 2: Calculate the number of bins dynamically
     let numBins = Math.min(Math.ceil(1 + Math.log2(numbers.length)), 20); // Sturges' Rule with a cap at 20
-  
+
     // Step 3: Calculate the bin width without rounding
     const binSize = dataRange / numBins;
-  
+
     // Step 4: Create the bins dynamically
     const bins = [];
     for (let i = minValue; i <= maxValue; i += binSize) {
       bins.push(i);
     }
-  
+
     // Step 5: Count how many values fall into each bin
     const frequencies = new Array(bins.length - 1).fill(0);
     numbers.forEach(value => {
@@ -2696,7 +2824,7 @@ class AnalysisObject {
       }
       if (value === maxValue) frequencies[frequencies.length - 1] += 1; // Edge case for max value
     });
-  
+
     // Step 6: Prepare the labels as ranges for x-axis, adjusting the final bin to include maxValue
     const binRanges = bins.slice(0, -1).map((bin, index) => {
       if (index === bins.length - 2) { // Last bin
@@ -2704,7 +2832,7 @@ class AnalysisObject {
       }
       return `${Math.floor(bin)}-${Math.floor(bins[index + 1] - 1)}`;
     });
-  
+
     return {
       data: frequencies,
       labels: binRanges,
@@ -2780,7 +2908,7 @@ class AnalysisObject {
   }
 
   generateSumChartObjectDataArrayAndLabels(header, groupedBy, filteredBy) {
-    
+
     const headerType = dropdownState.find(item => item.header === header).value;
 
     // Create a map to sum values for each group
@@ -2830,7 +2958,7 @@ class AnalysisObject {
 
 
   generateAverageChartObjectDataArrayAndLabels(header, groupedBy, filteredBy) {
-    
+
     const headerType = dropdownState.find(item => item.header === header).value;
 
     // Create a map to sum values for each group
