@@ -1196,16 +1196,18 @@ function loadCompareTab() {
         //create empty option
         const emptyOption = document.createElement('a')
         emptyOption.href = "#";
+        emptyOption.style.display='none';
         emptyOption.className = "dropdown-item text-truncate";
-        emptyOption.innerText = 'None';
+        emptyOption.innerText = 'Clear Selection';
         dropdownMenu.appendChild(emptyOption);
 
         emptyOption.addEventListener("click", (e) => {
           e.preventDefault();
           textSpan.innerText = placeholder;
-          populateMenu(null); 
+          onSelect(null);
+          emptyOption.style.display='none';
         });
-
+      
         categoricalHeaderArray.forEach((option) => {
           if (option !== excludeValue) {
             const item = document.createElement("a");
@@ -1216,7 +1218,9 @@ function loadCompareTab() {
             item.addEventListener("click", (e) => {
               e.preventDefault();
               textSpan.innerText = option;
-              onSelect(option);
+              onSelect(option); //this does two things. it sets fieldXYvalue to the selected value AND it makes sure the other dropdown menu doesn't offer it as an option 
+              emptyOption.style.display='block';
+
             });
 
             dropdownMenu.appendChild(item);
@@ -1247,7 +1251,7 @@ function loadCompareTab() {
       "Select a field",
       (value) => {
         fieldXValue = value;
-        fieldYPopulateMenu(fieldXValue);
+        fieldYPopulateMenu(fieldXValue); //field Y dropdown menu won't contain this selected value
       }
     );
 
@@ -1256,8 +1260,8 @@ function loadCompareTab() {
       "And Field B",
       "Select a field",
       (value) => {
-        fieldYValue = value;
-        fieldXPopulateMenu(fieldYValue);
+        fieldYValue = value; 
+        fieldXPopulateMenu(fieldYValue); //field X dropdown menu won't contain this selected value
       }
     );
 
