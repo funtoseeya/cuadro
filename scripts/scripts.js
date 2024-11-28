@@ -2493,7 +2493,6 @@ class AnalysisObject {
       TabContent.appendChild(cardsContainer);
     }
 
-  
 
     if (this.analysisType === 'summary' ) {
       this.chartObjects.forEach(chart => {
