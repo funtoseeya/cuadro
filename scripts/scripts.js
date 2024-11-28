@@ -952,8 +952,8 @@ function loadSummaryTab() {
   });
 
   const summaryAnalysisObject = analysisObjects.find(obj => obj.id === 'summary');
-  summaryAnalysisObject.beginSummaryChartGenerationProcess();
   console.log('summary analysis object: ', analysisObjects.find(obj => obj.id === 'summary'));
+  summaryAnalysisObject.beginChartGenerationProcess(summaryAnalysisObject.id);
 
 }
 
@@ -998,8 +998,8 @@ function loadCompareTab() {
 
   // Create comparison dropdown
   function createComparisonDropdown() {
-   
-  
+
+
 
     const parentElement = document.getElementById("prompt-row-comparison-col");
 
@@ -1198,11 +1198,11 @@ function loadCompareTab() {
       // Populate the menu with options
       function populateMenu(excludeValue) {
         dropdownMenu.innerHTML = ""; // Clear existing options
-        
+
         //create empty option
         const emptyOption = document.createElement('a')
         emptyOption.href = "#";
-        emptyOption.style.display='none';
+        emptyOption.style.display = 'none';
         emptyOption.className = "dropdown-item text-truncate";
         emptyOption.innerText = 'Clear Selection';
         dropdownMenu.appendChild(emptyOption);
@@ -1211,11 +1211,11 @@ function loadCompareTab() {
           e.preventDefault();
           textSpan.innerText = placeholder;
           onSelect(null);
-          emptyOption.style.display='none';
+          emptyOption.style.display = 'none';
           console.log(`field A value: '${fieldXValue}', field B value: '${fieldYValue}'`);
 
         });
-      
+
         categoricalHeaderArray.forEach((option) => {
           if (option !== excludeValue) {
             const item = document.createElement("a");
@@ -1227,8 +1227,8 @@ function loadCompareTab() {
               e.preventDefault();
               textSpan.innerText = option;
               onSelect(option); //this does two things. it sets fieldXYvalue to the selected value AND it makes sure the other dropdown menu doesn't offer it as an option 
-              emptyOption.style.display='block';
-              
+              emptyOption.style.display = 'block';
+
               console.log(`field A value: '${fieldXValue}', field B value: '${fieldYValue}'`);
             });
 
@@ -1248,7 +1248,7 @@ function loadCompareTab() {
       return populateMenu;
     }
 
-    
+
 
     // Create dropdowns
     const dropdownX = document.createElement("div");
@@ -1269,12 +1269,12 @@ function loadCompareTab() {
       "And Field B",
       "Select a field",
       (value) => {
-        fieldYValue = value; 
+        fieldYValue = value;
         fieldXPopulateMenu(fieldYValue); //field X dropdown menu won't contain this selected value
       }
     );
 
-   
+
   }
 
 
@@ -2125,7 +2125,7 @@ function updateUsingTheseArray() {
   const analysis = analysisObjects.find(obj => obj.id === 'advanced');
   if (analysis) {
     analysis.usingThese = selectedValues;
-    analysis.beginChartGenerationProcess();
+    analysis.beginAdvancedChartGenerationProcess();
     console.log(analysis);
   } else {
     console.error('AnalysisObject not found');
@@ -2227,7 +2227,7 @@ function updateGroupByValue() {
   const analysis = analysisObjects.find(obj => obj.id === 'advanced');
   if (analysis) {
     analysis.groupedBy = selectedValue;
-    analysis.beginChartGenerationProcess();
+    analysis.beginAdvancedChartGenerationProcess();
     console.log(analysis);
   } else {
     console.error('AnalysisObject not found');
@@ -2368,12 +2368,8 @@ function createFilterButton() {
     analysisObjects.forEach(obj => {
 
       obj.filteredBy = selectedValues;
-      if (obj.id === 'advanced') {
-        obj.beginChartGenerationProcess();
-      }
-      if (obj.id === 'summary') {
-        obj.beginSummaryChartGenerationProcess();
-      }
+      obj.beginChartGenerationProcess(obj.id);
+
     })
     console.log('analysis objectS:', analysisObjects);
 
@@ -2423,7 +2419,7 @@ class AnalysisObject {
     this.label = label; //update the parameter to what's passed as an argument
   }
 
-  beginSummaryChartGenerationProcess() {
+  beginChartGenerationProcess(summaryOrAdvanced) {
     this.chartObjects = []; // Clear any pre-existing charts before creating new ones
     this.usingThese.forEach(field => {
       const type = dropdownState.find(item => item.header === field).value;
@@ -2432,6 +2428,7 @@ class AnalysisObject {
       let percentagesCounts = [];
       let chartTitle = '';
       let chartID = '';
+      let chartType = '';
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       let visType = '';
       let analysisType = '';
@@ -2442,6 +2439,7 @@ class AnalysisObject {
         chartID = `summary-simple-${field}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
         visType = 'bar';
         analysisType = 'simple';
+        chartType = 'horizontal-bars';
       }
       if (type === 'Numerical') {
         result = this.generateNumberChartObjectDataArrayAndLabels(field, this.filteredBy);
@@ -2450,7 +2448,7 @@ class AnalysisObject {
         chartID = `summary-number-${field}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
         visType = 'line';
         analysisType = 'number';
-
+        chartType = 'area';
       }
       const data = result.data;
       const labels = result.labels;
@@ -2470,18 +2468,20 @@ class AnalysisObject {
         this.groupedBy,
         this.filteredBy
       ); //value= the current item in the usingthese foreach loop
+      newChartObject.chartType = chartType;
       this.chartObjects.push(newChartObject); // add the new chart object at the end of the analysis object's charts array
 
     })
-    this.prepSummaryChartContainer();
+
+      this.prepChartContainer(summaryOrAdvanced);
   }
 
 
   // Function to render all chart objects
-  prepSummaryChartContainer() {
+  prepChartContainer(summaryOrAdvanced) {
     // Find the step-body container where the cards will be appended
-    const advancedTabContent = document.getElementById('summary-tab-content');
-    let cardsContainer = document.getElementById('summary-tab-cards-container');
+    const TabContent = document.getElementById(`${summaryOrAdvanced}-tab-content`);
+    let cardsContainer = document.getElementById(`${summaryOrAdvanced}-tab-cards-container`);
 
     if (cardsContainer) {
       //if the cards container was created in a previous call, empty it.
@@ -2489,35 +2489,40 @@ class AnalysisObject {
     } else {
       //if the cards container doesn't exist, create it within the stepbody div
       cardsContainer = document.createElement('div');
-      cardsContainer.id = 'summary-tab-cards-container';
-      advancedTabContent.appendChild(cardsContainer);
+      cardsContainer.id = `${summaryOrAdvanced}-tab-cards-container`;
+      TabContent.appendChild(cardsContainer);
     }
 
-    this.chartObjects.forEach(chart => {
+  
 
-      if (chart.analysisType === 'simple') {
-        renderSimpleChartInCard(chart, cardsContainer);
-      }
-      if (chart.analysisType === 'number') {
-        renderNumberChartInCard(chart, cardsContainer);
-      }
-    });
+    if (this.analysisType === 'summary' ) {
+      this.chartObjects.forEach(chart => {
+        renderChartInCard(chart, cardsContainer);
+      });
+    } 
+    if (this.analysisType === 'comparative') {
+      this.chartObjects.forEach(chart => {
+        renderComparativeChartInCard(chart, cardsContainer);
+      });
+    }
+    if (this.analysisType === 'sum-comparative') {
+      this.chartObjects.forEach(chart => {
+        renderSumAvgChartInCard(chart, cardsContainer);
+      });
+    }
+    if (this.analysisType === 'average-comparative') {
+      this.chartObjects.forEach(chart => {
+        renderSumAvgChartInCard(chart, cardsContainer);
+      });
+    }
+
   }
 
 
-
-
-
-
-  beginChartGenerationProcess() {
+  beginAdvancedChartGenerationProcess() {
     //meant as a router that chooses what charts to produce depending on the inputs
     // Check if usingThese is not empty and analysisobject's type is 'generic'
-    if (this.usingThese.length > 0 && this.analysisType === 'simple') {
-      this.addSimpleChartObjects();
-    }
-    if (this.usingThese.length > 0 && this.analysisType === 'number') {
-      this.addNumberChartObjects();
-    }
+
     if (this.usingThese.length > 0 && this.analysisType === 'comparative' && this.groupedBy != '') {
       this.addComparativeChartObjects();
     }
@@ -2527,86 +2532,6 @@ class AnalysisObject {
     if (this.usingThese.length > 0 && this.analysisType === 'average-comparative' && this.groupedBy != '') {
       this.addAverageChartObjects();
     }
-
-  }
-
-
-
-  addSimpleChartObjects() {
-    //produces the data, labels and charts
-    this.chartObjects = []; // Clear any pre-existing charts before creating new ones
-    this.usingThese.forEach(value => {
-      //iterates over each element in the this.usingThese array.
-      // get the data we need to produce the chart
-      const result = this.generateSimpleChartObjectDataArrayAndLabels(
-        value,
-        this.filteredBy
-      );
-
-      // Extract data and labels from the result object
-      const data = result.data;
-      const labels = result.labels;
-      const percentagesCounts = result.PercentagesCounts;
-      const chartTitle = `Count and Percentage of rows by '${value}'`;
-      const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
-      const chartID = `simple-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
-
-
-      // Create and add the chart
-      const newChartObject = new ChartObject(
-        this.analysisType,
-        chartTitle,
-        chartID,
-        'bar',
-        data,
-        labels,
-        percentagesCounts,
-        [],
-        value,
-        this.groupedBy,
-        this.filteredBy
-      ); //value= the current item in the usingthese foreach loop
-      this.chartObjects.push(newChartObject); // add the new chart object at the end of the analysis object's charts array
-    });
-    this.prepAdvancedChartContainer(); // render all charts once their code and data is ready
-  }
-
-  addNumberChartObjects() {
-    //produces the data, labels and charts
-    this.chartObjects = []; // Clear any pre-existing charts before creating new ones
-    this.usingThese.forEach(value => {
-      //iterates over each element in the this.usingThese array.
-      // get the data we need to produce the chart
-      const result = this.generateNumberChartObjectDataArrayAndLabels(
-        value,
-        this.filteredBy
-      );
-
-      // Extract data and labels from the result object
-      const data = result.data;
-      const labels = result.labels;
-      const percentagesCounts = '';
-      const chartTitle = `Count of rows by range of '${value}'`;
-      const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
-      const chartID = `number-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
-
-      // Create and add the chart
-      const newChartObject = new ChartObject(
-        this.analysisType,
-        chartTitle,
-        chartID,
-        'line',
-        data,
-        labels,
-        percentagesCounts,
-        [],
-        value,
-        this.groupedBy,
-        this.filteredBy
-      ); //value= the current item in the usingthese foreach loop
-      this.chartObjects.push(newChartObject); // add the new chart object at the end of the analysis object's charts array
-    });
-    this.prepAdvancedChartContainer(); // render all charts once their code and data is ready
 
   }
 
@@ -2649,7 +2574,7 @@ class AnalysisObject {
       );
       this.chartObjects.push(newChartObject);
     });
-    this.prepAdvancedChartContainer(); // render clustered once the code and data is ready
+    this.prepChartContainer(); // render clustered once the code and data is ready
   }
 
   addSumChartObjects() {
@@ -2690,7 +2615,7 @@ class AnalysisObject {
       );
       this.chartObjects.push(newChartObject);
     });
-    this.prepAdvancedChartContainer(); // render clustered once the code and data is ready
+    this.prepChartContainer(); // render clustered once the code and data is ready
   }
 
   addAverageChartObjects() {
@@ -2731,7 +2656,7 @@ class AnalysisObject {
       );
       this.chartObjects.push(newChartObject);
     });
-    this.prepAdvancedChartContainer(); // render clustered once the code and data is ready
+    this.prepChartContainer(); // render clustered once the code and data is ready
   }
 
 
@@ -3018,57 +2943,12 @@ class AnalysisObject {
       clusterLabels// Labels for each group
     };
   }
-
-  // Function to render all chart objects
-  prepAdvancedChartContainer() {
-    // Find the step-body container where the cards will be appended
-    const advancedTabContent = document.getElementById('advanced-tab-content');
-    let cardsContainer = document.getElementById('advanced-tab-cards-container');
-
-    if (cardsContainer) {
-      //if the cards container was created in a previous call, empty it.
-      cardsContainer.innerHTML = '';
-    } else {
-      //if the cards container doesn't exist, create it within the stepbody div
-      cardsContainer = document.createElement('div');
-      cardsContainer.id = 'advanced-tab-cards-container';
-      advancedTabContent.appendChild(cardsContainer);
-    }
-
-    if (this.analysisType === 'simple') {
-      this.chartObjects.forEach(chart => {
-        renderSimpleChartInCard(chart, cardsContainer);
-      });
-    }
-    if (this.analysisType === 'number') {
-      this.chartObjects.forEach(chart => {
-        renderNumberChartInCard(chart, cardsContainer);
-      });
-    }
-    if (this.analysisType === 'comparative') {
-      this.chartObjects.forEach(chart => {
-        renderComparativeChartInCard(chart, cardsContainer);
-      });
-    }
-    if (this.analysisType === 'sum-comparative') {
-      this.chartObjects.forEach(chart => {
-        renderSumAvgChartInCard(chart, cardsContainer);
-      });
-    }
-    if (this.analysisType === 'average-comparative') {
-      this.chartObjects.forEach(chart => {
-        renderSumAvgChartInCard(chart, cardsContainer);
-      });
-    }
-  }
-
 }
 
 // Function to create and add a new Analysis object
 function createAnalysisObject(id) {
   const newAnalysis = new AnalysisObject(id);
   analysisObjects.push(newAnalysis);
-  console.log(newAnalysis); // Log the new object to the console
   return newAnalysis; // Optionally return the new object
 }
 
@@ -3123,7 +3003,7 @@ class ChartObject {
     this.borderColor = 'rgba(36, 123, 160, 1)'; //
     this.borderWidth = 1;
     this.bookmarked = false;
-    this.chartType = 'horizontal-bars';
+    this.chartType = '';
     this.verticalColumnChartOptions = {
       plugins: {
         legend: {
@@ -3452,7 +3332,7 @@ class ChartObject {
 }
 
 function // Function to create and render a chart in a Bootstrap card component and append to 'step-body'
-  renderSimpleChartInCard(chartObject, container) {
+  renderChartInCard(chartObject, container) {
 
   // Create the card element
   const card = document.createElement('div');
@@ -3472,11 +3352,7 @@ function // Function to create and render a chart in a Bootstrap card component 
   cardBody.appendChild(cardOptionsRow);
   cardBody.appendChild(cardTitleRow);
   cardBody.appendChild(cardFiltersRow);
-
-  // Append the card body to the card
   card.appendChild(cardBody);
-
-  // Append the card to the container
   container.appendChild(card);
 
   const cardOptionsColumn = document.createElement('div');
@@ -3508,58 +3384,52 @@ function // Function to create and render a chart in a Bootstrap card component 
   if (chartObject.chartType === 'vertical-columns') {
     dropdownButton.textContent = 'Vertical Columns';
   }
-  // Create the dropdown menu with options
+  if (chartObject.chartType === 'area') {
+    dropdownButton.textContent = 'Area';
+  }
+
+  // Create the dropdown menu with items
   const dropdownMenu = document.createElement('ul');
   dropdownMenu.classList.add('dropdown-menu');
 
-  const horizontalBarDropdownLink = document.createElement('li');
-  dropdownMenu.appendChild(horizontalBarDropdownLink);
-  const horizontalBarAnchor = document.createElement('a');
-  horizontalBarAnchor.id = 'horizontalBarAnchor-' + chartObject.id;
-  horizontalBarAnchor.textContent = 'Horizontal Bars';
-  horizontalBarAnchor.className = 'dropdown-item';
-  horizontalBarDropdownLink.appendChild(horizontalBarAnchor);
+  //generic function to create menu items
+  function createMenuItem(chartType, text) {
+    const DropdownLink = document.createElement('li');
+    dropdownMenu.appendChild(DropdownLink);
+    const linkAnchor = document.createElement('a');
+    linkAnchor.id = chartType + chartObject.id;
+    linkAnchor.textContent = text;
+    linkAnchor.className = 'dropdown-item';
+    DropdownLink.appendChild(linkAnchor);
 
-  const verticalColumnDropdownLink = document.createElement('li');
-  dropdownMenu.appendChild(verticalColumnDropdownLink);
-  const verticalColumnAnchor = document.createElement('a');
-  verticalColumnAnchor.id = 'verticalColumnAnchor-' + chartObject.id;
-  verticalColumnAnchor.textContent = 'Vertical Columns';
-  verticalColumnAnchor.className = 'dropdown-item';
-  verticalColumnDropdownLink.appendChild(verticalColumnAnchor);
+    //create listener function that recreates the canvas upon updating the option
+    linkAnchor.addEventListener('click', function () {
+      dropdownButton.textContent = text;
+      chartObject.chartType = chartType;
+      createCanvas();
+      //if applicable, update the corresponding bookmark's charttype attribute 
+      const bookmark = bookmarks.find(bookmark => bookmark.id === chartObject.id);
+      if (bookmark) {
+        bookmark.chartType = chartObject.chartType;
+      }
+    })
+  }
+
+  //determine which menu items to populate with
+  if (chartObject.analysisType === 'simple') {
+    createMenuItem('horizontal-bars', 'Horizontal Bars');
+    createMenuItem('vertical-columns', 'Vertical Columns');
+  }
+  if (chartObject.analysisType === 'number') {
+    createMenuItem('area', 'Area');
+  }
 
   dropdownWrapper.appendChild(dropdownButton);
   dropdownWrapper.appendChild(dropdownMenu);
   cardOptionsColumn.appendChild(dropdownWrapper);
 
-  //create listener function that recreates the canvas upon updating the option
 
-  horizontalBarAnchor.addEventListener('click', function () {
-
-    dropdownButton.textContent = 'Horizontal Bars';
-    chartObject.chartType = 'horizontal-bars';
-    createCanvas();
-
-    //if applicable, update the corresponding bookmark's charttype attribute 
-    const bookmark = bookmarks.find(bookmark => bookmark.id === chartObject.id);
-    if (bookmark) {
-      bookmark.chartType = chartObject.chartType;
-    }
-  })
-
-
-  verticalColumnAnchor.addEventListener('click', function () {
-    dropdownButton.textContent = 'Vertical Columns';
-    chartObject.chartType = 'vertical-columns';
-    createCanvas();
-    //if applicable, update the corresponding bookmark's charttype attribute 
-    const bookmark = bookmarks.find(bookmark => bookmark.id === chartObject.id);
-    if (bookmark) {
-      bookmark.chartType = chartObject.chartType;
-    }
-  })
-
-  //create the bookmark button and set whether it's active or not
+  //create the bookmark button and set whether it is active or not
   const bookmarkButton = document.createElement('button');
   bookmarkButton.classList.add('btn', 'btn-secondary');
   bookmarkButton.setAttribute('bookmarkButtonIdentifier', chartObject.id);
@@ -3613,15 +3483,54 @@ function // Function to create and render a chart in a Bootstrap card component 
     }
     canvas.style.width = '100%'; // Full width
 
-    //canvas height depends on the type of chart we're displaying
-    let barOptions = '';
+
+    //analysis type specificities
+    let yMaxValue;
+    let chartMaxBarThickness;
+    if (chartObject.analysisType === 'simple') {
+      chartMaxBarThickness = 50;
+    }
+    if (chartObject.analysisType === 'number') {
+
+      let minDataValue = Math.min(...chartObject.data);
+      yMinValue = minDataValue > 100 ? minDataValue * 0.9 : 0; // Adjusts to 90% of the min value, or 0 if min is small
+      yMaxValue = Math.ceil(Math.max(...chartObject.data) * 1.1);
+    }
+
+    //chart type specificities
+    let chartOptions = '';
+    canvas.style.height = '300px'; //default height
     if (chartObject.chartType === 'horizontal-bars') {
       canvas.style.height = `${chartObject.data.length * 40 + 50}px`; // Set the height dynamically
-      barOptions = chartObject.horizontalBarChartOptions;
+      chartOptions = chartObject.horizontalBarChartOptions;
     }
-    else {
-      canvas.style.height = '350px';
-      barOptions = chartObject.verticalColumnChartOptions;
+    if (chartObject.chartType === 'vertical-columns') {
+      chartOptions = chartObject.verticalColumnChartOptions;
+    }
+    if (chartObject.chartType === 'area') {
+      chartOptions = {
+        plugins: {
+
+          datalabels: {
+            display: false
+          },
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            min: yMinValue,
+            max: yMaxValue,
+            ticks: {
+              stepSize: 1, // Set tick interval to 1
+              callback: function (value) {
+                return Number.isInteger(value) ? value : null; // Show only integer values
+              }
+            }
+          }
+        }
+      }
     }
 
     // Append the canvas to the card body
@@ -3637,16 +3546,17 @@ function // Function to create and render a chart in a Bootstrap card component 
         labels: chartObject.labels,
         datasets: [
           {
-            label: chartObject.title, //the tooltip label is just the series title
             data: chartObject.data,
             backgroundColor: chartObject.backgroundColor,
             borderColor: chartObject.borderColor,
             borderWidth: chartObject.borderWidth,
-            maxBarThickness: 50
+            maxBarThickness: chartMaxBarThickness,
+            tension: 0.4,
+            fill: true,
           },
         ],
       },
-      options: barOptions,
+      options: chartOptions,
     });
 
   }
@@ -3654,156 +3564,6 @@ function // Function to create and render a chart in a Bootstrap card component 
 
 }
 
-function renderNumberChartInCard(chartObject, container) {
-
-  // Create the card element
-  const card = document.createElement('div');
-  card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
-
-  // Create the card body element
-  const cardBody = document.createElement('div');
-  cardBody.classList.add('card-body');
-
-  //create the options, title and filters rows and columns - append to body
-  const cardOptionsRow = document.createElement('div');
-  cardOptionsRow.className = 'row';
-  const cardTitleRow = document.createElement('div');
-  cardTitleRow.className = 'row';
-  const cardFiltersRow = document.createElement('div');
-  cardFiltersRow.className = 'row';
-  cardBody.appendChild(cardOptionsRow);
-  cardBody.appendChild(cardTitleRow);
-  cardBody.appendChild(cardFiltersRow);
-
-  const cardOptionsColumn = document.createElement('div');
-  cardOptionsColumn.classList.add(
-    'col-12',
-    'd-flex',
-    'justify-content-end'
-  );
-  const cardTitleColumn = document.createElement('div');
-  cardTitleColumn.classList.add('col-12');
-  const cardFiltersColumn = document.createElement('div');
-  cardFiltersColumn.classList.add('col-12');
-  cardOptionsRow.appendChild(cardOptionsColumn);
-  cardTitleRow.appendChild(cardTitleColumn);
-  cardFiltersRow.appendChild(cardFiltersColumn);
-
-  //create the chart type button
-  const chartButton = document.createElement('button');
-  chartButton.classList.add('btn', 'btn-secondary', 'me-2', 'disabled');
-  chartButton.textContent = 'Area';
-  cardOptionsColumn.appendChild(chartButton);
-
-  //create the bookmark button and set whether it's active or not
-  const bookmarkButton = document.createElement('button');
-  bookmarkButton.classList.add('btn', 'btn-secondary');
-  bookmarkButton.setAttribute('bookmarkButtonIdentifier', chartObject.id);
-  const isChartBookmarked = bookmarks.some(obj => obj.id === chartObject.id);
-  if (isChartBookmarked) {
-    bookmarkButton.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
-    bookmarkButton.setAttribute('isActive', 'true');
-    bookmarkButton.classList.remove('btn-secondary');
-    bookmarkButton.classList.add('btn-primary');
-  } else {
-    bookmarkButton.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
-    bookmarkButton.setAttribute('isActive', 'false');
-  }
-  cardOptionsColumn.appendChild(bookmarkButton);
-
-  bookmarkButton.addEventListener('click', function () {
-    addRemoveBookmark(bookmarkButton, chartObject);
-  });
-
-  //create the title
-  const cardTitle = document.createElement('h5');
-  cardTitle.textContent = chartObject.title;
-  cardTitleColumn.appendChild(cardTitle);
-
-  //create filter badges as needed
-  const filters = chartObject.filteredBy;
-
-  for (let i = 0; i < filters.length; i++) {
-    const cardFilter = document.createElement('span');
-    cardFilter.className = 'filter-badge'; // Apply the custom class
-    cardFilter.textContent = filters[i].value;
-    cardFiltersColumn.appendChild(cardFilter);
-  }
-
-  // Create the canvas element
-  const canvas = document.createElement('canvas');
-  canvas.style.width = '100%'; // Full width
-
-  if (container.id === 'advanced-tab-cards-container') {
-    canvas.id = 'canvas-' + chartObject.id;
-  }
-  if (container.id === 'bookmarksBodyColumn') {
-    canvas.id = 'bookmarked-canvas-' + chartObject.id;
-  }
-  if (container.id === 'summary-tab-cards-container') {
-    canvas.id = 'summary-canvas-' + chartObject.id;
-  }
-  //calculate how many bars there will be and use that to calculate the canvas height
-  canvas.style.height = `350px`; //will be 100px if filters return no data and 125px if they return 1 bar
-
-  // Append the canvas to the card body
-  cardBody.appendChild(canvas);
-
-  // Append the card body to the card
-  card.appendChild(cardBody);
-
-  // Append the card to the container
-  container.appendChild(card);
-
-  // Render the chart on the canvas
-  const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
-  //create min y value
-  const minDataValue = Math.min(...chartObject.data);
-  const yMinValue = minDataValue > 100 ? minDataValue * 0.9 : 0; // Adjusts to 90% of the min value, or 0 if min is small
-
-
-  new Chart(ctx, {
-    type: chartObject.type,
-    data: {
-      labels: chartObject.labels,
-      datasets: [
-        {
-          label: chartObject.title,
-          data: chartObject.data,
-          fill: true,
-          borderColor: 'rgba(36, 123, 160, 1)',
-          backgroundColor: 'rgba(36, 123, 160, 0.2)',
-          tension: 0.4
-        }
-      ]
-    },
-
-    options: {
-      plugins: {
-
-        datalabels: {
-          display: false
-        },
-        legend: {
-          display: false
-        }
-      },
-      scales: {
-        y: {
-          min: yMinValue,
-          ticks: {
-            stepSize: 1, // Set tick interval to 1
-            callback: function (value) {
-              return Number.isInteger(value) ? value : null; // Show only integer values
-            }
-          }
-        }
-      }
-    }
-  });
-
-}
 
 // Function to create and render a horizontal clustered bar chart in a Bootstrap card component and append to 'step-body'
 function renderComparativeChartInCard(chartObject, container) {
@@ -4505,12 +4265,10 @@ function openBookmarksOverlay() {
     }
     for (let i = 0; i < bookmarks.length; i++) {
       const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
-      if (bookmarks[i].analysisType === 'simple') {
-        renderSimpleChartInCard(bookmarks[i], bookmarksBodyColumn);
+      if (bookmarks[i].analysisType === 'simple' || bookmarks[i].analysisType === 'number') {
+        renderChartInCard(bookmarks[i], bookmarksBodyColumn);
       }
-      if (bookmarks[i].analysisType === 'number') {
-        renderNumberChartInCard(bookmarks[i], bookmarksBodyColumn);
-      }
+
       if (bookmarks[i].analysisType === 'comparative') {
         renderComparativeChartInCard(bookmarks[i], bookmarksBodyColumn);
       }
