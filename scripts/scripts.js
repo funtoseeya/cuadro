@@ -1109,10 +1109,10 @@ function setupAnalyzeStep() {
 function loadSummaryTab() {
   const summaryAnalysisObject = new AnalysisObject(1);
   const summaryValue = dropdownState.filter(field => field.value === 'Categorical' || field.value === 'Numerical').map(field => field.header);
-  summaryAnalysisObject.analysisType = 'summary';
+  summaryAnalysisObject.analysisType = 'distribution';
   summaryAnalysisObject.summaryValue = summaryValue;
 
-  console.log('summary analysis object: ', analysisObjects.find(obj => obj.analysisType === 'summary'));
+  console.log('summary analysis object: ', analysisObjects.find(obj => obj.analysisType === 'distribution'));
   summaryAnalysisObject.beginSummaryChartGenerationProcess(summaryAnalysisObject.analysisType);
 
 }
@@ -1120,8 +1120,8 @@ function loadSummaryTab() {
 function loadCompareTab() {
 
   const advancedAnalysisObject = new AnalysisObject(2);
-  advancedAnalysisObject.analysisType = 'advanced';
-  console.log('advanced analysis object:',advancedAnalysisObject);
+  advancedAnalysisObject.analysisType = 'comparison';
+  console.log('advanced analysis object:', advancedAnalysisObject);
 
   const advancedTabContent = document.getElementById('advanced-tab-content');
   advancedTabContent.innerHTML = ``;
@@ -1162,8 +1162,6 @@ function loadCompareTab() {
 
   // Create comparison dropdown
   function createComparisonDropdown() {
-
-
 
     const parentElement = document.getElementById("prompt-row-comparison-col");
 
@@ -1379,7 +1377,6 @@ function loadCompareTab() {
           emptyOption.style.display = 'none';
           advancedAnalysisObject.compareFieldA = fieldXValue;
           advancedAnalysisObject.compareFieldB = fieldYValue;
-
         });
 
         categoricalHeaderArray.forEach((option) => {
@@ -1650,7 +1647,7 @@ function createFilterButton() {
     analysisObjects.forEach(obj => {
       obj.filteredBy = selectedValues;
     })
-    const summaryAnalysisObject = analysisObjects.find(obj => obj.id ===1);
+    const summaryAnalysisObject = analysisObjects.find(obj => obj.id === 1);
     summaryAnalysisObject.beginSummaryChartGenerationProcess(summaryAnalysisObject.analysisType);
 
 
@@ -1694,7 +1691,7 @@ class AnalysisObject {
 
   }
 
-  beginSummaryChartGenerationProcess(summaryOrAdvanced) {
+  beginSummaryChartGenerationProcess() {
     this.chartObjects = []; // Clear any pre-existing charts before creating new ones
     this.summaryValue.forEach(field => {
       const type = dropdownState.find(item => item.header === field).value;
@@ -1703,31 +1700,31 @@ class AnalysisObject {
       let percentagesCounts = [];
       let chartTitle = '';
       let chartID = '';
-      let chartType = '';
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
-      let visType = '';
-      let analysisType = '';
+      let analysisType = ''; //to know what type of visTypes we can offer (e.g. categoryDistribution, numberDistribution)
+      let visType = ''; //for charts.js to render the right chart type (e.g. bar, pie, line)
+      let chartType = ''; // for cuadro to load the right chart options (e.g. horizontal bar or vertical columns)
 
 
       if (type === 'Categorical') {
         result = this.generateSimpleChartObjectDataArrayAndLabels(field, this.filteredBy);
         percentagesCounts = result.PercentagesCounts;
-        chartTitle = `Count and Percentage of rows by '${field}'`;
+        chartTitle = `Count of occurrences by '${field}'`;
         chartID = `summary-simple-${field}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
+        analysisType = 'categoryDistribution';
         visType = 'bar';
-        analysisType = 'simple';
         chartType = 'horizontal-bars';
       }
       if (type === 'Numerical') {
         result = this.generateNumberChartObjectDataArrayAndLabels(field, this.filteredBy);
         percentagesCounts = '';
-        chartTitle = `Count of rows by range of '${field}'`;
+        chartTitle = `Count of occurrences by range of '${field}'`;
         chartID = `summary-number-${field}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
+        analysisType = 'numberDistribution';
         visType = 'line';
-        analysisType = 'number';
         chartType = 'area';
       }
-     
+
       const data = result.data;
       const labels = result.labels;
 
@@ -1735,9 +1732,10 @@ class AnalysisObject {
       // Create and add the chart
       const newChartObject = new ChartObject(
         analysisType,
+        visType,
+        chartType,
         chartTitle,
         chartID,
-        visType,
         data,
         labels,
         percentagesCounts,
@@ -1750,9 +1748,78 @@ class AnalysisObject {
 
     })
 
-      this.prepChartContainer('summary');
+    this.prepChartContainer('summary');
   }
 
+  beginComparisonChartGenerationProcess() {
+    this.chartObjects = []; // Clear any pre-existing charts before creating new ones
+    let chartTitle = '';
+    let chartID = '';
+    let chartType = 'heatmap';
+    let visType = 'heatmap';
+    let analysisType = '';
+    let result = '';
+    const data = result.data;
+    const labels = result.labels;
+    const percentageCounts = '';
+    const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
+
+
+    if (this.compareType === 'Count of occurrences') {
+      chartTitle = `Count of occurrences by '${this.compareFieldA}' and'${this.compareFieldB}'`;
+      chartID = `comparison-count-of-occurrences-by-${this.compareFieldA}-and-${this.compareFieldB}-filtered-by-${filteredByString}`;
+      analysisType = 'countOfOccurrencesComparison';
+      //result =??
+      this.prepChartContainer('advanced');
+    }
+
+    if (this.compareType === 'Sum of') {
+      if (this.compareFieldA === null) {
+        // do nothing.
+      }
+
+      if (this.compareFieldB === null) { //if only field A is selected
+        chartTitle = `Sum of '${this.compareBy}' by '${this.compareFieldA}'`;
+        chartID = `comparison-sum-${this.compareBy}-by-${this.compareFieldA}-filtered-by-${filteredByString}`;
+        analysisType = 'sumComparisonOneField';
+        //result =??
+        this.prepChartContainer('advanced');
+      }
+
+      else { //if both field a and b are selected
+        chartTitle = `Sum of '${this.compareBy}' by '${this.compareFieldA}' and'${this.compareFieldB}'`;
+        chartID = `comparison-sum-${this.compareBy}-by-${this.compareFieldA}-and-${this.compareFieldB}-filtered-by-${filteredByString}`;
+        analysisType = 'sumComparisonTwoFields';
+        //result =??
+        this.prepChartContainer('advanced');
+
+      }
+
+      if (this.compareType === 'Average of') {
+        if (this.compareFieldA === null) {
+          // do nothing.
+        }
+
+        if (this.compareFieldB === null) { //if only field A is selected
+          chartTitle = `Average of '${this.compareBy}' by '${this.compareFieldA}'`;
+          chartID = `comparison-avg-${this.compareBy}-by-${this.compareFieldA}-filtered-by-${filteredByString}`;
+          analysisType = 'avgComparisonOneField';
+          //result =??
+          this.prepChartContainer('advanced');
+        }
+
+        else { //if both field a and b are selected
+          chartTitle = `Average of '${this.compareBy}' by '${this.compareFieldA}' and'${this.compareFieldB}'`;
+          chartID = `comparison-avg-${this.compareBy}-by-${this.compareFieldA}-and-${this.compareFieldB}-filtered-by-${filteredByString}`;
+          analysisType = 'avgComparisonTwoFields';
+          //result =??
+          this.prepChartContainer('advanced');
+
+        }
+      }
+    }
+
+  }
 
   // Function to render all chart objects
   prepChartContainer(summaryOrAdvanced) {
@@ -1771,45 +1838,14 @@ class AnalysisObject {
     }
 
 
-    if (this.analysisType === 'summary' ) {
-      this.chartObjects.forEach(chart => {
-        renderChartInCard(chart, cardsContainer);
-      });
-    } 
-    if (this.analysisType === 'comparative') {
-      this.chartObjects.forEach(chart => {
-        renderComparativeChartInCard(chart, cardsContainer);
-      });
-    }
-    if (this.analysisType === 'sum-comparative') {
-      this.chartObjects.forEach(chart => {
-        renderSumAvgChartInCard(chart, cardsContainer);
-      });
-    }
-    if (this.analysisType === 'average-comparative') {
-      this.chartObjects.forEach(chart => {
-        renderSumAvgChartInCard(chart, cardsContainer);
-      });
-    }
+    this.chartObjects.forEach(chart => {
+      renderChartInCard(chart, cardsContainer);
+    });
+
 
   }
 
 
-  beginAdvancedChartGenerationProcess() {
-    //meant as a router that chooses what charts to produce depending on the inputs
-    // Check if summaryValue is not empty and analysisobject's type is 'generic'
-
-    if (this.summaryValue.length > 0 && this.analysisType === 'comparative' && this.groupedBy != '') {
-      this.addComparativeChartObjects();
-    }
-    if (this.summaryValue.length > 0 && this.analysisType === 'sum-comparative' && this.groupedBy != '') {
-      this.addSumChartObjects();
-    }
-    if (this.summaryValue.length > 0 && this.analysisType === 'average-comparative' && this.groupedBy != '') {
-      this.addAverageChartObjects();
-    }
-
-  }
 
   addComparativeChartObjects() {
     this.chartObjects = []; // Clear existing charts
@@ -1828,7 +1864,7 @@ class AnalysisObject {
       const summaryValueType = dropdownState.find(obj => obj.header === value);
       let chartTitle = '';
 
-      chartTitle = `Count of rows by '${value}' grouped by '${this.groupedBy}' `;
+      chartTitle = `Count of occureences by '${value}' grouped by '${this.groupedBy}' `;
 
 
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
@@ -2242,11 +2278,12 @@ function deleteAllAnalysisObjects() {
 
 // boilerplate for charts we create via the generic dropdown option.
 class ChartObject {
-  constructor(analysisType, title, id, type, data, labels, percentagesCounts, clusterLabels, summaryValue, filteredBy) {
-    this.analysisType = analysisType;
+  constructor(analysisType, visType, chartType, title, id, data, labels, percentagesCounts, clusterLabels, summaryValue, filteredBy) {
+    this.analysisType = analysisType; //to know what type of visTypes we can offer (e.g. categoryDistribution, numberDistribution)
+    this.visType = visType; //for charts.js to render the right chart type (e.g. bar, pie, line)
+    this.chartType = chartType; // for cuadro to load the right chart options (e.g. horizontal bar or vertical columns) 
     this.title = title; // Title of the chart
     this.id = id;
-    this.type = type; // Type of the chart (e.g., 'bar', 'line')
     this.data = data; // Data required for chart generation
     this.labels = labels; // Data required for chart generation
     this.percentagesCounts = percentagesCounts; // Labels for the data points
@@ -2262,7 +2299,7 @@ class ChartObject {
     this.borderWidth = 1;
     this.bookmarked = false;
     this.chartType = '';
-    
+
     this.verticalColumnChartOptions = {
       plugins: {
         legend: {
@@ -2675,11 +2712,11 @@ function // Function to create and render a chart in a Bootstrap card component 
   }
 
   //determine which menu items to populate with
-  if (chartObject.analysisType === 'simple') {
+  if (chartObject.analysisType === 'categoryDistribution') {
     createMenuItem('horizontal-bars', 'Horizontal Bars');
     createMenuItem('vertical-columns', 'Vertical Columns');
   }
-  if (chartObject.analysisType === 'number') {
+  if (chartObject.analysisType === 'numberDistribution') {
     createMenuItem('area', 'Area');
   }
 
@@ -2746,10 +2783,10 @@ function // Function to create and render a chart in a Bootstrap card component 
     //analysis type specificities
     let yMaxValue;
     let chartMaxBarThickness;
-    if (chartObject.analysisType === 'simple') {
+    if (chartObject.analysisType === 'categoryDistribution') {
       chartMaxBarThickness = 50;
     }
-    if (chartObject.analysisType === 'number') {
+    if (chartObject.analysisType === 'numberDistribution') {
 
       let minDataValue = Math.min(...chartObject.data);
       yMinValue = minDataValue > 100 ? minDataValue * 0.9 : 0; // Adjusts to 90% of the min value, or 0 if min is small
@@ -2800,7 +2837,7 @@ function // Function to create and render a chart in a Bootstrap card component 
 
     new Chart(ctx, { //new chart in canvas
       //create a new chart using the properties of the chartObject being called as an argument in the function
-      type: chartObject.type,
+      type: chartObject.visType,
       data: {
         labels: chartObject.labels,
         datasets: [
@@ -3243,7 +3280,7 @@ function renderSumAvgChartInCard(chartObject, container) {
     let chartOptions = '';
     new Chart(ctx, { //new chart in canvas
       //create a new chart using the properties of the chartObject being called as an argument in the function
-      type: chartObject.type,
+      type: chartObject.visType,
       data: {
         labels: chartObject.labels,
         datasets: [
@@ -3524,7 +3561,7 @@ function openBookmarksOverlay() {
     }
     for (let i = 0; i < bookmarks.length; i++) {
       const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
-      if (bookmarks[i].analysisType === 'simple' || bookmarks[i].analysisType === 'number') {
+      if (bookmarks[i].analysisType === 'categoryDistribution' || bookmarks[i].analysisType === 'numberDistribution') {
         renderChartInCard(bookmarks[i], bookmarksBodyColumn);
       }
 
