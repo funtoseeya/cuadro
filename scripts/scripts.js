@@ -737,6 +737,172 @@ function guessDataTypes() {
   console.log('guessed data types: ', dropdownState);
 }
 
+async function reviewData() {
+
+  //display navigation bar  and update to review step
+  const navigationPanel = document.getElementById('navigation-panel');
+  navigationPanel.style.display = 'block';
+  const uploadBreadcrumb = document.getElementById('upload-breadcrumb');
+  uploadBreadcrumb.classList.add('clickable-breadcrumb-item');
+  uploadBreadcrumb.style.fontWeight = 'normal';
+  const reviewBreadcrumb = document.getElementById('review-breadcrumb');
+  reviewBreadcrumb.style.fontWeight = 'bold';
+  reviewBreadcrumb.classList.remove('clickable-breadcrumb-item');
+  const analyzeBreadcrumb = document.getElementById('analyze-breadcrumb');
+  analyzeBreadcrumb.style.fontWeight = 'normal';
+  analyzeBreadcrumb.classList.add('clickable-breadcrumb-item');
+
+  uploadBreadcrumb.addEventListener('click', navToUpload);
+  reviewBreadcrumb.removeEventListener('click', navToReview);
+  analyzeBreadcrumb.addEventListener('click', navToAnalyze);
+
+
+  //check if we already have a dropdown state stored. in which case we dont need to reprocess it
+  const dropdownStateInStorage = localStorage.getItem('dropdownState');
+  if (!dropdownStateInStorage) {
+    await parseCSVToArray(selectedFile);
+    console.log('dropdownstate', dropdownState);
+  }
+
+  //delete any existing analysis object
+  deleteAllAnalysisObjects();
+
+  //clear the step body
+  const stepBody = document.getElementById('step-body');
+  stepBody.innerHTML = '';
+
+
+  const reviewContainer = document.createElement('div');
+  reviewContainer.classList.add('row', 'mt-3');
+
+
+  stepBody.appendChild(reviewContainer);
+
+  //create review title, text row
+  const reviewHeaderRow = document.createElement('div');
+  reviewHeaderRow.classList.add('row');
+  reviewContainer.appendChild(reviewHeaderRow);
+
+  //create review header col and contents
+  const reviewHeaderCol = document.createElement('div');
+  reviewHeaderCol.classList.add('col-12');
+  reviewHeaderRow.appendChild(reviewHeaderCol);
+
+  const reviewHeader = document.createElement('h5');
+  reviewHeader.textContent = `Does this look right?`;
+  reviewHeaderCol.appendChild(reviewHeader);
+
+  const instructionLabel = document.createElement('p');
+  instructionLabel.textContent = 'Please take a moment to review and adjust how the data has been categorized.';
+  reviewHeaderCol.appendChild(instructionLabel);
+
+  //build up the body
+  const dataTypeSettingsRow = document.createElement('div');
+  dataTypeSettingsRow.classList.add('row');
+  const dataTypeSettingsCol = document.createElement('div');
+  dataTypeSettingsCol.classList.add('col-12');
+  reviewContainer.appendChild(dataTypeSettingsRow);
+  dataTypeSettingsRow.appendChild(dataTypeSettingsCol);
+
+  //create the yes no buttons
+  const yesNoRow = document.createElement('div');
+  dataTypeSettingsCol.appendChild(yesNoRow);
+  const noButton = document.createElement('a');
+  noButton.className = 'tertiary-button';
+  noButton.textContent = `❌ Nope, let's restart with a new file`;
+  yesNoRow.appendChild(noButton);
+  const yesButton = document.createElement('a');
+  yesButton.className = 'tertiary-button';
+  yesButton.textContent = `✅ Yes, let's analyze it!`;
+  yesNoRow.appendChild(yesButton);
+
+  yesButton.addEventListener('click', navToAnalyze);
+  noButton.addEventListener('click', navToUpload);
+
+  // Create the accordion
+  const accordion = document.createElement('div');
+  accordion.classList.add('accordion', 'w-100', 'mb-3');
+  accordion.id = 'dataTypeAccordion';
+
+  accordion.innerHTML = `
+  <div class="accordion-item" style="margin: 0.5rem 0;">
+  <p class="accordion-header" id="headingOne">
+    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+      <i class="fa-solid fa-circle-question" style="margin-right: 0.3rem; font-size: 1rem;" aria-hidden="true"></i>
+      What is this table?
+    </button>
+  </p>
+  <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
+    <div class="accordion-body" style="font-size: 0.85rem; padding: 0.75rem 1rem;">
+      The table below displays your data's structure and how it has been categorized. You may update the categories if need be. You can always come back to this as well.
+      <ul>
+        <li><strong><i class="fa-solid fa-shapes"></i> Categorical:</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. A field with unique values doesn't fall into Categorical - it should be set to Ignore.</li>
+        <li><strong><i class="fa-solid fa-hashtag"></i> Numerical:</strong> This is for any field containing numerical values. We will compute these by summing or averaging them, rather than counting them.</li>
+        <li><strong><i class="fa-regular fa-calendar"></i> Date / Time:</strong> This is for any field containing timestamps. This is especially useful for generating trend analyses.</li>
+        <li><strong>Ignore:</strong> Assign this to any field that doesn't fall into the above categories. e.g. comments, names, unique identifiers, etc.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+`;
+
+  dataTypeSettingsCol.appendChild(accordion);
+
+
+
+  const fileRow = document.createElement('div');
+  stepBody.appendChild(fileRow);
+  const fileName = document.createElement('p');
+  fileName.className = 'text-muted small';
+  const selectedFileInStorage = localStorage.getItem('selectedFile');
+  fileName.innerHTML = `<strong>Uploaded file:</strong> ${selectedFileInStorage}`;
+  dataTypeSettingsCol.appendChild(fileName);
+
+
+
+  generateReviewTable(dataTypeSettingsCol);
+
+  //button panel
+  loadReviewButtonPanel();
+
+}
+
+function loadReviewButtonPanel() {
+
+  //redo button
+  const leftCol = document.getElementById('navigation-back-column');
+  leftCol.innerHTML = '';
+  const redoButton = document.createElement('button');
+  redoButton.className = 'btn btn-secondary';
+  redoButton.innerHTML = `<i class="fa-solid fa-left-long"></i> Restart`;
+  leftCol.append(redoButton);
+
+  redoButton.addEventListener('click', function () {
+    location.reload();
+    localStorage.removeItem('parsedCSVData');
+    localStorage.removeItem('selectedFile');
+    localStorage.removeItem('dropdownState');
+    localStorage.removeItem('bookmarks');
+
+  })
+
+
+  // analyze button
+  const rightCol = document.getElementById('navigation-next-column');
+  rightCol.innerHTML = '';
+  const analyzeButton = document.createElement('button');
+  analyzeButton.id = 'analyze-button'
+  analyzeButton.classList.add('btn', 'btn-primary');
+  analyzeButton.innerHTML = `Analyze <i class="fa-solid fa-right-long"></i>`;
+  rightCol.appendChild(analyzeButton);
+
+  analyzeButton.addEventListener('click', navToAnalyze);
+
+}
+
+
+
 function NumberFormattingWarning(event) {
   for (let i = 0; i < parsedCSVData.length; i++) {
     const numberCheck = Number(parsedCSVData[i][event].trim());
@@ -928,9 +1094,8 @@ function setupAnalyzeStep() {
   tabContent.appendChild(advancedTabContent);
 
   loadSummaryTab();
+
   loadCompareTab();
-  //displayAnalysisOptions(); DISABLING WHILE BUILDING NEW COMPARE
-  createAnalysisObject('advanced');
 
   window.scrollTo({
     top: 0,
@@ -942,22 +1107,21 @@ function setupAnalyzeStep() {
 
 
 function loadSummaryTab() {
-  createAnalysisObject('summary');
-  const usingTheseSummary = dropdownState.filter(field => field.value === 'Categorical' || field.value === 'Numerical').map(field => field.header);
-  updateAnalysisObjectById('summary', {
-    analysisType: 'summary',
-    usingThese: usingTheseSummary,
-    groupedBy: '',
-    filteredBy: []
-  });
+  const summaryAnalysisObject = new AnalysisObject(1);
+  const summaryValue = dropdownState.filter(field => field.value === 'Categorical' || field.value === 'Numerical').map(field => field.header);
+  summaryAnalysisObject.analysisType = 'summary';
+  summaryAnalysisObject.summaryValue = summaryValue;
 
-  const summaryAnalysisObject = analysisObjects.find(obj => obj.id === 'summary');
-  console.log('summary analysis object: ', analysisObjects.find(obj => obj.id === 'summary'));
-  summaryAnalysisObject.beginChartGenerationProcess(summaryAnalysisObject.id);
+  console.log('summary analysis object: ', analysisObjects.find(obj => obj.analysisType === 'summary'));
+  summaryAnalysisObject.beginSummaryChartGenerationProcess(summaryAnalysisObject.analysisType);
 
 }
 
 function loadCompareTab() {
+
+  const advancedAnalysisObject = new AnalysisObject(2);
+  advancedAnalysisObject.analysisType = 'advanced';
+  console.log('advanced analysis object:',advancedAnalysisObject);
 
   const advancedTabContent = document.getElementById('advanced-tab-content');
   advancedTabContent.innerHTML = ``;
@@ -1324,171 +1488,7 @@ function createCategoricalHeaderArray() {
     .map(obj => obj.header);
 }
 
-//REVIEW STEP
 
-async function reviewData() {
-
-  //display navigation bar  and update to review step
-  const navigationPanel = document.getElementById('navigation-panel');
-  navigationPanel.style.display = 'block';
-  const uploadBreadcrumb = document.getElementById('upload-breadcrumb');
-  uploadBreadcrumb.classList.add('clickable-breadcrumb-item');
-  uploadBreadcrumb.style.fontWeight = 'normal';
-  const reviewBreadcrumb = document.getElementById('review-breadcrumb');
-  reviewBreadcrumb.style.fontWeight = 'bold';
-  reviewBreadcrumb.classList.remove('clickable-breadcrumb-item');
-  const analyzeBreadcrumb = document.getElementById('analyze-breadcrumb');
-  analyzeBreadcrumb.style.fontWeight = 'normal';
-  analyzeBreadcrumb.classList.add('clickable-breadcrumb-item');
-
-  uploadBreadcrumb.addEventListener('click', navToUpload);
-  reviewBreadcrumb.removeEventListener('click', navToReview);
-  analyzeBreadcrumb.addEventListener('click', navToAnalyze);
-
-
-  //check if we already have a dropdown state stored. in which case we dont need to reprocess it
-  const dropdownStateInStorage = localStorage.getItem('dropdownState');
-  if (!dropdownStateInStorage) {
-    await parseCSVToArray(selectedFile);
-    console.log('dropdownstate', dropdownState);
-  }
-
-  //delete any existing analysis object
-  deleteAllAnalysisObjects();
-
-  //clear the step body
-  const stepBody = document.getElementById('step-body');
-  stepBody.innerHTML = '';
-
-
-  const reviewContainer = document.createElement('div');
-  reviewContainer.classList.add('row', 'mt-3');
-
-
-  stepBody.appendChild(reviewContainer);
-
-  //create review title, text row
-  const reviewHeaderRow = document.createElement('div');
-  reviewHeaderRow.classList.add('row');
-  reviewContainer.appendChild(reviewHeaderRow);
-
-  //create review header col and contents
-  const reviewHeaderCol = document.createElement('div');
-  reviewHeaderCol.classList.add('col-12');
-  reviewHeaderRow.appendChild(reviewHeaderCol);
-
-  const reviewHeader = document.createElement('h5');
-  reviewHeader.textContent = `Does this look right?`;
-  reviewHeaderCol.appendChild(reviewHeader);
-
-  const instructionLabel = document.createElement('p');
-  instructionLabel.textContent = 'Please take a moment to review and adjust how the data has been categorized.';
-  reviewHeaderCol.appendChild(instructionLabel);
-
-  //build up the body
-  const dataTypeSettingsRow = document.createElement('div');
-  dataTypeSettingsRow.classList.add('row');
-  const dataTypeSettingsCol = document.createElement('div');
-  dataTypeSettingsCol.classList.add('col-12');
-  reviewContainer.appendChild(dataTypeSettingsRow);
-  dataTypeSettingsRow.appendChild(dataTypeSettingsCol);
-
-  //create the yes no buttons
-  const yesNoRow = document.createElement('div');
-  dataTypeSettingsCol.appendChild(yesNoRow);
-  const noButton = document.createElement('a');
-  noButton.className = 'tertiary-button';
-  noButton.textContent = `❌ Nope, let's restart with a new file`;
-  yesNoRow.appendChild(noButton);
-  const yesButton = document.createElement('a');
-  yesButton.className = 'tertiary-button';
-  yesButton.textContent = `✅ Yes, let's analyze it!`;
-  yesNoRow.appendChild(yesButton);
-
-  yesButton.addEventListener('click', navToAnalyze);
-  noButton.addEventListener('click', navToUpload);
-
-  // Create the accordion
-  const accordion = document.createElement('div');
-  accordion.classList.add('accordion', 'w-100', 'mb-3');
-  accordion.id = 'dataTypeAccordion';
-
-  accordion.innerHTML = `
-  <div class="accordion-item" style="margin: 0.5rem 0;">
-  <p class="accordion-header" id="headingOne">
-    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
-      <i class="fa-solid fa-circle-question" style="margin-right: 0.3rem; font-size: 1rem;" aria-hidden="true"></i>
-      What is this table?
-    </button>
-  </p>
-  <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#dataTypeAccordion">
-    <div class="accordion-body" style="font-size: 0.85rem; padding: 0.75rem 1rem;">
-      The table below displays your data's structure and how it has been categorized. You may update the categories if need be. You can always come back to this as well.
-      <ul>
-        <li><strong><i class="fa-solid fa-shapes"></i> Categorical:</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. A field with unique values doesn't fall into Categorical - it should be set to Ignore.</li>
-        <li><strong><i class="fa-solid fa-hashtag"></i> Numerical:</strong> This is for any field containing numerical values. We will compute these by summing or averaging them, rather than counting them.</li>
-        <li><strong><i class="fa-regular fa-calendar"></i> Date / Time:</strong> This is for any field containing timestamps. This is especially useful for generating trend analyses.</li>
-        <li><strong>Ignore:</strong> Assign this to any field that doesn't fall into the above categories. e.g. comments, names, unique identifiers, etc.</li>
-      </ul>
-    </div>
-  </div>
-</div>
-
-`;
-
-  dataTypeSettingsCol.appendChild(accordion);
-
-
-
-  const fileRow = document.createElement('div');
-  stepBody.appendChild(fileRow);
-  const fileName = document.createElement('p');
-  fileName.className = 'text-muted small';
-  const selectedFileInStorage = localStorage.getItem('selectedFile');
-  fileName.innerHTML = `<strong>Uploaded file:</strong> ${selectedFileInStorage}`;
-  dataTypeSettingsCol.appendChild(fileName);
-
-
-
-  generateReviewTable(dataTypeSettingsCol);
-
-  //button panel
-  loadReviewButtonPanel();
-
-}
-
-function loadReviewButtonPanel() {
-
-  //redo button
-  const leftCol = document.getElementById('navigation-back-column');
-  leftCol.innerHTML = '';
-  const redoButton = document.createElement('button');
-  redoButton.className = 'btn btn-secondary';
-  redoButton.innerHTML = `<i class="fa-solid fa-left-long"></i> Restart`;
-  leftCol.append(redoButton);
-
-  redoButton.addEventListener('click', function () {
-    location.reload();
-    localStorage.removeItem('parsedCSVData');
-    localStorage.removeItem('selectedFile');
-    localStorage.removeItem('dropdownState');
-    localStorage.removeItem('bookmarks');
-
-  })
-
-
-  // analyze button
-  const rightCol = document.getElementById('navigation-next-column');
-  rightCol.innerHTML = '';
-  const analyzeButton = document.createElement('button');
-  analyzeButton.id = 'analyze-button'
-  analyzeButton.classList.add('btn', 'btn-primary');
-  analyzeButton.innerHTML = `Analyze <i class="fa-solid fa-right-long"></i>`;
-  rightCol.appendChild(analyzeButton);
-
-  analyzeButton.addEventListener('click', navToAnalyze);
-
-}
 
 function loadAnalyzeButtonPanel() {
 
@@ -1511,728 +1511,7 @@ function loadAnalyzeButtonPanel() {
 
 
 
-// new function to clear and uppdate the stepper body with analysis options
-function displayAnalysisOptions() {
 
-  const advancedTabContent = document.getElementById('advanced-tab-content');
-  advancedTabContent.innerHTML = ``;
-
-
-  // Create the "i want to text", col and row
-  const analysisOptionTextRow = document.createElement('div');
-  analysisOptionTextRow.classList.add('row', 'mt-3');
-  analysisOptionTextRow.id = 'analysis-option-text-row';
-
-  const analysisOptionTextColumn = document.createElement('div');
-  const analysisOptionText = document.createElement('div');
-  analysisOptionText.innerHTML = `<h5>What would you like to compare?</h5><p>Compare counts, sums, and averages across any combination of fields.</p>`;
-
-  analysisOptionTextColumn.appendChild(analysisOptionText);
-  analysisOptionTextRow.appendChild(analysisOptionTextColumn);
-  advancedTabContent.appendChild(analysisOptionTextRow);
-
-  // Create the analysis option cards, cols, and row
-  const analysisOptionCardsRow = document.createElement('div');
-  analysisOptionCardsRow.classList.add('row');
-
-
-  // Helper function to create a card in a column
-  function createCardInCol(cardID, column, title, description, iconHTML, imageSRC) {
-    const card = document.createElement('button');
-    card.classList.add(
-      'card',
-      'h-100',
-      'shadow-sm',
-      'rounded-3',
-      'card-hover'
-    );
-    card.style.width = '100%';
-    card.style.border = '1px solid rgba(0, 0, 0,0.15)';
-    card.id = cardID;
-
-    // img
-    const imgDiv = document.createElement('div');
-    imgDiv.className = 'rounded-3';
-    imgDiv.style.width = '100%'; // Full width of the parent container
-    imgDiv.style.height = '200px'; // Fixed height for consistency
-    imgDiv.style.overflow = 'hidden'; // Hide overflow to prevent overflow issues with different dimensions
-    imgDiv.style.position = 'relative'; // Position for more control
-
-    const img = document.createElement('img');
-    img.src = imageSRC; // Replace with the actual image path
-    img.classList.add('d-block', 'w-100'); // Keep width consistent
-    img.style.height = '100%'; // Ensure height fits the container
-    img.style.objectFit = 'contain';
-
-
-
-    imgDiv.appendChild(img);
-    card.appendChild(imgDiv);
-
-
-
-    // Card body
-    const cardBody = document.createElement('div');
-    cardBody.classList.add('card-body', 'text-start');
-
-    // Add the icon
-    const iconContainer = document.createElement('div');
-    iconContainer.className = 'd-flex justify-content-between align-items-center w-100 mb-2';
-
-    cardBody.appendChild(iconContainer);
-
-    // Add the title
-    const titleDiv = document.createElement('h6');
-    titleDiv.classList.add('card-title');
-    titleDiv.innerHTML = `${iconHTML} ${title}`;
-    cardBody.appendChild(titleDiv);
-
-    // Add the description
-    const descriptionDiv = document.createElement('p');
-    descriptionDiv.classList.add('card-text', 'small');
-    descriptionDiv.textContent = description;
-    cardBody.appendChild(descriptionDiv);
-
-    // Append the card body to the card
-    card.appendChild(cardBody);
-
-    // Append the card to the column
-    column.appendChild(card);
-  }
-
-
-  // Create the simple analysis column and card
-  const analysisOptionCardBasicCol = document.createElement('div');
-  analysisOptionCardBasicCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
-  createCardInCol(
-    'simple-analysis-option',
-    analysisOptionCardBasicCol,
-    'Count of Rows by Category',
-    `Count the number of times each category appears within a field.`,
-    '<i class="fas fa-chart-bar"></i>',
-    '../images/category-distribution-preview.svg'
-  );
-
-
-  // Create the sum by category  card
-  const analysisOptionCardNumCompareCol = document.createElement('div');
-  analysisOptionCardNumCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
-  createCardInCol(
-    'sum-comparative-analysis-option',
-    analysisOptionCardNumCompareCol,
-    'Sum by Category',
-    `Calculate the sum of values by category.`,
-    '<i class="fa-solid fa-calculator"></i>',
-    '../images/sum-preview.svg'
-  );
-
-  // Create the avg by category  card
-  const analysisOptionAvgCol = document.createElement('div');
-  analysisOptionAvgCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
-  createCardInCol(
-    'average-comparative-analysis-option',
-    analysisOptionAvgCol,
-    'Avg by Category',
-    `Calculate the average of values by category.`,
-    '<i class="fa-solid fa-calculator"></i>',
-    '../images/avg-preview.svg'
-  );
-
-  // Create the comparative analysis column and card
-  const analysisOptionCardCompareCol = document.createElement('div');
-  analysisOptionCardCompareCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
-  createCardInCol(
-    'comparative-analysis-option',
-    analysisOptionCardCompareCol,
-    'Count of Rows by Group of Categories',
-    `Count the number of times a grouping of categories appears across two fields.`,
-    '<i class="fas fa-table"></i>',
-    '../images/category-grouping-distribution-preview.svg'
-  );
-
-  // Create the numerical analysis column and card
-  const analysisOptionCardNumCol = document.createElement('div');
-  analysisOptionCardNumCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
-  createCardInCol(
-    'number-analysis-option',
-    analysisOptionCardNumCol,
-    'Count of Rows by Numerical Range',
-    `Count the number of times a range of numbers appears within a field.`,
-    '<i class="fa-solid fa-chart-area"></i>',
-    '../images/number-distribution-preview.svg'
-  );
-
-
-  // Create the trend analysis column and card
-  const analysisOptionCardTrendCol = document.createElement('div');
-  analysisOptionCardTrendCol.classList.add('col-12', 'col-sm-4', 'mb-2', 'px-2');
-  createCardInCol(
-    'trend-analysis-option',
-    analysisOptionCardTrendCol,
-    'Trend Analysis',
-    'Uncover patterns and changes over time.',
-    '<i class="fas fa-chart-line"></i><span class="badge" style="background-color: #f4b400; margin-left:0.2rem; color: white; font-size: 0.875rem;">Coming Soon!</span>',
-    '../images/line_chart_temp.svg'
-  );
-
-  // Append analysis columns to the row
-  analysisOptionCardsRow.appendChild(analysisOptionCardBasicCol);
-  analysisOptionCardsRow.appendChild(analysisOptionCardNumCompareCol);
-  analysisOptionCardsRow.appendChild(analysisOptionAvgCol);
-  analysisOptionCardsRow.appendChild(analysisOptionCardCompareCol);
-  analysisOptionCardsRow.appendChild(analysisOptionCardNumCol);
-  analysisOptionCardsRow.appendChild(analysisOptionCardTrendCol);
-
-  // Append the row to the step body
-  advancedTabContent.appendChild(analysisOptionCardsRow);
-
-
-
-
-  const trendCard = document.getElementById('trend-analysis-option');
-  trendCard.style.backgroundColor = '#ececec';
-  trendCard.style.cursor = 'default';
-
-  const simpleCard = document.getElementById('simple-analysis-option');
-  simpleCard.addEventListener('click', function () {
-    handleIWantTo('simple');
-  });
-
-  const numbersCard = document.getElementById('number-analysis-option');
-  numbersCard.addEventListener('click', function () {
-    handleIWantTo('number');
-  });
-
-  const comparativeCard = document.getElementById(
-    'comparative-analysis-option'
-  );
-  comparativeCard.addEventListener('click', function () {
-    handleIWantTo('comparative');
-  });
-
-  const sumComparativeCard = document.getElementById('sum-comparative-analysis-option');
-  sumComparativeCard.addEventListener('click', function () { handleIWantTo('sum-comparative') });
-
-  const avgComparativeCard = document.getElementById('average-comparative-analysis-option');
-  avgComparativeCard.addEventListener('click', function () { handleIWantTo('average-comparative') });
-
-
-}
-
-
-
-
-// Handle the select change event
-function handleIWantTo(event) {
-
-  //update the current analysis object. scrap any previously existing info and give it a type
-  updateAnalysisObjectById('advanced', {
-    analysisType: event,
-    usingThese: [],
-    groupedBy: '',
-    filteredBy: undefined,
-  });
-
-
-  const advancedTabContent = document.getElementById('advanced-tab-content');
-
-  // Clear any existing content
-  advancedTabContent.innerHTML = '';
-
-  //create the back to start button, row and col
-  const backRow = document.createElement('div');
-  backRow.className = 'row';
-  const backCol = document.createElement('div');
-  backCol.classList.add('col-6');
-  const backButton = document.createElement('a');
-  backButton.classList.add('text-decoration-none', 'tertiary-button', 'mt-3');
-  backButton.innerHTML =
-    '<i class="fas fa-chevron-left" style="padding-right:0.2rem"></i> Back to types';
-
-  backCol.appendChild(backButton);
-  backRow.appendChild(backCol);
-  advancedTabContent.appendChild(backRow);
-
-  backButton.addEventListener('click', displayAnalysisOptions);
-
-
-  // Create the container div and set its class
-  const promptRow = document.createElement('div');
-  promptRow.classList.add('row');
-  promptRow.id = 'prompt-row';
-  promptRow.style.margin = '1rem';
-
-  // Create four  column divs for the dropdowns and set their class
-  const typeColumn = document.createElement('div');
-  typeColumn.id = 'type-colum';
-  typeColumn.classList.add('col-12', 'col-sm-6', 'col-md-4');
-
-  const usingColumn = document.createElement('div');
-  usingColumn.id = 'using-column';
-  usingColumn.classList.add('col-12', 'col-sm-6', 'col-md-4');
-
-  const groupColumn = document.createElement('div');
-  groupColumn.id = 'group-column';
-  //no class for now. just keep empty
-
-  const filterColumn = document.createElement('div');
-  filterColumn.classList.add('col-12', 'col-sm-6', 'col-md-4');
-
-  // Append the col divs to the rowdiv
-  promptRow.appendChild(typeColumn);
-  promptRow.appendChild(usingColumn);
-  promptRow.appendChild(groupColumn);
-  promptRow.appendChild(filterColumn);
-
-  // Append the row div to the stepBody
-  advancedTabContent.appendChild(promptRow);
-
-  // Create the i want text
-  const iWantText = document.createElement('span');
-  iWantText.id = 'i-want-to-text';
-  iWantText.style.fontSize = '0.9rem';
-  iWantText.textContent = 'Analysis type';
-
-  // Create the i want menu container
-  const iWantdropdownContainer = document.createElement('div');
-  iWantdropdownContainer.id = 'i-want-to-dropdown-container';
-  iWantdropdownContainer.classList.add('dropdown');
-
-  // Create the i want button
-  const iWantSelect = document.createElement('button');
-  iWantSelect.classList.add(
-    'btn',
-    'truncate-btn',
-    'btn-secondary',
-    'form-select',
-    'data-type-dropdown'
-  );
-  iWantSelect.type = 'button';
-  iWantSelect.style.width = '100%';
-  iWantSelect.style.fontSize = '0.9rem';
-  iWantSelect.textContent = 'make a selection';
-  iWantSelect.style.textAlign = 'left';
-  iWantSelect.id = 'i-want-to-dropdown';
-  iWantSelect.setAttribute('data-bs-toggle', 'dropdown');
-  iWantSelect.setAttribute('aria-expanded', 'false');
-
-  // Create the options menu
-  const iWantMenu = document.createElement('ul');
-  iWantMenu.classList.add('dropdown-menu');
-
-  // Populate the new dropdown with types of comparisons
-
-  const simpleListItem = document.createElement('li');
-  const simpleListAnchor = document.createElement('a');
-  simpleListAnchor.classList.add('dropdown-item');
-  const simpleListAnchorText = document.createElement('label');
-  simpleListAnchorText.textContent = 'count of rows by category';
-  simpleListAnchor.setAttribute('data-value', 'simple');
-
-  const numberListItem = document.createElement('li');
-  const numberListAnchor = document.createElement('a');
-  numberListAnchor.classList.add('dropdown-item');
-  const numberListAnchorText = document.createElement('label');
-  numberListAnchorText.textContent = 'count of rows by numerical range';
-  numberListAnchor.setAttribute('data-value', 'number');
-
-  const compareListItem = document.createElement('li');
-  const compareListAnchor = document.createElement('a');
-  compareListAnchor.classList.add('dropdown-item');
-  const compareListAnchorText = document.createElement('label');
-  compareListAnchorText.textContent = 'count of rows by group of categories';
-  compareListAnchor.setAttribute('data-value', 'comparative');
-
-  const sumListItem = document.createElement('li');
-  const sumListAnchor = document.createElement('a');
-  sumListAnchor.classList.add('dropdown-item');
-  const sumListAnchorText = document.createElement('label');
-  sumListAnchorText.textContent = 'sum by category';
-  sumListAnchor.setAttribute('data-value', 'sum-comparative');
-
-  const avgListItem = document.createElement('li');
-  const avgListAnchor = document.createElement('a');
-  avgListAnchor.classList.add('dropdown-item');
-  const avgListAnchorText = document.createElement('label');
-  avgListAnchorText.textContent = 'average by category';
-  avgListAnchor.setAttribute('data-value', 'avg-comparative');
-
-  //append options to menu
-  simpleListAnchor.appendChild(simpleListAnchorText);
-  simpleListItem.appendChild(simpleListAnchor);
-  iWantMenu.appendChild(simpleListItem);
-
-  sumListAnchor.appendChild(sumListAnchorText);
-  sumListItem.appendChild(sumListAnchor);
-  iWantMenu.appendChild(sumListItem);
-
-  avgListAnchor.appendChild(avgListAnchorText);
-  avgListItem.appendChild(avgListAnchor);
-  iWantMenu.appendChild(avgListItem);
-
-
-  compareListAnchor.appendChild(compareListAnchorText);
-  compareListItem.appendChild(compareListAnchor);
-  iWantMenu.appendChild(compareListItem);
-
-  numberListAnchor.appendChild(numberListAnchorText);
-  numberListItem.appendChild(numberListAnchor);
-  iWantMenu.appendChild(numberListItem);
-
-  // Append elements to the dropdown container
-  iWantdropdownContainer.appendChild(iWantSelect);
-  iWantdropdownContainer.appendChild(iWantMenu);
-
-  // place the select dropdown to colDiv1
-  typeColumn.appendChild(iWantText);
-  typeColumn.appendChild(iWantdropdownContainer);
-
-
-
-  if (event === 'simple') {
-    // Update select.textContent
-    iWantSelect.textContent = 'count of rows by category';
-
-    //hide group column
-    if (groupColumn) {
-      groupColumn.style.display = 'none';
-    }
-
-    // Create and append the required dropdowns
-    createUsingTheseDropdown(event);
-  }
-
-  // If the value of the select dropdown is "generic"...
-  if (event === 'number') {
-    // Update select.textContent
-    iWantSelect.textContent = 'count of rows by numerical range';
-
-    //hide group column
-    if (groupColumn) {
-      groupColumn.style.display = 'none';
-    }
-
-    // Create and append the required dropdowns
-    createUsingTheseDropdown(event);
-  }
-
-  if (event === 'comparative' || event === 'sum-comparative' || event === 'average-comparative') {
-    // Update select.textContent
-    if (event === 'comparative') {
-      iWantSelect.textContent = 'count of rows by group of categories';
-    }
-    if (event === 'sum-comparative') {
-      iWantSelect.textContent = 'sum by category';
-    }
-    if (event === 'average-comparative') {
-      iWantSelect.textContent = 'average by category';
-    }
-    //show group column
-    if (groupColumn) {
-      groupColumn.style.display = '';
-    }
-
-
-    // Readjust column widths
-    typeColumn.classList.remove('col-md-6', 'col-md-4');
-    typeColumn.classList.add('col-md-3');
-
-    usingColumn.classList.remove('col-md-6', 'col-md-4');
-    usingColumn.classList.add('col-md-3');
-    usingColumn.innerHTML = '';
-
-    groupColumn.classList.remove('col-md-6', 'col-md-4');
-    groupColumn.classList.add('col-12', 'col-sm-6', 'col-md-3');
-    groupColumn.innerHTML = '';
-
-    filterColumn.classList.remove('col-md-6', 'col-md-4');
-    filterColumn.classList.add('col-md-3');
-    filterColumn.innerHTML = '';
-
-    // Create and append the required dropdowns
-    createUsingTheseDropdown(event);
-    createGroupByDropdown();
-  }
-
-
-  //remove any previously existing chart cards from the body
-  let cardsContainer = document.getElementById('advanced-tab-cards-container');
-
-  if (cardsContainer) {
-    cardsContainer.innerHTML = '';
-  } else {
-    cardsContainer = document.createElement('div');
-    cardsContainer.id = 'advanced-tab-cards-container';
-    advancedTabContent.appendChild(cardsContainer);
-  }
-
-  iWantMenu.addEventListener('click', function (event) {
-    const target = event.target.closest('a.dropdown-item');
-    let analysisType = '';
-    if (target.innerText === 'count of rows by category') {
-      analysisType = 'simple';
-    }
-    if (target.innerText === 'count of rows by numerical range') {
-      analysisType = 'number';
-    }
-    if (target.innerText === 'count of rows by group of categories') {
-      analysisType = 'comparative';
-    }
-    if (target.innerText === 'sum by category') {
-      analysisType = 'sum-comparative';
-    }
-    if (target.innerText === 'average by category') {
-      analysisType = 'average-comparative';
-    }
-
-    handleIWantTo(analysisType);
-  });
-}
-
-// function to Create the Using dropdown
-function createUsingTheseDropdown(event) {
-
-  const usingColumn = document.getElementById('using-column');
-
-
-
-  // Create the span element for text
-  const span = document.createElement('span');
-  span.id = 'using-these-values-text';
-  span.style.fontSize = '0.9rem';
-
-  if (event === 'simple' || event === 'comparative') {
-    span.textContent = 'Count of rows by...';
-  }
-  if (event === 'number') {
-    span.textContent = 'Count of rows by range of...';
-  }
-  if (event === 'sum-comparative') {
-    span.textContent = 'Sum of...';
-  }
-  if (event === 'average-comparative') {
-    span.textContent = 'Average...';
-  }
-
-
-
-
-  // Create the menu container
-  const dropdownContainer = document.createElement('div');
-  dropdownContainer.classList.add('dropdown');
-
-  // Create the button
-  const columnSelect = document.createElement('button');
-  columnSelect.classList.add(
-    'btn',
-    'truncate-btn',
-    'btn-secondary',
-    'form-select',
-    'data-type-dropdown'
-  );
-  columnSelect.type = 'button';
-  columnSelect.style.width = '100%';
-  columnSelect.style.fontSize = '0.9rem';
-  columnSelect.textContent = '0 selected'; // Start with 0 selected
-  columnSelect.style.textAlign = 'left'; // Align text to the left
-  columnSelect.id = 'column-select';
-
-  columnSelect.setAttribute('data-bs-toggle', 'dropdown');
-  columnSelect.setAttribute('aria-expanded', 'false');
-
-  // Create the menu
-  const columnMenu = document.createElement('ul');
-  columnMenu.classList.add('dropdown-menu');
-  columnMenu.id = 'using-these-list';
-
-  columnMenu.style.maxHeight = '300px'; // Adjust max-height as needed
-  columnMenu.style.maxWidth = '400px';
-  columnMenu.style.overflowY = 'auto';
-  columnMenu.style.overflowX = 'hidden';
-
-  //the type of analysis dictates what the users options should be
-  const currentAnalysisObject = analysisObjects.find(obj => obj.id === 'advanced');
-  const analysisType = currentAnalysisObject.analysisType;
-
-  // Populate the new dropdown with options from the saved dropdown state
-  dropdownState.forEach(({ header, value }) => {
-    if (
-      ((event === 'simple' || event === 'comparative') && value === 'Categorical') ||
-      ((event === 'number' || (event === 'sum-comparative' || event === 'average-comparative')) && value === 'Numerical')
-    ) {
-      const columnListItem = document.createElement('li');
-      const columnListAnchor = document.createElement('a');
-      columnListAnchor.classList.add('dropdown-item');
-      const columnListInput = document.createElement('input');
-      columnListInput.type = 'checkbox';
-      columnListInput.id = header;
-      columnListInput.value = header;
-
-      const columnListLabel = document.createElement('label');
-      columnListLabel.style.marginLeft = '10px';
-      columnListLabel.htmlFor = header;
-      columnListLabel.textContent = header;
-
-      columnListAnchor.appendChild(columnListInput);
-      columnListAnchor.appendChild(columnListLabel);
-      columnListItem.appendChild(columnListAnchor);
-      columnMenu.appendChild(columnListItem);
-
-      // Add event listener to update button text when checkbox is changed
-      columnListInput.addEventListener('change', () => {
-        updateUsingTheseCount();
-        updateUsingTheseArray();
-      });
-    }
-  });
-
-
-  // Append elements to the dropdown container
-  dropdownContainer.appendChild(columnSelect);
-  dropdownContainer.appendChild(columnMenu);
-
-  // Append elements to usingcolumn
-  usingColumn.appendChild(span);
-  usingColumn.appendChild(dropdownContainer);
-
-  // Prevent dropdown menu from closing when clicking inside
-  columnMenu.addEventListener('click', function (event) {
-    event.stopPropagation();
-  });
-}
-
-// Update the text of the columnSelect button based on selected checkboxes
-function updateUsingTheseCount() {
-  const columnSelect = document.getElementById('column-select');
-  const checkboxes = document.querySelectorAll(
-    '#column-select ~ .dropdown-menu input[type="checkbox"]'
-  );
-  const selectedCount = Array.from(checkboxes).filter(
-    checkbox => checkbox.checked
-  ).length;
-  columnSelect.textContent = `${selectedCount} selected`;
-}
-
-// Update the usingThese array based on selected checkboxes
-function updateUsingTheseArray() {
-  const selectedValues = Array.from(
-    document.querySelectorAll(
-      '#column-select ~ .dropdown-menu input[type="checkbox"]:checked'
-    )
-  ).map(checkbox => checkbox.value);
-
-  // Find the current AnalysisObject and update its usingThese array
-  const analysis = analysisObjects.find(obj => obj.id === 'advanced');
-  if (analysis) {
-    analysis.usingThese = selectedValues;
-    analysis.beginAdvancedChartGenerationProcess();
-    console.log(analysis);
-  } else {
-    console.error('AnalysisObject not found');
-  }
-}
-
-// function to create the group by dropdown necessary for comparisons
-function createGroupByDropdown() {
-  const groupColumn = document.getElementById('group-column');
-
-  // Create the span element for text
-  const span = document.createElement('span');
-  span.id = 'group-by-text';
-  span.style.fontSize = '0.9rem';
-  span.textContent = 'Grouped by';
-
-  // Create the menu container
-  const dropdownContainer = document.createElement('div');
-  dropdownContainer.classList.add('dropdown');
-
-  // Create the button
-  const groupBySelect = document.createElement('button');
-  groupBySelect.classList.add(
-    'btn',
-    'truncate-btn',
-    'btn-secondary',
-    'form-select',
-    'data-type-dropdown'
-  );
-  groupBySelect.type = 'button';
-  groupBySelect.style.width = '100%';
-  groupBySelect.style.fontSize = '0.9rem';
-  groupBySelect.textContent = 'make a selection';
-  groupBySelect.style.textAlign = 'left'; // Align text to the left
-  groupBySelect.id = 'group-by-select';
-  groupBySelect.setAttribute('data-bs-toggle', 'dropdown');
-  groupBySelect.setAttribute('aria-expanded', 'false');
-
-  // Create the menu
-  const groupByMenu = document.createElement('ul');
-  groupByMenu.classList.add('dropdown-menu');
-  groupByMenu.id = 'group-by-menu';
-
-  groupByMenu.style.maxHeight = '300px'; // Adjust max-height as needed
-  groupByMenu.style.maxWidth = '400px';
-  groupByMenu.style.overflowY = 'auto';
-  groupByMenu.style.overflowX = 'hidden';
-
-  // Populate the group by dropdown with columns that were typed as "Categorical"
-  dropdownState.forEach(({ header, value }) => {
-    if (value === 'Categorical') {
-      const groupByListItem = document.createElement('li');
-      const groupByListAnchor = document.createElement('a');
-      groupByListAnchor.classList.add('dropdown-item');
-      groupByListAnchor.setAttribute('data-value', 'open');
-      const groupByListAnchorText = document.createElement('label');
-      groupByListAnchorText.textContent = header;
-      groupByListAnchor.id = header;
-
-      //append all items to the group by menu
-      groupByListAnchor.appendChild(groupByListAnchorText);
-      groupByListItem.appendChild(groupByListAnchor);
-      groupByMenu.appendChild(groupByListItem);
-    }
-  });
-
-  // Append elements to the dropdown container
-  dropdownContainer.appendChild(groupBySelect);
-  dropdownContainer.appendChild(groupByMenu);
-
-  // Append elements to colDiv3
-  groupColumn.appendChild(span);
-  groupColumn.appendChild(dropdownContainer);
-
-  // Add event listener for selection change, which will call a cascade of functions
-  groupByMenu.addEventListener('click', handleGroupByChange);
-}
-
-// Handle the group by change event
-function handleGroupByChange(event) {
-  const target = event.target.closest('a.dropdown-item');
-  if (!target) return;
-
-  const groupBySelect = document.getElementById('group-by-select');
-
-  // Update groupby menu to display the selected value
-  groupBySelect.textContent = target.querySelector('label').textContent;
-
-  //call the function that updates the analysis object's groupBy property
-  updateGroupByValue();
-}
-
-//function to update the analysis object with the selected groupBy value
-function updateGroupByValue() {
-  const selectedValue = document.getElementById('group-by-select')
-    .textContent;
-
-  // Find the current AnalysisObject and update its groupBy property
-  const analysis = analysisObjects.find(obj => obj.id === 'advanced');
-  if (analysis) {
-    analysis.groupedBy = selectedValue;
-    analysis.beginAdvancedChartGenerationProcess();
-    console.log(analysis);
-  } else {
-    console.error('AnalysisObject not found');
-  }
-}
 
 // function to Create the filter dropdown using the Categorical array
 function createFilterButton() {
@@ -2366,12 +1645,13 @@ function createFilterButton() {
 
     // Find each AnalysisObject and update its filteredBy array
     analysisObjects.forEach(obj => {
-
       obj.filteredBy = selectedValues;
-      obj.beginChartGenerationProcess(obj.id);
-
     })
-    console.log('analysis objectS:', analysisObjects);
+    const summaryAnalysisObject = analysisObjects.find(obj => obj.id ===1);
+    summaryAnalysisObject.beginSummaryChartGenerationProcess(summaryAnalysisObject.analysisType);
+
+
+    console.log('analysis objects:', analysisObjects);
 
 
   }
@@ -2395,33 +1675,25 @@ function createFilterButton() {
 class AnalysisObject {
   constructor(id) {
     //create a new empty object
-    this.id = id; // Assign a unique ID that increments by 1 each time a new one is created
-    this.analysisType = ''; // simple, comparative, temporal...
-    this.usingThese = []; // the main column being processed
-    this.groupedBy = ''; // sometimes the data will be sliced by this column and displayed in the chart
+    this.id = id; // 
+    this.analysisType = ''; // summary or advanced
+    this.summaryValue = []; // stores all values for summary/distribution tab
+    this.compareType = ''; // count/sum/avg...
+    this.compareBy = ''; //either null or a numerical value if sum/avg
+    this.compareFieldA = ''; //compare field A
+    this.compareFieldB = ''; //compare field B
     this.filteredBy = []; // sometimes the data will be filtered by these values
     this.chartObjects = []; // the array storing the charts created by the above parameters
     this.label = ''; // Optional label for user naming
+
+    //add to analysisObjects array
+    analysisObjects.push(this);
+
   }
 
-  //update the object's parameters. if any are not defined in the call, default to current value
-  updateAnalysisObject(
-    analysisType = this.analysisType,
-    usingThese = this.usingThese,
-    groupedBy = this.groupedBy,
-    filteredBy = this.filteredBy,
-    label = this.label
-  ) {
-    this.analysisType = analysisType; //update the parameter to what's passed as an argument
-    this.usingThese = usingThese; //update the parameter to what's passed as an argument
-    this.groupedBy = groupedBy; //update the parameter to what's passed as an argument
-    this.filteredBy = filteredBy; //update the parameter to what's passed as an argument
-    this.label = label; //update the parameter to what's passed as an argument
-  }
-
-  beginChartGenerationProcess(summaryOrAdvanced) {
+  beginSummaryChartGenerationProcess(summaryOrAdvanced) {
     this.chartObjects = []; // Clear any pre-existing charts before creating new ones
-    this.usingThese.forEach(field => {
+    this.summaryValue.forEach(field => {
       const type = dropdownState.find(item => item.header === field).value;
 
       let result = [];
@@ -2432,11 +1704,13 @@ class AnalysisObject {
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       let visType = '';
       let analysisType = '';
+
+
       if (type === 'Categorical') {
         result = this.generateSimpleChartObjectDataArrayAndLabels(field, this.filteredBy);
         percentagesCounts = result.PercentagesCounts;
         chartTitle = `Count and Percentage of rows by '${field}'`;
-        chartID = `summary-simple-${field}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
+        chartID = `summary-simple-${field}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
         visType = 'bar';
         analysisType = 'simple';
         chartType = 'horizontal-bars';
@@ -2445,11 +1719,12 @@ class AnalysisObject {
         result = this.generateNumberChartObjectDataArrayAndLabels(field, this.filteredBy);
         percentagesCounts = '';
         chartTitle = `Count of rows by range of '${field}'`;
-        chartID = `summary-number-${field}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
+        chartID = `summary-number-${field}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
         visType = 'line';
         analysisType = 'number';
         chartType = 'area';
       }
+     
       const data = result.data;
       const labels = result.labels;
 
@@ -2465,15 +1740,14 @@ class AnalysisObject {
         percentagesCounts,
         [],
         field,
-        this.groupedBy,
         this.filteredBy
-      ); //value= the current item in the usingthese foreach loop
+      ); //value= the current item in the summaryValue foreach loop
       newChartObject.chartType = chartType;
       this.chartObjects.push(newChartObject); // add the new chart object at the end of the analysis object's charts array
 
     })
 
-      this.prepChartContainer(summaryOrAdvanced);
+      this.prepChartContainer('summary');
   }
 
 
@@ -2520,15 +1794,15 @@ class AnalysisObject {
 
   beginAdvancedChartGenerationProcess() {
     //meant as a router that chooses what charts to produce depending on the inputs
-    // Check if usingThese is not empty and analysisobject's type is 'generic'
+    // Check if summaryValue is not empty and analysisobject's type is 'generic'
 
-    if (this.usingThese.length > 0 && this.analysisType === 'comparative' && this.groupedBy != '') {
+    if (this.summaryValue.length > 0 && this.analysisType === 'comparative' && this.groupedBy != '') {
       this.addComparativeChartObjects();
     }
-    if (this.usingThese.length > 0 && this.analysisType === 'sum-comparative' && this.groupedBy != '') {
+    if (this.summaryValue.length > 0 && this.analysisType === 'sum-comparative' && this.groupedBy != '') {
       this.addSumChartObjects();
     }
-    if (this.usingThese.length > 0 && this.analysisType === 'average-comparative' && this.groupedBy != '') {
+    if (this.summaryValue.length > 0 && this.analysisType === 'average-comparative' && this.groupedBy != '') {
       this.addAverageChartObjects();
     }
 
@@ -2536,7 +1810,7 @@ class AnalysisObject {
 
   addComparativeChartObjects() {
     this.chartObjects = []; // Clear existing charts
-    this.usingThese.forEach(value => {
+    this.summaryValue.forEach(value => {
       // Generate data, labels, and cluster labels for the clustered chart
       const result = this.generateComparativeChartObjectDataArrayAndLabels(
         value,
@@ -2548,7 +1822,7 @@ class AnalysisObject {
       const labels = result.labels;
       const clusterLabels = result.clusterLabels;
       const percentagesCounts = result.percentagesCounts;
-      const UsingTheseType = dropdownState.find(obj => obj.header === value);
+      const summaryValueType = dropdownState.find(obj => obj.header === value);
       let chartTitle = '';
 
       chartTitle = `Count of rows by '${value}' grouped by '${this.groupedBy}' `;
@@ -2578,7 +1852,7 @@ class AnalysisObject {
 
   addSumChartObjects() {
     this.chartObjects = []; // Clear existing charts
-    this.usingThese.forEach(value => {
+    this.summaryValue.forEach(value => {
       // Generate data, labels, and cluster labels for the clustered chart
       const result = this.generateSumChartObjectDataArrayAndLabels(
         value,
@@ -2590,7 +1864,7 @@ class AnalysisObject {
       const labels = result.labels;
       const clusterLabels = result.clusterLabels;
       const percentagesCounts = result.percentagesCounts;
-      const UsingTheseType = dropdownState.find(obj => obj.header === value);
+      const summaryValueType = dropdownState.find(obj => obj.header === value);
       let chartTitle = '';
 
       chartTitle = `Sum of '${value}' by '${this.groupedBy}'`;
@@ -2619,7 +1893,7 @@ class AnalysisObject {
 
   addAverageChartObjects() {
     this.chartObjects = []; // Clear existing charts
-    this.usingThese.forEach(value => {
+    this.summaryValue.forEach(value => {
       // Generate data, labels, and cluster labels for the clustered chart
       const result = this.generateAverageChartObjectDataArrayAndLabels(
         value,
@@ -2631,7 +1905,7 @@ class AnalysisObject {
       const labels = result.labels;
       const clusterLabels = result.clusterLabels;
       const percentagesCounts = result.percentagesCounts;
-      const UsingTheseType = dropdownState.find(obj => obj.header === value);
+      const summaryValueType = dropdownState.find(obj => obj.header === value);
       let chartTitle = '';
 
       chartTitle = `Average of '${value}' by '${this.groupedBy}'`;
@@ -2665,7 +1939,7 @@ class AnalysisObject {
     let countMap = {}; // Initialize an empty object for counting
     for (let i = 0; i < filteredData.length; i++) {
       let item = filteredData[i]; // Get the current item from the filtered array
-      let value = item[header]; // Get the value from the curent item's usingthese header
+      let value = item[header]; // Get the value from the curent item's summaryValue header
       if (countMap[value]) {
         // If the value is already in countMap, increment its count
         countMap[value]++;
@@ -2681,7 +1955,7 @@ class AnalysisObject {
     let labels = []; // Initialize an array for the labels
     let PercentagesCounts = [];
 
-    // Get an array of keys from the countMap object - these are the unique values of the items in the usingthese array
+    // Get an array of keys from the countMap object - these are the unique values of the items in the summaryValue array
     let keys = Object.keys(countMap);
 
     // Use a standard for loop to iterate through the keys
@@ -2944,30 +2218,9 @@ class AnalysisObject {
   }
 }
 
-// Function to create and add a new Analysis object
-function createAnalysisObject(id) {
-  const newAnalysis = new AnalysisObject(id);
-  analysisObjects.push(newAnalysis);
-  return newAnalysis; // Optionally return the new object
-}
 
 // Function to update an existing AnalysisObject by ID
-function updateAnalysisObjectById(id, updates) {
-  const analysis = analysisObjects.find(obj => obj.id === id);
-  if (analysis) {
-    // Apply updates only for the properties provided in the updates object
-    const { analysisType, usingThese, groupedBy, filteredBy, label } = updates;
-    analysis.updateAnalysisObject(
-      analysisType !== undefined ? analysisType : analysis.analysisType,
-      usingThese !== undefined ? usingThese : analysis.usingThese,
-      groupedBy !== undefined ? groupedBy : analysis.groupedBy,
-      filteredBy !== undefined ? filteredBy : analysis.filteredBy,
-      label !== undefined ? label : analysis.label
-    );
-  } else {
-    console.error('AnalysisObject not found');
-  }
-}
+
 
 // Function to delete an AnalysisObject by ID
 function deleteAnalysisObjectById(id) {
@@ -2986,7 +2239,7 @@ function deleteAllAnalysisObjects() {
 
 // boilerplate for charts we create via the generic dropdown option.
 class ChartObject {
-  constructor(analysisType, title, id, type, data, labels, percentagesCounts, clusterLabels, usingThese, groupedBy, filteredBy) {
+  constructor(analysisType, title, id, type, data, labels, percentagesCounts, clusterLabels, summaryValue, filteredBy) {
     this.analysisType = analysisType;
     this.title = title; // Title of the chart
     this.id = id;
@@ -2995,14 +2248,18 @@ class ChartObject {
     this.labels = labels; // Data required for chart generation
     this.percentagesCounts = percentagesCounts; // Labels for the data points
     this.clusterLabels = clusterLabels; // New property for cluster labels
-    this.usingThese = usingThese;
-    this.groupedBy = groupedBy;
+    this.summaryValue = summaryValue;
     this.filteredBy = filteredBy;
+    this.compareType = ''; // count/sum/avg...
+    this.compareBy = ''; //either null or a numerical value if sum/avg
+    this.compareFieldA = ''; //compare field A
+    this.compareFieldB = ''; //compare field B
     this.backgroundColor = 'rgba(36, 123, 160, 0.2)'; //
     this.borderColor = 'rgba(36, 123, 160, 1)'; //
     this.borderWidth = 1;
     this.bookmarked = false;
     this.chartType = '';
+    
     this.verticalColumnChartOptions = {
       plugins: {
         legend: {
@@ -3361,7 +2618,7 @@ function // Function to create and render a chart in a Bootstrap card component 
     'justify-content-end'
   );
   const cardTitleColumn = document.createElement('div');
-  cardTitleColumn.classList.add('col-12');
+  cardTitleColumn.classList.add('col-12', 'mt-2');
   const cardFiltersColumn = document.createElement('div');
   cardFiltersColumn.classList.add('col-12');
   cardOptionsRow.appendChild(cardOptionsColumn);
@@ -3567,8 +2824,8 @@ function // Function to create and render a chart in a Bootstrap card component 
 // Function to create and render a horizontal clustered bar chart in a Bootstrap card component and append to 'step-body'
 function renderComparativeChartInCard(chartObject, container) {
 
-  //some renderings will depend on the usingthese datatype
-  const UsingTheseType = dropdownState.find(obj => obj.header === chartObject.usingThese);
+  //some renderings will depend on the summaryValue datatype
+  const summaryValueType = dropdownState.find(obj => obj.header === chartObject.summaryValue);
 
   // Create the card element
   const card = document.createElement('div');
@@ -3786,8 +3043,8 @@ function renderComparativeChartInCard(chartObject, container) {
 }
 function renderSumAvgChartInCard(chartObject, container) {
 
-  //some renderings will depend on the usingthese datatype
-  const UsingTheseType = dropdownState.find(obj => obj.header === chartObject.usingThese);
+  //some renderings will depend on the summaryValue datatype
+  const summaryValueType = dropdownState.find(obj => obj.header === chartObject.summaryValue);
 
   // Create the card element
   const card = document.createElement('div');
@@ -4032,7 +3289,7 @@ function addRemoveBookmark(target, chart) {
 
 
     //if you're ractivating from bookmarks overlay, we should reactivate any simple or advanced chart object
-    const analysisIds = ['advanced', 'summary']; // List of analysis object ids
+    const analysisIds = [1, 2]; // List of analysis object ids
 
     // Loop through each id and apply the logic
     analysisIds.forEach((id) => {
@@ -4076,7 +3333,7 @@ function addRemoveBookmark(target, chart) {
     localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
     console.log('bookmarks: ', bookmarks);
 
-    const analysisIds = ['advanced', 'summary']; // List of analysis object ids
+    const analysisIds = [1, 2]; // List of analysis object ids
 
     // Loop through each id and apply the logic
     analysisIds.forEach((id) => {
