@@ -1250,7 +1250,7 @@ function loadCompareTab() {
           e.preventDefault();
           comparisonType = "Count of occurrences";
           textSpan.innerText = comparisonType;
-          console.log(`Comparison type: ${comparisonType}`);
+          advancedAnalysisObject.compareType = comparisonType;
           closeDropdown();
         });
       }
@@ -1278,7 +1278,8 @@ function loadCompareTab() {
           comparisonType = optionText;
           comparisonValue = header;
           textSpan.innerText = `${comparisonType} ${comparisonValue}`;
-          console.log(`Comparison: ${comparisonType} ${comparisonValue}`);
+          advancedAnalysisObject.compareType = comparisonType;
+          advancedAnalysisObject.compareBy = comparisonValue;
           closeDropdown();
         });
 
@@ -1376,7 +1377,8 @@ function loadCompareTab() {
           textSpan.innerText = placeholder;
           onSelect(null);
           emptyOption.style.display = 'none';
-          console.log(`field A value: '${fieldXValue}', field B value: '${fieldYValue}'`);
+          advancedAnalysisObject.compareFieldA = fieldXValue;
+          advancedAnalysisObject.compareFieldB = fieldYValue;
 
         });
 
@@ -1392,8 +1394,9 @@ function loadCompareTab() {
               textSpan.innerText = option;
               onSelect(option); //this does two things. it sets fieldXYvalue to the selected value AND it makes sure the other dropdown menu doesn't offer it as an option 
               emptyOption.style.display = 'block';
+              advancedAnalysisObject.compareFieldA = fieldXValue;
+              advancedAnalysisObject.compareFieldB = fieldYValue;
 
-              console.log(`field A value: '${fieldXValue}', field B value: '${fieldYValue}'`);
             });
 
             dropdownMenu.appendChild(item);
