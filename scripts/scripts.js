@@ -1682,10 +1682,10 @@ class AnalysisObject {
     this.id = id; // 
     this.analysisType = ''; // summary or advanced
     this.summaryValue = []; // stores all values for summary/distribution tab
-    this.compareType = ''; // count/sum/avg...
-    this.compareBy = ''; //either null or a numerical value if sum/avg
-    this.compareFieldA = ''; //compare field A
-    this.compareFieldB = ''; //compare field B
+    this.compareType = null; // count/sum/avg...
+    this.compareBy = null; //either null or a numerical value if sum/avg
+    this.compareFieldA = null; //compare field A
+    this.compareFieldB = null; //compare field B
     this.filteredBy = []; // sometimes the data will be filtered by these values
     this.chartObjects = []; // the array storing the charts created by the above parameters
     this.label = ''; // Optional label for user naming
@@ -1847,7 +1847,7 @@ class AnalysisObject {
 
     console.log('comparison chart data', this);
 
-    if (this.compareFieldA !== '') {
+    if (this.compareFieldA !== null) {
       this.prepChartContainer('advanced');
     }
   }
