@@ -1249,6 +1249,7 @@ function loadCompareTab() {
           comparisonType = "Count of occurrences";
           textSpan.innerText = comparisonType;
           advancedAnalysisObject.compareType = comparisonType;
+          advancedAnalysisObject.createComparisonChartObject();
           closeDropdown();
         });
       }
@@ -1278,6 +1279,7 @@ function loadCompareTab() {
           textSpan.innerText = `${comparisonType} ${comparisonValue}`;
           advancedAnalysisObject.compareType = comparisonType;
           advancedAnalysisObject.compareBy = comparisonValue;
+          advancedAnalysisObject.createComparisonChartObject();
           closeDropdown();
         });
 
@@ -1377,6 +1379,7 @@ function loadCompareTab() {
           emptyOption.style.display = 'none';
           advancedAnalysisObject.compareFieldA = fieldXValue;
           advancedAnalysisObject.compareFieldB = fieldYValue;
+          advancedAnalysisObject.createComparisonChartObject();
         });
 
         categoricalHeaderArray.forEach((option) => {
@@ -1393,6 +1396,7 @@ function loadCompareTab() {
               emptyOption.style.display = 'block';
               advancedAnalysisObject.compareFieldA = fieldXValue;
               advancedAnalysisObject.compareFieldB = fieldYValue;
+              advancedAnalysisObject.createComparisonChartObject();
 
             });
 
@@ -1741,7 +1745,11 @@ class AnalysisObject {
         percentagesCounts,
         [],
         field,
-        this.filteredBy
+        this.filteredBy,
+        null,
+        null,
+        null,
+        null
       ); //value= the current item in the summaryValue foreach loop
       newChartObject.chartType = chartType;
       this.chartObjects.push(newChartObject); // add the new chart object at the end of the analysis object's charts array
@@ -1755,12 +1763,10 @@ class AnalysisObject {
     this.chartObjects = []; // Clear any pre-existing charts before creating new ones
     let chartTitle = '';
     let chartID = '';
-    let chartType = 'heatmap';
-    let visType = 'heatmap';
+    let chartType = '';
+    let visType = '';
     let analysisType = '';
     let result = '';
-    const data = result.data;
-    const labels = result.labels;
     const percentagesCounts = '';
     const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
 
@@ -1769,42 +1775,55 @@ class AnalysisObject {
       chartTitle = `Count of occurrences by '${this.compareFieldA}' and'${this.compareFieldB}'`;
       chartID = `comparison-count-of-occurrences-by-${this.compareFieldA}-and-${this.compareFieldB}-filtered-by-${filteredByString}`;
       analysisType = 'countOfOccurrencesComparison';
+      chartType = 'heatmap';
+      visType = 'heatmap';
       //result =??
     }
 
     if (this.compareType === 'Sum of') {
-      
+
       if (this.compareFieldB === null) { //if only field A is selected
         chartTitle = `Sum of '${this.compareBy}' by '${this.compareFieldA}'`;
         chartID = `comparison-sum-${this.compareBy}-by-${this.compareFieldA}-filtered-by-${filteredByString}`;
         analysisType = 'sumComparisonOneField';
-        //result =??
+        visType = 'bar';
+        chartType = 'horizontal-bars';
+        result = this.generateSumChartObjectDataArrayAndLabels(this.compareBy, this.compareFieldA);
+
       }
 
       else { //if both field a and b are selected
         chartTitle = `Sum of '${this.compareBy}' by '${this.compareFieldA}' and'${this.compareFieldB}'`;
         chartID = `comparison-sum-${this.compareBy}-by-${this.compareFieldA}-and-${this.compareFieldB}-filtered-by-${filteredByString}`;
         analysisType = 'sumComparisonTwoFields';
+        chartType = 'heatmap';
+        visType = 'heatmap';
         //result =??
 
       }
     }
     if (this.compareType === 'Average of') {
-   
+
       if (this.compareFieldB === null) { //if only field A is selected
         chartTitle = `Average of '${this.compareBy}' by '${this.compareFieldA}'`;
         chartID = `comparison-avg-${this.compareBy}-by-${this.compareFieldA}-filtered-by-${filteredByString}`;
         analysisType = 'avgComparisonOneField';
-        //result =??
+        visType = 'bar';
+        chartType = 'horizontal-bars';
+        result = this.generateAverageChartObjectDataArrayAndLabels(this.compareBy, this.compareFieldA);
       }
 
       else { //if both field a and b are selected
         chartTitle = `Average of '${this.compareBy}' by '${this.compareFieldA}' and'${this.compareFieldB}'`;
         chartID = `comparison-avg-${this.compareBy}-by-${this.compareFieldA}-and-${this.compareFieldB}-filtered-by-${filteredByString}`;
         analysisType = 'avgComparisonTwoFields';
+        chartType = 'heatmap';
+        visType = 'heatmap';
         //result =??
       }
     }
+    const data = result.data;
+    const labels = result.labels;
 
     // Create and add the chart
     const newChartObject = new ChartObject(
@@ -1817,17 +1836,20 @@ class AnalysisObject {
       labels,
       percentagesCounts,
       [],
-      field,
-      this.filteredBy
+      '',
+      this.filteredBy,
+      this.compareType,
+      this.compareBy,
+      this.compareFieldA,
+      this.compareFieldB
     ); //value= the current item in the summaryValue foreach loop
-    newChartObject.chartType = chartType;
     this.chartObjects.push(newChartObject); // add the new chart object at the end of the analysis object's charts array
 
     console.log('comparison chart data', this);
-    
-    if(this.compareFieldA !== null) {
-    this.prepChartContainer('advanced');
-  }
+
+    if (this.compareFieldA !== '') {
+      this.prepChartContainer('advanced');
+    }
   }
 
 
@@ -2169,7 +2191,7 @@ class AnalysisObject {
 
   }
 
-  generateSumChartObjectDataArrayAndLabels(header, groupedBy, filteredBy) {
+  generateSumChartObjectDataArrayAndLabels(header, groupedBy) {
 
     const headerType = dropdownState.find(item => item.header === header).value;
 
@@ -2219,7 +2241,7 @@ class AnalysisObject {
   }
 
 
-  generateAverageChartObjectDataArrayAndLabels(header, groupedBy, filteredBy) {
+  generateAverageChartObjectDataArrayAndLabels(header, groupedBy) {
 
     const headerType = dropdownState.find(item => item.header === header).value;
 
@@ -2290,7 +2312,7 @@ function deleteAllAnalysisObjects() {
 
 // boilerplate for charts we create via the generic dropdown option.
 class ChartObject {
-  constructor(analysisType, visType, chartType, title, id, data, labels, percentagesCounts, clusterLabels, summaryValue, filteredBy) {
+  constructor(analysisType, visType, chartType, title, id, data, labels, percentagesCounts, clusterLabels, summaryValue, filteredBy, compareType, comparedBy, compareFieldA, compareFieldB) {
     this.analysisType = analysisType; //to know what type of visTypes we can offer (e.g. categoryDistribution, numberDistribution)
     this.visType = visType; //for charts.js to render the right chart type (e.g. bar, pie, line)
     this.chartType = chartType; // for cuadro to load the right chart options (e.g. horizontal bar or vertical columns) 
@@ -2302,15 +2324,14 @@ class ChartObject {
     this.clusterLabels = clusterLabels; // New property for cluster labels
     this.summaryValue = summaryValue;
     this.filteredBy = filteredBy;
-    this.compareType = ''; // count/sum/avg...
-    this.compareBy = ''; //either null or a numerical value if sum/avg
-    this.compareFieldA = ''; //compare field A
-    this.compareFieldB = ''; //compare field B
+    this.compareType = compareType; // count/sum/avg...
+    this.comparedBy = comparedBy; //either null or a numerical value if sum/avg
+    this.compareFieldA = compareFieldA; //compare field A
+    this.compareFieldB = compareFieldB; //compare field B
     this.backgroundColor = 'rgba(36, 123, 160, 0.2)'; //
     this.borderColor = 'rgba(36, 123, 160, 1)'; //
     this.borderWidth = 1;
     this.bookmarked = false;
-    this.chartType = '';
 
     this.verticalColumnChartOptions = {
       plugins: {
@@ -2724,7 +2745,7 @@ function // Function to create and render a chart in a Bootstrap card component 
   }
 
   //determine which menu items to populate with
-  if (chartObject.analysisType === 'categoryDistribution') {
+  if (chartObject.analysisType === 'categoryDistribution' || chartObject.analysisType === 'sumComparisonOneField' || chartObject.analysisType === 'avgComparisonOneField') {
     createMenuItem('horizontal-bars', 'Horizontal Bars');
     createMenuItem('vertical-columns', 'Vertical Columns');
   }
