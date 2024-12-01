@@ -1249,7 +1249,7 @@ function loadCompareTab() {
           comparisonType = "Count of occurrences";
           textSpan.innerText = comparisonType;
           advancedAnalysisObject.compareType = comparisonType;
-          advancedAnalysisObject.createComparisonChartObject();
+          advancedAnalysisObject.beginComparisonChartGenerationProcess();
           closeDropdown();
         });
       }
@@ -1279,7 +1279,7 @@ function loadCompareTab() {
           textSpan.innerText = `${comparisonType} ${comparisonValue}`;
           advancedAnalysisObject.compareType = comparisonType;
           advancedAnalysisObject.compareBy = comparisonValue;
-          advancedAnalysisObject.createComparisonChartObject();
+          advancedAnalysisObject.beginComparisonChartGenerationProcess();
           closeDropdown();
         });
 
@@ -1379,7 +1379,7 @@ function loadCompareTab() {
           emptyOption.style.display = 'none';
           advancedAnalysisObject.compareFieldA = fieldXValue;
           advancedAnalysisObject.compareFieldB = fieldYValue;
-          advancedAnalysisObject.createComparisonChartObject();
+          advancedAnalysisObject.beginComparisonChartGenerationProcess();
         });
 
         categoricalHeaderArray.forEach((option) => {
@@ -1396,7 +1396,7 @@ function loadCompareTab() {
               emptyOption.style.display = 'block';
               advancedAnalysisObject.compareFieldA = fieldXValue;
               advancedAnalysisObject.compareFieldB = fieldYValue;
-              advancedAnalysisObject.createComparisonChartObject();
+              advancedAnalysisObject.beginComparisonChartGenerationProcess();
 
             });
 
@@ -1759,7 +1759,7 @@ class AnalysisObject {
     this.prepChartContainer('summary');
   }
 
-  createComparisonChartObject() {
+  beginComparisonChartGenerationProcess() {
     this.chartObjects = []; // Clear any pre-existing charts before creating new ones
     let chartTitle = '';
     let chartID = '';
@@ -1767,7 +1767,7 @@ class AnalysisObject {
     let visType = '';
     let analysisType = '';
     let result = '';
-    const percentagesCounts = '';
+    const percentagesCounts = null;
     const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
 
 
@@ -1847,7 +1847,7 @@ class AnalysisObject {
 
     console.log('comparison chart data', this);
 
-    if (this.compareFieldA !== null) {
+    if (this.compareFieldA !== null && this.compareType !== null) {
       this.prepChartContainer('advanced');
     }
   }
@@ -3517,7 +3517,7 @@ function openBookmarksOverlay() {
     }
     for (let i = 0; i < bookmarks.length; i++) {
       const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
-      if (bookmarks[i].analysisType === 'categoryDistribution' || bookmarks[i].analysisType === 'numberDistribution') {
+      if (bookmarks[i].analysisType === 'categoryDistribution' || bookmarks[i].analysisType === 'numberDistribution' || bookmarks[i].analysisType === "sumComparisonOneField" || bookmarks[i].analysisType === "avgComparisonOneField" ) {
         renderChartInCard(bookmarks[i], bookmarksBodyColumn);
       }
 
