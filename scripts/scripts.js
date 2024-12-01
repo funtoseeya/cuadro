@@ -1952,7 +1952,7 @@ class AnalysisObject {
       let key = keys[i]; // Get the current key
       let count = countMap[key]; // Get the count for the current key
       let percentage = Math.round(count / totalCount * 100); // Calculate the percentage
-      let percentageCount = `${percentage}% (${count})`; //merge percentage and count - useful for data labels later
+      let percentageCount = `${count} (${percentage}%)`; //merge percentage and count - useful for data labels later
       data.push(percentage); // Add the percentage to the data array
       labels.push(key); // Add the key to the labels array
       PercentagesCounts.push(percentageCount);
