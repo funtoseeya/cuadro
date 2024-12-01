@@ -1879,8 +1879,6 @@ class AnalysisObject {
 
   }
 
-
-
   addComparativeChartObjects() {
     this.chartObjects = []; // Clear existing charts
     this.summaryValue.forEach(value => {
@@ -1898,93 +1896,11 @@ class AnalysisObject {
       const summaryValueType = dropdownState.find(obj => obj.header === value);
       let chartTitle = '';
 
-      chartTitle = `Count of occureences by '${value}' grouped by '${this.groupedBy}' `;
+      chartTitle = `Count of occurrences by '${value}' grouped by '${this.groupedBy}' `;
 
 
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
       const chartID = `comparative-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
-
-      // Create and add the chart
-      const newChartObject = new ChartObject(
-        this.analysisType,
-        chartTitle,
-        chartID,
-        'bar',
-        data,
-        labels,
-        percentagesCounts,
-        clusterLabels, // Pass cluster labels to ChartObject
-        value,
-        this.groupedBy,
-        this.filteredBy
-      );
-      this.chartObjects.push(newChartObject);
-    });
-    this.prepChartContainer(); // render clustered once the code and data is ready
-  }
-
-  addSumChartObjects() {
-    this.chartObjects = []; // Clear existing charts
-    this.summaryValue.forEach(value => {
-      // Generate data, labels, and cluster labels for the clustered chart
-      const result = this.generateSumChartObjectDataArrayAndLabels(
-        value,
-        this.groupedBy,
-        this.filteredBy
-      );
-
-      const data = result.data;
-      const labels = result.labels;
-      const clusterLabels = result.clusterLabels;
-      const percentagesCounts = result.percentagesCounts;
-      const summaryValueType = dropdownState.find(obj => obj.header === value);
-      let chartTitle = '';
-
-      chartTitle = `Sum of '${value}' by '${this.groupedBy}'`;
-
-      const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
-      const chartID = `sum-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
-
-      // Create and add the chart
-      const newChartObject = new ChartObject(
-        this.analysisType,
-        chartTitle,
-        chartID,
-        'bar',
-        data,
-        labels,
-        percentagesCounts,
-        clusterLabels, // Pass cluster labels to ChartObject
-        value,
-        this.groupedBy,
-        this.filteredBy
-      );
-      this.chartObjects.push(newChartObject);
-    });
-    this.prepChartContainer(); // render clustered once the code and data is ready
-  }
-
-  addAverageChartObjects() {
-    this.chartObjects = []; // Clear existing charts
-    this.summaryValue.forEach(value => {
-      // Generate data, labels, and cluster labels for the clustered chart
-      const result = this.generateAverageChartObjectDataArrayAndLabels(
-        value,
-        this.groupedBy,
-        this.filteredBy
-      );
-
-      const data = result.data;
-      const labels = result.labels;
-      const clusterLabels = result.clusterLabels;
-      const percentagesCounts = result.percentagesCounts;
-      const summaryValueType = dropdownState.find(obj => obj.header === value);
-      let chartTitle = '';
-
-      chartTitle = `Average of '${value}' by '${this.groupedBy}'`;
-
-      const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
-      const chartID = `averages-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
 
       // Create and add the chart
       const newChartObject = new ChartObject(
