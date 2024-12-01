@@ -1751,7 +1751,7 @@ class AnalysisObject {
     this.prepChartContainer('summary');
   }
 
-  beginComparisonChartGenerationProcess() {
+  createComparisonChartObject() {
     this.chartObjects = []; // Clear any pre-existing charts before creating new ones
     let chartTitle = '';
     let chartID = '';
@@ -1761,7 +1761,7 @@ class AnalysisObject {
     let result = '';
     const data = result.data;
     const labels = result.labels;
-    const percentageCounts = '';
+    const percentagesCounts = '';
     const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
 
 
@@ -1770,20 +1770,15 @@ class AnalysisObject {
       chartID = `comparison-count-of-occurrences-by-${this.compareFieldA}-and-${this.compareFieldB}-filtered-by-${filteredByString}`;
       analysisType = 'countOfOccurrencesComparison';
       //result =??
-      this.prepChartContainer('advanced');
     }
 
     if (this.compareType === 'Sum of') {
-      if (this.compareFieldA === null) {
-        // do nothing.
-      }
-
+      
       if (this.compareFieldB === null) { //if only field A is selected
         chartTitle = `Sum of '${this.compareBy}' by '${this.compareFieldA}'`;
         chartID = `comparison-sum-${this.compareBy}-by-${this.compareFieldA}-filtered-by-${filteredByString}`;
         analysisType = 'sumComparisonOneField';
         //result =??
-        this.prepChartContainer('advanced');
       }
 
       else { //if both field a and b are selected
@@ -1791,35 +1786,52 @@ class AnalysisObject {
         chartID = `comparison-sum-${this.compareBy}-by-${this.compareFieldA}-and-${this.compareFieldB}-filtered-by-${filteredByString}`;
         analysisType = 'sumComparisonTwoFields';
         //result =??
-        this.prepChartContainer('advanced');
 
       }
+    }
+    if (this.compareType === 'Average of') {
+   
+      if (this.compareFieldB === null) { //if only field A is selected
+        chartTitle = `Average of '${this.compareBy}' by '${this.compareFieldA}'`;
+        chartID = `comparison-avg-${this.compareBy}-by-${this.compareFieldA}-filtered-by-${filteredByString}`;
+        analysisType = 'avgComparisonOneField';
+        //result =??
+      }
 
-      if (this.compareType === 'Average of') {
-        if (this.compareFieldA === null) {
-          // do nothing.
-        }
-
-        if (this.compareFieldB === null) { //if only field A is selected
-          chartTitle = `Average of '${this.compareBy}' by '${this.compareFieldA}'`;
-          chartID = `comparison-avg-${this.compareBy}-by-${this.compareFieldA}-filtered-by-${filteredByString}`;
-          analysisType = 'avgComparisonOneField';
-          //result =??
-          this.prepChartContainer('advanced');
-        }
-
-        else { //if both field a and b are selected
-          chartTitle = `Average of '${this.compareBy}' by '${this.compareFieldA}' and'${this.compareFieldB}'`;
-          chartID = `comparison-avg-${this.compareBy}-by-${this.compareFieldA}-and-${this.compareFieldB}-filtered-by-${filteredByString}`;
-          analysisType = 'avgComparisonTwoFields';
-          //result =??
-          this.prepChartContainer('advanced');
-
-        }
+      else { //if both field a and b are selected
+        chartTitle = `Average of '${this.compareBy}' by '${this.compareFieldA}' and'${this.compareFieldB}'`;
+        chartID = `comparison-avg-${this.compareBy}-by-${this.compareFieldA}-and-${this.compareFieldB}-filtered-by-${filteredByString}`;
+        analysisType = 'avgComparisonTwoFields';
+        //result =??
       }
     }
 
+    // Create and add the chart
+    const newChartObject = new ChartObject(
+      analysisType,
+      visType,
+      chartType,
+      chartTitle,
+      chartID,
+      data,
+      labels,
+      percentagesCounts,
+      [],
+      field,
+      this.filteredBy
+    ); //value= the current item in the summaryValue foreach loop
+    newChartObject.chartType = chartType;
+    this.chartObjects.push(newChartObject); // add the new chart object at the end of the analysis object's charts array
+
+    console.log('comparison chart data', this);
+    
+    if(this.compareFieldA !== null) {
+    this.prepChartContainer('advanced');
   }
+  }
+
+
+
 
   // Function to render all chart objects
   prepChartContainer(summaryOrAdvanced) {
