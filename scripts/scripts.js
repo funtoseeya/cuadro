@@ -2829,12 +2829,19 @@ function // Function to create and render a chart in a Bootstrap card component 
     //chart type specificities
     let chartOptions = '';
     canvas.style.height = '300px'; //default height
-    if (chartObject.chartType === 'horizontal-bars') {
+    if (chartObject.chartType === 'horizontal-bars' && chartObject.analysisType=== 'categoryDistribution') {
       canvas.style.height = `${chartObject.data.length * 40 + 50}px`; // Set the height dynamically
       chartOptions = chartObject.horizontalBarChartOptions;
     }
-    if (chartObject.chartType === 'vertical-columns') {
+    if (chartObject.chartType === 'vertical-columns' && chartObject.analysisType=== 'categoryDistribution') {
       chartOptions = chartObject.verticalColumnChartOptions;
+    }    
+    if (chartObject.chartType === 'horizontal-bars' && (chartObject.analysisType=== "sumComparisonOneField" || chartObject.analysisType=== "avgComparisonOneField") ) {
+      canvas.style.height = `${chartObject.data.length * 40 + 50}px`; // Set the height dynamically
+      chartOptions = chartObject.horizontalCalculationBarChartOptions;
+    }
+    if (chartObject.chartType === 'vertical-columns' && (chartObject.analysisType=== "sumComparisonOneField" || chartObject.analysisType=== "avgComparisonOneField") ) {
+      chartOptions = chartObject.verticalCalculationBarChartOptions;
     }
     if (chartObject.chartType === 'area') {
       chartOptions = {
