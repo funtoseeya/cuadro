@@ -1744,6 +1744,7 @@ class AnalysisObject {
         labels,
         percentagesCounts,
         [],
+        [],
         field,
         this.filteredBy,
         null,
@@ -1768,6 +1769,7 @@ class AnalysisObject {
     let analysisType = '';
     let result = '';
     const percentagesCounts = null;
+    let sumsPercentages =[];
     const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
 
 
@@ -1789,7 +1791,8 @@ class AnalysisObject {
         visType = 'bar';
         chartType = 'horizontal-bars';
         result = this.generateSumChartObjectDataArrayAndLabels(this.compareBy, this.compareFieldA);
-
+        sumsPercentages = result.sumsPercentages;
+        
       }
 
       else { //if both field a and b are selected
@@ -1835,6 +1838,7 @@ class AnalysisObject {
       data,
       labels,
       percentagesCounts,
+      sumsPercentages,
       [],
       '',
       this.filteredBy,
@@ -2132,26 +2136,33 @@ class AnalysisObject {
 
       // Increment the sum for the current value in the group
       groupSums[group] += value; // Sum the numerical values
-
+      
     }
 
-    //round as needed to the nearest decimal if applicable
-
+   
+    
     const groupNames = new Set(filteredData.map(row => row[groupedBy]));
     groupNames.forEach(group => {
-      groupSums[group] = Math.round(groupSums[group] * 100) / 100;
+      groupSums[group] = Math.round(groupSums[group] * 100) / 100;     //round as needed to the nearest decimal if applicable
+
     })
 
+    let sumTotal = Object.values(groupSums).reduce((accumulator, currentValue) => accumulator + currentValue ,0)
+    let groupSumsPercentages = {};
+
+    Object.keys(groupSums).forEach(group =>{
+      groupSumsPercentages[group] = groupSums[group] + ' ('+ Math.round(groupSums[group] / sumTotal *100)+'%)';
+    })
 
     // Prepare labels and data arrays
     const labels = Object.keys(groupSums); // Unique groups for cluster labels
     const data = labels.map(groupKey => groupSums[groupKey]); // Sums for each group
-    const clusterLabels = data;
+    const sumsPercentages = labels.map(groupKey => groupSumsPercentages[groupKey]);
 
     return {
       data, // Array with sums for each group
       labels,
-      clusterLabels// Labels for each group
+      sumsPercentages
     };
 
   }
@@ -2228,7 +2239,7 @@ function deleteAllAnalysisObjects() {
 
 // boilerplate for charts we create via the generic dropdown option.
 class ChartObject {
-  constructor(analysisType, visType, chartType, title, id, data, labels, percentagesCounts, clusterLabels, summaryValue, filteredBy, compareType, comparedBy, compareFieldA, compareFieldB) {
+  constructor(analysisType, visType, chartType, title, id, data, labels, percentagesCounts, sumsPercentages, clusterLabels, summaryValue, filteredBy, compareType, comparedBy, compareFieldA, compareFieldB) {
     this.analysisType = analysisType; //to know what type of visTypes we can offer (e.g. categoryDistribution, numberDistribution)
     this.visType = visType; //for charts.js to render the right chart type (e.g. bar, pie, line)
     this.chartType = chartType; // for cuadro to load the right chart options (e.g. horizontal bar or vertical columns) 
@@ -2237,6 +2248,7 @@ class ChartObject {
     this.data = data; // Data required for chart generation
     this.labels = labels; // Data required for chart generation
     this.percentagesCounts = percentagesCounts; // Labels for the data points
+    this.sumsPercentages = sumsPercentages;
     this.clusterLabels = clusterLabels; // New property for cluster labels
     this.summaryValue = summaryValue;
     this.filteredBy = filteredBy;
@@ -2364,13 +2376,17 @@ class ChartObject {
           display: false,
         },
         // Change options for ALL labels of THIS CHART
+        
         datalabels: {
           rotation: 0,        // Rotates the labels vertically
 
           color: 'black',
           anchor: 'start',
           align: 'end',
-
+          formatter: (value, context) => {
+            // Use percentagesCounts based on the index of the current data point
+            return this.sumsPercentages[context.dataIndex];
+          }
         },
       },
       indexAxis: 'y', // Make it a horizontal bar chart
@@ -2405,7 +2421,10 @@ class ChartObject {
           color: 'black',
           anchor: 'start',
           align: 'end',
-
+          formatter: (value, context) => {
+            // Use percentagesCounts based on the index of the current data point
+            return this.sumsPercentages[context.dataIndex];
+          }
         },
       },
       indexAxis: 'x', // Make it a horizontal bar chart
