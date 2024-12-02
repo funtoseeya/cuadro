@@ -1654,6 +1654,8 @@ function createFilterButton() {
     const summaryAnalysisObject = analysisObjects.find(obj => obj.id === 1);
     summaryAnalysisObject.beginSummaryChartGenerationProcess(summaryAnalysisObject.analysisType);
 
+    const advancedAnalysisObject = analysisObjects.find(obj => obj.id ===2);
+    advancedAnalysisObject.beginComparisonChartGenerationProcess(advancedAnalysisObject.analysisType);
 
     console.log('analysis objects:', analysisObjects);
 
