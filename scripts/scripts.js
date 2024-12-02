@@ -1953,10 +1953,10 @@ class AnalysisObject {
       let count = countMap[key]; // Get the count for the current key
       let percentage = Math.round(count / totalCount * 100); // Calculate the percentage
       let percentageCount = `${count} (${percentage}%)`; //merge percentage and count - useful for data labels later
-      data.push(percentage); // Add the percentage to the data array
+      data.push(count); // Add the percentage to the data array
       labels.push(key); // Add the key to the labels array
       PercentagesCounts.push(percentageCount);
-    }
+    } 
 
     // Sort data and labels in descending order based on data values
     let sortedIndices = []; // Initialize an array for sorted indices
@@ -2271,12 +2271,7 @@ class ChartObject {
         y: {
           // Make the data appear as percentages
           beginAtZero: true,
-          ticks: {
-            callback: function (value) {
-              // Format the x-axis ticks as percentages
-              return value.toFixed(0) + '%';
-            },
-          },
+          
         },
         x: {
           // You can customize the axis as needed
@@ -2313,12 +2308,7 @@ class ChartObject {
         x: {
           // Make the data appear as percentages
           beginAtZero: true,
-          ticks: {
-            callback: function (value) {
-              // Format the x-axis ticks as percentages
-              return value.toFixed(0) + '%';
-            },
-          },
+          
         },
         y: {
           // You can customize the axis as needed
