@@ -1812,7 +1812,7 @@ class AnalysisObject {
       }
 
       else { //if both field a and b are selected
-        chartTitle = `Sum of '${this.compareBy}' by '${this.compareFieldA}' and'${this.compareFieldB}'`;
+        chartTitle = `Sum of '${this.compareBy}' by '${this.compareFieldA}' and '${this.compareFieldB}'`;
         chartID = `comparison-sum-${this.compareBy}-by-${this.compareFieldA}-and-${this.compareFieldB}-filtered-by-${filteredByString}`;
         analysisType = 'sumComparisonTwoFields';
         visType = 'bar';
@@ -1833,7 +1833,7 @@ class AnalysisObject {
       }
 
       else { //if both field a and b are selected
-        chartTitle = `Average of '${this.compareBy}' by '${this.compareFieldA}' and'${this.compareFieldB}'`;
+        chartTitle = `Average of '${this.compareBy}' by '${this.compareFieldA}' and '${this.compareFieldB}'`;
         chartID = `comparison-avg-${this.compareBy}-by-${this.compareFieldA}-and-${this.compareFieldB}-filtered-by-${filteredByString}`;
         analysisType = 'avgComparisonTwoFields';
         visType = 'bar';
@@ -2226,9 +2226,9 @@ class AnalysisObject {
         //make an array with the compareBy field's contents
         const compareByFilteredData = compareFilteredData.map(row => row[this.compareBy]);
         //sum the contents
-        const sumValue = compareByFilteredData.reduce(
-          (accumulator, currentValue) => accumulator + (Number(currentValue) || 0), 0);
-        Math.round(sumValue);
+        const sumValue = Math.round((compareByFilteredData.reduce(
+          (accumulator, currentValue) => accumulator + (Number(currentValue) || 0), 0))*100)/100;
+        
         this.compareHeatmapDataArray.push({ A: valueA, B: valueB, value: sumValue });
         clusterData.push(sumValue);
       })
