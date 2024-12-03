@@ -1774,12 +1774,12 @@ class AnalysisObject {
 
 
     if (this.compareType === 'Count of occurrences') {
-      chartTitle = `Count of occurrences by '${this.compareFieldA}' and'${this.compareFieldB}'`;
+      chartTitle = `Count of occurrences by '${this.compareFieldA}' and '${this.compareFieldB}'`;
       chartID = `comparison-count-of-occurrences-by-${this.compareFieldA}-and-${this.compareFieldB}-filtered-by-${filteredByString}`;
       analysisType = 'countOfOccurrencesComparison';
-      chartType = 'heatmap';
-      visType = 'heatmap';
-      //result =??
+      visType = 'bar';
+      chartType = 'horizontal-clusters';
+      result = this.genCountABData();
     }
 
     if (this.compareType === 'Sum of') {
@@ -2161,6 +2161,34 @@ class AnalysisObject {
       labels,
       sumsPercentages
     };
+
+  }
+
+  genCountABData() {
+
+    this.compareHeatmapDataArray = [];
+
+    const uniqueA = [...new Set(filteredData.map(row => row[this.compareFieldA]))].sort();
+    const uniqueB = [...new Set(filteredData.map(row => row[this.compareFieldB]))].sort();
+    const labels = uniqueB;
+    const data = [];
+
+
+    uniqueA.forEach(valueA => {
+      const clusterData = [];
+      uniqueB.forEach(valueB => {
+        //filter my data so that it only has rows with both value a and b
+        const compareFilteredData = filteredData.filter(row => row[this.compareFieldA] === valueA && row[this.compareFieldB] === valueB)
+        //make an array with the compareBy field's contents
+        const countAB =compareFilteredData.length;
+        this.compareHeatmapDataArray.push({ A: valueA, B: valueB, value: countAB });
+        clusterData.push(countAB);
+      })
+      data.push({ label: valueA, data: clusterData });
+    })
+
+    const heatmapData = this.compareHeatmapDataArray;
+    return { labels, data, heatmapData }; // Return for clustered bar chart
 
   }
 
@@ -2758,7 +2786,7 @@ function // Function to create and render a chart in a Bootstrap card component 
   if (chartObject.analysisType === 'numberDistribution') {
     createMenuItem('area', 'Area');
   }
-  if (chartObject.analysisType === 'sumComparisonTwoFields') {
+  if (chartObject.analysisType === 'sumComparisonTwoFields' || chartObject.analysisType === 'avgComparisonTwoFields' || chartObject.analysisType==="countOfOccurrencesComparison") {
     createMenuItem('horizontal-clusters', 'Horizontal Clusters');
     createMenuItem('vertical-clusters', 'Vertical Clusters');
     createMenuItem('heatmap', 'Heatmap');
@@ -2827,8 +2855,7 @@ function // Function to create and render a chart in a Bootstrap card component 
 
     //analysis type specificities
     let yMaxValue;
-    if (chartObject.analysisType === 'categoryDistribution') {
-    }
+    
     if (chartObject.analysisType === 'numberDistribution') {
 
       let minDataValue = Math.min(...chartObject.data);
