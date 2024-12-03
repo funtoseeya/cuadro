@@ -1226,7 +1226,8 @@ function loadCompareTab() {
     // Back button for secondary menu
     const backButton = document.createElement("a");
     backButton.href = "#";
-    backButton.className = "dropdown-item bg-light border-bottom";
+    backButton.className = "dropdown-item border-bottom";
+    backButton.style.backgroundColor='rgb(224, 224, 224)';
     backButton.innerText = "Back";
     backButton.addEventListener("click", (e) => {
       e.preventDefault();
@@ -1384,7 +1385,10 @@ function loadCompareTab() {
         //create empty option
         const emptyOption = document.createElement('a')
         emptyOption.href = "#";
+        if (textSpan.innerText === placeholder){
         emptyOption.style.display = 'none';
+      }
+        emptyOption.style.backgroundColor = 'rgb(224, 224, 224)';
         emptyOption.className = "dropdown-item text-truncate";
         emptyOption.innerText = 'Clear Selection';
         dropdownMenu.appendChild(emptyOption);
@@ -1432,11 +1436,6 @@ function loadCompareTab() {
       return populateMenu;
     }
 
-
-
-    // Create dropdowns
-    const dropdownX = document.createElement("div");
-    const dropdownY = document.createElement("div");
 
     const fieldXPopulateMenu = createDropdown(
       fieldXParent,
