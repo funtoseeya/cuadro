@@ -1869,7 +1869,7 @@ class AnalysisObject {
 
     console.log('comparison chart data', this);
 
-    if (this.compareFieldA !== null && (this.compareType === "Sum of" || this.compareType === "Avg of" ) || (this.compareType==="Count of occurrences" && this.compareFieldA !== null && this.compareFieldB !==null )) {
+    if (this.compareFieldA !== null && (this.compareType === "Sum of" || this.compareType === "Average of" ) || (this.compareType==="Count of occurrences" && this.compareFieldA !== null && this.compareFieldB !==null )) {
       this.prepChartContainer('advanced');
     }
   }
