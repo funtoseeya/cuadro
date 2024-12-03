@@ -3,6 +3,7 @@
 
 //GENERAL SCRIPTS
 
+
 //turn on the charts data label plugin
 Chart.register(ChartDataLabels);
 
@@ -1397,7 +1398,6 @@ function loadCompareTab() {
               advancedAnalysisObject.compareFieldA = fieldXValue;
               advancedAnalysisObject.compareFieldB = fieldYValue;
               advancedAnalysisObject.beginComparisonChartGenerationProcess();
-
             });
 
             dropdownMenu.appendChild(item);
@@ -1441,16 +1441,12 @@ function loadCompareTab() {
         fieldXPopulateMenu(fieldYValue); //field X dropdown menu won't contain this selected value
       }
     );
-
-
   }
-
-
 
   createComparisonDropdown();
   createFieldDropdowns();
-
 }
+
 
 // Function to create a new array to generate the filters dropdown
 function createCategoricalArrayForFilterPanel() {
@@ -1654,7 +1650,7 @@ function createFilterButton() {
     const summaryAnalysisObject = analysisObjects.find(obj => obj.id === 1);
     summaryAnalysisObject.beginSummaryChartGenerationProcess(summaryAnalysisObject.analysisType);
 
-    const advancedAnalysisObject = analysisObjects.find(obj => obj.id ===2);
+    const advancedAnalysisObject = analysisObjects.find(obj => obj.id === 2);
     advancedAnalysisObject.beginComparisonChartGenerationProcess(advancedAnalysisObject.analysisType);
 
     console.log('analysis objects:', analysisObjects);
@@ -1688,6 +1684,7 @@ class AnalysisObject {
     this.compareBy = null; //either null or a numerical value if sum/avg
     this.compareFieldA = null; //compare field A
     this.compareFieldB = null; //compare field B
+    this.compareHeatmapDataArray = null;
     this.filteredBy = []; // sometimes the data will be filtered by these values
     this.chartObjects = []; // the array storing the charts created by the above parameters
     this.label = ''; // Optional label for user naming
@@ -1713,7 +1710,7 @@ class AnalysisObject {
 
 
       if (type === 'Categorical') {
-        result = this.generateSimpleChartObjectDataArrayAndLabels(field, this.filteredBy);
+        result = this.genSummaryCatData(field);
         percentagesCounts = result.PercentagesCounts;
         chartTitle = `Count of occurrences by '${field}'`;
         chartID = `summary-simple-${field}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
@@ -1722,7 +1719,7 @@ class AnalysisObject {
         chartType = 'horizontal-bars';
       }
       if (type === 'Numerical') {
-        result = this.generateNumberChartObjectDataArrayAndLabels(field, this.filteredBy);
+        result = this.genSummaryNumData(field);
         percentagesCounts = '';
         chartTitle = `Count of occurrences by range of '${field}'`;
         chartID = `summary-number-${field}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
@@ -1752,6 +1749,7 @@ class AnalysisObject {
         null,
         null,
         null,
+        null,
         null
       ); //value= the current item in the summaryValue foreach loop
       newChartObject.chartType = chartType;
@@ -1771,7 +1769,7 @@ class AnalysisObject {
     let analysisType = '';
     let result = '';
     const percentagesCounts = null;
-    let sumsPercentages =[];
+    let sumsPercentages = [];
     const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
 
 
@@ -1792,18 +1790,18 @@ class AnalysisObject {
         analysisType = 'sumComparisonOneField';
         visType = 'bar';
         chartType = 'horizontal-bars';
-        result = this.generateSumChartObjectDataArrayAndLabels(this.compareBy, this.compareFieldA);
+        result = this.genSumAData(this.compareBy, this.compareFieldA);
         sumsPercentages = result.sumsPercentages;
-        
+
       }
 
       else { //if both field a and b are selected
         chartTitle = `Sum of '${this.compareBy}' by '${this.compareFieldA}' and'${this.compareFieldB}'`;
         chartID = `comparison-sum-${this.compareBy}-by-${this.compareFieldA}-and-${this.compareFieldB}-filtered-by-${filteredByString}`;
         analysisType = 'sumComparisonTwoFields';
-        chartType = 'heatmap';
-        visType = 'heatmap';
-        //result =??
+        visType = 'bar';
+        chartType = 'horizontal-clusters';
+        result = this.gensumABData();
 
       }
     }
@@ -1815,20 +1813,21 @@ class AnalysisObject {
         analysisType = 'avgComparisonOneField';
         visType = 'bar';
         chartType = 'horizontal-bars';
-        result = this.generateAverageChartObjectDataArrayAndLabels(this.compareBy, this.compareFieldA);
+        result = this.genAvgAData(this.compareBy, this.compareFieldA);
       }
 
       else { //if both field a and b are selected
         chartTitle = `Average of '${this.compareBy}' by '${this.compareFieldA}' and'${this.compareFieldB}'`;
         chartID = `comparison-avg-${this.compareBy}-by-${this.compareFieldA}-and-${this.compareFieldB}-filtered-by-${filteredByString}`;
         analysisType = 'avgComparisonTwoFields';
-        chartType = 'heatmap';
-        visType = 'heatmap';
-        //result =??
+        visType = 'bar';
+        chartType = 'horizontal-clusters';
+        result = this.genavgABData();
       }
     }
     const data = result.data;
     const labels = result.labels;
+    const heatmapData = result.heatmapData;
 
     // Create and add the chart
     const newChartObject = new ChartObject(
@@ -1841,13 +1840,14 @@ class AnalysisObject {
       labels,
       percentagesCounts,
       sumsPercentages,
-      [],
+      data,
       '',
       this.filteredBy,
       this.compareType,
       this.compareBy,
       this.compareFieldA,
-      this.compareFieldB
+      this.compareFieldB,
+      heatmapData
     ); //value= the current item in the summaryValue foreach loop
     this.chartObjects.push(newChartObject); // add the new chart object at the end of the analysis object's charts array
 
@@ -1857,9 +1857,6 @@ class AnalysisObject {
       this.prepChartContainer('advanced');
     }
   }
-
-
-
 
   // Function to render all chart objects
   prepChartContainer(summaryOrAdvanced) {
@@ -1889,7 +1886,7 @@ class AnalysisObject {
     this.chartObjects = []; // Clear existing charts
     this.summaryValue.forEach(value => {
       // Generate data, labels, and cluster labels for the clustered chart
-      const result = this.generateComparativeChartObjectDataArrayAndLabels(
+      const result = this.genPercentageCountABData(
         value,
         this.groupedBy,
         this.filteredBy
@@ -1928,7 +1925,7 @@ class AnalysisObject {
   }
 
 
-  generateSimpleChartObjectDataArrayAndLabels(header, filteredBy) {
+  genSummaryCatData(header) {
 
     // Count the occurrences of each unique value for the specified header
     let countMap = {}; // Initialize an empty object for counting
@@ -1962,7 +1959,7 @@ class AnalysisObject {
       data.push(count); // Add the percentage to the data array
       labels.push(key); // Add the key to the labels array
       PercentagesCounts.push(percentageCount);
-    } 
+    }
 
     // Sort data and labels in descending order based on data values
     let sortedIndices = []; // Initialize an array for sorted indices
@@ -1991,7 +1988,7 @@ class AnalysisObject {
     };
   }
 
-  generateNumberChartObjectDataArrayAndLabels(header, filteredBy) {
+  genSummaryNumData(header) {
     const numbers = filteredData.map(obj => Number(obj[header].trim()));
 
     // Step 1: Calculate the range of the data
@@ -2045,7 +2042,7 @@ class AnalysisObject {
     };
   }
 
-  generateComparativeChartObjectDataArrayAndLabels(header, groupedBy, filteredBy) {
+  genPercentageCountABData(header, groupedBy) {
 
     // Create a map to count occurrences for each group
     const groupCounts = {};
@@ -2109,11 +2106,9 @@ class AnalysisObject {
       percentagesCounts, // Array of arrays with percentage and count strings for each group
     };
 
-
-
   }
 
-  generateSumChartObjectDataArrayAndLabels(header, groupedBy) {
+  genSumAData(header, groupedBy) {
 
     const headerType = dropdownState.find(item => item.header === header).value;
 
@@ -2138,22 +2133,22 @@ class AnalysisObject {
 
       // Increment the sum for the current value in the group
       groupSums[group] += value; // Sum the numerical values
-      
+
     }
 
-   
-    
+
+
     const groupNames = new Set(filteredData.map(row => row[groupedBy]));
     groupNames.forEach(group => {
       groupSums[group] = Math.round(groupSums[group] * 100) / 100;     //round as needed to the nearest decimal if applicable
 
     })
 
-    let sumTotal = Object.values(groupSums).reduce((accumulator, currentValue) => accumulator + currentValue ,0)
+    let sumTotal = Object.values(groupSums).reduce((accumulator, currentValue) => accumulator + currentValue, 0)
     let groupSumsPercentages = {};
 
-    Object.keys(groupSums).forEach(group =>{
-      groupSumsPercentages[group] = groupSums[group] + ' ('+ Math.round(groupSums[group] / sumTotal *100)+'%)';
+    Object.keys(groupSums).forEach(group => {
+      groupSumsPercentages[group] = groupSums[group] + ' (' + Math.round(groupSums[group] / sumTotal * 100) + '%)';
     })
 
     // Prepare labels and data arrays
@@ -2169,8 +2164,39 @@ class AnalysisObject {
 
   }
 
+  gensumABData() {
 
-  generateAverageChartObjectDataArrayAndLabels(header, groupedBy) {
+    this.compareHeatmapDataArray = [];
+
+    const uniqueA = [...new Set(filteredData.map(row => row[this.compareFieldA]))].sort();
+    const uniqueB = [...new Set(filteredData.map(row => row[this.compareFieldB]))].sort();
+    const labels = uniqueB;
+    const data = [];
+
+
+    uniqueA.forEach(valueA => {
+      const clusterData = [];
+      uniqueB.forEach(valueB => {
+        //filter my data so that it only has rows with both value a and b
+        const compareFilteredData = filteredData.filter(row => row[this.compareFieldA] === valueA && row[this.compareFieldB] === valueB)
+        //make an array with the compareBy field's contents
+        const compareByFilteredData = compareFilteredData.map(row => row[this.compareBy]);
+        //sum the contents
+        const sumValue = compareByFilteredData.reduce(
+          (accumulator, currentValue) => accumulator + (Number(currentValue) || 0), 0);
+          Math.round(sumValue);
+        this.compareHeatmapDataArray.push({ A: valueA, B: valueB, value: sumValue });
+        clusterData.push(sumValue);
+      })
+      data.push({ label: valueA, data: clusterData });
+    })
+
+    const heatmapData = this.compareHeatmapDataArray;
+    return { labels, data, heatmapData }; // Return for clustered bar chart
+
+  }
+
+  genAvgAData(header, groupedBy) {
 
     const headerType = dropdownState.find(item => item.header === header).value;
 
@@ -2210,14 +2236,47 @@ class AnalysisObject {
     // Prepare labels and data arrays
     const labels = Object.keys(groupAverages); // Unique groups for cluster labels
     const data = labels.map(groupKey => groupAverages[groupKey]); // Sums for each group
-    const clusterLabels = data;
 
     return {
       data, // Array with sums for each group
       labels,
-      clusterLabels// Labels for each group
     };
   }
+
+  genavgABData() {
+
+    this.compareHeatmapDataArray = [];
+
+    const uniqueA = [...new Set(filteredData.map(row => row[this.compareFieldA]))].sort();
+    const uniqueB = [...new Set(filteredData.map(row => row[this.compareFieldB]))].sort();
+    const labels = uniqueB;
+    const data = [];
+
+
+    uniqueA.forEach(valueA => {
+      const clusterData = [];
+      uniqueB.forEach(valueB => {
+        // Filter my data so that it only has rows with both valueA and valueB
+        const compareFilteredData = filteredData.filter(row => row[this.compareFieldA] === valueA && row[this.compareFieldB] === valueB);
+        // Make an array with the compareBy field's contents
+        const compareByFilteredData = compareFilteredData.map(row => row[this.compareBy]);
+        // Calculate the average of the contents
+        const total = compareByFilteredData.reduce(
+          (accumulator, currentValue) => accumulator + (Number(currentValue) || 0), 0);
+        
+        const avgValue = compareByFilteredData.length > 0 ? total / compareByFilteredData.length : 0; // To avoid division by zero
+        // Round the average to 2 decimal places
+        const roundedAvgValue = Math.round(avgValue * 100) / 100;
+        this.compareHeatmapDataArray.push({ A: valueA, B: valueB, value: roundedAvgValue });
+        clusterData.push(roundedAvgValue);
+      });
+      data.push({ label: valueA, data: clusterData });
+    });
+    
+    const heatmapData = this.compareHeatmapDataArray;
+    return { labels, data, heatmapData }; // Return for clustered bar chart
+  }    
+
 }
 
 
@@ -2241,7 +2300,7 @@ function deleteAllAnalysisObjects() {
 
 // boilerplate for charts we create via the generic dropdown option.
 class ChartObject {
-  constructor(analysisType, visType, chartType, title, id, data, labels, percentagesCounts, sumsPercentages, clusterLabels, summaryValue, filteredBy, compareType, comparedBy, compareFieldA, compareFieldB) {
+  constructor(analysisType, visType, chartType, title, id, data, labels, percentagesCounts, sumsPercentages, clusterLabels, summaryValue, filteredBy, compareType, comparedBy, compareFieldA, compareFieldB, compareHeatmapDataArray) {
     this.analysisType = analysisType; //to know what type of visTypes we can offer (e.g. categoryDistribution, numberDistribution)
     this.visType = visType; //for charts.js to render the right chart type (e.g. bar, pie, line)
     this.chartType = chartType; // for cuadro to load the right chart options (e.g. horizontal bar or vertical columns) 
@@ -2258,6 +2317,7 @@ class ChartObject {
     this.comparedBy = comparedBy; //either null or a numerical value if sum/avg
     this.compareFieldA = compareFieldA; //compare field A
     this.compareFieldB = compareFieldB; //compare field B
+    this.compareHeatmapDataArray = compareHeatmapDataArray;
     this.backgroundColor = 'rgba(36, 123, 160, 0.2)'; //
     this.borderColor = 'rgba(36, 123, 160, 1)'; //
     this.borderWidth = 1;
@@ -2285,7 +2345,7 @@ class ChartObject {
         y: {
           // Make the data appear as percentages
           beginAtZero: true,
-          
+
         },
         x: {
           // You can customize the axis as needed
@@ -2322,7 +2382,7 @@ class ChartObject {
         x: {
           // Make the data appear as percentages
           beginAtZero: true,
-          
+
         },
         y: {
           // You can customize the axis as needed
@@ -2378,7 +2438,7 @@ class ChartObject {
           display: false,
         },
         // Change options for ALL labels of THIS CHART
-        
+
         datalabels: {
           rotation: 0,        // Rotates the labels vertically
 
@@ -2494,96 +2554,112 @@ class ChartObject {
         },
       },
     };
-
     this.horizontalClusteredBarChartOptions = {
       responsive: true,
-      indexAxis: 'y', // Set to 'y' for horizontal bars
+      indexAxis: 'y', // Horizontal bars
       scales: {
         x: {
-          stacked: false, // Bars should not be stacked
+          stacked: false, // Grouped bars, not stacked
           ticks: {
-            autoSkip: false, // Ensure all x-axis labels are visible
-            callback: function (value) {
-              // Format the x-axis ticks as percentages
-              return value.toFixed(0) + '%';
-            },
+          },
+          title: {
+            display: false,
+            text: '', // Add a descriptive title
           },
         },
         y: {
-          stacked: false, // Bars should not be stacked
-          beginAtZero: true,
+          stacked: false,
+          beginAtZero: true, // Start y-axis at 0
+          title: {
+            display: false,
+            text: '',
+          },
         },
       },
       elements: {
         bar: {
           borderWidth: 1,
-          borderRadius: 5,
+          borderRadius: 5, // Optional styling for rounded bars
         },
       },
       plugins: {
-        // Change options for ALL labels of THIS CHART
         datalabels: {
-          rotation: 0,        // Rotates the labels vertically
+          rotation: 0, // Horizontal orientation for data labels
           color: 'black',
           anchor: 'start',
-          align: 'end',
-          formatter: (value, context) => {
-            // Use percentagesCounts array to get the correct label
-            const datasetIndex = context.datasetIndex;
-            const dataIndex = context.dataIndex;
-            return this.percentagesCounts[datasetIndex][dataIndex];
-          },
+          align: 'end', // Align data labels properly with horizontal bars
         },
         legend: {
-          position: 'top',
+          position: 'top', // Move legend to the top
+          labels: {
+            boxWidth: 12, // Adjust box size for clarity
+            usePointStyle: true, // Use circular markers instead of squares
+          },
+        },
+        tooltip: {
+          callbacks: {
+            label: function (tooltipItem) {
+              return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`; // Format tooltip for grouped data
+            },
+          },
         },
       },
     };
+
 
     this.verticalClusteredColumnChartOptions = {
       responsive: true,
-      indexAxis: 'x', // Set to 'y' for horizontal bars
+      indexAxis: 'x', // Vertical bars
       scales: {
         y: {
-          stacked: false, // Bars should not be stacked
+          stacked: false, // Grouped bars, not stacked
           ticks: {
-            autoSkip: false, // Ensure all x-axis labels are visible
-            callback: function (value) {
-              // Format the x-axis ticks as percentages
-              return value.toFixed(0) + '%';
-            },
+
+          },
+          beginAtZero: true, // Start y-axis at 0
+          title: {
+            display: false,
+            text: '', // Add a descriptive title
           },
         },
         x: {
-          stacked: false, // Bars should not be stacked
-          beginAtZero: true,
+          stacked: false,
+          title: {
+            display: false,
+            text: '', // Label for uniqueA
+          },
         },
       },
       elements: {
         bar: {
           borderWidth: 1,
-          borderRadius: 5,
+          borderRadius: 5, // Optional styling for rounded bars
         },
       },
       plugins: {
-        // Change options for ALL labels of THIS CHART
         datalabels: {
-          rotation: 90,        // Rotates the labels vertically
+          rotation: 90, // Vertical orientation for data labels
           color: 'black',
           anchor: 'start',
-          align: 'end',
-          formatter: (value, context) => {
-            // Use percentagesCounts array to get the correct label
-            const datasetIndex = context.datasetIndex;
-            const dataIndex = context.dataIndex;
-            return this.percentagesCounts[datasetIndex][dataIndex];
-          },
+          align: 'end', // Align data labels properly with vertical bars
         },
         legend: {
           position: 'top',
+          labels: {
+            boxWidth: 12,
+            usePointStyle: true,
+          },
+        },
+        tooltip: {
+          callbacks: {
+            label: function (tooltipItem) {
+              return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
+            },
+          },
         },
       },
     };
+
   }
 }
 
@@ -2643,6 +2719,9 @@ function // Function to create and render a chart in a Bootstrap card component 
   if (chartObject.chartType === 'area') {
     dropdownButton.textContent = 'Area';
   }
+  if (chartObject.chartType === "horizontal-clusters") {
+    dropdownButton.textContent = 'Horizontal Clusters';
+  }
 
   // Create the dropdown menu with items
   const dropdownMenu = document.createElement('ul');
@@ -2678,6 +2757,12 @@ function // Function to create and render a chart in a Bootstrap card component 
   }
   if (chartObject.analysisType === 'numberDistribution') {
     createMenuItem('area', 'Area');
+  }
+  if (chartObject.analysisType === 'sumComparisonTwoFields') {
+    createMenuItem('horizontal-clusters', 'Horizontal Clusters');
+    createMenuItem('vertical-clusters', 'Vertical Clusters');
+    createMenuItem('heatmap', 'Heatmap');
+
   }
 
   dropdownWrapper.appendChild(dropdownButton);
@@ -2742,9 +2827,7 @@ function // Function to create and render a chart in a Bootstrap card component 
 
     //analysis type specificities
     let yMaxValue;
-    let chartMaxBarThickness;
     if (chartObject.analysisType === 'categoryDistribution') {
-      chartMaxBarThickness = 50;
     }
     if (chartObject.analysisType === 'numberDistribution') {
 
@@ -2756,20 +2839,29 @@ function // Function to create and render a chart in a Bootstrap card component 
     //chart type specificities
     let chartOptions = '';
     canvas.style.height = '300px'; //default height
-    if (chartObject.chartType === 'horizontal-bars' && chartObject.analysisType=== 'categoryDistribution') {
+    if (chartObject.chartType === 'horizontal-bars' && chartObject.analysisType === 'categoryDistribution') {
       canvas.style.height = `${chartObject.data.length * 40 + 50}px`; // Set the height dynamically
       chartOptions = chartObject.horizontalBarChartOptions;
     }
-    if (chartObject.chartType === 'vertical-columns' && chartObject.analysisType=== 'categoryDistribution') {
+    if (chartObject.chartType === 'vertical-columns' && chartObject.analysisType === 'categoryDistribution') {
       chartOptions = chartObject.verticalColumnChartOptions;
-    }    
-    if (chartObject.chartType === 'horizontal-bars' && (chartObject.analysisType=== "sumComparisonOneField" || chartObject.analysisType=== "avgComparisonOneField") ) {
+    }
+    if (chartObject.chartType === 'horizontal-bars' && (chartObject.analysisType === "sumComparisonOneField" || chartObject.analysisType === "avgComparisonOneField")) {
       canvas.style.height = `${chartObject.data.length * 40 + 50}px`; // Set the height dynamically
       chartOptions = chartObject.horizontalCalculationBarChartOptions;
     }
-    if (chartObject.chartType === 'vertical-columns' && (chartObject.analysisType=== "sumComparisonOneField" || chartObject.analysisType=== "avgComparisonOneField") ) {
+    if (chartObject.chartType === 'vertical-columns' && (chartObject.analysisType === "sumComparisonOneField" || chartObject.analysisType === "avgComparisonOneField")) {
       chartOptions = chartObject.verticalCalculationBarChartOptions;
     }
+
+    if (chartObject.chartType === 'horizontal-clusters') {
+      canvas.style.height = `${chartObject.data.length * chartObject.data[0].data.length * 40 + 50}px`; // Set the height dynamically
+      chartOptions = chartObject.horizontalClusteredBarChartOptions;
+    }
+    if (chartObject.chartType === 'vertical-clusters') {
+      chartOptions = chartObject.verticalClusteredColumnChartOptions;
+    }
+
     if (chartObject.chartType === 'area') {
       chartOptions = {
         plugins: {
@@ -2807,22 +2899,48 @@ function // Function to create and render a chart in a Bootstrap card component 
       type: chartObject.visType,
       data: {
         labels: chartObject.labels,
-        datasets: [
-          {
-            data: chartObject.data,
-            backgroundColor: chartObject.backgroundColor,
-            borderColor: chartObject.borderColor,
-            borderWidth: chartObject.borderWidth,
-            maxBarThickness: chartMaxBarThickness,
-            tension: 0.4,
-            fill: true,
-          },
-        ],
+        datasets: createDatasets(chartObject)
       },
       options: chartOptions,
     });
 
   }
+  function createDatasets(chartObject) {
+    // Check if the chart type includes 'clusters'
+    if (chartObject.chartType.includes('clusters')) {
+      // Map through the data and return a dataset for each item
+      return chartObject.data.map((dataItem, index) => {
+        const colorIndex = index % colorPalette.length;
+        const backgroundColor = colorPalette[colorIndex];
+        const borderColor = colorPalette[colorIndex];
+  
+        return {
+          label: dataItem.label,  // The label for each dataset (e.g., 'Alex\r')
+          data: dataItem.data,    // The data array corresponding to uniqueB for this label
+          backgroundColor: backgroundColor, // Color for the dataset
+          borderColor: borderColor, // Border color for the dataset
+          borderWidth: chartObject.borderWidth || 1, // Border width, defaulting to 1 if not set
+          maxBarThickness: chartObject.chartMaxBarThickness || 50, // Max thickness of bars
+          fill: false, // No filling under the bars for clustered charts
+        };
+      });
+    }
+    
+    // Fallback for non-clustered charts
+    return [
+      {
+        data: chartObject.data,
+        backgroundColor: chartObject.backgroundColor,
+        borderColor: chartObject.borderColor,
+        borderWidth: chartObject.borderWidth,
+        maxBarThickness: 50,
+        tension: 0.4,
+        fill: true, // Apply fill for non-clustered charts
+      },
+    ];
+  }
+  
+
   createCanvas();
 
 }
@@ -3528,7 +3646,7 @@ function openBookmarksOverlay() {
     }
     for (let i = 0; i < bookmarks.length; i++) {
       const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
-      if (bookmarks[i].analysisType === 'categoryDistribution' || bookmarks[i].analysisType === 'numberDistribution' || bookmarks[i].analysisType === "sumComparisonOneField" || bookmarks[i].analysisType === "avgComparisonOneField" ) {
+      if (bookmarks[i].analysisType === 'categoryDistribution' || bookmarks[i].analysisType === 'numberDistribution' || bookmarks[i].analysisType === "sumComparisonOneField" || bookmarks[i].analysisType === "avgComparisonOneField") {
         renderChartInCard(bookmarks[i], bookmarksBodyColumn);
       }
 
