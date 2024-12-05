@@ -1227,7 +1227,7 @@ function loadCompareTab() {
     const backButton = document.createElement("a");
     backButton.href = "#";
     backButton.className = "dropdown-item border-bottom";
-    backButton.style.backgroundColor='rgb(224, 224, 224)';
+    backButton.style.backgroundColor = 'rgb(224, 224, 224)';
     backButton.innerText = "Back";
     backButton.addEventListener("click", (e) => {
       e.preventDefault();
@@ -1385,9 +1385,9 @@ function loadCompareTab() {
         //create empty option
         const emptyOption = document.createElement('a')
         emptyOption.href = "#";
-        if (textSpan.innerText === placeholder){
-        emptyOption.style.display = 'none';
-      }
+        if (textSpan.innerText === placeholder) {
+          emptyOption.style.display = 'none';
+        }
         emptyOption.style.backgroundColor = 'rgb(224, 224, 224)';
         emptyOption.className = "dropdown-item text-truncate";
         emptyOption.innerText = 'Clear Selection';
@@ -1793,7 +1793,7 @@ class AnalysisObject {
       chartID = `comparison-count-of-occurrences-by-${this.compareFieldA}-and-${this.compareFieldB}-filtered-by-${filteredByString}`;
       analysisType = 'countOfOccurrencesComparison';
       visType = 'bar';
-      chartType = 'horizontal-clusters';
+      chartType = 'heatmap';
       result = this.genCountABData();
     }
 
@@ -1815,7 +1815,7 @@ class AnalysisObject {
         chartID = `comparison-sum-${this.compareBy}-by-${this.compareFieldA}-and-${this.compareFieldB}-filtered-by-${filteredByString}`;
         analysisType = 'sumComparisonTwoFields';
         visType = 'bar';
-        chartType = 'horizontal-clusters';
+        chartType = 'heatmap';
         result = this.gensumABData();
 
       }
@@ -1836,7 +1836,7 @@ class AnalysisObject {
         chartID = `comparison-avg-${this.compareBy}-by-${this.compareFieldA}-and-${this.compareFieldB}-filtered-by-${filteredByString}`;
         analysisType = 'avgComparisonTwoFields';
         visType = 'bar';
-        chartType = 'horizontal-clusters';
+        chartType = 'heatmap';
         result = this.genavgABData();
       }
     }
@@ -1868,7 +1868,7 @@ class AnalysisObject {
 
     console.log('comparison chart data', this);
 
-    if (this.compareFieldA !== null && (this.compareType === "Sum of" || this.compareType === "Average of" ) || (this.compareType==="Count of occurrences" && this.compareFieldA !== null && this.compareFieldB !==null )) {
+    if (this.compareFieldA !== null && (this.compareType === "Sum of" || this.compareType === "Average of") || (this.compareType === "Count of occurrences" && this.compareFieldA !== null && this.compareFieldB !== null)) {
       this.prepChartContainer('advanced');
     }
   }
@@ -1897,47 +1897,7 @@ class AnalysisObject {
 
   }
 
-  addComparativeChartObjects() {
-    this.chartObjects = []; // Clear existing charts
-    this.summaryValue.forEach(value => {
-      // Generate data, labels, and cluster labels for the clustered chart
-      const result = this.genPercentageCountABData(
-        value,
-        this.groupedBy,
-        this.filteredBy
-      );
 
-      const data = result.data;
-      const labels = result.labels;
-      const clusterLabels = result.clusterLabels;
-      const percentagesCounts = result.percentagesCounts;
-      const summaryValueType = dropdownState.find(obj => obj.header === value);
-      let chartTitle = '';
-
-      chartTitle = `Count of occurrences by '${value}' grouped by '${this.groupedBy}' `;
-
-
-      const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
-      const chartID = `comparative-${value}-grouped-by-${this.groupedBy}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
-
-      // Create and add the chart
-      const newChartObject = new ChartObject(
-        this.analysisType,
-        chartTitle,
-        chartID,
-        'bar',
-        data,
-        labels,
-        percentagesCounts,
-        clusterLabels, // Pass cluster labels to ChartObject
-        value,
-        this.groupedBy,
-        this.filteredBy
-      );
-      this.chartObjects.push(newChartObject);
-    });
-    this.prepChartContainer(); // render clustered once the code and data is ready
-  }
 
 
   genSummaryCatData(header) {
@@ -2226,8 +2186,8 @@ class AnalysisObject {
         const compareByFilteredData = compareFilteredData.map(row => row[this.compareBy]);
         //sum the contents
         const sumValue = Math.round((compareByFilteredData.reduce(
-          (accumulator, currentValue) => accumulator + (Number(currentValue) || 0), 0))*100)/100;
-        
+          (accumulator, currentValue) => accumulator + (Number(currentValue) || 0), 0)) * 100) / 100;
+
         this.compareHeatmapDataArray.push({ A: valueA, B: valueB, value: sumValue });
         clusterData.push(sumValue);
       })
@@ -2765,6 +2725,9 @@ function // Function to create and render a chart in a Bootstrap card component 
   if (chartObject.chartType === "horizontal-clusters") {
     dropdownButton.textContent = 'Horizontal Clusters';
   }
+  if (chartObject.chartType === "heatmap") {
+    dropdownButton.textContent = 'Heatmap';
+  }
 
   // Create the dropdown menu with items
   const dropdownMenu = document.createElement('ul');
@@ -2784,8 +2747,13 @@ function // Function to create and render a chart in a Bootstrap card component 
     linkAnchor.addEventListener('click', function () {
       dropdownButton.textContent = text;
       chartObject.chartType = chartType;
-      createCanvas();
-      //if applicable, update the corresponding bookmark's charttype attribute 
+      if (chartType === 'heatmap') {
+        createHeatmap();
+      }
+      else {
+        createCanvas();
+      }      //if applicable, update the corresponding bookmark's charttype attribute 
+
       const bookmark = bookmarks.find(bookmark => bookmark.id === chartObject.id);
       if (bookmark) {
         bookmark.chartType = chartObject.chartType;
@@ -2802,9 +2770,9 @@ function // Function to create and render a chart in a Bootstrap card component 
     createMenuItem('area', 'Area');
   }
   if (chartObject.analysisType === 'sumComparisonTwoFields' || chartObject.analysisType === 'avgComparisonTwoFields' || chartObject.analysisType === "countOfOccurrencesComparison") {
+    createMenuItem('heatmap', 'Heatmap');
     createMenuItem('horizontal-clusters', 'Horizontal Clusters');
     createMenuItem('vertical-clusters', 'Vertical Clusters');
-    createMenuItem('heatmap', 'Heatmap');
 
   }
 
@@ -2849,11 +2817,19 @@ function // Function to create and render a chart in a Bootstrap card component 
   }
 
   function createCanvas() {
-
+    const existingTable = document.getElementById('heatmap-table');
+    if (existingTable) {
+      cardBody.removeChild(existingTable);
+    }
+    const existingLegend = document.getElementById('legend-container');
+    if (existingLegend) {
+      cardBody.removeChild(existingLegend);
+    }
     const existingCanvas = cardBody.querySelector('canvas'); //check in this cardBody to see if there's already a canvas (in case we are changing type)
     if (existingCanvas) {
       cardBody.removeChild(existingCanvas);
     }
+
     const canvas = document.createElement('canvas');
 
     if (container.id === 'advanced-tab-cards-container') {
@@ -2981,12 +2957,126 @@ function // Function to create and render a chart in a Bootstrap card component 
       },
     ];
   }
+  function createHeatmap() {
+
+    //clear anything from previous analysis
+    const existingTable = document.getElementById('heatmap-table');
+    if (existingTable) {
+      cardBody.removeChild(existingTable);
+    }
+    const existingLegend = document.getElementById('legend-container');
+    if (existingLegend) {
+      cardBody.removeChild(existingLegend);
+    }
+    const existingCanvas = cardBody.querySelector('canvas'); //check in this cardBody to see if there's already a canvas (in case we are changing type)
+    if (existingCanvas) {
+      cardBody.removeChild(existingCanvas);
+    }
+
+    //heatmap settings
+    const heatmapSettingsRow = document.createElement('div');
+    heatmapSettingsRow.className = 'row';
+    cardBody.appendChild(heatmapSettingsRow);
+
+    const colors = ['#caf0f8', '#1AC9E6', '#19AADE', '#1696c4']
+    const intensityRangeValues = ['<25%','25-50%','50-75%','>75%'];
+
+    createTable();
+    createLegend();
+
+    function createTable() {
+
+      const table = document.createElement('table');
+      table.id = 'heatmap-table';
+      cardBody.appendChild(table);
+      table.className = 'table table-bordered';
+      const thead = document.createElement('thead');
+      const tbody = document.createElement('tbody');
+      table.appendChild(thead);
+      table.appendChild(tbody);
 
 
-  createCanvas();
+      const xHeaderValues = [...new Set(chartObject.compareHeatmapDataArray.map(row => row.A))];
+      const yHeaderValues = [...new Set(chartObject.compareHeatmapDataArray.map(row => row.B))];
+      const cellValues = [...new Set(chartObject.compareHeatmapDataArray.map(row => row.value))];
 
+      const headerRow = document.createElement('tr');
+      headerRow.innerHTML = `<th>${chartObject.compareFieldA}</th>${yHeaderValues.map(yValue => `<th>${yValue}</th>`).join('')}`;
+      thead.appendChild(headerRow);
+      let i;
+      xHeaderValues.forEach(valueX => {
+        i++;
+        const bodyRow = document.createElement('tr');
+        const bodyRowHeader = document.createElement('th');
+        bodyRowHeader.innerText = valueX;
+        bodyRow.appendChild(bodyRowHeader);
+        tbody.appendChild(bodyRow);
+
+        yHeaderValues.forEach(valueY => {
+          const entry = chartObject.compareHeatmapDataArray.find(item => item.A === valueX && item.B === valueY);
+          const entryFinal = entry ? entry.value : 0;
+
+          const cell = document.createElement('td');
+          const intensity = (entryFinal / Math.max(...cellValues));
+          if (intensity >= 0.75) {
+            cell.style.backgroundColor = colors[3];
+          }
+          else if (intensity >= 0.5 && intensity < 0.75) {
+            cell.style.backgroundColor = colors[2];
+          }
+          else if (intensity >= 0.25 && intensity < 0.5) {
+            cell.style.backgroundColor = colors[1];
+          }
+          else {
+            cell.style.backgroundColor = colors[0];
+          }
+          cell.textContent = entryFinal;
+          cell.style.textAlign = 'end';
+          bodyRow.appendChild(cell);
+        });
+
+
+      })
+    }
+    function createLegend(){
+      const legendContainer = document.createElement('div');
+      legendContainer.id='legend-container';
+      cardBody.appendChild(legendContainer);
+
+      const legendRow = document.createElement('div');
+      legendRow.className = 'd-flex justify-content-center align-items-center';
+      legendContainer.appendChild(legendRow);
+     
+      const legend = document.createElement('table');
+      legend.className='table table-bordered m-0 w-50 ';
+      legendRow.appendChild(legend);
+      const legendHeader = document.createElement('tr');
+      legend.appendChild(legendHeader)
+      for (let i=0; i<4;i++){
+        const legendHeaderCell = document.createElement('th');
+        legendHeaderCell.style.backgroundColor= colors[i];
+        legendHeaderCell.textContent = intensityRangeValues[i];
+        legendHeaderCell.style.textAlign = 'center';
+        legendHeaderCell.style.fontWeight = '300';
+        legendHeader.appendChild(legendHeaderCell);
+      }
+      const legendTextRow = document.createElement('div');
+      legendTextRow.className = 'm-0 p-0 d-flex justify-content-center align-items-center';
+      const legendText = document.createElement('p');
+      legendText.textContent = `Colors reflect the cell values in proportion to the highest value.`;
+      legendText.className = 'm-0';
+      legendText.style.fontStyle ='italic';
+      legendTextRow.appendChild(legendText);
+      legendContainer.appendChild(legendTextRow);
+    }
+  }
+  if (chartObject.chartType === 'heatmap') {
+    createHeatmap();
+  }
+  else {
+    createCanvas();
+  }
 }
-
 
 function addRemoveBookmark(target, chart) {
   const bookmarkButton = target;
@@ -3244,8 +3334,8 @@ function openBookmarksOverlay() {
     }
     for (let i = 0; i < bookmarks.length; i++) {
       const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
-        renderChartInCard(bookmarks[i], bookmarksBodyColumn);
-  
+      renderChartInCard(bookmarks[i], bookmarksBodyColumn);
+
     }
     const bookmarksBodyColumn = document.getElementById('bookmarks-body-column');
 
