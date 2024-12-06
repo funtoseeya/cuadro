@@ -19,10 +19,6 @@ let categoricalHeaderArray = []; //using this for compare by dropdown
 const guessedCSVheaderClassification = {}; // To store the guessed classification of each header
 let parsedCSVData = []; // global array that stores the uploaded csv's data
 let filteredData = [];
-let comparisonType = null; //comparison values
-let comparisonValue = null; //comparison values
-let fieldXValue = null;//comparison values
-let fieldYValue = null;//comparison values
 let analysisObjects = []; // Array to store analysis object instances
 let colorPalette = ['#176BA0', '#19AADE', '#1AC9E6', '#caf0f8', '#52b69a', '#1DE3BD', '#CDFDD2', '#C7F9EE', '#b66ee8', '#d689ff', '#f2a8ff', '#ffc4ff', '#ebd9fc'];
 let colorPaletteWithOpacity = [
@@ -827,6 +823,7 @@ async function reviewData() {
   const noButton = document.createElement('a');
   noButton.className = 'tertiary-button';
   noButton.textContent = `❌ Nope, let's restart with a new file`;
+  noButton.style.marginRight = '0.5rem';
   yesNoRow.appendChild(noButton);
   const yesButton = document.createElement('a');
   yesButton.className = 'tertiary-button';
@@ -1135,6 +1132,10 @@ function loadSummaryTab() {
 }
 
 function loadCompareTab() {
+  let fieldXValue = null;//comparison values
+  let fieldYValue = null;//comparison values
+  let comparisonType = null; //comparison values
+  let comparisonValue = null; //comparison values
 
   const advancedAnalysisObject = new AnalysisObject(2);
   advancedAnalysisObject.analysisType = 'comparison';
@@ -1163,17 +1164,21 @@ function loadCompareTab() {
   advancedTabContent.appendChild(promptRow);
 
   const comparisonCol = document.createElement('div');
-  comparisonCol.className = 'col-12 col-md-4 pt-2';
+  comparisonCol.className = 'col-12 col-md-3 pt-2';
   comparisonCol.id = 'prompt-row-comparison-col';
   promptRow.appendChild(comparisonCol);
 
   const fieldXCol = document.createElement('div');
-  fieldXCol.className = 'col-12 col-md-4 pt-2';
+  fieldXCol.className = 'col-11 col-md-4 pt-2';
   fieldXCol.id = 'prompt-row-field-x-col';
   promptRow.appendChild(fieldXCol);
 
+  const fieldFlipCol = document.createElement('div');
+  fieldFlipCol.className = 'col-1 col-md-1 pt-2 d-flex align-items-end justify-content-center';
+  promptRow.appendChild(fieldFlipCol);
+
   const fieldYCol = document.createElement('div');
-  fieldYCol.className = 'col-12 col-md-4 pt-2';
+  fieldYCol.className = 'col-12 col-md-4 pt-2 ';
   fieldYCol.id = 'prompt-row-field-y-col';
   promptRow.appendChild(fieldYCol);
 
@@ -1347,6 +1352,7 @@ function loadCompareTab() {
 
     // Create dropdown container
     function createDropdown(parentElement, title, placeholder, onSelect) {
+     
       const container = document.createElement("div");
       container.className = "dropdown w-100";
 
@@ -1446,6 +1452,22 @@ function loadCompareTab() {
         fieldYPopulateMenu(fieldXValue); //field Y dropdown menu won't contain this selected value
       }
     );
+
+    //create the flip button
+    const flipButton = document.createElement('button');
+    flipButton.className = 'btn tertiary-button';
+    flipButton.innerHTML = `<i class="fa-solid fa-repeat"></i>`;
+    fieldFlipCol.appendChild(flipButton);
+    flipButton.addEventListener('click',function(){
+      const aBucket =  advancedAnalysisObject.compareFieldA;
+      const bBucket = advancedAnalysisObject.compareFieldB;
+      advancedAnalysisObject.compareFieldA=bBucket;
+      advancedAnalysisObject.compareFieldB=aBucket;
+      advancedAnalysisObject.beginComparisonChartGenerationProcess();
+
+
+    })
+
 
     const fieldYPopulateMenu = createDropdown(
       fieldYParent,
@@ -2017,72 +2039,7 @@ class AnalysisObject {
     };
   }
 
-  genPercentageCountABData(header, groupedBy) {
-
-    // Create a map to count occurrences for each group
-    const groupCounts = {};
-    const valueCounts = {}; // To store total counts for each value across all groups
-
-    for (let i = 0; i < filteredData.length; i++) {
-      let item = filteredData[i];
-      let group = item[header];
-      let value = item[groupedBy];
-
-      // Initialize group key if not present
-      if (!groupCounts[group]) {
-        groupCounts[group] = {};
-      }
-
-      // Initialize value count if not present
-      if (!groupCounts[group][value]) {
-        groupCounts[group][value] = 0;
-      }
-
-      // Increment the count for the current value in the group
-      groupCounts[group][value]++;
-
-      // Increment the total count for the current value across all groups
-      if (!valueCounts[value]) {
-        valueCounts[value] = 0;
-      }
-      valueCounts[value]++;
-    }
-
-    // Prepare labels and data arrays
-    const labels = Object.keys(valueCounts);
-
-    const clusterLabels = Object.keys(groupCounts);
-
-    // Create data and PercentagesCounts arrays
-    const data = [];
-    const percentagesCounts = [];
-    for (let i = 0; i < clusterLabels.length; i++) {
-      let groupKey = clusterLabels[i];
-      let groupData = [];
-      let groupPercentagesCounts = [];
-      for (let j = 0; j < labels.length; j++) {
-        let label = labels[j];
-        let count = groupCounts[groupKey][label] || 0;
-        let total = valueCounts[label];
-        let percentage = total > 0 ? Math.round(count / total * 100) : 0;
-
-        groupData.push(percentage);
-        groupPercentagesCounts.push(`${percentage}% (${count})`); // Concatenate percentage and count
-      }
-      data.push(groupData);
-      percentagesCounts.push(groupPercentagesCounts);
-    }
-
-
-    return {
-      data, // Array of arrays with percentages for each group
-      labels, // Labels for data points
-      clusterLabels, // Labels for each group
-      percentagesCounts, // Array of arrays with percentage and count strings for each group
-    };
-
-  }
-
+  
   genSumAData(header, groupedBy) {
 
     const headerType = dropdownState.find(item => item.header === header).value;

@@ -27,19 +27,23 @@
 
 }
 
-.tertiary-button {
-  display:inline-block;
-  color:var(--primary-light);
-  cursor:pointer;
-  text-decoration: none;
-  margin:0 10px 10px 0;
-}
-
-.tertiary-button:hover {
-  color:var(--primary-dark);
+.tertiary-button, .tertiary-button i {
+  display: inline-block;
+  color: var(--primary-light);
+  background-color: transparent; /* Ensure no conflicting background */
+  border: none; /* Remove Bootstrap borders */
   cursor: pointer;
-
+  text-decoration: none;
+  transition: color 0.2s ease, background-color 0.2s ease;
 }
+
+.tertiary-button:hover i  {
+  color: var(--primary-dark); /* Ensure text remains visible */
+  background-color: transparent; /* Avoid any background issues */
+  outline: none; /* Optional, but removes focus ring */
+}
+
+
 
 #cuadro-header-logo:hover {
   opacity: 60%;
