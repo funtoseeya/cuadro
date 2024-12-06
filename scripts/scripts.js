@@ -1352,7 +1352,7 @@ function loadCompareTab() {
 
     // Create dropdown container
     function createDropdown(parentElement, title, placeholder, onSelect) {
-     
+      parentElement.innerHTML = ``;
       const container = document.createElement("div");
       container.className = "dropdown w-100";
 
@@ -1453,22 +1453,6 @@ function loadCompareTab() {
       }
     );
 
-    //create the flip button
-    const flipButton = document.createElement('button');
-    flipButton.className = 'btn tertiary-button';
-    flipButton.innerHTML = `<i class="fa-solid fa-repeat"></i>`;
-    fieldFlipCol.appendChild(flipButton);
-    flipButton.addEventListener('click',function(){
-      const aBucket =  advancedAnalysisObject.compareFieldA;
-      const bBucket = advancedAnalysisObject.compareFieldB;
-      advancedAnalysisObject.compareFieldA=bBucket;
-      advancedAnalysisObject.compareFieldB=aBucket;
-      advancedAnalysisObject.beginComparisonChartGenerationProcess();
-
-
-    })
-
-
     const fieldYPopulateMenu = createDropdown(
       fieldYParent,
       "And Field B",
@@ -1478,6 +1462,34 @@ function loadCompareTab() {
         fieldXPopulateMenu(fieldYValue); //field X dropdown menu won't contain this selected value
       }
     );
+
+    //create the flip button
+    const flipButton = document.createElement('button');
+    flipButton.className = 'btn tertiary-button';
+    flipButton.innerHTML = `<i class="fa-solid fa-repeat"></i>`;
+    fieldFlipCol.appendChild(flipButton);
+    flipButton.addEventListener('click', function () {
+      const aBucket = advancedAnalysisObject.compareFieldA;
+      const bBucket = advancedAnalysisObject.compareFieldB;
+
+      createDropdown(fieldXParent, "By Field A", bBucket,
+        (bBucket) => {
+          fieldXValue = bBucket;
+          fieldYPopulateMenu(fieldXValue);
+        });
+
+      createDropdown(fieldYParent, "By Field B", aBucket,
+        (aBucket) => {
+          fieldXValue = aBucket;
+          fieldYPopulateMenu(fieldYValue);
+        });
+
+      advancedAnalysisObject.compareFieldA = bBucket;
+      advancedAnalysisObject.compareFieldB = aBucket;
+
+      advancedAnalysisObject.beginComparisonChartGenerationProcess();
+
+    })
   }
 
   createComparisonDropdown();
@@ -2039,7 +2051,7 @@ class AnalysisObject {
     };
   }
 
-  
+
   genSumAData(header, groupedBy) {
 
     const headerType = dropdownState.find(item => item.header === header).value;
@@ -2936,16 +2948,19 @@ function // Function to create and render a chart in a Bootstrap card component 
     cardBody.appendChild(heatmapSettingsRow);
 
     const colors = ['#caf0f8', '#1AC9E6', '#19AADE', '#1696c4']
-    const intensityRangeValues = ['<25%','25-50%','50-75%','>75%'];
+    const intensityRangeValues = ['<25%', '25-50%', '50-75%', '>75%'];
 
     createTable();
     createLegend();
 
     function createTable() {
+      const tableContainer = document.createElement('div');
+      tableContainer.style.overflowX = 'auto';
+      cardBody.appendChild(tableContainer);
 
       const table = document.createElement('table');
+      tableContainer.appendChild(table);
       table.id = 'heatmap-table';
-      cardBody.appendChild(table);
       table.className = 'table table-bordered';
       const thead = document.createElement('thead');
       const tbody = document.createElement('tbody');
@@ -2995,23 +3010,27 @@ function // Function to create and render a chart in a Bootstrap card component 
 
       })
     }
-    function createLegend(){
+    function createLegend() {
       const legendContainer = document.createElement('div');
-      legendContainer.id='legend-container';
+      legendContainer.id = 'legend-container';
       cardBody.appendChild(legendContainer);
 
       const legendRow = document.createElement('div');
-      legendRow.className = 'd-flex justify-content-center align-items-center';
+      legendRow.className = 'row d-flex justify-content-center align-items-center mt-2';
       legendContainer.appendChild(legendRow);
-     
+
+      const legendCol = document.createElement('div');
+      legendCol.className = 'col-12 col-md-8 md-offset-2';
+      legendRow.appendChild(legendCol);
+
       const legend = document.createElement('table');
-      legend.className='table table-bordered m-0 w-50 ';
-      legendRow.appendChild(legend);
+      legend.className = 'table table-bordered m-0';
+      legendCol.appendChild(legend);
       const legendHeader = document.createElement('tr');
       legend.appendChild(legendHeader)
-      for (let i=0; i<4;i++){
+      for (let i = 0; i < 4; i++) {
         const legendHeaderCell = document.createElement('th');
-        legendHeaderCell.style.backgroundColor= colors[i];
+        legendHeaderCell.style.backgroundColor = colors[i];
         legendHeaderCell.textContent = intensityRangeValues[i];
         legendHeaderCell.style.textAlign = 'center';
         legendHeaderCell.style.fontWeight = '300';
@@ -3022,7 +3041,7 @@ function // Function to create and render a chart in a Bootstrap card component 
       const legendText = document.createElement('p');
       legendText.textContent = `Colors reflect the cell values in proportion to the highest value.`;
       legendText.className = 'm-0';
-      legendText.style.fontStyle ='italic';
+      legendText.style.fontStyle = 'italic';
       legendTextRow.appendChild(legendText);
       legendContainer.appendChild(legendTextRow);
     }
