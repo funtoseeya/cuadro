@@ -206,6 +206,7 @@ body {
   background: var(--tertiary-color);
 }
 
+
 .stepper-paragraph {
   margin-bottom: 0rem;
   font-size: large;
@@ -268,6 +269,41 @@ body {
   width: 100px; /* Ensure consistent button width */
 }
 
+/* General sticky styles for headers */
+
+table {
+  border-collapse: collapse; /* Ensures borders collapse into one another */
+  border-spacing: 0; /* Eliminates any inherent spacing */
+}
+
+th {
+  position: sticky;
+  z-index: 2;
+  background: white; /* Ensures content underneath doesn't show through */
+  border: 1px solid #ddd; /* Match table borders for seamless appearance */
+}
+tr{
+  border: 1px solid #ddd; /* Match table borders for seamless appearance */
+}
+
+/* Sticky top row */
+th {
+  top: 0; /* Sticks to the top */
+  border: 1px solid #ddd; /* Match table borders for seamless appearance */
+}
+
+/* Sticky first column */
+td:first-child, th:first-child {
+  position: sticky;
+  left: 0; /* Sticks to the left */
+  z-index: 1; /* Lower z-index than top row but higher than regular cells */
+  background: white;
+}
+
+/* Sticky top-left cell (intersection of first row and first column) */
+th:first-child {
+  z-index: 3; /* Highest z-index for proper layering */
+}
 
 
 /* Custom  styles for the review table */
