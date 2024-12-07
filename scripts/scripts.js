@@ -2658,7 +2658,10 @@ function // Function to create and render a chart in a Bootstrap card component 
   cardBody.appendChild(cardTitleRow);
   cardBody.appendChild(cardFiltersRow);
   card.appendChild(cardBody);
-  container.appendChild(card);
+  container.appendChild(card); 
+
+  const chartContainer = document.createElement('div');
+  cardBody.appendChild(chartContainer);
 
   const cardOptionsColumn = document.createElement('div');
   cardOptionsColumn.classList.add(
@@ -2787,18 +2790,7 @@ function // Function to create and render a chart in a Bootstrap card component 
   }
 
   function createCanvas() {
-    const existingTable = document.getElementById('heatmap-container');
-    if (existingTable) {
-      cardBody.removeChild(existingTable);
-    }
-    const existingLegend = document.getElementById('legend-container');
-    if (existingLegend) {
-      cardBody.removeChild(existingLegend);
-    }
-    const existingCanvas = cardBody.querySelector('canvas'); //check in this cardBody to see if there's already a canvas (in case we are changing type)
-    if (existingCanvas) {
-      cardBody.removeChild(existingCanvas);
-    }
+    chartContainer.innerHTML='';
 
     const canvas = document.createElement('canvas');
 
@@ -2877,7 +2869,7 @@ function // Function to create and render a chart in a Bootstrap card component 
     }
 
     // Append the canvas to the card body
-    cardBody.appendChild(canvas);
+    chartContainer.appendChild(canvas);
 
     // Render the chart on the canvas
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
@@ -2929,24 +2921,13 @@ function // Function to create and render a chart in a Bootstrap card component 
   }
   function createHeatmap() {
 
-    //clear anything from previous analysis
-    const existingTable = document.getElementById('heatmap-container');
-    if (existingTable) {
-      cardBody.removeChild(existingTable);
-    }
-    const existingLegend = document.getElementById('legend-container');
-    if (existingLegend) {
-      cardBody.removeChild(existingLegend);
-    }
-    const existingCanvas = cardBody.querySelector('canvas'); //check in this cardBody to see if there's already a canvas (in case we are changing type)
-    if (existingCanvas) {
-      cardBody.removeChild(existingCanvas);
-    }
+    chartContainer.innerHTML='';
+      
 
     //heatmap settings
     const heatmapSettingsRow = document.createElement('div');
     heatmapSettingsRow.className = 'row';
-    cardBody.appendChild(heatmapSettingsRow);
+    chartContainer.appendChild(heatmapSettingsRow);
 
     const colors = ['#caf0f8', '#1AC9E6', '#19AADE', '#1696c4']
     const intensityRangeValues = ['<25%', '25-50%', '50-75%', '>75%'];
@@ -2958,7 +2939,7 @@ function // Function to create and render a chart in a Bootstrap card component 
       const tableContainer = document.createElement('div');
       tableContainer.style.overflowX = 'auto';
       tableContainer.id = 'heatmap-container';
-      cardBody.appendChild(tableContainer);
+      chartContainer.appendChild(tableContainer);
 
       const table = document.createElement('table');
       tableContainer.appendChild(table);
@@ -3015,7 +2996,7 @@ function // Function to create and render a chart in a Bootstrap card component 
     function createLegend() {
       const legendContainer = document.createElement('div');
       legendContainer.id = 'legend-container';
-      cardBody.appendChild(legendContainer);
+      chartContainer.appendChild(legendContainer);
 
       const legendRow = document.createElement('div');
       legendRow.className = 'row d-flex justify-content-center align-items-center mt-2';
