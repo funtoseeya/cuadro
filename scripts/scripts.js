@@ -1391,9 +1391,7 @@ function loadCompareTab() {
         //create empty option
         const emptyOption = document.createElement('a')
         emptyOption.href = "#";
-        if (textSpan.innerText === placeholder) {
-          emptyOption.style.display = 'none';
-        }
+    
         emptyOption.style.backgroundColor = 'rgb(224, 224, 224)';
         emptyOption.className = "dropdown-item text-truncate";
         emptyOption.innerText = 'Clear Selection';
@@ -1403,7 +1401,6 @@ function loadCompareTab() {
           e.preventDefault();
           textSpan.innerText = placeholder;
           onSelect(null);
-          emptyOption.style.display = 'none';
           advancedAnalysisObject.compareFieldA = fieldXValue;
           advancedAnalysisObject.compareFieldB = fieldYValue;
           advancedAnalysisObject.beginComparisonChartGenerationProcess();
@@ -1420,7 +1417,6 @@ function loadCompareTab() {
               e.preventDefault();
               textSpan.innerText = option;
               onSelect(option); //this does two things. it sets fieldXYvalue to the selected value AND it makes sure the other dropdown menu doesn't offer it as an option 
-              emptyOption.style.display = 'block';
               advancedAnalysisObject.compareFieldA = fieldXValue;
               advancedAnalysisObject.compareFieldB = fieldYValue;
               advancedAnalysisObject.beginComparisonChartGenerationProcess();
@@ -1488,6 +1484,7 @@ function loadCompareTab() {
       advancedAnalysisObject.compareFieldA = bBucket;
       advancedAnalysisObject.compareFieldB = aBucket;
 
+      console.log(advancedAnalysisObject);
       advancedAnalysisObject.beginComparisonChartGenerationProcess();
 
     })
