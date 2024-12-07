@@ -1351,7 +1351,8 @@ function loadCompareTab() {
     const fieldYParent = document.getElementById("prompt-row-field-y-col");
 
     // Create dropdown container
-    function createDropdown(parentElement, title, placeholder, onSelect) {
+    function createDropdown(spanId, parentElement, title, placeholder, onSelect) {
+
       parentElement.innerHTML = ``;
       const container = document.createElement("div");
       container.className = "dropdown w-100";
@@ -1367,6 +1368,7 @@ function loadCompareTab() {
       dropdownToggle.setAttribute("data-bs-toggle", "dropdown");
 
       const textSpan = document.createElement("span");
+      textSpan.id = spanId;
       textSpan.className = "text-truncate"; // For truncation
       textSpan.style.flex = "1"; // Ensure it takes up all available space
       textSpan.innerText = placeholder;
@@ -1440,6 +1442,7 @@ function loadCompareTab() {
 
 
     const fieldXPopulateMenu = createDropdown(
+      'field-a-dropdown',
       fieldXParent,
       "By Field A",
       "Select a field",
@@ -1450,6 +1453,7 @@ function loadCompareTab() {
     );
 
     const fieldYPopulateMenu = createDropdown(
+      'field-b-dropdown',
       fieldYParent,
       "And Field B",
       "Select a field",
@@ -1469,22 +1473,20 @@ function loadCompareTab() {
       const aBucket = advancedAnalysisObject.compareFieldA;
       const bBucket = advancedAnalysisObject.compareFieldB;
 
-      createDropdown(fieldXParent, "By Field A", bBucket,
-        (bBucket) => {
-          fieldXValue = bBucket;
-          fieldYPopulateMenu(fieldXValue);
-        });
+      fieldXValue = bBucket;
+      fieldYValue = aBucket;
 
-      createDropdown(fieldYParent, "By Field B", aBucket,
-        (aBucket) => {
-          fieldXValue = aBucket;
-          fieldXPopulateMenu(fieldYValue);
-        });
+      fieldXPopulateMenu(fieldYValue); // Exclude the new Y value from X's menu
+  fieldYPopulateMenu(fieldXValue); // Exclude the new X value from Y's menu
 
-      advancedAnalysisObject.compareFieldA = bBucket;
-      advancedAnalysisObject.compareFieldB = aBucket;
+      advancedAnalysisObject.compareFieldA = fieldXValue;
+      advancedAnalysisObject.compareFieldB = fieldYValue;
 
-      console.log(advancedAnalysisObject);
+      const fieldADropdownValue = document.getElementById('field-a-dropdown');
+      const fieldBDropdownValue = document.getElementById('field-b-dropdown');
+      fieldADropdownValue.innerText = fieldXValue;
+      fieldBDropdownValue.innerText = fieldYValue;
+
       advancedAnalysisObject.beginComparisonChartGenerationProcess();
 
     })
