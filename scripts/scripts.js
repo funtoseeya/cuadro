@@ -1469,6 +1469,7 @@ function loadCompareTab() {
     flipButton.innerHTML = `<i class="fa-solid fa-repeat"></i>`;
     fieldFlipCol.appendChild(flipButton);
     flipButton.addEventListener('click', function () {
+      
       const aBucket = advancedAnalysisObject.compareFieldA;
       const bBucket = advancedAnalysisObject.compareFieldB;
 
@@ -1481,7 +1482,7 @@ function loadCompareTab() {
       createDropdown(fieldYParent, "By Field B", aBucket,
         (aBucket) => {
           fieldXValue = aBucket;
-          fieldYPopulateMenu(fieldYValue);
+          fieldXPopulateMenu(fieldYValue);
         });
 
       advancedAnalysisObject.compareFieldA = bBucket;
@@ -2786,7 +2787,7 @@ function // Function to create and render a chart in a Bootstrap card component 
   }
 
   function createCanvas() {
-    const existingTable = document.getElementById('heatmap-table');
+    const existingTable = document.getElementById('heatmap-container');
     if (existingTable) {
       cardBody.removeChild(existingTable);
     }
@@ -2929,7 +2930,7 @@ function // Function to create and render a chart in a Bootstrap card component 
   function createHeatmap() {
 
     //clear anything from previous analysis
-    const existingTable = document.getElementById('heatmap-table');
+    const existingTable = document.getElementById('heatmap-container');
     if (existingTable) {
       cardBody.removeChild(existingTable);
     }
@@ -2956,6 +2957,7 @@ function // Function to create and render a chart in a Bootstrap card component 
     function createTable() {
       const tableContainer = document.createElement('div');
       tableContainer.style.overflowX = 'auto';
+      tableContainer.id = 'heatmap-container';
       cardBody.appendChild(tableContainer);
 
       const table = document.createElement('table');
