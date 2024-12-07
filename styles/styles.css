@@ -281,6 +281,8 @@ th {
   z-index: 2;
   background: white; /* Ensures content underneath doesn't show through */
   border: 1px solid #ddd; /* Match table borders for seamless appearance */
+  min-width: 50px;
+  max-width: 150px;
 }
 tr{
   border: 1px solid #ddd; /* Match table borders for seamless appearance */
@@ -290,6 +292,7 @@ tr{
 th {
   top: 0; /* Sticks to the top */
   border: 1px solid #ddd; /* Match table borders for seamless appearance */
+  font-weight: normal;
 }
 
 /* Sticky first column */
