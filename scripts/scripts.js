@@ -643,16 +643,16 @@ function parseCSVToArray(file) {
   return new Promise((resolve, reject) => {
     // Function to convert CSV string to an array of objects
     function csvToArray(csv) {
-    // Match lines using regex, allowing for quoted fields, and filter out any empty lines
-    const lines = csv.match(/(?:[^\n"]|"[^"]*")+/g).filter(line => line.trim() !== '');
+      // Match lines using regex, allowing for quoted fields, and filter out any empty lines
+      const lines = csv.match(/(?:[^\n"]|"[^"]*")+/g).filter(line => line.trim() !== '');
 
-    // Split the first line into headers using regex that respects quoted fields
-    const headers = lines[0]
+      // Split the first line into headers using regex that respects quoted fields
+      const headers = lines[0]
         .split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/) // Split by commas not within quotes
         .map(header => header.trim()); // Trim any leading or trailing spaces from headers
 
-    // Process each subsequent line to map it into an object
-    const data = lines.slice(1).map(line => {
+      // Process each subsequent line to map it into an object
+      const data = lines.slice(1).map(line => {
         // Split the line into values, respecting quoted fields
         const values = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
 
@@ -660,14 +660,14 @@ function parseCSVToArray(file) {
 
         // Map each header to its corresponding value from the current line
         headers.forEach((header, index) => {
-            obj[header] = values[index]?.trim(); // Assign trimmed value to the corresponding header
+          obj[header] = values[index]?.trim(); // Assign trimmed value to the corresponding header
         });
 
         return obj; // Return the constructed object for this line
-    });
+      });
 
-    return data; // Return the array of objects representing the CSV data
-}
+      return data; // Return the array of objects representing the CSV data
+    }
 
 
     const reader = new FileReader(); // Create a new FileReader instance
@@ -1029,7 +1029,7 @@ function setupAnalyzeStep() {
 
   //create the back button
   const reviewColumn = document.createElement('div');
-  reviewColumn.className = 'col-6 p-0 d-flex align-items-center justify-content-start';
+  reviewColumn.className = 'col-12 col-md-4 p-0 d-flex align-items-center justify-content-start';
   backFilterRow.appendChild(reviewColumn);
   const reviewNavButton = document.createElement('a');
   reviewNavButton.className = 'btn tertiary-button d-none d-md-block'; // Adds Bootstrap's responsive display utility
@@ -1039,9 +1039,11 @@ function setupAnalyzeStep() {
 
 
   const filterColumn = document.createElement('div');
-  filterColumn.className = 'col-6 d-flex align-items-center justify-content-end';
+  filterColumn.className = 'col-12 col-md-8 d-flex align-items-center justify-content-end';
   filterColumn.style.padding = '0 0.5rem';
   filterColumn.id = 'filter-column';
+
+
   backFilterRow.appendChild(filterColumn);
   createFilterButton();
 
@@ -1130,24 +1132,14 @@ function loadSummaryTab() {
   const summaryTabHeaderRow = document.createElement('div');
   summaryTabHeaderRow.className = 'row align-items-center';
   summaryTabContent.appendChild(summaryTabHeaderRow);
-  
+
   //header text
   const summaryTabHeaderTextCol = document.createElement('div');
   summaryTabHeaderTextCol.className = 'col-12 col-md-8';
   summaryTabHeaderTextCol.innerHTML = '<h5>Data Distributions</h5><p>Explore how frequently categories and numbers occur in the dataset.</p>';
   summaryTabHeaderRow.appendChild(summaryTabHeaderTextCol);
 
-  //counts text
-  const numberRows = filteredData.length;
-  const numberRelevantColumns = dropdownState.filter(row => row.value==='Categorical' || row.value==='Numerical').length;   
-  const summaryTabRowCountCol = document.createElement('div');
-  summaryTabRowCountCol.className='col-12 col-md-4 text-end';
-  summaryTabRowCountCol.innerHTML = `
-  <p>
-    <span style="font-size:1.5rem">${numberRows}</span>&nbsp;Rows&nbsp;
-    <span style="font-size:1.5rem">${numberRelevantColumns}</span>&nbsp;Columns
-  </p>`;
-  summaryTabHeaderRow.appendChild(summaryTabRowCountCol);
+
 
 
   const summaryAnalysisObject = new AnalysisObject(1);
@@ -1422,7 +1414,7 @@ function loadCompareTab() {
         //create empty option
         const emptyOption = document.createElement('a')
         emptyOption.href = "#";
-    
+
         emptyOption.style.backgroundColor = 'rgb(224, 224, 224)';
         emptyOption.className = "dropdown-item text-truncate";
         emptyOption.innerText = 'Clear Selection';
@@ -1498,7 +1490,7 @@ function loadCompareTab() {
     flipButton.innerHTML = `<i class="fa-solid fa-repeat"></i>`;
     fieldFlipCol.appendChild(flipButton);
     flipButton.addEventListener('click', function () {
-      
+
       const aBucket = advancedAnalysisObject.compareFieldA;
       const bBucket = advancedAnalysisObject.compareFieldB;
 
@@ -1506,7 +1498,7 @@ function loadCompareTab() {
       fieldYValue = aBucket;
 
       fieldXPopulateMenu(fieldYValue); // Exclude the new Y value from X's menu
-  fieldYPopulateMenu(fieldXValue); // Exclude the new X value from Y's menu
+      fieldYPopulateMenu(fieldXValue); // Exclude the new X value from Y's menu
 
       advancedAnalysisObject.compareFieldA = fieldXValue;
       advancedAnalysisObject.compareFieldB = fieldYValue;
@@ -1588,12 +1580,31 @@ function loadAnalyzeButtonPanel() {
 
 
 
+function loadRowColCounts() {
+  //create counts text
+  const countDiv = document.getElementById('filter-column-count-div');
+  countDiv.innerHTML = ``;
 
+  const numberRows = filteredData.length;
+  const numberRelevantColumns = dropdownState.filter(row => row.value === 'Categorical' || row.value === 'Numerical').length;
+  const summaryTabRowCountCol = document.createElement('div');
+  summaryTabRowCountCol.innerHTML = `
+       <p class="m-0 pe-3">
+         <span style="font-size:1.5rem">${numberRows}</span>&nbsp;Rows&nbsp;
+         <span style="font-size:1.5rem">${numberRelevantColumns}</span>&nbsp;Columns
+       </p>`;
+  countDiv.appendChild(summaryTabRowCountCol);
+}
 
 
 // function to Create the filter dropdown using the Categorical array
 function createFilterButton() {
   const filterColumn = document.getElementById('filter-column');
+
+  const countDiv = document.createElement('div');
+  countDiv.id = 'filter-column-count-div';
+  filterColumn.appendChild(countDiv);
+  loadRowColCounts();
 
   // Create the menu container
   const dropdownContainer = document.createElement('div');
@@ -1733,7 +1744,7 @@ function createFilterButton() {
 
     console.log('analysis objects:', analysisObjects);
 
-
+    loadRowColCounts();
   }
 
   // Append elements to the dropdown container
@@ -2686,7 +2697,7 @@ function // Function to create and render a chart in a Bootstrap card component 
   cardBody.appendChild(cardTitleRow);
   cardBody.appendChild(cardFiltersRow);
   card.appendChild(cardBody);
-  container.appendChild(card); 
+  container.appendChild(card);
 
   const chartContainer = document.createElement('div');
   cardBody.appendChild(chartContainer);
@@ -2818,7 +2829,7 @@ function // Function to create and render a chart in a Bootstrap card component 
   }
 
   function createCanvas() {
-    chartContainer.innerHTML='';
+    chartContainer.innerHTML = '';
 
     const canvas = document.createElement('canvas');
 
@@ -2949,8 +2960,8 @@ function // Function to create and render a chart in a Bootstrap card component 
   }
   function createHeatmap() {
 
-    chartContainer.innerHTML='';
-      
+    chartContainer.innerHTML = '';
+
 
     //heatmap settings
     const heatmapSettingsRow = document.createElement('div');
