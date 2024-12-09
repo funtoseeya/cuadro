@@ -643,32 +643,32 @@ function parseCSVToArray(file) {
   return new Promise((resolve, reject) => {
     // Function to convert CSV string to an array of objects
     function csvToArray(csv) {
-      // Match lines using regex, allowing for quoted fields, and filter out any empty lines
-      const lines = csv.match(/(?:[^\n"]|"[^"]*")+/g).filter(line => line.trim() !== '');
-  
-      // Split the first line into headers using regex that respects quoted fields
-      const headers = lines[0]
-          .split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/) // Split by commas not within quotes
-          .map(header => header.trim()); // Trim any leading or trailing spaces from headers
-  
-      // Process each subsequent line to map it into an object
-      const data = lines.slice(1).map(line => {
-          // Split the line into values, respecting quoted fields
-          const values = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
-  
-          let obj = {}; // Initialize an empty object to hold the key-value pairs for this line
-  
-          // Map each header to its corresponding value from the current line
-          headers.forEach((header, index) => {
-              obj[header] = values[index]?.trim(); // Assign trimmed value to the corresponding header
-          });
-  
-          return obj; // Return the constructed object for this line
-      });
-  
-      return data; // Return the array of objects representing the CSV data
-  }
-  
+    // Match lines using regex, allowing for quoted fields, and filter out any empty lines
+    const lines = csv.match(/(?:[^\n"]|"[^"]*")+/g).filter(line => line.trim() !== '');
+
+    // Split the first line into headers using regex that respects quoted fields
+    const headers = lines[0]
+        .split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/) // Split by commas not within quotes
+        .map(header => header.trim()); // Trim any leading or trailing spaces from headers
+
+    // Process each subsequent line to map it into an object
+    const data = lines.slice(1).map(line => {
+        // Split the line into values, respecting quoted fields
+        const values = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+
+        let obj = {}; // Initialize an empty object to hold the key-value pairs for this line
+
+        // Map each header to its corresponding value from the current line
+        headers.forEach((header, index) => {
+            obj[header] = values[index]?.trim(); // Assign trimmed value to the corresponding header
+        });
+
+        return obj; // Return the constructed object for this line
+    });
+
+    return data; // Return the array of objects representing the CSV data
+}
+
 
     const reader = new FileReader(); // Create a new FileReader instance
 
@@ -1102,7 +1102,6 @@ function setupAnalyzeStep() {
   summaryTabContent.className = 'tab-pane fade show active mt-3';
   summaryTabContent.id = 'summary-tab-content';
   summaryTabContent.role = 'tabpanel';
-  summaryTabContent.innerHTML = '<h5>Data Distributions</h5><p>Explore how frequently categories and numbers occur in the dataset.</p>';
   tabContent.appendChild(summaryTabContent);
 
   // Advanced tab content
@@ -1126,6 +1125,31 @@ function setupAnalyzeStep() {
 
 
 function loadSummaryTab() {
+
+  const summaryTabContent = document.getElementById('summary-tab-content');
+  const summaryTabHeaderRow = document.createElement('div');
+  summaryTabHeaderRow.className = 'row align-items-center';
+  summaryTabContent.appendChild(summaryTabHeaderRow);
+  
+  //header text
+  const summaryTabHeaderTextCol = document.createElement('div');
+  summaryTabHeaderTextCol.className = 'col-12 col-md-8';
+  summaryTabHeaderTextCol.innerHTML = '<h5>Data Distributions</h5><p>Explore how frequently categories and numbers occur in the dataset.</p>';
+  summaryTabHeaderRow.appendChild(summaryTabHeaderTextCol);
+
+  //counts text
+  const numberRows = filteredData.length;
+  const numberRelevantColumns = dropdownState.filter(row => row.value==='Categorical' || row.value==='Numerical').length;   
+  const summaryTabRowCountCol = document.createElement('div');
+  summaryTabRowCountCol.className='col-12 col-md-4 text-end';
+  summaryTabRowCountCol.innerHTML = `
+  <p>
+    <span style="font-size:1.5rem">${numberRows}</span>&nbsp;Rows&nbsp;
+    <span style="font-size:1.5rem">${numberRelevantColumns}</span>&nbsp;Columns
+  </p>`;
+  summaryTabHeaderRow.appendChild(summaryTabRowCountCol);
+
+
   const summaryAnalysisObject = new AnalysisObject(1);
   const summaryValue = dropdownState.filter(field => field.value === 'Categorical' || field.value === 'Numerical').map(field => field.header);
   summaryAnalysisObject.analysisType = 'distribution';
