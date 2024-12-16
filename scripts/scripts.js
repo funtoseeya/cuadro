@@ -1062,7 +1062,7 @@ function setupAnalyzeStep() {
 
 
   backFilterRow.appendChild(filterColumn);
-  createFilterButton();
+  createFilterUI();
 
   // Create the tab panel
   const tabPanelRow = document.createElement('div');
@@ -1615,7 +1615,7 @@ function loadRowColCounts() {
 
 
 // function to Create the filter dropdown using the Categorical array
-function createFilterButton() {
+function createFilterUI() {
   const filterColumn = document.getElementById('filter-column');
 
   const countDiv = document.createElement('div');
@@ -1623,157 +1623,163 @@ function createFilterButton() {
   filterColumn.appendChild(countDiv);
   loadRowColCounts();
 
-  // Create the menu container
-  const dropdownContainer = document.createElement('div');
-  dropdownContainer.classList.add('dropdown');
+  // Create the filter button
+  const filterButton = document.createElement('button');
+  filterButton.className = 'btn btn-grey';
+  filterButton.type = 'button';
+  filterButton.innerHTML = `<i class="fa-solid fa-filter"></i> Filter`;
+  filterButton.setAttribute('data-bs-toggle', 'offcanvas');
+  filterButton.setAttribute('data-bs-target', '#filterSidePanel');
+  filterButton.setAttribute('aria-controls', 'filterSidePanel');
 
-  // Create the button
-  const filterSelect = document.createElement('button');
-  filterSelect.innerHTML = `<i class="fa-solid fa-filter"></i> Filter`;
-  filterSelect.className = 'btn btn-grey';
-  filterSelect.type = 'button';
-  filterSelect.id = 'filter-select';
-  filterSelect.setAttribute('data-bs-toggle', 'dropdown');
-  filterSelect.setAttribute('aria-expanded', 'false');
+  // Add filter button to the filter column
+  filterColumn.appendChild(filterButton);
 
-  // Create the menu
-  const filterMenu = document.createElement('ul');
-  filterMenu.classList.add('dropdown-menu');
-  filterMenu.id = 'filtered-by-list';
+  // Create the side panel (offcanvas) for filter options
+  const sidePanelHTML = `
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="filterSidePanel" aria-labelledby="filterSidePanelLabel">
+      <div class="offcanvas-header">
+        <h5 id="filterSidePanelLabel">Filters</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <div id="filterContainer"></div>
+        <button class="btn btn-primary w-100 mt-3" id="applyFiltersButton">Apply Filters</button>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', sidePanelHTML);
 
-  filterMenu.style.maxHeight = '300px'; // Adjust max-height as needed
-  filterMenu.style.maxWidth = '400px';
-  filterMenu.style.overflowY = 'auto';
-  filterMenu.style.overflowX = 'hidden';
+  // Generate and populate the filters dynamically
+  generateFilters();
+}
 
-  let itemToHeaderMap = new Map();
+function generateFilters() {
+  const filterContainer = document.getElementById('filterContainer');
+  filterContainer.innerHTML = ''; // Clear any existing filters
 
-  // Populate the dropdown with headers and options
   CategoricalArray.forEach(group => {
-    for (const [header, values] of Object.entries(group)) {
-      values.forEach(value => {
-        itemToHeaderMap.set(value, header);
-      });
-      // Create and append header
-      const headerItem = document.createElement('li');
-      headerItem.classList.add('dropdown-header');
-      headerItem.textContent = header;
-      filterMenu.appendChild(headerItem);
+    Object.entries(group).forEach(([header, values]) => {
+      // Create category filter (checkboxes)
+      const filterGroup = document.createElement('div');
+      filterGroup.classList.add('mb-3');
 
-      // Create and append divider
-      const divider = document.createElement('li');
-      divider.classList.add('dropdown-divider');
-      filterMenu.appendChild(divider);
+      const filterLabel = document.createElement('h6');
+      filterLabel.textContent = header;
+      filterGroup.appendChild(filterLabel);
 
-      // Create and append options
       values.forEach(value => {
-        const item = document.createElement('li');
-        item.classList.add('dropdown-item');
+        const checkboxContainer = document.createElement('div');
+        checkboxContainer.classList.add('form-check');
 
         const checkbox = document.createElement('input');
+        checkbox.classList.add('form-check-input');
         checkbox.type = 'checkbox';
-        checkbox.id = value;
+        checkbox.id = `${header}-${value}`;
         checkbox.value = value;
 
         const label = document.createElement('label');
-        label.htmlFor = value;
+        label.classList.add('form-check-label');
+        label.htmlFor = `${header}-${value}`;
         label.textContent = value;
-        label.style.marginLeft = '10px';
 
-        item.appendChild(checkbox);
-        item.appendChild(label);
-
-        filterMenu.appendChild(item);
-
-        // Add event listener to update button text when checkbox is changed
-        item.addEventListener('change', () => {
-          filterData();
-        });
+        checkboxContainer.appendChild(checkbox);
+        checkboxContainer.appendChild(label);
+        filterGroup.appendChild(checkboxContainer);
       });
+
+      filterContainer.appendChild(filterGroup);
+    });
+  });
+
+  // Generate date range pickers for date fields
+  const dateFields = dropdownState.filter(item => isDateField(item.header));
+  dateFields.forEach(field => {
+    const dateRangeContainer = document.createElement('div');
+    dateRangeContainer.classList.add('mb-3');
+
+    const dateRangeLabel = document.createElement('h6');
+    dateRangeLabel.textContent = `Select Date Range for ${field.header}`;
+    dateRangeContainer.appendChild(dateRangeLabel);
+
+    const startDateInput = document.createElement('input');
+    startDateInput.classList.add('form-control');
+    startDateInput.type = 'date';
+    startDateInput.id = `${field.header}-start`;
+
+    const endDateInput = document.createElement('input');
+    endDateInput.classList.add('form-control');
+    endDateInput.type = 'date';
+    endDateInput.id = `${field.header}-end`;
+
+    dateRangeContainer.appendChild(startDateInput);
+    dateRangeContainer.appendChild(endDateInput);
+    filterContainer.appendChild(dateRangeContainer);
+  });
+
+  // Event listener for "Apply Filters" button
+  document.getElementById('applyFiltersButton').addEventListener('click', () => {
+    filterData();
+  });
+}
+
+function isDateField(header) {
+  // Assuming dropdownState contains the headers for date fields
+  return dropdownState.some(item => item.header === header && item.value === 'date');
+}
+
+function filterData() {
+  filteredData = [];
+  
+  // Collect selected category filters (checkboxes)
+  const selectedValues = Array.from(
+    document.querySelectorAll('#filterContainer .form-check-input:checked')
+  ).map(checkbox => {
+    const header = checkbox.id.split('-')[0];
+    return { header, value: checkbox.value };
+  });
+
+  // Collect selected date ranges
+  const dateFilters = [];
+  const dateFields = dropdownState.filter(item => isDateField(item.header));
+  dateFields.forEach(field => {
+    const startDate = document.getElementById(`${field.header}-start`).value;
+    const endDate = document.getElementById(`${field.header}-end`).value;
+    if (startDate || endDate) {
+      dateFilters.push({ header: field.header, startDate, endDate });
     }
   });
 
-  // Function to update the Filtered by array based on selected checkboxes
-  function filterData() {
-    filteredData = [];
-    const selectedValues = Array.from(
-      document.querySelectorAll(
-        '#filter-select ~ .dropdown-menu input[type="checkbox"]:checked'
-      )
-    ).map(checkbox => {
-      const value = checkbox.value;
-      const header = itemToHeaderMap.get(value);
-      return { header, value };
+  // Filter data based on selected category filters and date ranges
+  parsedCSVData.forEach(item => {
+    const matchesCategories = selectedValues.every(filter => item[filter.header] === filter.value);
+    const matchesDateRanges = dateFilters.every(filter => {
+      const dateValue = new Date(item[filter.header]);
+      const startDate = new Date(filter.startDate);
+      const endDate = new Date(filter.endDate);
+      return (
+        (!filter.startDate || dateValue >= startDate) &&
+        (!filter.endDate || dateValue <= endDate)
+      );
     });
 
-    function matchesFilter(item, filters) {
-      // Loop through each filter
-      for (let i = 0; i < filters.length; i++) {
-        let filter = filters[i];
-        let header = filter.header;
-        let value = filter.value;
-
-        // Check if this item matches the filter
-        if (item[header] === value) {
-          // If it matches, continue to the next filter
-          continue;
-        } else {
-          // If it doesn't match, check if there is another filter with the same header and a matching value
-          let hasAnotherMatch = false;
-          for (let j = 0; j < filters.length; j++) {
-            if (
-              filters[j].header === header &&
-              item[header] === filters[j].value
-            ) {
-              hasAnotherMatch = true;
-              break;
-            }
-          }
-          // If no other match is found for the same header, return false
-          if (!hasAnotherMatch) {
-            return false;
-          }
-        }
-      }
-
-      // If the item passes all filters, return true
-      return true;
+    if (matchesCategories && matchesDateRanges) {
+      filteredData.push(item);
     }
-
-    // Filter the array based on applied filters
-    for (let i = 0; i < parsedCSVData.length; i++) {
-      let item = parsedCSVData[i]; // Get the current item from parsedCSVData
-      if (matchesFilter(item, selectedValues)) {
-        // Check if the item matches the filters
-        filteredData.push(item); // If it matches, add it to the filtered array
-      }
-    }
-
-    // Find each AnalysisObject and update its filteredBy array
-    analysisObjects.forEach(obj => {
-      obj.filteredBy = selectedValues;
-    })
-    const summaryAnalysisObject = analysisObjects.find(obj => obj.id === 1);
-    summaryAnalysisObject.beginSummaryChartGenerationProcess(summaryAnalysisObject.analysisType);
-
-    const advancedAnalysisObject = analysisObjects.find(obj => obj.id === 2);
-    advancedAnalysisObject.beginComparisonChartGenerationProcess(advancedAnalysisObject.analysisType);
-
-    console.log('analysis objects:', analysisObjects);
-
-    loadRowColCounts();
-  }
-
-  // Append elements to the dropdown container
-  dropdownContainer.appendChild(filterSelect);
-  dropdownContainer.appendChild(filterMenu);
-
-  filterColumn.appendChild(dropdownContainer);
-
-  // Prevent dropdown menu from closing when clicking inside
-  filterMenu.addEventListener('click', function (event) {
-    event.stopPropagation();
   });
+
+  // Update analysis objects
+  analysisObjects.forEach(obj => {
+    obj.filteredBy = [...selectedValues, ...dateFilters];
+  });
+
+  // Trigger chart regeneration processes
+  const summaryAnalysisObject = analysisObjects.find(obj => obj.id === 1);
+  summaryAnalysisObject.beginSummaryChartGenerationProcess(summaryAnalysisObject.analysisType);
+
+  const advancedAnalysisObject = analysisObjects.find(obj => obj.id === 2);
+  advancedAnalysisObject.beginComparisonChartGenerationProcess(advancedAnalysisObject.analysisType);
+
 }
 
 
