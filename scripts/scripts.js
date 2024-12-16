@@ -1720,12 +1720,23 @@ function generateFilters() {
   // Event listener for "Apply Filters" button
   document.getElementById('applyFiltersButton').addEventListener('click', () => {
     filterData();
+// Check if the offcanvas instance is already initialized
+const offcanvasInstance = bootstrap.Offcanvas.getInstance(filterSidePanel);
+  
+// If it's already initialized, hide it
+if (offcanvasInstance) {
+  offcanvasInstance.hide();
+} else {
+  // If not, initialize and then hide it
+  const newOffcanvasInstance = new bootstrap.Offcanvas(filterSidePanel);
+  newOffcanvasInstance.hide();
+}
   });
 }
 
 function isDateField(header) {
   // Assuming dropdownState contains the headers for date fields
-  return dropdownState.some(item => item.header === header && item.value === 'date');
+  return dropdownState.some(item => item.header === header && item.value === 'Date / Time');
 }
 
 function filterData() {
@@ -1780,6 +1791,7 @@ function filterData() {
   const advancedAnalysisObject = analysisObjects.find(obj => obj.id === 2);
   advancedAnalysisObject.beginComparisonChartGenerationProcess(advancedAnalysisObject.analysisType);
 
+  loadRowColCounts();
 }
 
 
