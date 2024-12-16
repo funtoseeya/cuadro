@@ -625,7 +625,7 @@ function generateReviewTable(body) {
         NumberFormattingWarning(header);
       }
       if (selectedValue === 'Date / Time') {
-        unsupportedDataTypesToast();
+        dateFormattingWarning(header);
       }
     });
 
@@ -720,40 +720,56 @@ function saveDataTypestoArray() {
 
 function guessDataTypes() {
 
-  const headers = Object.keys(parsedCSVData[0]);//get an array listing each header. 
+  const headers = Object.keys(parsedCSVData[0]); // get an array listing each header. 
   dropdownState = [];
 
   headers.forEach(header => {
-    const values = parsedCSVData.map(row => row[header]); //an array of all the values relating to that header in the big array
+    const values = parsedCSVData.map(row => row[header]); // an array of all the values relating to that header in the big array
     let isNumeric = true;
+    let isDate = true;
 
-    for (let i = 0; i < values.length; i++) { //go thru all values and ensure they are numbers
+    // Check if all values are numeric
+    for (let i = 0; i < values.length; i++) { 
       const numberCheck = Number(values[i].trim());
       if (isNaN(numberCheck)) {
-        isNumeric = false;  //if at least one value isn't numeric, we say so and move on
+        isNumeric = false; // if at least one value isn't numeric, mark as false
         break;
       }
     }
 
+    // If not numeric, check if all values are dates
+    if (!isNumeric) {
+      for (let i = 0; i < values.length; i++) {
+        const dateCheck = new Date(values[i].trim());
+        if (isNaN(dateCheck.getTime())) {
+          isDate = false; // if at least one value isn't a valid date, mark as false
+          break;
+        }
+      }
+    }
+
+    // Classify the header based on the type
     if (isNumeric) {
       guessedCSVheaderClassification[header] = 'Numerical';
-    }
-    else {
-      const uniqueValues = new Set(values); //find all unique values relating to the header
+    } else if (isDate) {
+      guessedCSVheaderClassification[header] = 'Date / Time';
+    } else {
+      const uniqueValues = new Set(values); // find all unique values relating to the header
       const uniqueRatio = uniqueValues.size / values.length;
-      if (uniqueRatio < 0.4) { // if the ratio of unique values to actual values is low, chances are high that it's categorical
+      if (uniqueRatio < 0.4) { // if the ratio of unique values to actual values is low, classify as categorical
         guessedCSVheaderClassification[header] = 'Categorical';
-      }
-      else {
+      } else {
         guessedCSVheaderClassification[header] = 'Ignore';
       }
     }
-    //need to push these to dropdown state as default values. 
-    dropdownState.push({ header: header, value: guessedCSVheaderClassification[header] });
 
-  })
+    // Push these to dropdown state as default values
+    dropdownState.push({ header: header, value: guessedCSVheaderClassification[header] });
+  });
+
   console.log('guessed data types: ', dropdownState);
 }
+
 
 async function reviewData() {
 
@@ -857,7 +873,21 @@ async function reviewData() {
       <ul>
         <li><strong><i class="fa-solid fa-shapes"></i> Categorical:</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. A field with unique values doesn't fall into Categorical - it should be set to Ignore.</li>
         <li><strong><i class="fa-solid fa-hashtag"></i> Numerical:</strong> This is for any field containing numerical values. We will compute these by summing or averaging them, rather than counting them.</li>
-        <li><strong><i class="fa-regular fa-calendar"></i> Date / Time:</strong> This is for any field containing timestamps. This is especially useful for generating trend analyses.</li>
+        <li><strong><i class="fa-regular fa-calendar"></i> Date / Time:</strong> This is for any field containing dates and timestamps. This is especially useful for generating trend analyses. 
+         Please ensure that dates are in one of the following formats, using January 1st, 2025 as an example: 
+        <br>
+<ul>
+  <li>2025-01-01</li>
+  <li>2025-01-01T00:00:00</li>
+  <li>2025-01-01T00:00:00Z</li>
+  <li>2025-01-01T00:00:00+02:00</li>
+  <li>Wed, 01 Jan 2025 00:00:00 GMT</li>
+  <li>01 Jan 2025 00:00:00 GMT</li>
+  <li>01/01/2025</li>
+  <li>January 1, 2025</li>
+  <li>Jan 1, 2025</li>
+</ul>
+</li>
         <li><strong>Ignore:</strong> Assign this to any field that doesn't fall into the above categories. e.g. comments, names, unique identifiers, etc.</li>
       </ul>
     </div>
@@ -932,30 +962,17 @@ function NumberFormattingWarning(event) {
   }
 }
 
-function unsupportedDataTypesToast() {
-  const parentDiv = document.getElementById('toastContainer'); // Replace with your parent div ID
-  parentDiv.innerHTML = ''; // Clear any existing content
-
-  const toastHtml = `
-            <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
-                <div class="toast" style="background-color: #fff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-                    <div class="toast-header" style="background-color: #ffce44;">
-                        <strong class="mr-auto">Coming soon</strong>
-                    </div>
-                    <div class="toast-body">
-                    We do not yet support Date / Time based data.
-                    <br> It's coming soon though!
-                    </div>
-                </div>
-            </div>`;
-
-  parentDiv.innerHTML = toastHtml;
-
-  // Initialize the toast using Bootstrap's JS API
-  const toastElement = parentDiv.querySelector('.toast');
-  const toast = new bootstrap.Toast(toastElement);
-  toast.show();
+function dateFormattingWarning(event) {
+  for (let i = 0; i < parsedCSVData.length; i++) {
+    const dateCheck = new Date(parsedCSVData[i][event].trim());
+    if (isNaN(dateCheck.getTime())) {
+      alert('At least one of the values in this field is not a date. Please review your data or select another data type.');
+      break;
+    }
+  }
 }
+
+
 
 
 // ANALYZE STEP
@@ -1135,7 +1152,7 @@ function loadSummaryTab() {
 
   //header text
   const summaryTabHeaderTextCol = document.createElement('div');
-  summaryTabHeaderTextCol.className = 'col-12 col-md-8';
+  summaryTabHeaderTextCol.className = 'col-12 col-md-12';
   summaryTabHeaderTextCol.innerHTML = '<h5>Data Distributions</h5><p>Explore how frequently categories and numbers occur in the dataset.</p>';
   summaryTabHeaderRow.appendChild(summaryTabHeaderTextCol);
 
