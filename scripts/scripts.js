@@ -1947,8 +1947,9 @@ class AnalysisObject {
   }
 
   beginComparisonChartGenerationProcess() {
-    if (filteredData.length === 0) {
-      let cardsContainer = document.getElementById(`advanced-tab-cards-container`);
+    let cardsContainer = document.getElementById(`advanced-tab-cards-container`);
+
+    if (filteredData.length === 0 && cardsContainer) {
       cardsContainer.innerHTML = '';
 
       // Create the card element
