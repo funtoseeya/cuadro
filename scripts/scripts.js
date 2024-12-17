@@ -729,7 +729,7 @@ function guessDataTypes() {
     let isDate = true;
 
     // Check if all values are numeric
-    for (let i = 0; i < values.length; i++) { 
+    for (let i = 0; i < values.length; i++) {
       const numberCheck = Number(values[i].trim());
       if (isNaN(numberCheck)) {
         isNumeric = false; // if at least one value isn't numeric, mark as false
@@ -1658,6 +1658,44 @@ function generateFilters() {
   const filterContainer = document.getElementById('filterContainer');
   filterContainer.innerHTML = ''; // Clear any existing filters
 
+
+  // Generate date range pickers for date fields using Flatpickr
+  const dateFields = dropdownState.filter(item => isDateField(item.header));
+
+  dateFields.forEach(field => {
+    const dateRangeContainer = document.createElement('div');
+    dateRangeContainer.classList.add('mb-3');
+
+    const dateRangeLabel = document.createElement('h6');
+    dateRangeLabel.textContent = `${field.header}`;
+    dateRangeContainer.appendChild(dateRangeLabel);
+
+    // Create the input field for the date range picker
+    const dateRangeInput = document.createElement('input');
+    dateRangeInput.classList.add('form-control');
+    dateRangeInput.placeholder = `Select date range`;
+    dateRangeInput.type = 'text';
+    dateRangeInput.id = `${field.header}-range`;
+
+    dateRangeContainer.appendChild(dateRangeInput);
+    filterContainer.appendChild(dateRangeContainer);
+
+    // Initialize Flatpickr on the input field
+    flatpickr(dateRangeInput, {
+      disableMobile: false, // Use native date picker on mobile devices
+      mode: 'range', // Enables date range selection
+      dateFormat: 'Y-m-d', // Format to match your date fields
+      onChange: function (selectedDates) {
+        if (selectedDates.length === 2) {
+          const [startDate, endDate] = selectedDates;
+          console.log('Selected Date Range:', { startDate, endDate });
+          // Store the date range temporarily for filtering
+          dateRangeInput.dataset.startDate = startDate.toISOString();
+          dateRangeInput.dataset.endDate = endDate.toISOString();
+        }}
+    });
+  });
+
   CategoricalArray.forEach(group => {
     Object.entries(group).forEach(([header, values]) => {
       // Create category filter (checkboxes)
@@ -1692,45 +1730,21 @@ function generateFilters() {
     });
   });
 
-  // Generate date range pickers for date fields
-  const dateFields = dropdownState.filter(item => isDateField(item.header));
-  dateFields.forEach(field => {
-    const dateRangeContainer = document.createElement('div');
-    dateRangeContainer.classList.add('mb-3');
-
-    const dateRangeLabel = document.createElement('h6');
-    dateRangeLabel.textContent = `Select Date Range for ${field.header}`;
-    dateRangeContainer.appendChild(dateRangeLabel);
-
-    const startDateInput = document.createElement('input');
-    startDateInput.classList.add('form-control');
-    startDateInput.type = 'date';
-    startDateInput.id = `${field.header}-start`;
-
-    const endDateInput = document.createElement('input');
-    endDateInput.classList.add('form-control');
-    endDateInput.type = 'date';
-    endDateInput.id = `${field.header}-end`;
-
-    dateRangeContainer.appendChild(startDateInput);
-    dateRangeContainer.appendChild(endDateInput);
-    filterContainer.appendChild(dateRangeContainer);
-  });
 
   // Event listener for "Apply Filters" button
   document.getElementById('applyFiltersButton').addEventListener('click', () => {
     filterData();
-// Check if the offcanvas instance is already initialized
-const offcanvasInstance = bootstrap.Offcanvas.getInstance(filterSidePanel);
-  
-// If it's already initialized, hide it
-if (offcanvasInstance) {
-  offcanvasInstance.hide();
-} else {
-  // If not, initialize and then hide it
-  const newOffcanvasInstance = new bootstrap.Offcanvas(filterSidePanel);
-  newOffcanvasInstance.hide();
-}
+    // Check if the offcanvas instance is already initialized
+    const offcanvasInstance = bootstrap.Offcanvas.getInstance(filterSidePanel);
+
+    // If it's already initialized, hide it
+    if (offcanvasInstance) {
+      offcanvasInstance.hide();
+    } else {
+      // If not, initialize and then hide it
+      const newOffcanvasInstance = new bootstrap.Offcanvas(filterSidePanel);
+      newOffcanvasInstance.hide();
+    }
   });
 }
 
@@ -1739,58 +1753,84 @@ function isDateField(header) {
   return dropdownState.some(item => item.header === header && item.value === 'Date / Time');
 }
 
+// selectedvalues empty...
+// i think it assumes that user can only pick one date range
+// badges need adjustment
+//datepicker is not mobile friendly
+
+
 function filterData() {
   filteredData = [];
-  
-  // Collect selected category filters (checkboxes)
-  const selectedValues = Array.from(
-    document.querySelectorAll('#filterContainer .form-check-input:checked')
-  ).map(checkbox => {
-    const header = checkbox.id.split('-')[0];
-    return { header, value: checkbox.value };
-  });
+  const selectedValues = [];
 
-  // Collect selected date ranges
-  const dateFilters = [];
-  const dateFields = dropdownState.filter(item => isDateField(item.header));
-  dateFields.forEach(field => {
-    const startDate = document.getElementById(`${field.header}-start`).value;
-    const endDate = document.getElementById(`${field.header}-end`).value;
-    if (startDate || endDate) {
-      dateFilters.push({ header: field.header, startDate, endDate });
-    }
-  });
-
-  // Filter data based on selected category filters and date ranges
-  parsedCSVData.forEach(item => {
-    const matchesCategories = selectedValues.every(filter => item[filter.header] === filter.value);
-    const matchesDateRanges = dateFilters.every(filter => {
-      const dateValue = new Date(item[filter.header]);
-      const startDate = new Date(filter.startDate);
-      const endDate = new Date(filter.endDate);
-      return (
-        (!filter.startDate || dateValue >= startDate) &&
-        (!filter.endDate || dateValue <= endDate)
-      );
+  // Capture selected checkboxes
+  document.querySelectorAll('#filterContainer input[type="checkbox"]:checked')
+    .forEach(checkbox => {
+      const value = checkbox.value;
+      const header = checkbox.id.split('-')[0]; // Extract header from checkbox ID
+      selectedValues.push({ header, value });
     });
 
-    if (matchesCategories && matchesDateRanges) {
-      filteredData.push(item);
+
+  // Process date range filters
+  const dateFields = dropdownState.filter(item => isDateField(item.header));
+  dateFields.forEach(field => {
+    const dateRangeInput = document.getElementById(`${field.header}-range`);
+    const startDate = dateRangeInput.dataset.startDate;
+    const endDate = dateRangeInput.dataset.endDate;
+  
+    if (startDate && endDate) {
+      selectedValues.push({
+        header: field.header,
+        value: { startDate: new Date(startDate), endDate: new Date(endDate) }
+      });
     }
   });
+  
+  console.log('Selected Filters:', selectedValues);
 
-  // Update analysis objects
+  function matchesFilter(item, filters) {
+    for (let filter of filters) {
+      const { header, value } = filter;
+
+      if (value && value.startDate && value.endDate) {
+        // If it's a date range filter
+        const itemDate = new Date(item[header]);
+
+        if (isNaN(itemDate.getTime()) || itemDate < value.startDate || itemDate > value.endDate) {
+          return false;
+        }
+      } else if (item[header] !== value) {
+        // If it's a checkbox filter
+        if (item[header] !== value) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+
+  // Loop through parsedCSVData and apply the filter
+  for (let item of parsedCSVData) {
+    if (matchesFilter(item, selectedValues)) {
+      filteredData.push(item);
+    }
+  }
+
+  // Update analysis objects with filtered data
   analysisObjects.forEach(obj => {
-    obj.filteredBy = [...selectedValues, ...dateFilters];
+    obj.filteredBy = selectedValues;
   });
 
-  // Trigger chart regeneration processes
   const summaryAnalysisObject = analysisObjects.find(obj => obj.id === 1);
   summaryAnalysisObject.beginSummaryChartGenerationProcess(summaryAnalysisObject.analysisType);
 
   const advancedAnalysisObject = analysisObjects.find(obj => obj.id === 2);
   advancedAnalysisObject.beginComparisonChartGenerationProcess(advancedAnalysisObject.analysisType);
 
+  console.log('Filtered Data:', filteredData);
   loadRowColCounts();
 }
 
