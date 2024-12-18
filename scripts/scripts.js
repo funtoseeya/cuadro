@@ -585,12 +585,16 @@ function generateReviewTable(body) {
 
     const cell1 = document.createElement('td');
     cell1.style.width = '25%';
+    cell1.style.wordBreak = 'break-word'; // Break long words
+    cell1.style.overflowWrap = 'break-word'; // Ensures wrapping for long content
     cell1.textContent = header; //the first column will contain the dropdown state header
     row.appendChild(cell1);
 
     // Data sample
     const cell2 = document.createElement('td');
     cell2.style.width = '50%';
+    cell2.style.wordBreak = 'break-word'; // Break long words
+    cell2.style.overflowWrap = 'break-word'; // Ensures wrapping for long content
     const samples = parsedCSVData
       .slice(0, 3)
       .map(data => data[header])
@@ -758,7 +762,7 @@ function guessDataTypes() {
       guessedCSVheaderClassification[header] = 'Date / Time';
     } else {
       const uniqueValues = new Set(values); // find all unique values relating to the header
-      const uniqueRatio = uniqueValues.size / values.length;
+      const uniqueRatio = uniqueValues.size / values.filter(value => value != '').length;
       if (uniqueRatio < 0.4) { // if the ratio of unique values to actual values is low, classify as categorical
         guessedCSVheaderClassification[header] = 'Categorical';
       } else {
