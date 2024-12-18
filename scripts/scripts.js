@@ -2952,7 +2952,19 @@ function // Function to create and render a chart in a Bootstrap card component 
         cardFilter.textContent = filters[i].value;
       }
       else {
-        cardFilter.textContent = filters[i].header;
+
+        function cleanDate(date) {
+            const d = new Date(date); // Parse the string into a Date object
+            const year = d.getFullYear(); // Extract the year
+            const month = String(d.getMonth() + 1).padStart(2, '0'); // Extract and pad the month (0-based index)
+            const day = String(d.getDate()).padStart(2, '0'); // Extract and pad the day
+            return `${year}-${month}-${day}`; // Combine in ISO format
+          ;
+        }
+
+        const startDate = cleanDate(filters[i].value.startDate);
+        const endDate = cleanDate(filters[i].value.endDate);
+        cardFilter.textContent = filters[i].header +': '+startDate+' - '+endDate;
       }
         cardFiltersColumn.appendChild(cardFilter);
   }
