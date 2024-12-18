@@ -1648,8 +1648,11 @@ function createFilterUI() {
       </div>
       <div class="offcanvas-body">
         <div id="filterContainer"></div>
-        <button class="btn btn-primary w-100 mt-3" id="applyFiltersButton">Apply Filters</button>
+      
       </div>
+        <div id="filter-button-container" style="text-align:center; position: sticky; bottom: 0px; z-index: 1000; background-color: white; box-shadow: rgba(0, 0, 0, 0.1) 0px -4px 10px; display: block;">
+        <button class="btn btn-primary m-2" id="applyFiltersButton">Apply Filters</button>
+        </div>
     </div>
   `;
   document.body.insertAdjacentHTML('beforeend', sidePanelHTML);
