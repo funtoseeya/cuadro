@@ -663,7 +663,7 @@ function parseCSVToArray(file) {
           obj[header] = values[index]?.trim().replace(/^"|"$/g, ''); // Assign trimmed value to the corresponding header
         });
 
-    
+
 
         return obj; // Return the constructed object for this line
       });
@@ -1652,6 +1652,8 @@ function createFilterUI() {
       </div>
         <div id="filter-button-container" style="text-align:center; position: sticky; bottom: 0px; z-index: 1000; background-color: white; box-shadow: rgba(0, 0, 0, 0.1) 0px -4px 10px; display: block;">
         <button class="btn btn-primary m-2" id="applyFiltersButton">Apply Filters</button>
+        <button class="btn btn-secondary m-2" id="resetFiltersButton">Reset Filters</button>
+
         </div>
     </div>
   `;
@@ -1695,7 +1697,6 @@ function generateFilters() {
       onChange: function (selectedDates) {
         if (selectedDates.length === 2) {
           const [startDate, endDate] = selectedDates;
-          console.log('Selected Date Range:', { startDate, endDate });
           // Store the date range temporarily for filtering
           dateRangeInput.dataset.startDate = startDate.toISOString();
           dateRangeInput.dataset.endDate = endDate.toISOString();
@@ -1754,6 +1755,27 @@ function generateFilters() {
       newOffcanvasInstance.hide();
     }
   });
+
+  document.getElementById('resetFiltersButton').addEventListener('click', function () {
+
+    //clear checkboxes
+    document.querySelectorAll('#filterContainer input[type="checkbox"]:checked').forEach(checkbox => checkbox.checked = false);
+
+    //clear date fields
+    const dateFields = dropdownState.filter(item => isDateField(item.header));
+    dateFields.forEach(field => {
+      const dateRangeInput = document.getElementById(`${field.header}-range`);
+
+      dateRangeInput.dataset.startDate = ''; 
+      dateRangeInput.dataset.endDate = '';
+      dateRangeInput.value = '';
+     
+    });
+
+    filterData();
+
+   
+  })
 }
 
 function isDateField(header) {
@@ -1795,7 +1817,6 @@ function filterData() {
     }
   });
 
-  console.log('Selected Filters:', selectedValues);
 
   function matchesFilter(item, filters) {
     for (let filter of filters) {
@@ -2950,26 +2971,26 @@ function // Function to create and render a chart in a Bootstrap card component 
   for (let i = 0; i < filters.length; i++) {
     const cardFilter = document.createElement('span');
     cardFilter.className = 'filter-badge'; // Apply the custom class
-    
+
     if (!filters[i].value.startDate) {
-        cardFilter.textContent = filters[i].value;
-      }
-      else {
+      cardFilter.textContent = filters[i].value;
+    }
+    else {
 
-        function cleanDate(date) {
-            const d = new Date(date); // Parse the string into a Date object
-            const year = d.getFullYear(); // Extract the year
-            const month = String(d.getMonth() + 1).padStart(2, '0'); // Extract and pad the month (0-based index)
-            const day = String(d.getDate()).padStart(2, '0'); // Extract and pad the day
-            return `${year}-${month}-${day}`; // Combine in ISO format
-          ;
-        }
-
-        const startDate = cleanDate(filters[i].value.startDate);
-        const endDate = cleanDate(filters[i].value.endDate);
-        cardFilter.textContent = filters[i].header +': '+startDate+' - '+endDate;
+      function cleanDate(date) {
+        const d = new Date(date); // Parse the string into a Date object
+        const year = d.getFullYear(); // Extract the year
+        const month = String(d.getMonth() + 1).padStart(2, '0'); // Extract and pad the month (0-based index)
+        const day = String(d.getDate()).padStart(2, '0'); // Extract and pad the day
+        return `${year}-${month}-${day}`; // Combine in ISO format
+        ;
       }
-        cardFiltersColumn.appendChild(cardFilter);
+
+      const startDate = cleanDate(filters[i].value.startDate);
+      const endDate = cleanDate(filters[i].value.endDate);
+      cardFilter.textContent = filters[i].header + ': ' + startDate + ' - ' + endDate;
+    }
+    cardFiltersColumn.appendChild(cardFilter);
   }
 
   function createCanvas() {
