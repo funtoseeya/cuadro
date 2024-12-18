@@ -1819,27 +1819,53 @@ function filterData() {
 
 
   function matchesFilter(item, filters) {
-    for (let filter of filters) {
+    // Group filters by their headers
+    const groupedFilters = filters.reduce((acc, filter) => {
       const { header, value } = filter;
-
-      if (value && value.startDate && value.endDate) {
-        // If it's a date range filter
-        const itemDate = new Date(item[header]);
-
-        if (isNaN(itemDate.getTime()) || itemDate < value.startDate || itemDate > value.endDate) {
+      if (!acc[header]) {
+        acc[header] = [];
+      }
+      acc[header].push(value);
+      return acc;
+    }, {});
+  
+    // Check each header's filters
+    for (const [header, values] of Object.entries(groupedFilters)) {
+      const itemValue = item[header];
+  
+      // Handle date range filters
+      if (values.some(v => v.startDate && v.endDate)) {
+        let matchesDateRange = false;
+  
+        for (const value of values) {
+          if (value.startDate && value.endDate) {
+            const itemDate = new Date(itemValue);
+  
+            if (
+              !isNaN(itemDate.getTime()) &&
+              itemDate >= value.startDate &&
+              itemDate <= value.endDate
+            ) {
+              matchesDateRange = true;
+              break;
+            }
+          }
+        }
+  
+        if (!matchesDateRange) {
           return false;
         }
-      } else if (item[header] !== value) {
-        // If it's a checkbox filter
-        if (item[header] !== value) {
+      } else {
+        // Handle checkbox filters (OR logic within the same header)
+        if (!values.includes(itemValue)) {
           return false;
         }
       }
     }
-
+  
     return true;
   }
-
+  
 
   // Loop through parsedCSVData and apply the filter
   for (let item of parsedCSVData) {
