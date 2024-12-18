@@ -660,8 +660,10 @@ function parseCSVToArray(file) {
 
         // Map each header to its corresponding value from the current line
         headers.forEach((header, index) => {
-          obj[header] = values[index]?.trim(); // Assign trimmed value to the corresponding header
+          obj[header] = values[index]?.trim().replace(/^"|"$/g, ''); // Assign trimmed value to the corresponding header
         });
+
+    
 
         return obj; // Return the constructed object for this line
       });
@@ -724,13 +726,14 @@ function guessDataTypes() {
   dropdownState = [];
 
   headers.forEach(header => {
-    const values = parsedCSVData.map(row => row[header]); // an array of all the values relating to that header in the big array
+    const values = parsedCSVData.map(row => row[header].trim().replace(/^"|"$/g, '')); // an array of all the values relating to that header in the big array
+    console.log(values);
     let isNumeric = true;
     let isDate = true;
 
     // Check if all values are numeric
     for (let i = 0; i < values.length; i++) {
-      const numberCheck = Number(values[i].trim());
+      const numberCheck = Number(values[i]);
       if (isNaN(numberCheck)) {
         isNumeric = false; // if at least one value isn't numeric, mark as false
         break;
@@ -740,7 +743,7 @@ function guessDataTypes() {
     // If not numeric, check if all values are dates
     if (!isNumeric) {
       for (let i = 0; i < values.length; i++) {
-        const dateCheck = new Date(values[i].trim());
+        const dateCheck = new Date(values[i]);
         if (isNaN(dateCheck.getTime())) {
           isDate = false; // if at least one value isn't a valid date, mark as false
           break;
@@ -873,14 +876,15 @@ async function reviewData() {
       <ul>
         <li><strong><i class="fa-solid fa-shapes"></i> Categorical:</strong> Also known as discrete data. Use this for fields where a restricted set of possible values is expected. A field with unique values doesn't fall into Categorical - it should be set to Ignore.</li>
         <li><strong><i class="fa-solid fa-hashtag"></i> Numerical:</strong> This is for any field containing numerical values. We will compute these by summing or averaging them, rather than counting them.</li>
-        <li><strong><i class="fa-regular fa-calendar"></i> Date / Time:</strong> This is for any field containing dates and timestamps. This is especially useful for generating trend analyses. 
-         Please ensure that dates are in one of the following formats, using January 1st, 2025 as an example: 
+        <li><strong><i class="fa-regular fa-calendar"></i> Date / Time:</strong> This is for any field containing dates and timestamps. This is especially useful for filtering across time. 
+         If using this type, we recommend using Google Chrome, as it supports the most formats, including the following: 
         <br>
 <ul>
   <li>2025-01-01</li>
   <li>2025-01-01T00:00:00</li>
   <li>2025-01-01T00:00:00Z</li>
   <li>2025-01-01T00:00:00+02:00</li>
+  <li>Wed, 01 Jan 2025 00:00:00</li>
   <li>Wed, 01 Jan 2025 00:00:00 GMT</li>
   <li>01 Jan 2025 00:00:00 GMT</li>
   <li>01/01/2025</li>
