@@ -379,7 +379,7 @@ th:first-child {
 }
 
 
-.bookmarks-overlay {
+.overlay {
   height: 100%;
   width: 0;
   position: fixed;
@@ -390,21 +390,21 @@ th:first-child {
   overflow-x: hidden;
 }
 
-.bookmarks-overlay .close-bookmarks-overlay-btn {
+.overlay .close-overlay-btn {
   font-size: 36px;
   color: var(--primary-light);
   text-decoration: none;
 }
 
-.bookmarks-overlay .close-bookmarks-overlay-btn:hover,
-.bookmarks-overlay .close-bookmarks-overlay-btn:focus {
+.overlay .close-overlay-btn:hover,
+.overlay .close-overlay-btn:focus {
   color: #f1f1f1;
   cursor: pointer;
 }
 
 /* Responsive adjustment */
 @media screen and (max-height: 450px) {
-  .bookmarks-overlay .close-bookmarks-overlay-btn {
+  .overlay .close-overlay-btn {
       font-size: 30px;
   }
 }

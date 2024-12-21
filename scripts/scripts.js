@@ -1178,11 +1178,8 @@ function loadSummaryTab() {
 }
 
 function loadCompareTab() {
-  let fieldXValue = null;//comparison values
-  let fieldYValue = null;//comparison values
-  let comparisonType = null; //comparison values
-  let comparisonValue = null; //comparison values
 
+  //******need to change this so that saved comparisons perpetuate across sessions. 
   const advancedAnalysisObject = new AnalysisObject(2);
   advancedAnalysisObject.analysisType = 'comparison';
   console.log('advanced analysis object:', advancedAnalysisObject);
@@ -1190,24 +1187,117 @@ function loadCompareTab() {
   const advancedTabContent = document.getElementById('advanced-tab-content');
   advancedTabContent.innerHTML = ``;
 
-  // Create the header row
+  // Create the header row and button
   const analysisOptionTextRow = document.createElement('div');
-  analysisOptionTextRow.classList.add('row', 'mt-3');
+  analysisOptionTextRow.classList.add('row', 'mt-3', 'd-flex', 'align-items-center');
 
   const analysisOptionTextColumn = document.createElement('div');
+  analysisOptionTextColumn.className = 'col-12 col-md-9'
   const analysisOptionText = document.createElement('div');
-  analysisOptionText.innerHTML = `<h5>What would you like to compare?</h5><p>Compare counts, sums, and averages across any combination of fields.</p>`;
+  analysisOptionText.innerHTML = `<h5>Data Comparisons</h5><p>Compare counts, sums, and averages across any combination of fields.</p>`;
+
+  const newComparisonButtonColumn = document.createElement('div');
+  newComparisonButtonColumn.className = 'col-12 col-md-3 d-flex justify-content-end';
+  const newComparisonButton = document.createElement('button');
+  newComparisonButton.className = 'btn btn-primary';
+  newComparisonButton.textContent = 'Create comparison';
+
+  newComparisonButton.addEventListener('click', loadCompareEditor);
 
   analysisOptionTextColumn.appendChild(analysisOptionText);
   analysisOptionTextRow.appendChild(analysisOptionTextColumn);
+  newComparisonButtonColumn.appendChild(newComparisonButton);
+  analysisOptionTextRow.appendChild(newComparisonButtonColumn);
   advancedTabContent.appendChild(analysisOptionTextRow);
+
+  //advanced chart container
+  const advancedChartContainer = document.createElement('div');
+  advancedChartContainer.id = 'advanced-tab-cards-container';
+  advancedTabContent.appendChild(advancedChartContainer);
+
+  //empty container 
+  // *****need to only show this when the advanced chartobject array is empty
+  const emptyComparisonContainer = document.createElement('div');
+  emptyComparisonContainer.id = 'empty-comparison-container';
+  advancedChartContainer.appendChild(emptyComparisonContainer);
+  emptyComparisonContainer.classList.add(
+    'container',
+    'd-flex',
+    'flex-column',
+    'align-items-center',
+    'justify-content-center',
+    'text-center'
+  );
+  emptyComparisonContainer.style.width = '100%';
+  emptyComparisonContainer.style.minHeight = '300px';
+  emptyComparisonContainer.style.margin = '0 auto';
+  emptyComparisonContainer.style.border = '1px solid var(--primary)';
+  emptyComparisonContainer.style.backgroundColor = 'rgba(36, 123, 160, 0.2)';
+  emptyComparisonContainer.style.borderRadius = '5px';
+  emptyComparisonContainer.innerHTML = `
+
+<div  style="font-weight: bold; margin-top: 10px;">
+No comparisons to display.
+</div>
+<div class="bookmark-description" style="margin-top: 5px;">
+Add insightful comparison views by clicking the Create comparison button.
+</div>
+`;
+
+
+}
+
+function loadCompareEditor() {
+  let fieldXValue = null;//comparison values
+  let fieldYValue = null;//comparison values
+  let comparisonType = null; //comparison values
+  let comparisonValue = null; //comparison values
+
+  const comparisonOverlay = document.getElementById('comparison-overlay');
+  comparisonOverlay.style.width = "100%";
+  comparisonOverlay.style.display = 'block';
+  document.body.style.overflowY = 'hidden';
+
+  //if this hasn't been opened yet this session
+  if (!(document.getElementById('compare-overlay-container'))) {
+
+  const compareOverlayContainer = document.createElement('div');
+  compareOverlayContainer.id='compare-overlay-container';
+  compareOverlayContainer.className = 'container col-md-8 offset-md-2';
+  comparisonOverlay.appendChild(compareOverlayContainer);
+
+  const headerRow = document.createElement('div');
+  headerRow.classList.add('row','mt-3','d-flex','align-items-center');
+  compareOverlayContainer.appendChild(headerRow);
+
+  const newCompareTextColumn = document.createElement('div');
+  newCompareTextColumn.className = 'col-10';
+  const newCompareTextColumnText = document.createElement('h5');
+  newCompareTextColumnText.textContent = `New Comparison`;
+  newCompareTextColumn.appendChild(newCompareTextColumnText);
+  headerRow.appendChild(newCompareTextColumn);
+
+  const closeButtonColumn = document.createElement('div');
+  closeButtonColumn.classList.add('col-2','d-flex','justify-content-end'); 
+  closeButtonColumn.innerHTML = `
+  <a class="close-overlay-btn" id="close-comparison-overlay-btn" role="button">&times;</a>`;
+  headerRow.appendChild(closeButtonColumn);
+
+  // Close the overlay when the close button is clicked
+  const compareOverlayCloseButton = document.getElementById('close-comparison-overlay-btn');
+  compareOverlayCloseButton.addEventListener('click', () => {
+    comparisonOverlay.style.width = "0%";
+    comparisonOverlay.style.display = 'none';
+    document.body.style.overflowY = 'scroll';
+  });
+
 
 
 
   //create prompt row and columns
   const promptRow = document.createElement('div');
   promptRow.className = 'row';
-  advancedTabContent.appendChild(promptRow);
+  compareOverlayContainer.appendChild(promptRow);
 
   const comparisonCol = document.createElement('div');
   comparisonCol.className = 'col-12 col-md-3 pt-2';
@@ -1541,7 +1631,7 @@ function loadCompareTab() {
   createComparisonDropdown();
   createFieldDropdowns();
 }
-
+}
 
 // Function to create a new array to generate the filters dropdown
 function createCategoricalArrayForFilterPanel() {
@@ -1770,15 +1860,15 @@ function generateFilters() {
     dateFields.forEach(field => {
       const dateRangeInput = document.getElementById(`${field.header}-range`);
 
-      dateRangeInput.dataset.startDate = ''; 
+      dateRangeInput.dataset.startDate = '';
       dateRangeInput.dataset.endDate = '';
       dateRangeInput.value = '';
-     
+
     });
 
     filterData();
 
-   
+
   })
 }
 
@@ -1832,19 +1922,19 @@ function filterData() {
       acc[header].push(value);
       return acc;
     }, {});
-  
+
     // Check each header's filters
     for (const [header, values] of Object.entries(groupedFilters)) {
       const itemValue = item[header];
-  
+
       // Handle date range filters
       if (values.some(v => v.startDate && v.endDate)) {
         let matchesDateRange = false;
-  
+
         for (const value of values) {
           if (value.startDate && value.endDate) {
             const itemDate = new Date(itemValue);
-  
+
             if (
               !isNaN(itemDate.getTime()) &&
               itemDate >= value.startDate &&
@@ -1855,7 +1945,7 @@ function filterData() {
             }
           }
         }
-  
+
         if (!matchesDateRange) {
           return false;
         }
@@ -1866,10 +1956,10 @@ function filterData() {
         }
       }
     }
-  
+
     return true;
   }
-  
+
 
   // Loop through parsedCSVData and apply the filter
   for (let item of parsedCSVData) {
@@ -3368,7 +3458,7 @@ function openBookmarksOverlay() {
   if (!bookmarksContainer) {
     const bookmarksContainer = document.createElement('div');
     bookmarksContainer.id = 'bookmarks-container';
-    bookmarksContainer.classList.add('container');
+    bookmarksContainer.classList.add('container','col-md-8', 'offset-md-2');
     bookmarksOverlay.appendChild(bookmarksContainer);
 
     const closeButtonRow = document.createElement('div');
@@ -3378,7 +3468,7 @@ function openBookmarksOverlay() {
     const closeButtonColumn = document.createElement('div');
     closeButtonColumn.classList.add('col-auto'); // col-auto to make the column fit the content
     closeButtonColumn.innerHTML = `
-    <a class="close-bookmarks-overlay-btn" id="close-bookmarks-overlay-btn" role="button">&times;</a>`;
+    <a class="close-overlay-btn" id="close-bookmarks-overlay-btn" role="button">&times;</a>`;
     closeButtonRow.appendChild(closeButtonColumn);
 
     // Close the overlay when the close button is clicked
@@ -3391,11 +3481,11 @@ function openBookmarksOverlay() {
 
     //create the row and columns containing the title and the export button
     const titleExportRow = document.createElement('div');
-    titleExportRow.classList.add('row');
+    titleExportRow.classList.add('row','d-flex', 'align-items-center');
     bookmarksContainer.appendChild(titleExportRow);
     const titleColumn = document.createElement('div');
     titleColumn.classList.add('col-8', 'd-flex', 'align-items-center', 'justify-content-start');
-    titleColumn.innerHTML = '<h1>Bookmarks</h1>';
+    titleColumn.innerHTML = '<h5>Bookmarks</h5>';
     titleExportRow.appendChild(titleColumn);
     const exportColumn = document.createElement('div');
     exportColumn.classList.add('col-4', 'd-flex', 'align-items-center', 'justify-content-end');
