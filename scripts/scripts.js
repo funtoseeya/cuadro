@@ -1955,7 +1955,7 @@ class AnalysisObject {
         if (type === 'Categorical') {
           result = this.genSummaryCatData(field);
           percentagesCounts = result.PercentagesCounts;
-          chartTitle = `Count of occurrences by '${field}'`;
+          chartTitle = `${field}`;
           chartID = `summary-simple-${field}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
           analysisType = 'categoryDistribution';
           visType = 'bar';
@@ -1964,7 +1964,7 @@ class AnalysisObject {
         if (type === 'Numerical') {
           result = this.genSummaryNumData(field);
           percentagesCounts = '';
-          chartTitle = `Count of occurrences by range of '${field}'`;
+          chartTitle = `${field}`;
           chartID = `summary-number-${field}-filtered-by-${filteredByString}`.replace(/[^a-zA-Z0-9]/g, '-'); // Create the id based on the title, replacing spaces with hyphens
           analysisType = 'numberDistribution';
           visType = 'line';
