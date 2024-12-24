@@ -1275,7 +1275,7 @@ function loadCompareEditor() {
   closeButtonRow.innerHTML = `
     <a class="close-overlay-btn" id="close-comparison-overlay-btn" role="button">&times;</a>`;
 
-  //*****need to add filter badges here to remind user that filters are applied.
+  //*****need to add filter badges to editor to remind user that filters are applied.
   const headerRow = document.createElement('div');
   headerRow.classList.add('row', 'mt-3', 'd-flex', 'align-items-center');
   compareOverlayContainer.appendChild(headerRow);
@@ -1316,10 +1316,13 @@ function loadCompareEditor() {
 
     console.log('saved comparison analysis objects: ', analysisObjects.filter(obj => obj.analysisType ==='comparison'));
 
+    //clear all previous comparisons and reload them all including the new one
+    document.getElementById(`advanced-tab-cards-container`).innerHTML = '';
     analysisObjects.filter(obj => obj.analysisType === 'comparison').forEach(obj => { 
       obj.beginComparisonChartGenerationProcess('advanced');
     })
     //******need to push this to local storage so that  saved comparisons perpetuate across sessions. 
+    //******it doesn't save the chosen chart. always defaults to heatmap
   });
 
 
@@ -2273,8 +2276,6 @@ class AnalysisObject {
     }
     
     if (summaryOrAdvancedOrEditor ==='advanced' && cardsContainer) {
-      //**** the empty state is still displayed. display=none being overridden
-      // ***** previously generated advanced tab analyses are getting doubled when rendered
       document.getElementById('box-container').style.display='none';
     }
 
