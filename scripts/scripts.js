@@ -1179,11 +1179,6 @@ function loadSummaryTab() {
 
 function loadCompareTab() {
 
-  //******need to change this so that saved comparisons perpetuate across sessions. 
-  const advancedAnalysisObject = new AnalysisObject(2);
-  advancedAnalysisObject.analysisType = 'comparison';
-  console.log('advanced analysis object:', advancedAnalysisObject);
-
   const advancedTabContent = document.getElementById('advanced-tab-content');
   advancedTabContent.innerHTML = ``;
 
@@ -1192,15 +1187,15 @@ function loadCompareTab() {
   analysisOptionTextRow.classList.add('row', 'mt-3', 'd-flex', 'align-items-center');
 
   const analysisOptionTextColumn = document.createElement('div');
-  analysisOptionTextColumn.className = 'col-12 col-md-9'
+  analysisOptionTextColumn.className = 'col-9 col-md-9'
   const analysisOptionText = document.createElement('div');
   analysisOptionText.innerHTML = `<h5>Data Comparisons</h5><p>Compare counts, sums, and averages across any combination of fields.</p>`;
 
   const newComparisonButtonColumn = document.createElement('div');
-  newComparisonButtonColumn.className = 'col-12 col-md-3 d-flex justify-content-end';
+  newComparisonButtonColumn.className = 'col-3 col-md-3 d-flex justify-content-end';
   const newComparisonButton = document.createElement('button');
   newComparisonButton.className = 'btn btn-primary';
-  newComparisonButton.textContent = 'Create comparison';
+  newComparisonButton.textContent = 'New comparison';
 
   newComparisonButton.addEventListener('click', loadCompareEditor);
 
@@ -1210,44 +1205,53 @@ function loadCompareTab() {
   analysisOptionTextRow.appendChild(newComparisonButtonColumn);
   advancedTabContent.appendChild(analysisOptionTextRow);
 
+    //empty container 
+    if (analysisObjects.length< 2) {
+      const boxContainer = document.createElement('div');
+      boxContainer.id = 'box-container';
+      advancedTabContent.appendChild(boxContainer);
+      const emptyComparisonContainer = document.createElement('div');
+      emptyComparisonContainer.id = 'empty-comparison-container';
+      boxContainer.appendChild(emptyComparisonContainer);
+      emptyComparisonContainer.classList.add(
+        'container',
+        'd-flex',
+        'flex-column',
+        'align-items-center',
+        'justify-content-center',
+        'text-center'
+      );
+      emptyComparisonContainer.style.width = '100%';
+      emptyComparisonContainer.style.minHeight = '300px';
+      emptyComparisonContainer.style.margin = '0 auto';
+      emptyComparisonContainer.style.border = '1px solid var(--primary)';
+      emptyComparisonContainer.style.backgroundColor = 'rgba(36, 123, 160, 0.2)';
+      emptyComparisonContainer.style.borderRadius = '5px';
+      emptyComparisonContainer.innerHTML = `
+    
+    <div  style="font-weight: bold; margin-top: 10px;">
+    No comparisons to display.
+    </div>
+    <div style="margin-top: 5px;">
+    Add insightful comparison views by clicking the New comparison button.
+    </div>
+    `;
+    }
+    
+
   //advanced chart container
   const advancedChartContainer = document.createElement('div');
   advancedChartContainer.id = 'advanced-tab-cards-container';
   advancedTabContent.appendChild(advancedChartContainer);
 
-  //empty container 
-  // *****need to only show this when the advanced chartobject array is empty
-  const emptyComparisonContainer = document.createElement('div');
-  emptyComparisonContainer.id = 'empty-comparison-container';
-  advancedChartContainer.appendChild(emptyComparisonContainer);
-  emptyComparisonContainer.classList.add(
-    'container',
-    'd-flex',
-    'flex-column',
-    'align-items-center',
-    'justify-content-center',
-    'text-center'
-  );
-  emptyComparisonContainer.style.width = '100%';
-  emptyComparisonContainer.style.minHeight = '300px';
-  emptyComparisonContainer.style.margin = '0 auto';
-  emptyComparisonContainer.style.border = '1px solid var(--primary)';
-  emptyComparisonContainer.style.backgroundColor = 'rgba(36, 123, 160, 0.2)';
-  emptyComparisonContainer.style.borderRadius = '5px';
-  emptyComparisonContainer.innerHTML = `
-
-<div  style="font-weight: bold; margin-top: 10px;">
-No comparisons to display.
-</div>
-<div class="bookmark-description" style="margin-top: 5px;">
-Add insightful comparison views by clicking the Create comparison button.
-</div>
-`;
-
 
 }
 
 function loadCompareEditor() {
+
+  const compareEditorObject = new AnalysisObject(1000);
+  compareEditorObject.analysisType = 'comparison';
+
   let fieldXValue = null;//comparison values
   let fieldYValue = null;//comparison values
   let comparisonType = null; //comparison values
@@ -1257,41 +1261,66 @@ function loadCompareEditor() {
   comparisonOverlay.style.width = "100%";
   comparisonOverlay.style.display = 'block';
   document.body.style.overflowY = 'hidden';
-
-  //if this hasn't been opened yet this session
-  if (!(document.getElementById('compare-overlay-container'))) {
+  comparisonOverlay.innerHTML = '';
 
   const compareOverlayContainer = document.createElement('div');
-  compareOverlayContainer.id='compare-overlay-container';
+  compareOverlayContainer.id = 'editor-tab-content';
   compareOverlayContainer.className = 'container col-md-8 offset-md-2';
   comparisonOverlay.appendChild(compareOverlayContainer);
 
+
+  const closeButtonRow = document.createElement('div');
+  compareOverlayContainer.appendChild(closeButtonRow);
+  closeButtonRow.classList.add('text-end');
+  closeButtonRow.innerHTML = `
+    <a class="close-overlay-btn" id="close-comparison-overlay-btn" role="button">&times;</a>`;
+
+  //*****need to add filter badges here to remind user that filters are applied.
   const headerRow = document.createElement('div');
-  headerRow.classList.add('row','mt-3','d-flex','align-items-center');
+  headerRow.classList.add('row', 'mt-3', 'd-flex', 'align-items-center');
   compareOverlayContainer.appendChild(headerRow);
 
   const newCompareTextColumn = document.createElement('div');
-  newCompareTextColumn.className = 'col-10';
+  newCompareTextColumn.className = 'col-9';
   const newCompareTextColumnText = document.createElement('h5');
   newCompareTextColumnText.textContent = `New Comparison`;
   newCompareTextColumn.appendChild(newCompareTextColumnText);
   headerRow.appendChild(newCompareTextColumn);
 
-  const closeButtonColumn = document.createElement('div');
-  closeButtonColumn.classList.add('col-2','d-flex','justify-content-end'); 
-  closeButtonColumn.innerHTML = `
-  <a class="close-overlay-btn" id="close-comparison-overlay-btn" role="button">&times;</a>`;
-  headerRow.appendChild(closeButtonColumn);
+  const saveCompareColumn = document.createElement('div');
+  saveCompareColumn.className = 'col-3 d-flex justify-content-end';
+  const saveCompareButton = document.createElement('button');
+  saveCompareButton.className = 'btn btn-primary disabled';
+  saveCompareButton.id = 'save-compare-button';
+  saveCompareButton.textContent = 'Save comparison';
+  saveCompareColumn.appendChild(saveCompareButton);
+  headerRow.appendChild(saveCompareColumn);
+
+  function closeCompareOverlay() {
+    comparisonOverlay.style.width = "0%";
+    comparisonOverlay.style.display = 'none';
+    document.body.style.overflowY = 'scroll';
+  }
 
   // Close the overlay when the close button is clicked
   const compareOverlayCloseButton = document.getElementById('close-comparison-overlay-btn');
   compareOverlayCloseButton.addEventListener('click', () => {
-    comparisonOverlay.style.width = "0%";
-    comparisonOverlay.style.display = 'none';
-    document.body.style.overflowY = 'scroll';
+    closeCompareOverlay();
+    deleteAnalysisObjectById(1000);
   });
 
+  // save comparison and close  overlay when save button is clicked
+  saveCompareButton.addEventListener('click', () => {
+    compareEditorObject.id = analysisObjects.length;
+    closeCompareOverlay();
 
+    console.log('saved comparison analysis objects: ', analysisObjects.filter(obj => obj.analysisType ==='comparison'));
+
+    analysisObjects.filter(obj => obj.analysisType === 'comparison').forEach(obj => { 
+      obj.beginComparisonChartGenerationProcess('advanced');
+    })
+    //******need to push this to local storage so that  saved comparisons perpetuate across sessions. 
+  });
 
 
   //create prompt row and columns
@@ -1317,6 +1346,10 @@ function loadCompareEditor() {
   fieldYCol.className = 'col-12 col-md-4 pt-2 ';
   fieldYCol.id = 'prompt-row-field-y-col';
   promptRow.appendChild(fieldYCol);
+
+
+
+
 
   // Create comparison dropdown
   function createComparisonDropdown() {
@@ -1407,8 +1440,8 @@ function loadCompareEditor() {
           e.preventDefault();
           comparisonType = "Count of occurrences";
           textSpan.innerText = comparisonType;
-          advancedAnalysisObject.compareType = comparisonType;
-          advancedAnalysisObject.beginComparisonChartGenerationProcess();
+          compareEditorObject.compareType = comparisonType;
+          compareEditorObject.beginComparisonChartGenerationProcess('editor');
           closeDropdown();
         });
       }
@@ -1436,9 +1469,9 @@ function loadCompareEditor() {
           comparisonType = optionText;
           comparisonValue = header;
           textSpan.innerText = `${comparisonType} ${comparisonValue}`;
-          advancedAnalysisObject.compareType = comparisonType;
-          advancedAnalysisObject.compareBy = comparisonValue;
-          advancedAnalysisObject.beginComparisonChartGenerationProcess();
+          compareEditorObject.compareType = comparisonType;
+          compareEditorObject.compareBy = comparisonValue;
+          compareEditorObject.beginComparisonChartGenerationProcess('editor');
           closeDropdown();
         });
 
@@ -1539,9 +1572,9 @@ function loadCompareEditor() {
           e.preventDefault();
           textSpan.innerText = placeholder;
           onSelect(null);
-          advancedAnalysisObject.compareFieldA = fieldXValue;
-          advancedAnalysisObject.compareFieldB = fieldYValue;
-          advancedAnalysisObject.beginComparisonChartGenerationProcess();
+          compareEditorObject.compareFieldA = fieldXValue;
+          compareEditorObject.compareFieldB = fieldYValue;
+          compareEditorObject.beginComparisonChartGenerationProcess('editor');
         });
 
         categoricalHeaderArray.forEach((option) => {
@@ -1555,9 +1588,9 @@ function loadCompareEditor() {
               e.preventDefault();
               textSpan.innerText = option;
               onSelect(option); //this does two things. it sets fieldXYvalue to the selected value AND it makes sure the other dropdown menu doesn't offer it as an option 
-              advancedAnalysisObject.compareFieldA = fieldXValue;
-              advancedAnalysisObject.compareFieldB = fieldYValue;
-              advancedAnalysisObject.beginComparisonChartGenerationProcess();
+              compareEditorObject.compareFieldA = fieldXValue;
+              compareEditorObject.compareFieldB = fieldYValue;
+              compareEditorObject.beginComparisonChartGenerationProcess('editor');
             });
 
             dropdownMenu.appendChild(item);
@@ -1606,8 +1639,8 @@ function loadCompareEditor() {
     fieldFlipCol.appendChild(flipButton);
     flipButton.addEventListener('click', function () {
 
-      const aBucket = advancedAnalysisObject.compareFieldA;
-      const bBucket = advancedAnalysisObject.compareFieldB;
+      const aBucket = compareEditorObject.compareFieldA;
+      const bBucket = compareEditorObject.compareFieldB;
 
       fieldXValue = bBucket;
       fieldYValue = aBucket;
@@ -1615,22 +1648,22 @@ function loadCompareEditor() {
       fieldXPopulateMenu(fieldYValue); // Exclude the new Y value from X's menu
       fieldYPopulateMenu(fieldXValue); // Exclude the new X value from Y's menu
 
-      advancedAnalysisObject.compareFieldA = fieldXValue;
-      advancedAnalysisObject.compareFieldB = fieldYValue;
+      compareEditorObject.compareFieldA = fieldXValue;
+      compareEditorObject.compareFieldB = fieldYValue;
 
       const fieldADropdownValue = document.getElementById('field-a-dropdown');
       const fieldBDropdownValue = document.getElementById('field-b-dropdown');
       fieldADropdownValue.innerText = fieldXValue;
       fieldBDropdownValue.innerText = fieldYValue;
 
-      advancedAnalysisObject.beginComparisonChartGenerationProcess();
+      compareEditorObject.beginComparisonChartGenerationProcess('editor');
 
     })
   }
 
   createComparisonDropdown();
   createFieldDropdowns();
-}
+
 }
 
 // Function to create a new array to generate the filters dropdown
@@ -1973,11 +2006,19 @@ function filterData() {
     obj.filteredBy = selectedValues;
   });
 
+  //filter distribution charts
   const summaryAnalysisObject = analysisObjects.find(obj => obj.id === 1);
+  document.getElementById('summary-tab-cards-container').innerHTML = '';
   summaryAnalysisObject.beginSummaryChartGenerationProcess(summaryAnalysisObject.analysisType);
 
-  const advancedAnalysisObject = analysisObjects.find(obj => obj.id === 2);
-  advancedAnalysisObject.beginComparisonChartGenerationProcess(advancedAnalysisObject.analysisType);
+  //filter comparison charts
+  const comparisonAnalysisObjects =   analysisObjects.filter(obj => obj.analysisType === 'comparison');
+  if (comparisonAnalysisObjects.length >0) {
+  document.getElementById('advanced-tab-cards-container').innerHTML = '';
+  comparisonAnalysisObjects.forEach(obj => { 
+    obj.beginComparisonChartGenerationProcess('advanced');
+  })
+}
 
   console.log('Filtered Data:', filteredData);
   loadRowColCounts();
@@ -2094,8 +2135,8 @@ class AnalysisObject {
     }
   }
 
-  beginComparisonChartGenerationProcess() {
-    let cardsContainer = document.getElementById(`advanced-tab-cards-container`);
+  beginComparisonChartGenerationProcess(editorOrAdvanced) {
+    let cardsContainer = document.getElementById(`${editorOrAdvanced}-tab-cards-container`);
 
     if (filteredData.length === 0 && cardsContainer) {
       cardsContainer.innerHTML = '';
@@ -2206,27 +2247,41 @@ class AnalysisObject {
       ); //value= the current item in the summaryValue foreach loop
       this.chartObjects.push(newChartObject); // add the new chart object at the end of the analysis object's charts array
 
-      console.log('comparison chart data', this);
 
       if (this.compareFieldA !== null && (this.compareType === "Sum of" || this.compareType === "Average of") || (this.compareType === "Count of occurrences" && this.compareFieldA !== null && this.compareFieldB !== null)) {
-        this.prepChartContainer('advanced');
+        if (this.id === 1000) {
+          this.prepChartContainer('editor');
+          document.getElementById('save-compare-button').classList.remove('disabled');
+          console.log('compare editor chart data', this);
+        }
+        else {
+          this.prepChartContainer('advanced');
+        }
       }
     }
   }
 
   // Function to render all chart objects
-  prepChartContainer(summaryOrAdvanced) {
+  prepChartContainer(summaryOrAdvancedOrEditor) {
     // Find the step-body container where the cards will be appended
-    const TabContent = document.getElementById(`${summaryOrAdvanced}-tab-content`);
-    let cardsContainer = document.getElementById(`${summaryOrAdvanced}-tab-cards-container`);
+    const TabContent = document.getElementById(`${summaryOrAdvancedOrEditor}-tab-content`);
+    let cardsContainer = document.getElementById(`${summaryOrAdvancedOrEditor}-tab-cards-container`);
 
-    if (cardsContainer) {
+    if ((summaryOrAdvancedOrEditor ==='summary' || summaryOrAdvancedOrEditor ==='editor') && cardsContainer) {
       //if the cards container was created in a previous call, empty it.
       cardsContainer.innerHTML = '';
-    } else {
+    }
+    
+    if (summaryOrAdvancedOrEditor ==='advanced' && cardsContainer) {
+      //**** the empty state is still displayed. display=none being overridden
+      // ***** previously generated advanced tab analyses are getting doubled when rendered
+      document.getElementById('box-container').style.display='none';
+    }
+
+     else {
       //if the cards container doesn't exist, create it within the stepbody div
       cardsContainer = document.createElement('div');
-      cardsContainer.id = `${summaryOrAdvanced}-tab-cards-container`;
+      cardsContainer.id = `${summaryOrAdvancedOrEditor}-tab-cards-container`;
       TabContent.appendChild(cardsContainer);
     }
 
@@ -2559,7 +2614,6 @@ class AnalysisObject {
 }
 
 
-// Function to update an existing AnalysisObject by ID
 
 
 // Function to delete an AnalysisObject by ID
@@ -3080,6 +3134,8 @@ function // Function to create and render a chart in a Bootstrap card component 
     addRemoveBookmark(bookmarkButton, chartObject);
   });
 
+  //***** if comparison chart, add a delete button - triggers confirm dialog and deletes analysis object and chart - if all charts are deleted then restore the empty state container
+
   //create the title
   const cardTitle = document.createElement('h5');
   cardTitle.textContent = chartObject.title;
@@ -3458,7 +3514,7 @@ function openBookmarksOverlay() {
   if (!bookmarksContainer) {
     const bookmarksContainer = document.createElement('div');
     bookmarksContainer.id = 'bookmarks-container';
-    bookmarksContainer.classList.add('container','col-md-8', 'offset-md-2');
+    bookmarksContainer.classList.add('container', 'col-md-8', 'offset-md-2');
     bookmarksOverlay.appendChild(bookmarksContainer);
 
     const closeButtonRow = document.createElement('div');
@@ -3481,7 +3537,7 @@ function openBookmarksOverlay() {
 
     //create the row and columns containing the title and the export button
     const titleExportRow = document.createElement('div');
-    titleExportRow.classList.add('row','d-flex', 'align-items-center');
+    titleExportRow.classList.add('row', 'd-flex', 'align-items-center');
     bookmarksContainer.appendChild(titleExportRow);
     const titleColumn = document.createElement('div');
     titleColumn.classList.add('col-8', 'd-flex', 'align-items-center', 'justify-content-start');
