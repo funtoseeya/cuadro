@@ -43,9 +43,10 @@ let bookmarks = [];
 
 // Call this function when the page loads
 document.addEventListener('DOMContentLoaded', function () {
-
-  checkEmailInLocalStorage();
   pushLocalBookmarkstoMainBookmarks();
+  pushLocalComparisonObjectstoMain();
+  checkEmailInLocalStorage();
+
 });
 
 
@@ -60,6 +61,22 @@ function checkEmailInLocalStorage() {
     // If no email exists, show the email input form
     handleEmail();
   }
+}
+
+function pushLocalComparisonObjectstoMain() {
+  const comparisonObjectsLocalStorage = JSON.parse(localStorage.getItem('comparison-objects'));
+  if (!comparisonObjectsLocalStorage || comparisonObjectsLocalStorage.length === 0) {
+
+    console.log('comparison empty / not saved from local storage');
+  }
+  else {
+    comparisonObjectsLocalStorage.forEach(array => {
+      analysisObjects.push(array);
+    })
+    console.log('comparison charts saved based on local storage: ', analysisObjects);
+
+  }
+
 }
 
 function pushLocalBookmarkstoMainBookmarks() {
@@ -160,6 +177,7 @@ function navToUpload() {
   localStorage.removeItem('selectedFile');
   localStorage.removeItem('dropdownState');
   localStorage.removeItem('bookmarks');
+  localStorage.removeItem('comparison-charts');
 
 }
 
@@ -321,6 +339,7 @@ function signOut() {
   localStorage.removeItem('selectedFile');
   localStorage.removeItem('dropdownState');
   localStorage.removeItem('bookmarks');
+  localStorage.removeItem('comparison-charts');
   handleEmail();
 }
 
@@ -941,6 +960,8 @@ function loadReviewButtonPanel() {
     localStorage.removeItem('selectedFile');
     localStorage.removeItem('dropdownState');
     localStorage.removeItem('bookmarks');
+    localStorage.removeItem('comparison-charts');
+
 
   })
 
@@ -1164,6 +1185,9 @@ function loadSummaryTab() {
   summaryTabHeaderTextCol.innerHTML = '<h5>Data Distributions</h5><p>Explore how frequently categories and numbers occur in the dataset.</p>';
   summaryTabHeaderRow.appendChild(summaryTabHeaderTextCol);
 
+  const summaryChartContainer = document.createElement('div');
+  summaryChartContainer.id = 'summary-tab-cards-container';
+  summaryTabContent.appendChild(summaryChartContainer);
 
 
 
@@ -1172,7 +1196,7 @@ function loadSummaryTab() {
   summaryAnalysisObject.analysisType = 'distribution';
   summaryAnalysisObject.summaryValue = summaryValue;
 
-  console.log('summary analysis object: ', analysisObjects.find(obj => obj.analysisType === 'distribution'));
+  console.log('distribution analysis object: ', analysisObjects.find(obj => obj.analysisType === 'distribution'));
   summaryAnalysisObject.beginSummaryChartGenerationProcess(summaryAnalysisObject.analysisType);
 
 }
@@ -1205,29 +1229,35 @@ function loadCompareTab() {
   analysisOptionTextRow.appendChild(newComparisonButtonColumn);
   advancedTabContent.appendChild(analysisOptionTextRow);
 
-    //empty container 
-    if (analysisObjects.length< 2) {
-      const boxContainer = document.createElement('div');
-      boxContainer.id = 'box-container';
-      advancedTabContent.appendChild(boxContainer);
-      const emptyComparisonContainer = document.createElement('div');
-      emptyComparisonContainer.id = 'empty-comparison-container';
-      boxContainer.appendChild(emptyComparisonContainer);
-      emptyComparisonContainer.classList.add(
-        'container',
-        'd-flex',
-        'flex-column',
-        'align-items-center',
-        'justify-content-center',
-        'text-center'
-      );
-      emptyComparisonContainer.style.width = '100%';
-      emptyComparisonContainer.style.minHeight = '300px';
-      emptyComparisonContainer.style.margin = '0 auto';
-      emptyComparisonContainer.style.border = '1px solid var(--primary)';
-      emptyComparisonContainer.style.backgroundColor = 'rgba(36, 123, 160, 0.2)';
-      emptyComparisonContainer.style.borderRadius = '5px';
-      emptyComparisonContainer.innerHTML = `
+  //advanced chart container
+  const advancedChartContainer = document.createElement('div');
+  advancedChartContainer.id = 'advanced-tab-cards-container';
+  advancedTabContent.appendChild(advancedChartContainer);
+
+  //empty container 
+  const comparisonObjects = analysisObjects.filter(obj => obj.analysisType === 'comparison');
+  if (comparisonObjects.length === 0) {
+    const boxContainer = document.createElement('div');
+    boxContainer.id = 'box-container';
+    advancedTabContent.appendChild(boxContainer);
+    const emptyComparisonContainer = document.createElement('div');
+    emptyComparisonContainer.id = 'empty-comparison-container';
+    boxContainer.appendChild(emptyComparisonContainer);
+    emptyComparisonContainer.classList.add(
+      'container',
+      'd-flex',
+      'flex-column',
+      'align-items-center',
+      'justify-content-center',
+      'text-center'
+    );
+    emptyComparisonContainer.style.width = '100%';
+    emptyComparisonContainer.style.minHeight = '300px';
+    emptyComparisonContainer.style.margin = '0 auto';
+    emptyComparisonContainer.style.border = '1px solid var(--primary)';
+    emptyComparisonContainer.style.backgroundColor = 'rgba(36, 123, 160, 0.2)';
+    emptyComparisonContainer.style.borderRadius = '5px';
+    emptyComparisonContainer.innerHTML = `
     
     <div  style="font-weight: bold; margin-top: 10px;">
     No comparisons to display.
@@ -1236,15 +1266,20 @@ function loadCompareTab() {
     Add insightful comparison views by clicking the New comparison button.
     </div>
     `;
-    }
-    
+  }
 
-  //advanced chart container
-  const advancedChartContainer = document.createElement('div');
-  advancedChartContainer.id = 'advanced-tab-cards-container';
-  advancedTabContent.appendChild(advancedChartContainer);
+  else {
 
+    let cardsContainer = document.getElementById(`advanced-tab-cards-container`);
 
+    comparisonObjects.forEach(object => {
+
+      object.chartObjects.forEach(chart => {
+        renderChartInCard(chart, cardsContainer);
+      });
+
+    })
+  }
 }
 
 function loadCompareEditor() {
@@ -1314,15 +1349,24 @@ function loadCompareEditor() {
     compareEditorObject.id = analysisObjects.length;
     closeCompareOverlay();
 
-    console.log('saved comparison analysis objects: ', analysisObjects.filter(obj => obj.analysisType ==='comparison'));
+    console.log('saved comparison analysis objects: ', analysisObjects.filter(obj => obj.analysisType === 'comparison'));
 
     //clear all previous comparisons and reload them all including the new one
     document.getElementById(`advanced-tab-cards-container`).innerHTML = '';
-    analysisObjects.filter(obj => obj.analysisType === 'comparison').forEach(obj => { 
-      obj.beginComparisonChartGenerationProcess('advanced');
+    const comparisonObjects = analysisObjects.filter(obj => obj.analysisType === 'comparison');
+    comparisonObjects.forEach(obj => {
+      obj.chartObjects.forEach(chart => {
+        let cardsContainer = document.getElementById(`advanced-tab-cards-container`);
+        renderChartInCard(chart, cardsContainer);
+      })
     })
-    //******need to push this to local storage so that  saved comparisons perpetuate across sessions. 
-    //******it doesn't save the chosen chart. always defaults to heatmap
+
+      const emptyComparisonBoxContainer = document.getElementById('box-container');
+      if (emptyComparisonBoxContainer){
+        emptyComparisonBoxContainer.style.display = 'none';
+      }
+
+    localStorage.setItem('comparison-objects', JSON.stringify(comparisonObjects));
   });
 
 
@@ -1666,6 +1710,11 @@ function loadCompareEditor() {
 
   createComparisonDropdown();
   createFieldDropdowns();
+
+  const editorChartContainer = document.createElement('div');
+  editorChartContainer.id = 'editor-tab-cards-container';
+  document.getElementById('editor-tab-content').appendChild(editorChartContainer);
+
 
 }
 
@@ -2015,13 +2064,13 @@ function filterData() {
   summaryAnalysisObject.beginSummaryChartGenerationProcess(summaryAnalysisObject.analysisType);
 
   //filter comparison charts
-  const comparisonAnalysisObjects =   analysisObjects.filter(obj => obj.analysisType === 'comparison');
-  if (comparisonAnalysisObjects.length >0) {
-  document.getElementById('advanced-tab-cards-container').innerHTML = '';
-  comparisonAnalysisObjects.forEach(obj => { 
-    obj.beginComparisonChartGenerationProcess('advanced');
-  })
-}
+  const comparisonAnalysisObjects = analysisObjects.filter(obj => obj.analysisType === 'comparison');
+  if (comparisonAnalysisObjects.length > 0) {
+    document.getElementById('advanced-tab-cards-container').innerHTML = '';
+    comparisonAnalysisObjects.forEach(obj => {
+      obj.beginComparisonChartGenerationProcess('advanced');
+    })
+  }
 
   console.log('Filtered Data:', filteredData);
   loadRowColCounts();
@@ -2141,6 +2190,7 @@ class AnalysisObject {
   beginComparisonChartGenerationProcess(editorOrAdvanced) {
     let cardsContainer = document.getElementById(`${editorOrAdvanced}-tab-cards-container`);
 
+    //if filters produce 0 results, show empty state
     if (filteredData.length === 0 && cardsContainer) {
       cardsContainer.innerHTML = '';
 
@@ -2267,25 +2317,12 @@ class AnalysisObject {
   // Function to render all chart objects
   prepChartContainer(summaryOrAdvancedOrEditor) {
     // Find the step-body container where the cards will be appended
-    const TabContent = document.getElementById(`${summaryOrAdvancedOrEditor}-tab-content`);
     let cardsContainer = document.getElementById(`${summaryOrAdvancedOrEditor}-tab-cards-container`);
 
-    if ((summaryOrAdvancedOrEditor ==='summary' || summaryOrAdvancedOrEditor ==='editor') && cardsContainer) {
+    if (summaryOrAdvancedOrEditor === 'summary' || summaryOrAdvancedOrEditor === 'editor') {
       //if the cards container was created in a previous call, empty it.
       cardsContainer.innerHTML = '';
     }
-    
-    if (summaryOrAdvancedOrEditor ==='advanced' && cardsContainer) {
-      document.getElementById('box-container').style.display='none';
-    }
-
-     else {
-      //if the cards container doesn't exist, create it within the stepbody div
-      cardsContainer = document.createElement('div');
-      cardsContainer.id = `${summaryOrAdvancedOrEditor}-tab-cards-container`;
-      TabContent.appendChild(cardsContainer);
-    }
-
 
     this.chartObjects.forEach(chart => {
       renderChartInCard(chart, cardsContainer);
@@ -3000,6 +3037,7 @@ class ChartObject {
 function // Function to create and render a chart in a Bootstrap card component and append to 'step-body'
   renderChartInCard(chartObject, container) {
 
+
   // Create the card element
   const card = document.createElement('div');
   card.classList.add('card', 'mt-4'); // Add Bootstrap card and margin classes
@@ -3058,6 +3096,9 @@ function // Function to create and render a chart in a Bootstrap card component 
   }
   if (chartObject.chartType === "horizontal-clusters") {
     dropdownButton.textContent = 'Horizontal Clusters';
+  }
+  if (chartObject.chartType === "vertical-clusters") {
+    dropdownButton.textContent = 'Vertical Clusters';
   }
   if (chartObject.chartType === "heatmap") {
     dropdownButton.textContent = 'Heatmap';
@@ -3442,7 +3483,7 @@ function addRemoveBookmark(target, chart) {
 
 
     //if you're ractivating from bookmarks overlay, we should reactivate any simple or advanced chart object
-    const analysisIds = [1, 2]; // List of analysis object ids
+    const analysisIds = analysisObjects.map(obj => obj.id); // List of analysis object ids
 
     // Loop through each id and apply the logic
     analysisIds.forEach((id) => {
@@ -3486,7 +3527,7 @@ function addRemoveBookmark(target, chart) {
     localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
     console.log('bookmarks: ', bookmarks);
 
-    const analysisIds = [1, 2]; // List of analysis object ids
+    const analysisIds = analysisObjects.map(obj => obj.id); // List of analysis object ids
 
     // Loop through each id and apply the logic
     analysisIds.forEach((id) => {
