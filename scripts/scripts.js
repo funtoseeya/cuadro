@@ -1316,20 +1316,35 @@ function loadCompareEditor() {
   compareOverlayContainer.appendChild(headerRow);
 
   const newCompareTextColumn = document.createElement('div');
-  newCompareTextColumn.className = 'col-9';
+  newCompareTextColumn.className = 'col-8';
   const newCompareTextColumnText = document.createElement('h5');
   newCompareTextColumnText.textContent = `New Comparison`;
   newCompareTextColumn.appendChild(newCompareTextColumnText);
   headerRow.appendChild(newCompareTextColumn);
 
   const saveCompareColumn = document.createElement('div');
-  saveCompareColumn.className = 'col-3 d-flex justify-content-end';
+  saveCompareColumn.className = 'col-4 d-flex justify-content-end';
   const saveCompareButton = document.createElement('button');
   saveCompareButton.className = 'btn btn-primary disabled';
   saveCompareButton.id = 'save-compare-button';
-  saveCompareButton.textContent = 'Save comparison';
+  saveCompareButton.innerHTML = '<i class="fas fa-save"></i> <span class="d-none d-sm-inline"> Save comparison</span>';
   saveCompareColumn.appendChild(saveCompareButton);
   headerRow.appendChild(saveCompareColumn);
+
+// Add event listener to handle screen resize
+window.addEventListener('resize', () => {
+  if (window.innerWidth < 576) {
+    saveCompareButton.innerHTML = '<i class="fas fa-save"></i> <span> Save</span>';
+  } else {
+    saveCompareButton.innerHTML = '<i class="fas fa-save"></i> <span class="d-none d-sm-inline"> Save comparison</span>';
+  }
+});
+
+// Initial check
+if (window.innerWidth < 576) {
+  saveCompareButton.innerHTML = '<i class="fas fa-save"></i> <span> Save</span>';
+}
+
 
   function closeCompareOverlay() {
     comparisonOverlay.style.width = "0%";
@@ -1438,7 +1453,7 @@ function loadCompareEditor() {
 
     // Create main menu
     const mainMenu = document.createElement("div");
-    mainMenu.className = "menu";
+    mainMenu.className = "menu  w-100";
 
     // Create secondary menu
     const secondaryMenu = document.createElement("div");
@@ -1458,7 +1473,7 @@ function loadCompareEditor() {
 
     // Define main options
     const options = [
-      { text: "Count of occurrences", hasSubmenu: false },
+      { text: "Count of rows", hasSubmenu: false },
       { text: "Sum of", hasSubmenu: true },
       { text: "Average of", hasSubmenu: true },
     ];
@@ -1485,7 +1500,7 @@ function loadCompareEditor() {
       } else {
         menuItem.addEventListener("click", (e) => {
           e.preventDefault();
-          comparisonType = "Count of occurrences";
+          comparisonType = "Count of rows";
           textSpan.innerText = comparisonType;
           compareEditorObject.compareType = comparisonType;
           compareEditorObject.beginComparisonChartGenerationProcess('editor');
@@ -2222,8 +2237,8 @@ class AnalysisObject {
       const filteredByString = this.filteredBy.map(item => `${item.header}-${item.value}`).join();
 
 
-      if (this.compareType === 'Count of occurrences') {
-        chartTitle = `Count of occurrences by '${this.compareFieldA}' and '${this.compareFieldB}'`;
+      if (this.compareType === 'Count of rows') {
+        chartTitle = `Count of rows by '${this.compareFieldA}' and '${this.compareFieldB}'`;
         chartID = `comparison-count-of-occurrences-by-${this.compareFieldA}-and-${this.compareFieldB}-filtered-by-${filteredByString}`;
         analysisType = 'countOfOccurrencesComparison';
         visType = 'bar';
@@ -2301,7 +2316,7 @@ class AnalysisObject {
       this.chartObjects.push(newChartObject); // add the new chart object at the end of the analysis object's charts array
 
 
-      if (this.compareFieldA !== null && (this.compareType === "Sum of" || this.compareType === "Average of") || (this.compareType === "Count of occurrences" && this.compareFieldA !== null && this.compareFieldB !== null)) {
+      if (this.compareFieldA !== null && (this.compareType === "Sum of" || this.compareType === "Average of") || (this.compareType === "Count of rows" && this.compareFieldA !== null && this.compareFieldB !== null)) {
         if (this.id === 1000) {
           this.prepChartContainer('editor');
           document.getElementById('save-compare-button').classList.remove('disabled');
