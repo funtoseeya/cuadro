@@ -1330,20 +1330,20 @@ function loadCompareEditor() {
   compareOverlayContainer.appendChild(headerRow);
 
   const newCompareTextColumn = document.createElement('div');
-  newCompareTextColumn.className = 'col-8';
+  newCompareTextColumn.className = 'col-12';
   const newCompareTextColumnText = document.createElement('h5');
   newCompareTextColumnText.textContent = `New Comparison`;
+  
+ 
+  const saveCompareButton = document.createElement('button');
+  saveCompareButton.className = 'btn btn-primary disabled float-end';
+  saveCompareButton.id = 'save-compare-button';
+  saveCompareButton.innerHTML = '<i class="fas fa-save"></i> <span class="d-none d-sm-inline"> Save comparison</span>';
+  
+  newCompareTextColumn.appendChild(saveCompareButton);
   newCompareTextColumn.appendChild(newCompareTextColumnText);
   headerRow.appendChild(newCompareTextColumn);
 
-  const saveCompareColumn = document.createElement('div');
-  saveCompareColumn.className = 'col-4 d-flex justify-content-end';
-  const saveCompareButton = document.createElement('button');
-  saveCompareButton.className = 'btn btn-primary disabled';
-  saveCompareButton.id = 'save-compare-button';
-  saveCompareButton.innerHTML = '<i class="fas fa-save"></i> <span class="d-none d-sm-inline"> Save comparison</span>';
-  saveCompareColumn.appendChild(saveCompareButton);
-  headerRow.appendChild(saveCompareColumn);
 
 // Add event listener to handle screen resize
 window.addEventListener('resize', () => {
