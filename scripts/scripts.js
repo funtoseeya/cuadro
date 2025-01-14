@@ -1211,22 +1211,36 @@ function loadCompareTab() {
   analysisOptionTextRow.classList.add('row', 'mt-3', 'd-flex', 'align-items-center');
 
   const analysisOptionTextColumn = document.createElement('div');
-  analysisOptionTextColumn.className = 'col-9 col-md-9'
+  analysisOptionTextColumn.className = 'col-12'
   const analysisOptionText = document.createElement('div');
   analysisOptionText.innerHTML = `<h5>Data Comparisons</h5><p>Compare counts, sums, and averages across any combination of fields.</p>`;
 
-  const newComparisonButtonColumn = document.createElement('div');
-  newComparisonButtonColumn.className = 'col-3 col-md-3 d-flex justify-content-end';
   const newComparisonButton = document.createElement('button');
   newComparisonButton.className = 'btn btn-primary';
-  newComparisonButton.textContent = 'New comparison';
+  newComparisonButton.style.float = 'right';
+  newComparisonButton.id = 'new-comparison-button';
+  newComparisonButton.innerHTML = '<i class="fas fa-plus"></i> <span class="d-none d-sm-inline">New comparison</span>';
+  
+// Add event listener to handle screen resize
+window.addEventListener('resize', () => {
+  if (window.innerWidth < 576) {
+    newComparisonButton.innerHTML = '<i class="fas fa-plus"></i> <span >New</span>';
+  } else {
+    newComparisonButton.innerHTML = '<i class="fas fa-plus"></i> <span class="d-none d-sm-inline">New comparison</span>';
+  }
+});
+
+// Initial check
+if (window.innerWidth < 576) {
+  newComparisonButton.innerHTML = '<i class="fas fa-plus"></i> <span >New</span>';
+}
+
 
   newComparisonButton.addEventListener('click', loadCompareEditor);
 
+  analysisOptionTextColumn.appendChild(newComparisonButton);
   analysisOptionTextColumn.appendChild(analysisOptionText);
   analysisOptionTextRow.appendChild(analysisOptionTextColumn);
-  newComparisonButtonColumn.appendChild(newComparisonButton);
-  analysisOptionTextRow.appendChild(newComparisonButtonColumn);
   advancedTabContent.appendChild(analysisOptionTextRow);
 
   //advanced chart container
