@@ -1078,6 +1078,18 @@ function setupAnalyzeStep() {
   filterColumn.style.padding = '0 0.5rem';
   filterColumn.id = 'filter-column';
 
+  // Create the filter button
+  const filterButton = document.createElement('button');
+  filterButton.className = 'btn btn-secondary';
+  filterButton.type = 'button';
+  filterButton.innerHTML = `<i class="fa-solid fa-filter"></i> Filter`;
+  filterButton.setAttribute('data-bs-toggle', 'offcanvas');
+  filterButton.setAttribute('data-bs-target', '#filterSidePanel');
+  filterButton.setAttribute('aria-controls', 'filterSidePanel');
+
+  // Add filter button to the filter column
+  filterColumn.appendChild(filterButton);
+
   const filterbadgecontainer = document.createElement('div');
   filterbadgecontainer.id = 'filter-badge-container';
   filterColumn.appendChild(filterbadgecontainer);
@@ -1836,17 +1848,7 @@ function createFilterUI() {
   filterColumn.appendChild(countDiv);
  // loadRowColCounts();
 
-  // Create the filter button
-  const filterButton = document.createElement('button');
-  filterButton.className = 'btn btn-secondary';
-  filterButton.type = 'button';
-  filterButton.innerHTML = `<i class="fa-solid fa-filter"></i> Filter`;
-  filterButton.setAttribute('data-bs-toggle', 'offcanvas');
-  filterButton.setAttribute('data-bs-target', '#filterSidePanel');
-  filterButton.setAttribute('aria-controls', 'filterSidePanel');
-
-  // Add filter button to the filter column
-  filterColumn.appendChild(filterButton);
+  
 
   // Create the side panel (offcanvas) for filter options
   const sidePanelHTML = `
