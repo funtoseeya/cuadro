@@ -1073,31 +1073,26 @@ function setupAnalyzeStep() {
   backFilterRow.className = 'row mb-2';
   stepBody.appendChild(backFilterRow);
 
-  //create the back button
-  const reviewColumn = document.createElement('div');
-  reviewColumn.className = 'col-12 col-md-4 p-0 d-flex align-items-center justify-content-start';
-  backFilterRow.appendChild(reviewColumn);
-  const reviewNavButton = document.createElement('a');
-  reviewNavButton.className = 'btn tertiary-button d-none d-md-block'; // Adds Bootstrap's responsive display utility
-  reviewNavButton.innerHTML = `<i class="fa-solid fa-left-long" style="padding-right:0.5rem"></i>Back to Review`;
-  reviewColumn.appendChild(reviewNavButton);
-  reviewNavButton.addEventListener('click', navToReview);
-
-
   const filterColumn = document.createElement('div');
-  filterColumn.className = 'col-12 col-md-8 d-flex align-items-center justify-content-end';
+  filterColumn.className = 'col-12 col-md-12 d-flex align-items-center justify-content-start';
   filterColumn.style.padding = '0 0.5rem';
   filterColumn.id = 'filter-column';
 
+  const filterbadgecontainer = document.createElement('div');
+  filterbadgecontainer.id = 'filter-badge-container';
+  filterColumn.appendChild(filterbadgecontainer);
+
+  //create the back button
+  const reviewColumn = document.createElement('div');
+  reviewColumn.className = 'col-12 col-md-4 p-0 d-flex align-items-center justify-content-end';
+  
 
   backFilterRow.appendChild(filterColumn);
+  backFilterRow.appendChild(reviewColumn);
+
   createFilterUI();
 
-  //create the row for applied filters 
-  const filterBadgeRow = document.createElement('div');
-  filterBadgeRow.id = 'filter-badge-row';
-  filterBadgeRow.className = 'row mb-2 d-flex align-items-center';
-  stepBody.appendChild(filterBadgeRow);
+
 
   // Create the tab panel
   const tabPanelRow = document.createElement('div');
@@ -1839,11 +1834,11 @@ function createFilterUI() {
   const countDiv = document.createElement('div');
   countDiv.id = 'filter-column-count-div';
   filterColumn.appendChild(countDiv);
-  loadRowColCounts();
+ // loadRowColCounts();
 
   // Create the filter button
   const filterButton = document.createElement('button');
-  filterButton.className = 'btn btn-grey';
+  filterButton.className = 'btn btn-secondary';
   filterButton.type = 'button';
   filterButton.innerHTML = `<i class="fa-solid fa-filter"></i> Filter`;
   filterButton.setAttribute('data-bs-toggle', 'offcanvas');
@@ -2008,7 +2003,6 @@ function isDateField(header) {
 
 function createFilterBadges(filters, container) {
   
-  container.innerHTML = 'Applied filters: ';
 
   //create filter badges as needed
   for (let i = 0; i < filters.length; i++) {
@@ -2068,8 +2062,9 @@ function filterData() {
   });
 
   if (selectedValues.length != 0) {
-  const filterBadgeRow = document.getElementById('filter-badge-row');
-  createFilterBadges(selectedValues, filterBadgeRow);
+  const filterbadgecontainer = document.getElementById('filter-badge-container');
+  filterbadgecontainer.innerHTML = '';
+  createFilterBadges(selectedValues, filterbadgecontainer);
   }
 
   function matchesFilter(item, filters) {
@@ -2148,7 +2143,7 @@ function filterData() {
   }
 
   console.log('Filtered Data:', filteredData);
-  loadRowColCounts();
+ // loadRowColCounts();
 }
 
 
