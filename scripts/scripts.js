@@ -1093,6 +1093,12 @@ function setupAnalyzeStep() {
   backFilterRow.appendChild(filterColumn);
   createFilterUI();
 
+  //create the row for applied filters 
+  const filterBadgeRow = document.createElement('div');
+  filterBadgeRow.id = 'filter-badge-row';
+  filterBadgeRow.className = 'row mb-2 d-flex align-items-center';
+  stepBody.appendChild(filterBadgeRow);
+
   // Create the tab panel
   const tabPanelRow = document.createElement('div');
   tabPanelRow.className = 'row';
@@ -1966,6 +1972,9 @@ function generateFilters() {
 
   document.getElementById('resetFiltersButton').addEventListener('click', function () {
 
+    const filterBadgeRow = document.getElementById('filter-badge-row');
+    filterBadgeRow.innerHTML=``;
+
     //clear checkboxes
     document.querySelectorAll('#filterContainer input[type="checkbox"]:checked').forEach(checkbox => checkbox.checked = false);
 
@@ -1997,6 +2006,39 @@ function isDateField(header) {
 //datepicker is not mobile friendly
 
 
+function createFilterBadges(filters, container) {
+  
+  container.innerHTML = 'Applied filters: ';
+
+  //create filter badges as needed
+  for (let i = 0; i < filters.length; i++) {
+    const cardFilter = document.createElement('span');
+    cardFilter.className = 'filter-badge'; // Apply the custom class
+
+
+    if (!filters[i].value.startDate) {
+      cardFilter.textContent = filters[i].value;
+    }
+    else {
+
+      function cleanDate(date) {
+        const d = new Date(date); // Parse the string into a Date object
+        const year = d.getFullYear(); // Extract the year
+        const month = String(d.getMonth() + 1).padStart(2, '0'); // Extract and pad the month (0-based index)
+        const day = String(d.getDate()).padStart(2, '0'); // Extract and pad the day
+        return `${year}-${month}-${day}`; // Combine in ISO format
+        ;
+      }
+
+      const startDate = cleanDate(filters[i].value.startDate);
+      const endDate = cleanDate(filters[i].value.endDate);
+      cardFilter.textContent = filters[i].header + ': ' + startDate + ' - ' + endDate;
+    }
+    container.appendChild(cardFilter);
+  }
+
+}
+
 function filterData() {
   filteredData = [];
   const selectedValues = [];
@@ -2025,6 +2067,10 @@ function filterData() {
     }
   });
 
+  if (selectedValues.length != 0) {
+  const filterBadgeRow = document.getElementById('filter-badge-row');
+  createFilterBadges(selectedValues, filterBadgeRow);
+  }
 
   function matchesFilter(item, filters) {
     // Group filters by their headers
@@ -3211,34 +3257,6 @@ function // Function to create and render a chart in a Bootstrap card component 
   const cardTitle = document.createElement('h5');
   cardTitle.textContent = chartObject.title;
   cardTitleColumn.appendChild(cardTitle);
-
-  //create filter badges as needed
-  const filters = chartObject.filteredBy;
-
-  for (let i = 0; i < filters.length; i++) {
-    const cardFilter = document.createElement('span');
-    cardFilter.className = 'filter-badge'; // Apply the custom class
-
-    if (!filters[i].value.startDate) {
-      cardFilter.textContent = filters[i].value;
-    }
-    else {
-
-      function cleanDate(date) {
-        const d = new Date(date); // Parse the string into a Date object
-        const year = d.getFullYear(); // Extract the year
-        const month = String(d.getMonth() + 1).padStart(2, '0'); // Extract and pad the month (0-based index)
-        const day = String(d.getDate()).padStart(2, '0'); // Extract and pad the day
-        return `${year}-${month}-${day}`; // Combine in ISO format
-        ;
-      }
-
-      const startDate = cleanDate(filters[i].value.startDate);
-      const endDate = cleanDate(filters[i].value.endDate);
-      cardFilter.textContent = filters[i].header + ': ' + startDate + ' - ' + endDate;
-    }
-    cardFiltersColumn.appendChild(cardFilter);
-  }
 
   function createCanvas() {
     chartContainer.innerHTML = '';
